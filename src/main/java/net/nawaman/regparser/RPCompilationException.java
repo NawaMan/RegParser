@@ -21,7 +21,7 @@ package net.nawaman.regparser;
 /**
  * Exception for reporting RegParser compilation problems
  *
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 @SuppressWarnings("serial")
 public class RPCompilationException extends RuntimeException {

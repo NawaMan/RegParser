@@ -23,7 +23,7 @@ import java.util.*;
 /**
  * Checker form a set of character (represented by a string)
  *
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class CharSet extends CharChecker {
 	

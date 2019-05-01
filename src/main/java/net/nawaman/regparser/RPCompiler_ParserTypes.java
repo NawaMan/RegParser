@@ -27,7 +27,7 @@ import net.nawaman.regparser.parsers.*;
 /**
  * Compiler of RegParser language.
  * 
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class RPCompiler_ParserTypes {
 	

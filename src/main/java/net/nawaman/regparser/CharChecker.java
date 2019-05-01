@@ -24,7 +24,7 @@ package net.nawaman.regparser;
  * General implementation of this class is that if the first character is in a set, 1 will be returned. Otherwise -1 is
  *   returned. 
  * 
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 @SuppressWarnings("serial")
 abstract public class CharChecker implements Checker {

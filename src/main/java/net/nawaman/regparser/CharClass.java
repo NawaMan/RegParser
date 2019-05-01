@@ -23,7 +23,7 @@ import java.util.regex.*;
 /**
  * Checker that is associated with Java Pattern Character set.
  * 
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 final public class CharClass extends CharChecker {
 	

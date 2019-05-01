@@ -21,7 +21,7 @@ package net.nawaman.regparser;
 /**
  * Checker for checking the the given checker is not found. 0 will be returned if that is the case.
  *
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class CheckerNot implements Checker {
 	

@@ -23,7 +23,7 @@ import net.nawaman.regparser.*;
 /**
  * Parser for detecting String literal "'`
  *
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 @SuppressWarnings("serial")
 public class PTStrLiteral extends PType {

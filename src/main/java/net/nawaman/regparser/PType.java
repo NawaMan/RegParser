@@ -23,7 +23,7 @@ import java.io.Serializable;
 /**
  * Regular Parser Type
  * 
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 abstract public class PType implements Serializable {
 	

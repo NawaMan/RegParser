@@ -21,7 +21,7 @@ package net.nawaman.regparser;
 /**
  * Regular Parser Compiler to be used with PTComposable.
  * 
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  **/
 public interface RPCompiler {
 	

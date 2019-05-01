@@ -24,7 +24,7 @@ import java.lang.reflect.*;
 /**
  * Char checker that is the character is must be in all CharCheckers.
  * 
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class CharIntersect extends CharChecker {
 	

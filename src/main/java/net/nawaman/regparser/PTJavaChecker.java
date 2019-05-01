@@ -37,7 +37,7 @@ import java.util.Hashtable;
  *  
  * Again, See Test_14_JavaChecker _CheckerFized for example.
  * 
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 @SuppressWarnings("serial")
 public class PTJavaChecker extends PType {

@@ -23,7 +23,7 @@ import net.nawaman.regparser.*;
 /**
  * Parser for detecting C-like identifier
  * 
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 @SuppressWarnings("serial")
 public class PTIdentifier extends PType {

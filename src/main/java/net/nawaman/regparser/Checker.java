@@ -26,7 +26,7 @@ import java.io.Serializable;
  * Checker can check if a given CharSequence starts with characters in the right sequence. If match, the length if the
  *   match is returned; Otherwise, -1 is returned. 
  *
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public interface Checker extends Serializable {
 	

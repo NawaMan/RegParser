@@ -21,7 +21,7 @@ package net.nawaman.regparser;
 /**
  * RegParser that is constructed from difference component.
  * 
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  **/
 @SuppressWarnings("serial")
 public class PTComposable extends PTSimple {

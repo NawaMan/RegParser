@@ -21,7 +21,7 @@ package net.nawaman.regparser;
 /**
  * The char set of a opposite of a given char set.
  *
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class CharNot extends CharChecker {
 	

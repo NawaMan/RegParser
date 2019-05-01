@@ -23,7 +23,7 @@ import net.nawaman.regparser.*;
 /**
  * Parser for detecting C-like identifier (for case-insensitive)
  *
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 @SuppressWarnings("serial")
 public class PTIdentifierCI extends PTIdentifier {

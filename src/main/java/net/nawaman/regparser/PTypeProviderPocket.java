@@ -33,7 +33,7 @@ import java.io.Serializable;
 /**
  * Pocket holding PTypeProvider
  * 
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public interface PTypeProviderPocket extends Serializable {
 	

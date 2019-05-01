@@ -21,7 +21,7 @@ package net.nawaman.regparser;
 /**
  * RegParser Type for Back referencing.
  * 
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 @SuppressWarnings("serial")
 public class PTBackRef extends PType {

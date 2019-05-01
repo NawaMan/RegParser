@@ -21,7 +21,7 @@ package net.nawaman.regparser;
 /**
  * Parser type for detecting error.
  * 
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  **/
 @SuppressWarnings("serial")
 public class PTError extends PType {

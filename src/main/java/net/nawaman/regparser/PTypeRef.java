@@ -23,7 +23,7 @@ import java.io.Serializable;
 /**
  * Reference to a type
  *
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 @SuppressWarnings("serial")
 abstract public class PTypeRef implements Serializable {

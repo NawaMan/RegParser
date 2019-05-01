@@ -21,7 +21,7 @@ package net.nawaman.regparser;
 /**
  * RegParser Type for Back referencing with case-insensitive checking.
  * 
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 @SuppressWarnings("serial")
 public class PTBackRefCI extends PTBackRef {

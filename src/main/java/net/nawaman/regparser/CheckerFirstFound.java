@@ -23,7 +23,7 @@ package net.nawaman.regparser;
  * 
  * With this checker, all checkers are check from the first to the last. If a match is found, the search stop.
  *
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class CheckerFirstFound extends CheckerAlternative {
 	

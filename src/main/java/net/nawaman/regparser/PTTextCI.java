@@ -25,7 +25,7 @@ import java.util.*;
 /**
  * Parser Type for Case-Insensitive Text
  *  
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 @SuppressWarnings("serial")
 public class PTTextCI extends PType {

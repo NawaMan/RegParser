@@ -25,7 +25,7 @@ import java.util.*;
 /**
  * Utilities functions
  *
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class Util {
 	

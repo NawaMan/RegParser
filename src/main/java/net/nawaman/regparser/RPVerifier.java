@@ -21,7 +21,7 @@ package net.nawaman.regparser;
 /**
  * Regular Parser Verifier to be used with PTVerifier.
  * 
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  **/
 public interface RPVerifier {
 

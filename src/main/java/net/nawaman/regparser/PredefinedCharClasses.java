@@ -21,7 +21,7 @@ package net.nawaman.regparser;
 /**
  * Predefine character classes
  *
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class PredefinedCharClasses {
 

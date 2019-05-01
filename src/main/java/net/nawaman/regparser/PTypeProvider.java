@@ -24,7 +24,7 @@ import java.util.*;
 /**
  * Supply types to the parser
  * 
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public interface PTypeProvider extends Serializable {
 	

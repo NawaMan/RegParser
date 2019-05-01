@@ -21,7 +21,7 @@ package net.nawaman.regparser;
 /**
  * The provider of a checker use as a strategy for PType (used with PTSimple and PTComposable).
  * 
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  **/
 public interface RPGetChecker {
 

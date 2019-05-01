@@ -24,7 +24,7 @@ import java.util.*;
 /**
  * The result of the parsing
  *
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 abstract public class ParseResult implements Serializable {
 	

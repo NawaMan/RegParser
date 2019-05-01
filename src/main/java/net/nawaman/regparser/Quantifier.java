@@ -23,7 +23,7 @@ import java.io.*;
 /**
  * Quantifier for matching
  *
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 @SuppressWarnings("serial")
 final public class Quantifier implements Serializable {

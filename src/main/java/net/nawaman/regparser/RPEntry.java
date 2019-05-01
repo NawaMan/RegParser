@@ -23,7 +23,7 @@ import java.io.*;
 /**
  * Regular Parser Entry
  * 
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 abstract public class RPEntry implements Serializable {
 	

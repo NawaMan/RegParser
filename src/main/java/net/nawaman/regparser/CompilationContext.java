@@ -21,7 +21,7 @@ package net.nawaman.regparser;
 /**
  * Compilation Context
  *
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public interface CompilationContext {
 	

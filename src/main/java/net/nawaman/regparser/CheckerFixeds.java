@@ -40,7 +40,7 @@ import java.util.Vector;
  *   			new CheckerFixeds.Entry("Date",  2, PTP.getType("Number").getTypeRef())
  *   		);
  * 
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  **/
 public class CheckerFixeds implements Checker {
 	

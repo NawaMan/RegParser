@@ -21,7 +21,7 @@ package net.nawaman.regparser;
 /**
  * Single character char set
  *
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 /**  */
 public class CharSingle extends CharChecker {

@@ -21,7 +21,7 @@ package net.nawaman.regparser;
 /**
  * The checker that is associated with a range of character
  *
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class CharRange extends CharChecker {
 	

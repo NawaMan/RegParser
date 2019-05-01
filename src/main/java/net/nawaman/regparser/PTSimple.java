@@ -21,7 +21,7 @@ package net.nawaman.regparser;
 /**
  * A simple type (type without a compiler).
  * 
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  **/
 @SuppressWarnings("serial")
 public class PTSimple extends PType {

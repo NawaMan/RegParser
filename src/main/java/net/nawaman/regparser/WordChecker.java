@@ -21,7 +21,7 @@ package net.nawaman.regparser;
 /**
  * Checker for checking a sequence of character or a word
  *
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 @SuppressWarnings("serial")
 public class WordChecker implements Checker {

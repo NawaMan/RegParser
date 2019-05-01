@@ -21,7 +21,7 @@ package net.nawaman.regparser;
 /**
  * Greediness specified how quantifier should be handled.
  *
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public enum Greediness {
 	

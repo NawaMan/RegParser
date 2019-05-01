@@ -37,7 +37,7 @@ import java.util.*;
  * NOTE: In the later version, multiple default checker should also be implemented as it used much more often than
  *         first expected. Have that built-in should improve performance.
  * 
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class CheckerAlternative implements Checker {
 	

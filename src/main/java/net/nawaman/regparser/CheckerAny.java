@@ -23,7 +23,7 @@ import java.util.Hashtable;
 /**
  * The checker of any character.
  * 
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  **/
 public class CheckerAny implements Checker {
 	

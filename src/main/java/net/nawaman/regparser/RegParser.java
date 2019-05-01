@@ -27,7 +27,7 @@ import net.nawaman.regparser.parsers.*;
 /**
  * The regular parser
  * 
- * @author Nawapunth Manusitthipol
+ * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class RegParser implements Checker, Serializable {
 	
