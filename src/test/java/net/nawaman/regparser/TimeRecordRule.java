@@ -1,0 +1,22 @@
+package net.nawaman.regparser;
+
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
+
+public class TimeRecordRule implements TestRule {
+    
+    @Override
+    public Statement apply(Statement base, Description description) {
+        return new Statement() {
+            @Override
+            public void evaluate() throws Throwable {
+                long startTime = System.currentTimeMillis();
+                base.evaluate();
+//              ExecTime.add(System.currentTimeMillis() - startTime);
+                System.out.println(description + ": " + (System.currentTimeMillis() - startTime) + " ms");
+            }
+        };
+    }
+    
+}

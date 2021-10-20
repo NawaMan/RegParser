@@ -44,7 +44,7 @@ public class Tests {
         Vector<Long> ExecTime = new Vector<Long>();
         
         long StartTime = System.currentTimeMillis();
-        Test_01_Char.main(ToQuietAsArray);
+//        Test_01_Char.main(ToQuietAsArray);
         ExecTime.add(System.currentTimeMillis() - StartTime);
         
         StartTime = System.currentTimeMillis();

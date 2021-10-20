@@ -48,6 +48,10 @@ public class Util {
     
     /** Returns string representation of an object value. */
     static public String toString(Object O) {
+        if (O instanceof int[]) {
+            return Arrays.toString((int[])O);
+        }
+        
         return (O == null) ? "null" : O.toString();
     }
     
@@ -94,7 +98,7 @@ public class Util {
                         SB.append("null");
                     else
                         if (Oi.getClass().isArray())
-                            SB.append(Arrays.toString((Object[]) Oi));
+                            SB.append(Arrays.toString((Object[])Oi));
                         else
                             SB.append(Oi.toString());
             }
@@ -253,7 +257,7 @@ public class Util {
                 throw new RuntimeException("File Loading Error: The file does not contain an array of serilizables.");
             }
             
-            return (Serializable[]) O;
+            return (Serializable[])O;
         } catch (IOException IOE) {
             throw IOE;
         } catch (ClassNotFoundException E) {
