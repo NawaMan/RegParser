@@ -54,18 +54,18 @@ public class Tests {
 //        StartTime = System.currentTimeMillis();
 //        Test_03_Alternative.main(ToQuietAsArray);
 //        ExecTime.add(System.currentTimeMillis() - StartTime);
-        
-        StartTime = System.currentTimeMillis();
+//        
+//        StartTime = System.currentTimeMillis();
 //        Test_04_RegParser.main(ToQuietAsArray);
-        ExecTime.add(System.currentTimeMillis() - StartTime);
-        
-        StartTime = System.currentTimeMillis();
-        Test_05_Greediness.main(ToQuietAsArray);
-        ExecTime.add(System.currentTimeMillis() - StartTime);
-        
-        StartTime = System.currentTimeMillis();
-        Test_06_Name.main(ToQuietAsArray);
-        ExecTime.add(System.currentTimeMillis() - StartTime);
+//        ExecTime.add(System.currentTimeMillis() - StartTime);
+//        
+//        StartTime = System.currentTimeMillis();
+//        Test_05_Greediness.main(ToQuietAsArray);
+//        ExecTime.add(System.currentTimeMillis() - StartTime);
+//        
+//        StartTime = System.currentTimeMillis();
+//        Test_06_Name.main(ToQuietAsArray);
+//        ExecTime.add(System.currentTimeMillis() - StartTime);
         
         StartTime = System.currentTimeMillis();
         Test_07_Type.main(ToQuietAsArray);
