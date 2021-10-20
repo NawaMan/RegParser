@@ -29,7 +29,7 @@ public enum Greediness {
     Maximum,
     /** Minimum possible match that still allow the later part to match */
     Minimum,
-    /** Eat the all token until no longer can and do not care about the later part */
+    /** Eat all token until no longer can and do not care about the later part */
     Possessive;
     
     static public final String MaximumSign = "+";
