@@ -41,81 +41,121 @@ import java.util.Hashtable;
  */
 @SuppressWarnings("serial")
 public class PTJavaChecker extends PType {
-	
-	static Hashtable<String, Checker> Checkers                  = new Hashtable<String, Checker>();
-	static Class<?>[]                 EmptyClassArray           = new Class<?>[0];
-	static Class<?>[]                 CheckerClassArray_int     = new Class<?>[] { CharSequence.class, int.class,     PTypeProvider.class, ParseResult.class };
-	static Class<?>[]                 CheckerClassArray_Integer = new Class<?>[] { CharSequence.class, Integer.class, PTypeProvider.class, ParseResult.class };
-	
-	static public String Name = "javaChecker";
-	@Override public String getName() { return Name; }
-	@Override public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
-		if((pParam == null) || (pParam.length() == 0))
-			return RegParser.newRegParser(new CharNot(PredefinedCharClasses.Any), Quantifier.Zero);
-
-		Checker C = PTJavaChecker.Checkers.get(pParam);
-		if(C != null) return C;
-		
-		int Index;
-		if((Index = pParam.indexOf("::")) != -1) {	// Get a checker from a static field or static method 
-			String ClassName  = pParam.substring(0, Index); 
-			String AccessName = pParam.substring(Index + "::".length());
-			try {
-				Class<?> Cls = Util.getClassByName(ClassName, null);
-				if(AccessName.indexOf("(") != -1) {	// Method
-					AccessName = AccessName.substring(0, AccessName.indexOf("("));
-					Method M = Cls.getMethod(AccessName, PTJavaChecker.EmptyClassArray);
-					Object O = M.invoke(null);
-					if(!(O instanceof Checker)) throw new NoSuchMethodException(AccessName + "():Checker");
-					C = (Checker)O;
-				} else {	// Field
-					Field F = Cls.getField(AccessName);
-					Object O = F.get(null);
-					if(!(O instanceof Checker)) throw new NoSuchFieldException(AccessName + ":Checker");
-					C = (Checker)O;
-				}
-			} catch(Exception E) { throw new RuntimeException(E); }
-			
-		} else if((Index = pParam.indexOf("->")) != -1) {	// The checker method int (CharSequence, int, PTypeProvider, ParseResult pResult) 
-			String ClassName = pParam.substring(0, Index);
-			Class<?> Cls = Util.getClassByName(ClassName, null);
-			String AccessName = pParam.substring(Index + "->".length());
-			
-			Method M = null;
-			try {
-				M = Cls.getMethod(AccessName, PTJavaChecker.CheckerClassArray_int);
-				if((M.getReturnType() != int.class) && (M.getReturnType() != Integer.class)) M = null;
-			} catch (Exception E) {}
-			try {
-				M = Cls.getMethod(AccessName, PTJavaChecker.CheckerClassArray_Integer);
-				if((M.getReturnType() != int.class) && (M.getReturnType() != Integer.class)) M = null;
-			} catch (Exception E) {}
-			
-			if(M == null) throw new RuntimeException(new NoSuchMethodException(AccessName + "(CharSequence,int,PTypeProvider):int"));
-			
-			final Method TheMethod = M;
-			C = new Checker() {
-				/**{@inherDoc}*/ @Override public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pTProvider) {
-					return this.getStartLengthOf(S, pOffset, pTProvider, null);
-				}
-				/**{@inherDoc}*/ @Override public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pTProvider, ParseResult pResult) {
-					try { return ((Integer)TheMethod.invoke(null, S, pOffset, pTProvider, pResult)).intValue(); }
-					catch(Exception E) { throw new RuntimeException(E); }
-				}
-				/**{@inherDoc}*/ @Override public Checker getOptimized() { return this; }
-			};
-			
-		} else {	// Create a checker from a default constructor of the given class
-			String ClassName = pParam;
-			Class<?> Cls = Util.getClassByName(ClassName, null);
-			try { if(Checker.class.isAssignableFrom(Cls)) C = (Checker)(Cls.newInstance()); }
-			catch (Exception E) { throw new RuntimeException(E); }
-		}
-		
-		if(C == null) throw new RuntimeException("Unable to obtain the checker from the parameter:\"" + pParam + "\"");
-		
-		PTJavaChecker.Checkers.put(pParam, C);
-		return C;
-	}
-
+    
+    static Hashtable<String, Checker> Checkers                  = new Hashtable<String, Checker>();
+    static Class<?>[]                 EmptyClassArray           = new Class<?>[0];
+    static Class<?>[]                 CheckerClassArray_int     = new Class<?>[] { CharSequence.class, int.class,
+            PTypeProvider.class, ParseResult.class };
+    static Class<?>[]                 CheckerClassArray_Integer = new Class<?>[] { CharSequence.class, Integer.class,
+            PTypeProvider.class, ParseResult.class };
+    
+    static public String Name = "javaChecker";
+    
+    @Override
+    public String getName() {
+        return Name;
+    }
+    
+    @SuppressWarnings("deprecation")
+    @Override
+    public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
+        if ((pParam == null) || (pParam.length() == 0))
+            return RegParser.newRegParser(new CharNot(PredefinedCharClasses.Any), Quantifier.Zero);
+        
+        Checker C = PTJavaChecker.Checkers.get(pParam);
+        if (C != null)
+            return C;
+        
+        int Index;
+        if ((Index = pParam.indexOf("::")) != -1) {    // Get a checker from a static field or static method 
+            String ClassName  = pParam.substring(0, Index);
+            String AccessName = pParam.substring(Index + "::".length());
+            try {
+                Class<?> Cls = Util.getClassByName(ClassName, null);
+                if (AccessName.indexOf("(") != -1) {    // Method
+                    AccessName = AccessName.substring(0, AccessName.indexOf("("));
+                    Method M = Cls.getMethod(AccessName, PTJavaChecker.EmptyClassArray);
+                    Object O = M.invoke(null);
+                    if (!(O instanceof Checker))
+                        throw new NoSuchMethodException(AccessName + "():Checker");
+                    C = (Checker) O;
+                } else {    // Field
+                    Field  F = Cls.getField(AccessName);
+                    Object O = F.get(null);
+                    if (!(O instanceof Checker))
+                        throw new NoSuchFieldException(AccessName + ":Checker");
+                    C = (Checker) O;
+                }
+            } catch (Exception E) {
+                throw new RuntimeException(E);
+            }
+            
+        } else
+            if ((Index = pParam.indexOf("->")) != -1) {    // The checker method int (CharSequence, int, PTypeProvider, ParseResult pResult) 
+                String   ClassName  = pParam.substring(0, Index);
+                Class<?> Cls        = Util.getClassByName(ClassName, null);
+                String   AccessName = pParam.substring(Index + "->".length());
+                
+                Method M = null;
+                try {
+                    M = Cls.getMethod(AccessName, PTJavaChecker.CheckerClassArray_int);
+                    if ((M.getReturnType() != int.class) && (M.getReturnType() != Integer.class))
+                        M = null;
+                } catch (Exception E) {
+                }
+                try {
+                    M = Cls.getMethod(AccessName, PTJavaChecker.CheckerClassArray_Integer);
+                    if ((M.getReturnType() != int.class) && (M.getReturnType() != Integer.class))
+                        M = null;
+                } catch (Exception E) {
+                }
+                
+                if (M == null)
+                    throw new RuntimeException(
+                            new NoSuchMethodException(AccessName + "(CharSequence,int,PTypeProvider):int"));
+                
+                final Method TheMethod = M;
+                C = new Checker() {
+                    /**{@inherDoc}*/
+                    @Override
+                    public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pTProvider) {
+                        return this.getStartLengthOf(S, pOffset, pTProvider, null);
+                    }
+                    
+                    /**{@inherDoc}*/
+                    @Override
+                    public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pTProvider,
+                            ParseResult pResult) {
+                        try {
+                            return ((Integer) TheMethod.invoke(null, S, pOffset, pTProvider, pResult)).intValue();
+                        } catch (Exception E) {
+                            throw new RuntimeException(E);
+                        }
+                    }
+                    
+                    /**{@inherDoc}*/
+                    @Override
+                    public Checker getOptimized() {
+                        return this;
+                    }
+                };
+                
+            } else {    // Create a checker from a default constructor of the given class
+                String   ClassName = pParam;
+                Class<?> Cls       = Util.getClassByName(ClassName, null);
+                try {
+                    if (Checker.class.isAssignableFrom(Cls))
+                        C = (Checker) (Cls.newInstance());
+                } catch (Exception E) {
+                    throw new RuntimeException(E);
+                }
+            }
+        
+        if (C == null)
+            throw new RuntimeException("Unable to obtain the checker from the parameter:\"" + pParam + "\"");
+        
+        PTJavaChecker.Checkers.put(pParam, C);
+        return C;
+    }
+    
 }

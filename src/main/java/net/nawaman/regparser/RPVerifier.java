@@ -24,8 +24,8 @@ package net.nawaman.regparser;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  **/
 public interface RPVerifier {
-
-	/** Validate the parse result */
-	public boolean validate(ParseResult pHostResult, ParseResult pThisResult, String pParam, PTypeProvider pProvider);
-
+    
+    /** Validate the parse result */
+    public boolean validate(ParseResult pHostResult, ParseResult pThisResult, String pParam, PTypeProvider pProvider);
+    
 }

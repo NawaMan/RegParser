@@ -25,48 +25,58 @@ package net.nawaman.regparser;
  **/
 @SuppressWarnings("serial")
 public class PTComposable extends PTSimple {
-	
-	protected PTComposable(String pTheName) {
-		super(pTheName);
-	}
-	public PTComposable(String pTheName, Checker pTheChecker, RPVerifier pVerifier, RPCompiler pCompiler) {
-		super(pTheName, pTheChecker);
-		this.Verifier = pVerifier;
-		this.Compiler = pCompiler;
-	}
-	public PTComposable(String pTheName, RPGetChecker pTheGetChecker, RPVerifier pVerifier, RPCompiler pCompiler) {
-		super(pTheName, pTheGetChecker);
-		this.Verifier = pVerifier;
-		this.Compiler = pCompiler;
-	}
-
-	RPVerifier Verifier;
-	RPCompiler Compiler;
-	
-	protected boolean setVerifier(RPVerifier pVerifier) {
-		if(this.Verifier != null) return false;
-		this.Verifier = pVerifier;
-		return true;
-	}
-	protected boolean setCompiler(RPCompiler pCompiler) {
-		if(this.Compiler != null) return false;
-		this.Compiler = pCompiler;
-		return true;
-	}
-	
-	/**{@inheritDoc}*/ @Override
-	final public boolean doValidate(ParseResult pHostResult, ParseResult pThisResult, String pParam,
-			PTypeProvider pProvider) {
-		if(this.Verifier == null) return super.validate(pHostResult, pThisResult, pParam, pProvider);
-		return this.Verifier.validate(pHostResult, pThisResult, pParam, pProvider);
-	}
-	
-	/**{@inheritDoc}*/ @Override
-	final public Object doCompile(ParseResult pThisResult, int pEntryIndex, String pParam, CompilationContext pContext,
-			PTypeProvider pProvider) {
-		Object Return = null;
-		if(this.Compiler == null) Return = pThisResult.textOf(pEntryIndex);
-		else                      Return = this.Compiler.compile(pThisResult, pEntryIndex, pParam, pContext, pProvider);
-		return Return;
-	}
+    
+    protected PTComposable(String pTheName) {
+        super(pTheName);
+    }
+    
+    public PTComposable(String pTheName, Checker pTheChecker, RPVerifier pVerifier, RPCompiler pCompiler) {
+        super(pTheName, pTheChecker);
+        this.Verifier = pVerifier;
+        this.Compiler = pCompiler;
+    }
+    
+    public PTComposable(String pTheName, RPGetChecker pTheGetChecker, RPVerifier pVerifier, RPCompiler pCompiler) {
+        super(pTheName, pTheGetChecker);
+        this.Verifier = pVerifier;
+        this.Compiler = pCompiler;
+    }
+    
+    RPVerifier Verifier;
+    RPCompiler Compiler;
+    
+    protected boolean setVerifier(RPVerifier pVerifier) {
+        if (this.Verifier != null)
+            return false;
+        this.Verifier = pVerifier;
+        return true;
+    }
+    
+    protected boolean setCompiler(RPCompiler pCompiler) {
+        if (this.Compiler != null)
+            return false;
+        this.Compiler = pCompiler;
+        return true;
+    }
+    
+    /**{@inheritDoc}*/
+    @Override
+    final public boolean doValidate(ParseResult pHostResult, ParseResult pThisResult, String pParam,
+            PTypeProvider pProvider) {
+        if (this.Verifier == null)
+            return super.validate(pHostResult, pThisResult, pParam, pProvider);
+        return this.Verifier.validate(pHostResult, pThisResult, pParam, pProvider);
+    }
+    
+    /**{@inheritDoc}*/
+    @Override
+    final public Object doCompile(ParseResult pThisResult, int pEntryIndex, String pParam, CompilationContext pContext,
+            PTypeProvider pProvider) {
+        Object Return = null;
+        if (this.Compiler == null)
+            Return = pThisResult.textOf(pEntryIndex);
+        else
+            Return = this.Compiler.compile(pThisResult, pEntryIndex, pParam, pContext, pProvider);
+        return Return;
+    }
 }

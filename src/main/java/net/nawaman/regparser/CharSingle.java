@@ -25,29 +25,38 @@ package net.nawaman.regparser;
  */
 /**  */
 public class CharSingle extends CharChecker {
-	
-	static private final long serialVersionUID = 1651564132135121525L;
-	
-	/** Construct a character range */
-	public CharSingle(char pC) { this.C = pC; }
-	
-	char C;
-
-	/** Checks of the char c is in this char checker */
-	@Override public boolean inSet(char c) {
-		return (c == this.C);
-	}
-
-	@Override public String toString() {
-		return "[" + RPCompiler_ParserTypes.escapeOfRegParser("" + this.C) + "]";
-	}
-	@Override public boolean equals(Object O) {
-		if(O == this) return true;
-		if(!(O instanceof CharSingle)) return false;
-		return this.C == ((CharSingle)O).C;
-	}
-	
-	@Override public int hashCode() {
-		return "CharSingle".hashCode() + this.C;
-	}
+    
+    static private final long serialVersionUID = 1651564132135121525L;
+    
+    /** Construct a character range */
+    public CharSingle(char pC) {
+        this.C = pC;
+    }
+    
+    char C;
+    
+    /** Checks of the char c is in this char checker */
+    @Override
+    public boolean inSet(char c) {
+        return (c == this.C);
+    }
+    
+    @Override
+    public String toString() {
+        return "[" + RPCompiler_ParserTypes.escapeOfRegParser("" + this.C) + "]";
+    }
+    
+    @Override
+    public boolean equals(Object O) {
+        if (O == this)
+            return true;
+        if (!(O instanceof CharSingle))
+            return false;
+        return this.C == ((CharSingle) O).C;
+    }
+    
+    @Override
+    public int hashCode() {
+        return "CharSingle".hashCode() + this.C;
+    }
 }

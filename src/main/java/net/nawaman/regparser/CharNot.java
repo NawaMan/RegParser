@@ -24,36 +24,48 @@ package net.nawaman.regparser;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class CharNot extends CharChecker {
-	
-	static private final long serialVersionUID = 5313543126135165121L;
-	
-	/** Construct a character range */
-	public CharNot(CharChecker pCharChecker) {
-		if(pCharChecker == null) throw new NullPointerException();
-		this.CC = (pCharChecker instanceof CharNot)?((CharNot)pCharChecker).CC:pCharChecker;
-	}
-	
-	CharChecker CC;
-
-	/** Checks of the char c is in this char checker */
-	@Override public boolean inSet(char c) {
-		return !this.CC.inSet(c);
-	}
-	@Override public boolean equals(Object O) {
-		if(O == this) return true;
-		if(!(O instanceof CharNot)) return false;
-		return this.CC.equals(((CharNot)O).CC);
-	}
-	
-	@Override public int hashCode() {
-		return "CharNot".hashCode() + this.CC.hashCode();
-	}
-	
-	@Override public String toString() { return "[^"+this.CC.toString()+"]"; }
-
-	/** Return the optimized version of this Checker */
-	@Override public Checker getOptimized() {
-		if(this.CC instanceof CharNot) return ((CharNot)this.CC).CC;
-		return this;
-	}
+    
+    static private final long serialVersionUID = 5313543126135165121L;
+    
+    /** Construct a character range */
+    public CharNot(CharChecker pCharChecker) {
+        if (pCharChecker == null)
+            throw new NullPointerException();
+        this.CC = (pCharChecker instanceof CharNot) ? ((CharNot) pCharChecker).CC : pCharChecker;
+    }
+    
+    CharChecker CC;
+    
+    /** Checks of the char c is in this char checker */
+    @Override
+    public boolean inSet(char c) {
+        return !this.CC.inSet(c);
+    }
+    
+    @Override
+    public boolean equals(Object O) {
+        if (O == this)
+            return true;
+        if (!(O instanceof CharNot))
+            return false;
+        return this.CC.equals(((CharNot) O).CC);
+    }
+    
+    @Override
+    public int hashCode() {
+        return "CharNot".hashCode() + this.CC.hashCode();
+    }
+    
+    @Override
+    public String toString() {
+        return "[^" + this.CC.toString() + "]";
+    }
+    
+    /** Return the optimized version of this Checker */
+    @Override
+    public Checker getOptimized() {
+        if (this.CC instanceof CharNot)
+            return ((CharNot) this.CC).CC;
+        return this;
+    }
 }

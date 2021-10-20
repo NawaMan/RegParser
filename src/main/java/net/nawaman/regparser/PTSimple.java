@@ -25,34 +25,34 @@ package net.nawaman.regparser;
  **/
 @SuppressWarnings("serial")
 public class PTSimple extends PType {
-	
-	protected PTSimple(String pTheName) {
-		this.TheName    = pTheName;
-	}
-	public PTSimple(String pTheName, Checker pTheChecker) {
-		this(pTheName);
-		this.TheChecker = pTheChecker;
-	}
-	public PTSimple(String pTheName, RPGetChecker pTheGetChecker) {
-		this(pTheName);
-		this.TheChecker = pTheGetChecker;
-	}
-	
-	String TheName;
-	Object TheChecker;
-	
-	/**{@inheritDoc}*/ @Override
-	final public String getName() { 
-		return this.TheName;
-	}
+    
+    protected PTSimple(String pTheName) {
+        this.TheName    = pTheName;
+    }
+    public PTSimple(String pTheName, Checker pTheChecker) {
+        this(pTheName);
+        this.TheChecker = pTheChecker;
+    }
+    public PTSimple(String pTheName, RPGetChecker pTheGetChecker) {
+        this(pTheName);
+        this.TheChecker = pTheGetChecker;
+    }
+    
+    String TheName;
+    Object TheChecker;
+    
+    /**{@inheritDoc}*/ @Override
+    final public String getName() { 
+        return this.TheName;
+    }
 
-	/**{@inheritDoc}*/ @Override
-	final public Checker getChecker(ParseResult pHostResult, String pParam,
-			PTypeProvider pProvider) {
-		
-		if(this.TheChecker instanceof RPGetChecker)
-			return ((RPGetChecker)TheChecker).getChecker(pHostResult, pParam, pProvider);
-		
-		return (Checker)TheChecker;
-	}
+    /**{@inheritDoc}*/ @Override
+    final public Checker getChecker(ParseResult pHostResult, String pParam,
+            PTypeProvider pProvider) {
+        
+        if(this.TheChecker instanceof RPGetChecker)
+            return ((RPGetChecker)TheChecker).getChecker(pHostResult, pParam, pProvider);
+        
+        return (Checker)TheChecker;
+    }
 }

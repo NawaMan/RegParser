@@ -24,54 +24,67 @@ package net.nawaman.regparser;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class CheckerNot implements Checker {
-	
-	static private final long serialVersionUID = 4485946546354964247L;
-	
-	public CheckerNot(Checker pChecker) {
-		if(pChecker == null) throw new NullPointerException();
-		this.Checker = pChecker;
-	}
-	
-	Checker Checker;
-
-	
-	/**
-	 * Returns the length of the match if the string S starts with this checker.<br />
-	 * @param	S is the string to be parse
-	 * @param	pOffset the starting point of the checking
-	 * @return	the length of the match or -1 if the string S does not start with this checker
-	 */
-	@Override public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider) {
-		return this.getStartLengthOf(S, pOffset, pProvider, null);
-	}
-	
-	/**
-	 * Returns the length of the match if the string S starts with this checker.<br />
-	 * @param	S is the string to be parse
-	 * @param	pOffset the starting point of the checking
-	 * @param   pResult the parse result of the current parsing. This is only available when this checker is called from a RegParser
-	 * @return	the length of the match or -1 if the string S does not start with this checker
-	 */
-	@Override public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider, ParseResult pResult) {
-		if(this.Checker.getStartLengthOf(S, pOffset, pProvider, pResult) != -1) return -1;
-		return 1;
-	}
-
-	/** Return the optimized version of this Checker */
-	@Override public Checker getOptimized() {
-		if(this.Checker instanceof CheckerNot) return ((CheckerNot)this.Checker).Checker;
-		return this;
-	}
-	
-	@Override public String toString() {
-		return "(^"+this.Checker.toString()+")";
-	}
-	@Override public boolean equals(Object O) {
-		if(O == this) return true;
-		if(!(O instanceof CheckerNot)) return false;
-		return this.Checker.equals(((CheckerNot)O).Checker);
-	}
-	@Override public int hashCode() {
-		return "CheckerNot".hashCode() + this.Checker.hashCode();
-	}
+    
+    static private final long serialVersionUID = 4485946546354964247L;
+    
+    public CheckerNot(Checker pChecker) {
+        if (pChecker == null)
+            throw new NullPointerException();
+        this.Checker = pChecker;
+    }
+    
+    Checker Checker;
+    
+    
+    /**
+     * Returns the length of the match if the string S starts with this checker.<br />
+     * @param    S is the string to be parse
+     * @param    pOffset the starting point of the checking
+     * @return    the length of the match or -1 if the string S does not start with this checker
+     */
+    @Override
+    public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider) {
+        return this.getStartLengthOf(S, pOffset, pProvider, null);
+    }
+    
+    /**
+     * Returns the length of the match if the string S starts with this checker.<br />
+     * @param    S is the string to be parse
+     * @param    pOffset the starting point of the checking
+     * @param   pResult the parse result of the current parsing. This is only available when this checker is called from a RegParser
+     * @return    the length of the match or -1 if the string S does not start with this checker
+     */
+    @Override
+    public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider, ParseResult pResult) {
+        if (this.Checker.getStartLengthOf(S, pOffset, pProvider, pResult) != -1)
+            return -1;
+        return 1;
+    }
+    
+    /** Return the optimized version of this Checker */
+    @Override
+    public Checker getOptimized() {
+        if (this.Checker instanceof CheckerNot)
+            return ((CheckerNot) this.Checker).Checker;
+        return this;
+    }
+    
+    @Override
+    public String toString() {
+        return "(^" + this.Checker.toString() + ")";
+    }
+    
+    @Override
+    public boolean equals(Object O) {
+        if (O == this)
+            return true;
+        if (!(O instanceof CheckerNot))
+            return false;
+        return this.Checker.equals(((CheckerNot) O).Checker);
+    }
+    
+    @Override
+    public int hashCode() {
+        return "CheckerNot".hashCode() + this.Checker.hashCode();
+    }
 }

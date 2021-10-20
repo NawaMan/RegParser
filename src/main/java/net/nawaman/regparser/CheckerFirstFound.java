@@ -26,22 +26,22 @@ package net.nawaman.regparser;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class CheckerFirstFound extends CheckerAlternative {
-	
-	static private final long serialVersionUID = 4464247859465463549L;
-	
-	static Checker[] getLaters(Checker ...  pLaters) {
-		Checker[] Cs = new Checker[pLaters.length - 1];
-		System.arraycopy(pLaters, 1, Cs, 0, Cs.length);
-		return Cs;
-	}
-	
-	/** Constructs a char set */
-	public CheckerFirstFound(Checker ...  pLaters) {
-		super(true, pLaters[0],
-				(pLaters.length == 1)?null:
-				(pLaters.length == 2)?pLaters[1]:
-				(pLaters.length == 3)?new CheckerAlternative(true, getLaters(pLaters))
-				                     :new CheckerFirstFound(getLaters(pLaters)));
-	}
-
+    
+    static private final long serialVersionUID = 4464247859465463549L;
+    
+    static Checker[] getLaters(Checker... pLaters) {
+        Checker[] Cs = new Checker[pLaters.length - 1];
+        System.arraycopy(pLaters, 1, Cs, 0, Cs.length);
+        return Cs;
+    }
+    
+    /** Constructs a char set */
+    public CheckerFirstFound(Checker... pLaters) {
+        super(true, pLaters[0],
+                (pLaters.length == 1) ? null
+                        : (pLaters.length == 2) ? pLaters[1]
+                                : (pLaters.length == 3) ? new CheckerAlternative(true, getLaters(pLaters))
+                                        : new CheckerFirstFound(getLaters(pLaters)));
+    }
+    
 }
