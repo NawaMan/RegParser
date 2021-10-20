@@ -45,18 +45,18 @@ public class Tests {
         
         long StartTime = System.currentTimeMillis();
 //        Test_01_Char.main(ToQuietAsArray);
-        ExecTime.add(System.currentTimeMillis() - StartTime);
+//        ExecTime.add(System.currentTimeMillis() - StartTime);
+//        
+//        StartTime = System.currentTimeMillis();
+//        Test_02_Word.main(ToQuietAsArray);
+//        ExecTime.add(System.currentTimeMillis() - StartTime);
+//        
+//        StartTime = System.currentTimeMillis();
+//        Test_03_Alternative.main(ToQuietAsArray);
+//        ExecTime.add(System.currentTimeMillis() - StartTime);
         
         StartTime = System.currentTimeMillis();
-        Test_02_Word.main(ToQuietAsArray);
-        ExecTime.add(System.currentTimeMillis() - StartTime);
-        
-        StartTime = System.currentTimeMillis();
-        Test_03_Alternative.main(ToQuietAsArray);
-        ExecTime.add(System.currentTimeMillis() - StartTime);
-        
-        StartTime = System.currentTimeMillis();
-        Test_04_RegParser.main(ToQuietAsArray);
+//        Test_04_RegParser.main(ToQuietAsArray);
         ExecTime.add(System.currentTimeMillis() - StartTime);
         
         StartTime = System.currentTimeMillis();

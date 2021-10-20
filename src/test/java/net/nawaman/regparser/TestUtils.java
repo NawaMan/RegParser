@@ -19,6 +19,14 @@ public class TestUtils {
         }
         
         var actualString = Util.toString(actual);
+        if (Objects.equals(actual, expected)) {
+            return;
+        }
+        
+        var expectedRegEx = "^\\Q" + expected + "\\E$";
+        if (actualString.matches(expectedRegEx)) {
+            return;
+        }
         assertEquals(expected, actualString);
     }
     

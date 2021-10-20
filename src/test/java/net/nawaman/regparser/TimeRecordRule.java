@@ -6,6 +6,8 @@ import org.junit.runners.model.Statement;
 
 public class TimeRecordRule implements TestRule {
     
+    public static final TimeRecordRule instance = new TimeRecordRule();
+    
     @Override
     public Statement apply(Statement base, Description description) {
         return new Statement() {

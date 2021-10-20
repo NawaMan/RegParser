@@ -5,10 +5,10 @@ import static net.nawaman.regparser.TestUtils.assertThat;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-public class Test_01_Char {
+public class TestCharChecker {
     
     @ClassRule
-    public static TimeRecordRule timeRecordRule = new TimeRecordRule();
+    public static TimeRecordRule timeRecordRule = TimeRecordRule.instance;
     
     @Test
     public void testSingleChar() {
