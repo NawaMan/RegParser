@@ -1,6 +1,6 @@
 package net.nawaman.regparser;
 
-import static net.nawaman.regparser.TestUtils.assertThat;
+import static net.nawaman.regparser.TestUtils.validate;
 
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -15,7 +15,7 @@ public class TestGreediness {
         var parser = RegParser.newRegParser(
                         RPEntry._new(PredefinedCharClasses.Java_Any, Quantifier.ZeroOrMore_Possessive),
                         RPEntry._new(new WordChecker("end")));
-        assertThat(null, parser.parse("1234567end123456789012345end9012"));
+        validate(null, parser.parse("1234567end123456789012345end9012"));
     }
     
     @Test
@@ -23,7 +23,7 @@ public class TestGreediness {
         var parser = RegParser.newRegParser(
                         RPEntry._new(PredefinedCharClasses.Java_Any, Quantifier.ZeroOrMore_Maximum),
                         RPEntry._new(new WordChecker("end")));
-        assertThat(28, parser.parse("1234567end123456789012345end9012").getEndPosition());
+        validate(28, parser.parse("1234567end123456789012345end9012").getEndPosition());
     }
     
     @Test
@@ -31,7 +31,7 @@ public class TestGreediness {
         var parser = RegParser.newRegParser(
                         RPEntry._new(PredefinedCharClasses.Java_Any, Quantifier.ZeroOrMore_Minimum),
                         RPEntry._new(new WordChecker("end")));
-        assertThat(10, parser.parse("1234567end123456789012345end9012").getEndPosition());
+        validate(10, parser.parse("1234567end123456789012345end9012").getEndPosition());
     }
     
     @Test
@@ -39,7 +39,7 @@ public class TestGreediness {
         var parser = RegParser.newRegParser(
                         RPEntry._new(PredefinedCharClasses.Java_Any, new Quantifier(1, 5, Greediness.Possessive)),
                         RPEntry._new(new WordChecker("end")));
-        assertThat(null, parser.parse("1234567end123456789012345end9012"));
+        validate(null, parser.parse("1234567end123456789012345end9012"));
     }
     
     @Test
@@ -47,7 +47,7 @@ public class TestGreediness {
         var parser = RegParser.newRegParser(
                         RPEntry._new(PredefinedCharClasses.Java_Any, new Quantifier(1, 17, Greediness.Possessive)),
                         RPEntry._new(new WordChecker("end")));
-        assertThat(null, parser.parse("1234567end123456789012345end9012"));
+        validate(null, parser.parse("1234567end123456789012345end9012"));
     }
     
     @Test
@@ -55,7 +55,7 @@ public class TestGreediness {
         var parser = RegParser.newRegParser(
                         RPEntry._new(PredefinedCharClasses.Java_Any, new Quantifier(1, 21, Greediness.Possessive)),
                         RPEntry._new(new WordChecker("end")));
-        assertThat(null, parser.parse("1234567end123456789012345end9012"));
+        validate(null, parser.parse("1234567end123456789012345end9012"));
     }
     
     @Test
@@ -63,7 +63,7 @@ public class TestGreediness {
         var parser = RegParser.newRegParser(
                 RPEntry._new(PredefinedCharClasses.Java_Any, new Quantifier(1, 5, Greediness.Maximum)),
                 RPEntry._new(new WordChecker("end")));
-        assertThat(null, parser.parse("1234567end123456789012345end9012"));
+        validate(null, parser.parse("1234567end123456789012345end9012"));
     }
     
     @Test
@@ -71,7 +71,7 @@ public class TestGreediness {
         var parser = RegParser.newRegParser(
                 RPEntry._new(PredefinedCharClasses.Java_Any, new Quantifier(1, 17, Greediness.Maximum)),
                 RPEntry._new(new WordChecker("end")));
-        assertThat(10, parser.parse("1234567end123456789012345end9012").getEndPosition());
+        validate(10, parser.parse("1234567end123456789012345end9012").getEndPosition());
     }
     
     @Test
@@ -79,7 +79,7 @@ public class TestGreediness {
         var parser = RegParser.newRegParser(
                 RPEntry._new(PredefinedCharClasses.Java_Any, new Quantifier(1, 31, Greediness.Maximum)),
                 RPEntry._new(new WordChecker("end")));
-        assertThat(28, parser.parse("1234567end123456789012345end9012").getEndPosition());
+        validate(28, parser.parse("1234567end123456789012345end9012").getEndPosition());
     }
     
     @Test
@@ -87,7 +87,7 @@ public class TestGreediness {
         var parser = RegParser.newRegParser(
                 RPEntry._new(PredefinedCharClasses.Java_Any, new Quantifier(1, 5, Greediness.Minimum)),
                 RPEntry._new(new WordChecker("end")));
-        assertThat(null, parser.parse("1234567end123456789012345end9012"));
+        validate(null, parser.parse("1234567end123456789012345end9012"));
     }
     
     @Test
@@ -95,7 +95,7 @@ public class TestGreediness {
         var parser = RegParser.newRegParser(
                 RPEntry._new(PredefinedCharClasses.Java_Any, new Quantifier(1, 17, Greediness.Minimum)),
                 RPEntry._new(new WordChecker("end")));
-        assertThat(10, parser.parse("1234567end123456789012345end9012").getEndPosition());
+        validate(10, parser.parse("1234567end123456789012345end9012").getEndPosition());
     }
     
     @Test
@@ -103,7 +103,7 @@ public class TestGreediness {
         var parser = RegParser.newRegParser(
                 RPEntry._new(PredefinedCharClasses.Java_Any, new Quantifier(1, 31, Greediness.Minimum)),
                 RPEntry._new(new WordChecker("end")));
-        assertThat(10, parser.parse("1234567end123456789012345end9012").getEndPosition());
+        validate(10, parser.parse("1234567end123456789012345end9012").getEndPosition());
     }
     
     @Test
@@ -125,7 +125,7 @@ public class TestGreediness {
                                                 new WordChecker("d")
                                             ), Quantifier.ZeroOrMore_Possessive),
                                 RPEntry._new(new WordChecker("end")));
-        assertThat(null, parser.parse("1234567end123456789012345end9012"));
+        validate(null, parser.parse("1234567end123456789012345end9012"));
     }
     
     @Test
@@ -147,7 +147,7 @@ public class TestGreediness {
                                             new WordChecker("d")
                                         ), Quantifier.ZeroOrMore_Maximum),
                             RPEntry._new(new WordChecker("end")));
-        assertThat(28, parser.parse("1234567end123456789012345end9012").getEndPosition());
+        validate(28, parser.parse("1234567end123456789012345end9012").getEndPosition());
     }
     
     @Test
@@ -169,7 +169,7 @@ public class TestGreediness {
                                             new WordChecker("d")
                                         ), Quantifier.ZeroOrMore_Minimum),
                             RPEntry._new(new WordChecker("end")));
-        assertThat(10, parser.parse("1234567end123456789012345end9012").getEndPosition());
+        validate(10, parser.parse("1234567end123456789012345end9012").getEndPosition());
     }
     
     @Test
@@ -193,7 +193,7 @@ public class TestGreediness {
                                 ),
                                 new Quantifier(1, 5, Greediness.Possessive)), 
                             RPEntry._new(new WordChecker("end")));
-        assertThat(null, parser.parse("1234567end123456789012345end9012"));
+        validate(null, parser.parse("1234567end123456789012345end9012"));
     }
     
     @Test
@@ -218,7 +218,7 @@ public class TestGreediness {
                                         new Quantifier(1, 17, Greediness.Possessive)
                                     ), 
                                 RPEntry._new(new WordChecker("end")));
-        assertThat(null, parser.parse("1234567end123456789012345end9012"));
+        validate(null, parser.parse("1234567end123456789012345end9012"));
     }
     
     @Test
@@ -243,7 +243,7 @@ public class TestGreediness {
                                     new Quantifier(1, 21, Greediness.Possessive)
                                 ),
                                 RPEntry._new(new WordChecker("end")));
-        assertThat(null, parser.parse("1234567end123456789012345end9012"));
+        validate(null, parser.parse("1234567end123456789012345end9012"));
     }
     
     @Test
@@ -267,7 +267,7 @@ public class TestGreediness {
                                         ), 
                                         new Quantifier(1, 5, Greediness.Maximum)),
                                 RPEntry._new(new WordChecker("end")));
-        assertThat(null, parser.parse("1234567end123456789012345end9012"));
+        validate(null, parser.parse("1234567end123456789012345end9012"));
     }
     
     @Test
@@ -291,7 +291,7 @@ public class TestGreediness {
                                         ), new Quantifier(1, 17, Greediness.Maximum)
                                 ),
                                 RPEntry._new(new WordChecker("end")));
-        assertThat(10, parser.parse("1234567end123456789012345end9012").getEndPosition());
+        validate(10, parser.parse("1234567end123456789012345end9012").getEndPosition());
     }
     
     @Test
@@ -315,7 +315,7 @@ public class TestGreediness {
                                         ), new Quantifier(1, 31, Greediness.Maximum)
                                 ),
                                 RPEntry._new(new WordChecker("end")));
-        assertThat(28, parser.parse("1234567end123456789012345end9012").getEndPosition());
+        validate(28, parser.parse("1234567end123456789012345end9012").getEndPosition());
     }
     
     @Test
@@ -339,7 +339,7 @@ public class TestGreediness {
                                         ), new Quantifier(1, 5, Greediness.Minimum)
                                 ),
                                 RPEntry._new(new WordChecker("end")));
-        assertThat(null, parser.parse("1234567end123456789012345end9012"));
+        validate(null, parser.parse("1234567end123456789012345end9012"));
     }
     
     @Test
@@ -363,7 +363,7 @@ public class TestGreediness {
                                         ), new Quantifier(1, 17, Greediness.Minimum)
                                 ),
                                 RPEntry._new(new WordChecker("end")));
-        assertThat(10, parser.parse("1234567end123456789012345end9012").getEndPosition());
+        validate(10, parser.parse("1234567end123456789012345end9012").getEndPosition());
     }
     
     @Test
@@ -387,6 +387,6 @@ public class TestGreediness {
                                         ), new Quantifier(1, 31, Greediness.Minimum)
                                 ),
                                 RPEntry._new(new WordChecker("end")));
-        assertThat(10, parser.parse("1234567end123456789012345end9012").getEndPosition());
+        validate(10, parser.parse("1234567end123456789012345end9012").getEndPosition());
     }
 }

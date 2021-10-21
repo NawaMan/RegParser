@@ -1,6 +1,6 @@
 package net.nawaman.regparser;
 
-import static net.nawaman.regparser.TestUtils.assertThat;
+import static net.nawaman.regparser.TestUtils.validate;
 
 import org.junit.ClassRule;
 import org.junit.Ignore;
@@ -16,8 +16,8 @@ public class TestRegParser {
         var parser = RegParser.newRegParser(
                         new WordChecker("One"), Quantifier.Zero,
                         new WordChecker("Two"));
-        assertThat(null, parser.parse("OneTwo"));
-        assertThat(   3, parser.parse("TwoOne").getEndPosition());
+        validate(null, parser.parse("OneTwo"));
+        validate(   3, parser.parse("TwoOne").getEndPosition());
     }
     
     @Test
@@ -25,8 +25,8 @@ public class TestRegParser {
         var parser = RegParser.newRegParser(
                         new WordChecker("One"),
                         new WordChecker("Two"));
-        assertThat(   6, parser.parse("OneTwo").getEndPosition());
-        assertThat(null, parser.parse("TwoOne"));
+        validate(   6, parser.parse("OneTwo").getEndPosition());
+        validate(null, parser.parse("TwoOne"));
     }
     
     @Test
@@ -34,8 +34,8 @@ public class TestRegParser {
         var parser = RegParser.newRegParser(
                         new WordChecker("One"), Quantifier.ZeroOrOne,
                         new WordChecker("Two"));
-        assertThat(6, parser.parse("OneTwo").getEndPosition());
-        assertThat(3, parser.parse("TwoOne").getEndPosition());
+        validate(6, parser.parse("OneTwo").getEndPosition());
+        validate(3, parser.parse("TwoOne").getEndPosition());
     }
     
     @Test
@@ -44,10 +44,10 @@ public class TestRegParser {
                         new WordChecker("One"), 
                         new WordChecker("Two"), Quantifier.ZeroOrOne,
                         new WordChecker("One"));
-        assertThat(null, parser.parse("OneTwo"));
-        assertThat(null, parser.parse("TwoOne"));
-        assertThat(   9, parser.parse("OneTwoOne").getEndPosition());
-        assertThat(   6, parser.parse("OneOne").getEndPosition());
+        validate(null, parser.parse("OneTwo"));
+        validate(null, parser.parse("TwoOne"));
+        validate(   9, parser.parse("OneTwoOne").getEndPosition());
+        validate(   6, parser.parse("OneOne").getEndPosition());
     }
     
     @Test
@@ -56,12 +56,12 @@ public class TestRegParser {
                         new WordChecker("One"), 
                         new WordChecker("Two"), Quantifier.OneOrMore,
                         new WordChecker("One"));
-        assertThat(null, parser.parse("OneTwo"));
-        assertThat(null, parser.parse("TwoOne"));
-        assertThat(null, parser.parse("OneOne"));
-        assertThat(   9, parser.parse("OneTwoOne").getEndPosition());
-        assertThat(  12, parser.parse("OneTwoTwoOne").getEndPosition());
-        assertThat(  15, parser.parse("OneTwoTwoTwoOne").getEndPosition());
+        validate(null, parser.parse("OneTwo"));
+        validate(null, parser.parse("TwoOne"));
+        validate(null, parser.parse("OneOne"));
+        validate(   9, parser.parse("OneTwoOne").getEndPosition());
+        validate(  12, parser.parse("OneTwoTwoOne").getEndPosition());
+        validate(  15, parser.parse("OneTwoTwoTwoOne").getEndPosition());
     }
     
     @Test
@@ -70,12 +70,12 @@ public class TestRegParser {
                         new WordChecker("One"), 
                         new WordChecker("Two"), Quantifier.ZeroOrMore,
                         new WordChecker("One"));
-        assertThat(null, parser.parse("OneTwo"));
-        assertThat(null, parser.parse("TwoOne"));
-        assertThat(   6, parser.parse("OneOne").getEndPosition());
-        assertThat(   9, parser.parse("OneTwoOne").getEndPosition());
-        assertThat(  12, parser.parse("OneTwoTwoOne").getEndPosition());
-        assertThat(  15, parser.parse("OneTwoTwoTwoOne").getEndPosition());
+        validate(null, parser.parse("OneTwo"));
+        validate(null, parser.parse("TwoOne"));
+        validate(   6, parser.parse("OneOne").getEndPosition());
+        validate(   9, parser.parse("OneTwoOne").getEndPosition());
+        validate(  12, parser.parse("OneTwoTwoOne").getEndPosition());
+        validate(  15, parser.parse("OneTwoTwoTwoOne").getEndPosition());
     }
     
     @Test
@@ -84,12 +84,12 @@ public class TestRegParser {
                         new WordChecker("One"), 
                         new CharRange('0', '9'), Quantifier.OneOrMore,
                         new WordChecker("One"));
-        assertThat(null, parser.parse("One123"));
-        assertThat(null, parser.parse("123One"));
-        assertThat(null, parser.parse("OneOne"));
-        assertThat(   9, parser.parse("One123One").getEndPosition());
-        assertThat(  12, parser.parse("One123456One").getEndPosition());
-        assertThat(  15, parser.parse("One123456789One").getEndPosition());
+        validate(null, parser.parse("One123"));
+        validate(null, parser.parse("123One"));
+        validate(null, parser.parse("OneOne"));
+        validate(   9, parser.parse("One123One").getEndPosition());
+        validate(  12, parser.parse("One123456One").getEndPosition());
+        validate(  15, parser.parse("One123456789One").getEndPosition());
     }
     
     @Test
@@ -98,12 +98,12 @@ public class TestRegParser {
                         RPEntry._new(new WordChecker("One"), Quantifier.One),
                         RPEntry._new(new CharRange('0', '9'), Quantifier.ZeroOrMore),
                         RPEntry._new(new WordChecker("One")));
-        assertThat(null, parser.parse("One123"));
-        assertThat(null, parser.parse("123One"));
-        assertThat(   6, parser.parse("OneOne").getEndPosition());
-        assertThat(   9, parser.parse("One123One").getEndPosition());
-        assertThat(  12, parser.parse("One123456One").getEndPosition());
-        assertThat(  15, parser.parse("One123456789One").getEndPosition());
+        validate(null, parser.parse("One123"));
+        validate(null, parser.parse("123One"));
+        validate(   6, parser.parse("OneOne").getEndPosition());
+        validate(   9, parser.parse("One123One").getEndPosition());
+        validate(  12, parser.parse("One123456One").getEndPosition());
+        validate(  15, parser.parse("One123456789One").getEndPosition());
     }
     
     @Test
@@ -112,12 +112,12 @@ public class TestRegParser {
                         RPEntry._new(new WordChecker("One"), Quantifier.One),
                         RPEntry._new(new CharRange('0', '9'), new Quantifier(0, 5)),
                         RPEntry._new(new WordChecker("One")));
-        assertThat(null, parser.parse("One123"));
-        assertThat(null, parser.parse("123One"));
-        assertThat(   6, parser.parse("OneOne").getEndPosition());
-        assertThat(   9, parser.parse("One123One").getEndPosition());
-        assertThat(null, parser.parse("One123456One"));
-        assertThat(null, parser.parse("One123456789One"));
+        validate(null, parser.parse("One123"));
+        validate(null, parser.parse("123One"));
+        validate(   6, parser.parse("OneOne").getEndPosition());
+        validate(   9, parser.parse("One123One").getEndPosition());
+        validate(null, parser.parse("One123456One"));
+        validate(null, parser.parse("One123456789One"));
     }
     
     @Test
@@ -126,12 +126,12 @@ public class TestRegParser {
                         RPEntry._new(new WordChecker("One"), Quantifier.One),
                         RPEntry._new(new CharRange('0', '9'), new Quantifier(5, -1)), 
                         RPEntry._new(new WordChecker("One")));
-        assertThat(null, parser.parse("One123"));
-        assertThat(null, parser.parse("123One"));
-        assertThat(null, parser.parse("OneOne"));
-        assertThat(null, parser.parse("One123One"));
-        assertThat(  12, parser.parse("One123456One").getEndPosition());
-        assertThat(  15, parser.parse("One123456789One").getEndPosition());
+        validate(null, parser.parse("One123"));
+        validate(null, parser.parse("123One"));
+        validate(null, parser.parse("OneOne"));
+        validate(null, parser.parse("One123One"));
+        validate(  12, parser.parse("One123456One").getEndPosition());
+        validate(  15, parser.parse("One123456789One").getEndPosition());
     }
     
     @Ignore("Does not seems to work.")
@@ -148,8 +148,8 @@ public class TestRegParser {
                         ), 
                         RPEntry._new(new WordChecker("r")));
         
-        assertThat(5, parser.parse("Color").getEndPosition());
-        assertThat(6, parser.parse("Colour").getEndPosition());
+        validate(5, parser.parse("Color").getEndPosition());
+        validate(6, parser.parse("Colour").getEndPosition());
     }
     
     @Test
@@ -159,8 +159,8 @@ public class TestRegParser {
                         RPEntry._new(new CheckerAlternative(new WordChecker("o"), new WordChecker("ou"))),
                         RPEntry._new(new WordChecker("ur")));
         
-        assertThat(null, parser.parse("Colour"));
-        assertThat(   7, parser.parse("Colouur").getEndPosition());
+        validate(null, parser.parse("Colour"));
+        validate(   7, parser.parse("Colouur").getEndPosition());
     }
     
     @Test
@@ -173,12 +173,12 @@ public class TestRegParser {
                                         Quantifier.OneOrMore),
                         RPEntry._new(new WordChecker("r")));
         
-        assertThat(null, parser.parse("Colur"));
-        assertThat(   6, parser.parse("Colour").getEndPosition());
-        assertThat(   7, parser.parse("Coloour").getEndPosition());
-        assertThat(   8, parser.parse("Colouour").getEndPosition());
-        assertThat(  10, parser.parse("Colooouour").getEndPosition());
-        assertThat(  12, parser.parse("Colouoouoour").getEndPosition());
+        validate(null, parser.parse("Colur"));
+        validate(   6, parser.parse("Colour").getEndPosition());
+        validate(   7, parser.parse("Coloour").getEndPosition());
+        validate(   8, parser.parse("Colouour").getEndPosition());
+        validate(  10, parser.parse("Colooouour").getEndPosition());
+        validate(  12, parser.parse("Colouoouoour").getEndPosition());
     }
     
 }

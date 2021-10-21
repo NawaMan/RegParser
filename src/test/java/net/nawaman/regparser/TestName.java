@@ -1,7 +1,7 @@
 package net.nawaman.regparser;
 
 import static net.nawaman.regparser.RegParser.newRegParser;
-import static net.nawaman.regparser.TestUtils.assertThat;
+import static net.nawaman.regparser.TestUtils.validate;
 
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -42,19 +42,19 @@ public class TestName {
         
         var result = parser.parse("Var[55] = 70;");
         
-        assertThat("[#Name, #Value, #Index]", result.getAllNames());
+        validate("[#Name, #Value, #Index]", result.getAllNames());
         
-        assertThat("Var", result.textOf("#Name"));
-        assertThat("5",   result.textOf("#Index"));
-        assertThat("70",  result.textOf("#Value"));
+        validate("Var", result.textOf("#Name"));
+        validate("5",   result.textOf("#Index"));
+        validate("70",  result.textOf("#Value"));
         
         result = parser.parse("Var[55];");
         
-        assertThat("[#Name, #Index]", result.getAllNames());
+        validate("[#Name, #Index]", result.getAllNames());
         
-        assertThat("Var", result.textOf("#Name"));
-        assertThat("5",   result.textOf("#Index"));
-        assertThat(null,  result.textOf("#Value"));
+        validate("Var", result.textOf("#Name"));
+        validate("5",   result.textOf("#Index"));
+        validate(null,  result.textOf("#Value"));
     }
     
     @Test
@@ -79,9 +79,9 @@ public class TestName {
                     new CharSingle(';'));
         var result = parser.parse("{ 5, 7, 454, 5 };");
         
-        assertThat("[#Value]",            result.getAllNames());
-        assertThat("[5,7,454,5]",         Util.toString(result.textsOf("#Value")));
-        assertThat("[[5],[7],[454],[5]]", Util.toString(result.getAllOfStrMatchesByName("#Value")));
+        validate("[#Value]",            result.getAllNames());
+        validate("[5,7,454,5]",         Util.toString(result.textsOf("#Value")));
+        validate("[[5],[7],[454],[5]]", Util.toString(result.getAllOfStrMatchesByName("#Value")));
     }
     
 }

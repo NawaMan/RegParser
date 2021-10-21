@@ -6,14 +6,14 @@ import java.util.Objects;
 
 public class TestUtils {
     
-    static public void assertThat(int expected, int actual) {
+    static public void validate(int expected, int actual) {
         if (actual == expected) {
             return;
         }
         assertEquals(expected, actual);
     }
     
-    static public void assertThat(String expected, Object actual) {
+    static public void validate(String expected, Object actual) {
         if (Objects.equals(actual, expected)) {
             return;
         }

@@ -66,10 +66,10 @@ public class Tests {
 //        StartTime = System.currentTimeMillis();
 //        Test_06_Name.main(ToQuietAsArray);
 //        ExecTime.add(System.currentTimeMillis() - StartTime);
-        
-        StartTime = System.currentTimeMillis();
-        Test_07_Type.main(ToQuietAsArray);
-        ExecTime.add(System.currentTimeMillis() - StartTime);
+//        
+//        StartTime = System.currentTimeMillis();
+//        Test_07_Type.main(ToQuietAsArray);
+//        ExecTime.add(System.currentTimeMillis() - StartTime);
         
         StartTime = System.currentTimeMillis();
         Test_08_SelfContain.main(ToQuietAsArray);
