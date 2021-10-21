@@ -51,6 +51,9 @@ public class Util {
         if (O instanceof int[]) {
             return Arrays.toString((int[])O);
         }
+        if (O instanceof String[]) {
+            return Arrays.toString((String[])O);
+        }
         
         return (O == null) ? "null" : O.toString();
     }
