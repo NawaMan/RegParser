@@ -603,7 +603,7 @@ public class RegParser implements Checker, Serializable {
     
     // Public services -------------------------------------------------------------------------------------------------
     
-    // Parse
+    // Parse - as far as it can go.
     
     /** Returns the the match if the text is start with a match or -1 if not */
     public ParseResult parse(CharSequence pText) {
@@ -637,7 +637,7 @@ public class RegParser implements Checker, Serializable {
         return PR;
     }
     
-    // Match
+    // Match - to the end or fail.
     
     /** Returns the match if the text is start with a match (from start to the end) or -1 if not */
     public ParseResult match(CharSequence pText) {

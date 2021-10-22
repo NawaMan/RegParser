@@ -74,10 +74,10 @@ public class Tests {
 //        StartTime = System.currentTimeMillis();
 //        Test_08_SelfContain.main(ToQuietAsArray);
 //        ExecTime.add(System.currentTimeMillis() - StartTime);
-        
-        StartTime = System.currentTimeMillis();
-        Test_09_RegParserCompiler_1.main(ToQuietAsArray);
-        ExecTime.add(System.currentTimeMillis() - StartTime);
+//        
+//        StartTime = System.currentTimeMillis();
+//        Test_09_RegParserCompiler_1.main(ToQuietAsArray);
+//        ExecTime.add(System.currentTimeMillis() - StartTime);
         
         StartTime = System.currentTimeMillis();
         Test_10_RegParserCompiler_2.main(ToQuietAsArray);
