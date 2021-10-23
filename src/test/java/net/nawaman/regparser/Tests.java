@@ -82,10 +82,10 @@ public class Tests {
 //        StartTime = System.currentTimeMillis();
 //        Test_10_RegParserCompiler_2.main(ToQuietAsArray);
 //        ExecTime.add(System.currentTimeMillis() - StartTime);
-        
-        StartTime = System.currentTimeMillis();
-        Test_11_Speed.main(ToQuietAsArray);
-        ExecTime.add(System.currentTimeMillis() - StartTime);
+//        
+//        StartTime = System.currentTimeMillis();
+//        Test_11_Speed.main(ToQuietAsArray);
+//        ExecTime.add(System.currentTimeMillis() - StartTime);
         
         StartTime = System.currentTimeMillis();
         Test_12_Chagnable_ParseResult.main(ToQuietAsArray);
