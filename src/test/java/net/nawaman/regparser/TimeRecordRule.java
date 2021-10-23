@@ -15,7 +15,6 @@ public class TimeRecordRule implements TestRule {
             public void evaluate() throws Throwable {
                 long startTime = System.currentTimeMillis();
                 base.evaluate();
-//              ExecTime.add(System.currentTimeMillis() - startTime);
                 System.out.println(description + ": " + (System.currentTimeMillis() - startTime) + " ms");
             }
         };

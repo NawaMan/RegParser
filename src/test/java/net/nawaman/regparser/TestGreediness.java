@@ -1,5 +1,13 @@
 package net.nawaman.regparser;
 
+import static net.nawaman.regparser.Greediness.Maximum;
+import static net.nawaman.regparser.Greediness.Minimum;
+import static net.nawaman.regparser.Greediness.Possessive;
+import static net.nawaman.regparser.PredefinedCharClasses.Java_Any;
+import static net.nawaman.regparser.Quantifier.ZeroOrMore_Maximum;
+import static net.nawaman.regparser.Quantifier.ZeroOrMore_Minimum;
+import static net.nawaman.regparser.Quantifier.ZeroOrMore_Possessive;
+import static net.nawaman.regparser.RegParser.newRegParser;
 import static net.nawaman.regparser.TestUtils.validate;
 
 import org.junit.ClassRule;
@@ -12,103 +20,103 @@ public class TestGreediness {
     
     @Test
     public void testQuantifierZeroOrMore_Possessive() {
-        var parser = RegParser.newRegParser(
-                        RPEntry._new(PredefinedCharClasses.Java_Any, Quantifier.ZeroOrMore_Possessive),
+        var parser = newRegParser(
+                        RPEntry._new(Java_Any, ZeroOrMore_Possessive),
                         RPEntry._new(new WordChecker("end")));
         validate(null, parser.parse("1234567end123456789012345end9012"));
     }
     
     @Test
     public void testQuantifierZeroOrMore_Maximum() {
-        var parser = RegParser.newRegParser(
-                        RPEntry._new(PredefinedCharClasses.Java_Any, Quantifier.ZeroOrMore_Maximum),
+        var parser = newRegParser(
+                        RPEntry._new(Java_Any, ZeroOrMore_Maximum),
                         RPEntry._new(new WordChecker("end")));
         validate(28, parser.parse("1234567end123456789012345end9012").getEndPosition());
     }
     
     @Test
     public void testQuantifierZeroOrMore_Minimum() {
-        var parser = RegParser.newRegParser(
-                        RPEntry._new(PredefinedCharClasses.Java_Any, Quantifier.ZeroOrMore_Minimum),
+        var parser = newRegParser(
+                        RPEntry._new(Java_Any, ZeroOrMore_Minimum),
                         RPEntry._new(new WordChecker("end")));
         validate(10, parser.parse("1234567end123456789012345end9012").getEndPosition());
     }
     
     @Test
     public void testQuantifierPossessive() {
-        var parser = RegParser.newRegParser(
-                        RPEntry._new(PredefinedCharClasses.Java_Any, new Quantifier(1, 5, Greediness.Possessive)),
+        var parser = newRegParser(
+                        RPEntry._new(Java_Any, new Quantifier(1, 5, Possessive)),
                         RPEntry._new(new WordChecker("end")));
         validate(null, parser.parse("1234567end123456789012345end9012"));
     }
     
     @Test
     public void testQuantifierPossessive_longer() {
-        var parser = RegParser.newRegParser(
-                        RPEntry._new(PredefinedCharClasses.Java_Any, new Quantifier(1, 17, Greediness.Possessive)),
+        var parser = newRegParser(
+                        RPEntry._new(Java_Any, new Quantifier(1, 17, Possessive)),
                         RPEntry._new(new WordChecker("end")));
         validate(null, parser.parse("1234567end123456789012345end9012"));
     }
     
     @Test
     public void testQuantifierPossessive_evenLonger() {
-        var parser = RegParser.newRegParser(
-                        RPEntry._new(PredefinedCharClasses.Java_Any, new Quantifier(1, 21, Greediness.Possessive)),
+        var parser = newRegParser(
+                        RPEntry._new(Java_Any, new Quantifier(1, 21, Possessive)),
                         RPEntry._new(new WordChecker("end")));
         validate(null, parser.parse("1234567end123456789012345end9012"));
     }
     
     @Test
     public void testQuantifierMaximum() {
-        var parser = RegParser.newRegParser(
-                RPEntry._new(PredefinedCharClasses.Java_Any, new Quantifier(1, 5, Greediness.Maximum)),
+        var parser = newRegParser(
+                RPEntry._new(Java_Any, new Quantifier(1, 5, Maximum)),
                 RPEntry._new(new WordChecker("end")));
         validate(null, parser.parse("1234567end123456789012345end9012"));
     }
     
     @Test
     public void testQuantifierMaximum_longer() {
-        var parser = RegParser.newRegParser(
-                RPEntry._new(PredefinedCharClasses.Java_Any, new Quantifier(1, 17, Greediness.Maximum)),
+        var parser = newRegParser(
+                RPEntry._new(Java_Any, new Quantifier(1, 17, Maximum)),
                 RPEntry._new(new WordChecker("end")));
         validate(10, parser.parse("1234567end123456789012345end9012").getEndPosition());
     }
     
     @Test
     public void testQuantifierMaximum_evenLonger() {
-        var parser = RegParser.newRegParser(
-                RPEntry._new(PredefinedCharClasses.Java_Any, new Quantifier(1, 31, Greediness.Maximum)),
+        var parser = newRegParser(
+                RPEntry._new(Java_Any, new Quantifier(1, 31, Maximum)),
                 RPEntry._new(new WordChecker("end")));
         validate(28, parser.parse("1234567end123456789012345end9012").getEndPosition());
     }
     
     @Test
     public void testQuantifierMinimum() {
-        var parser = RegParser.newRegParser(
-                RPEntry._new(PredefinedCharClasses.Java_Any, new Quantifier(1, 5, Greediness.Minimum)),
+        var parser = newRegParser(
+                RPEntry._new(Java_Any, new Quantifier(1, 5, Minimum)),
                 RPEntry._new(new WordChecker("end")));
         validate(null, parser.parse("1234567end123456789012345end9012"));
     }
     
     @Test
     public void testQuantifierMinimum_longer() {
-        var parser = RegParser.newRegParser(
-                RPEntry._new(PredefinedCharClasses.Java_Any, new Quantifier(1, 17, Greediness.Minimum)),
+        var parser = newRegParser(
+                RPEntry._new(Java_Any, new Quantifier(1, 17, Minimum)),
                 RPEntry._new(new WordChecker("end")));
         validate(10, parser.parse("1234567end123456789012345end9012").getEndPosition());
     }
     
     @Test
     public void testQuantifierMinimum_evenLonger() {
-        var parser = RegParser.newRegParser(
-                RPEntry._new(PredefinedCharClasses.Java_Any, new Quantifier(1, 31, Greediness.Minimum)),
+        var parser = newRegParser(
+                RPEntry._new(Java_Any, new Quantifier(1, 31, Minimum)),
                 RPEntry._new(new WordChecker("end")));
         validate(10, parser.parse("1234567end123456789012345end9012").getEndPosition());
     }
     
     @Test
     public void testQuantifierZeroOrMore_Possessive_withAlternative() {
-        var parser = RegParser.newRegParser(
+        var parser = newRegParser(
                                 RPEntry._new(new CheckerAlternative(
                                                 new WordChecker("1"), 
                                                 new WordChecker("2"), 
@@ -130,7 +138,7 @@ public class TestGreediness {
     
     @Test
     public void testQuantifierZeroOrMore_Maximum_withAlternative() {
-        var parser = RegParser.newRegParser(
+        var parser = newRegParser(
                             RPEntry._new(new CheckerAlternative(
                                             new WordChecker("1"), 
                                             new WordChecker("2"), 
@@ -145,14 +153,14 @@ public class TestGreediness {
                                             new WordChecker("e"),
                                             new WordChecker("n"), 
                                             new WordChecker("d")
-                                        ), Quantifier.ZeroOrMore_Maximum),
+                                        ), ZeroOrMore_Maximum),
                             RPEntry._new(new WordChecker("end")));
         validate(28, parser.parse("1234567end123456789012345end9012").getEndPosition());
     }
     
     @Test
     public void testQuantifierZeroOrMore_Minimum_withAlternative() {
-        var parser = RegParser.newRegParser(
+        var parser = newRegParser(
                             RPEntry._new(new CheckerAlternative(
                                             new WordChecker("1"), 
                                             new WordChecker("2"), 
@@ -167,14 +175,14 @@ public class TestGreediness {
                                             new WordChecker("e"),
                                             new WordChecker("n"), 
                                             new WordChecker("d")
-                                        ), Quantifier.ZeroOrMore_Minimum),
+                                        ), ZeroOrMore_Minimum),
                             RPEntry._new(new WordChecker("end")));
         validate(10, parser.parse("1234567end123456789012345end9012").getEndPosition());
     }
     
     @Test
     public void testQuantifierZeroOrMore_Possessive_withAlternative_andEntry() {
-        var parser = RegParser.newRegParser(
+        var parser = newRegParser(
                             RPEntry._new(
                                 new CheckerAlternative(
                                     new WordChecker("1"), 
@@ -191,14 +199,14 @@ public class TestGreediness {
                                     new WordChecker("n"), 
                                     new WordChecker("d")
                                 ),
-                                new Quantifier(1, 5, Greediness.Possessive)), 
+                                new Quantifier(1, 5, Possessive)), 
                             RPEntry._new(new WordChecker("end")));
         validate(null, parser.parse("1234567end123456789012345end9012"));
     }
     
     @Test
     public void testQuantifierZeroOrMore_Possessive_withAlternative_andEntry_longer() {
-        var parser = RegParser.newRegParser(
+        var parser = newRegParser(
                                 RPEntry._new(
                                         new CheckerAlternative(
                                             new WordChecker("1"), 
@@ -215,7 +223,7 @@ public class TestGreediness {
                                             new WordChecker("n"), 
                                             new WordChecker("d")
                                         ),
-                                        new Quantifier(1, 17, Greediness.Possessive)
+                                        new Quantifier(1, 17, Possessive)
                                     ), 
                                 RPEntry._new(new WordChecker("end")));
         validate(null, parser.parse("1234567end123456789012345end9012"));
@@ -223,7 +231,7 @@ public class TestGreediness {
     
     @Test
     public void testQuantifierZeroOrMore_Possessive_withAlternative_andEntry_evenLonger() {
-        var parser = RegParser.newRegParser(
+        var parser = newRegParser(
                                 RPEntry._new(
                                     new CheckerAlternative(
                                         new WordChecker("1"), 
@@ -240,7 +248,7 @@ public class TestGreediness {
                                         new WordChecker("n"), 
                                         new WordChecker("d")
                                     ),
-                                    new Quantifier(1, 21, Greediness.Possessive)
+                                    new Quantifier(1, 21, Possessive)
                                 ),
                                 RPEntry._new(new WordChecker("end")));
         validate(null, parser.parse("1234567end123456789012345end9012"));
@@ -248,7 +256,7 @@ public class TestGreediness {
     
     @Test
     public void testQuantifierMaximum_withAlternative_andEntry() {
-        var parser = RegParser.newRegParser(
+        var parser = newRegParser(
                                 RPEntry._new(
                                         new CheckerAlternative(
                                             new WordChecker("1"), 
@@ -265,14 +273,14 @@ public class TestGreediness {
                                             new WordChecker("n"), 
                                             new WordChecker("d")
                                         ), 
-                                        new Quantifier(1, 5, Greediness.Maximum)),
+                                        new Quantifier(1, 5, Maximum)),
                                 RPEntry._new(new WordChecker("end")));
         validate(null, parser.parse("1234567end123456789012345end9012"));
     }
     
     @Test
     public void testQuantifierMaximum_withAlternative_andEntry_longer() {
-        var parser = RegParser.newRegParser(
+        var parser = newRegParser(
                                 RPEntry._new(
                                         new CheckerAlternative(
                                             new WordChecker("1"), 
@@ -288,7 +296,7 @@ public class TestGreediness {
                                             new WordChecker("e"),
                                             new WordChecker("n"), 
                                             new WordChecker("d")
-                                        ), new Quantifier(1, 17, Greediness.Maximum)
+                                        ), new Quantifier(1, 17, Maximum)
                                 ),
                                 RPEntry._new(new WordChecker("end")));
         validate(10, parser.parse("1234567end123456789012345end9012").getEndPosition());
@@ -296,7 +304,7 @@ public class TestGreediness {
     
     @Test
     public void testQuantifierMaximum_withAlternative_andEntry_evenLonger() {
-        var parser = RegParser.newRegParser(
+        var parser = newRegParser(
                                 RPEntry._new(
                                         new CheckerAlternative(
                                             new WordChecker("1"), 
@@ -312,7 +320,7 @@ public class TestGreediness {
                                             new WordChecker("e"),
                                             new WordChecker("n"), 
                                             new WordChecker("d")
-                                        ), new Quantifier(1, 31, Greediness.Maximum)
+                                        ), new Quantifier(1, 31, Maximum)
                                 ),
                                 RPEntry._new(new WordChecker("end")));
         validate(28, parser.parse("1234567end123456789012345end9012").getEndPosition());
@@ -320,7 +328,7 @@ public class TestGreediness {
     
     @Test
     public void testQuantifierMinimum_withAlternative_andEntry() {
-        var parser = RegParser.newRegParser(
+        var parser = newRegParser(
                                 RPEntry._new(
                                         new CheckerAlternative(
                                             new WordChecker("1"), 
@@ -336,7 +344,7 @@ public class TestGreediness {
                                             new WordChecker("e"),
                                             new WordChecker("n"), 
                                             new WordChecker("d")
-                                        ), new Quantifier(1, 5, Greediness.Minimum)
+                                        ), new Quantifier(1, 5, Minimum)
                                 ),
                                 RPEntry._new(new WordChecker("end")));
         validate(null, parser.parse("1234567end123456789012345end9012"));
@@ -344,7 +352,7 @@ public class TestGreediness {
     
     @Test
     public void testQuantifierMinimum_withAlternative_andEntry_longer() {
-        var parser = RegParser.newRegParser(
+        var parser = newRegParser(
                                 RPEntry._new(
                                         new CheckerAlternative(
                                             new WordChecker("1"), 
@@ -360,7 +368,7 @@ public class TestGreediness {
                                             new WordChecker("e"),
                                             new WordChecker("n"), 
                                             new WordChecker("d")
-                                        ), new Quantifier(1, 17, Greediness.Minimum)
+                                        ), new Quantifier(1, 17, Minimum)
                                 ),
                                 RPEntry._new(new WordChecker("end")));
         validate(10, parser.parse("1234567end123456789012345end9012").getEndPosition());
@@ -368,7 +376,7 @@ public class TestGreediness {
     
     @Test
     public void testQuantifierMinimum_withAlternative_andEntry_evenLonger() {
-        var parser = RegParser.newRegParser(
+        var parser = newRegParser(
                                 RPEntry._new(
                                         new CheckerAlternative(
                                             new WordChecker("1"), 
@@ -384,7 +392,7 @@ public class TestGreediness {
                                             new WordChecker("e"),
                                             new WordChecker("n"), 
                                             new WordChecker("d")
-                                        ), new Quantifier(1, 31, Greediness.Minimum)
+                                        ), new Quantifier(1, 31, Minimum)
                                 ),
                                 RPEntry._new(new WordChecker("end")));
         validate(10, parser.parse("1234567end123456789012345end9012").getEndPosition());

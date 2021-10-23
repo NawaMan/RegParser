@@ -1,6 +1,9 @@
 package net.nawaman.regparser;
 
+import static net.nawaman.regparser.Greediness.Maximum;
+import static net.nawaman.regparser.Greediness.Minimum;
 import static net.nawaman.regparser.RPCompiler_ParserTypes.getCharClass;
+import static net.nawaman.regparser.RPCompiler_ParserTypes.RPTEscapeHex.HEX;
 import static net.nawaman.regparser.RegParser.newRegParser;
 
 import java.util.Random;
@@ -43,19 +46,6 @@ public class TestRegParserCompiler2 {
     static void validate(String expected, Object actual) {
         TestUtils.validate(expected, actual);
     }
-    static void validateNull(Object actual) {
-        TestUtils.validate("Null", actual);
-    }
-    
-    static public void AssertNotNull(Object pValue) {
-        if (pValue == null)
-            throw new AssertionError();
-    }
-    
-    static public void AssertNull(Object pValue) {
-        if (pValue != null)
-            throw new AssertionError();
-    }
     
     @Before
     public void setup() {
@@ -94,7 +84,7 @@ public class TestRegParserCompiler2 {
     @Test
     public void testEscapeOct() {
         var typeName = RPTEscapeOct.Name;
-        var parser   = RegParser.newRegParser(new PTypeRef.Simple(typeName));
+        var parser   = newRegParser(new PTypeRef.Simple(typeName));
         validate("(!EscapeOct!)", parser);
         
         char c  = 'n';
@@ -112,7 +102,7 @@ public class TestRegParserCompiler2 {
     public void testEscapeHex() {
         var typeName = RPTEscapeHex.Name;
         
-        var parser = RegParser.newRegParser(new PTypeRef.Simple(typeName));
+        var parser = newRegParser(new PTypeRef.Simple(typeName));
         validate("(!EscapeHex!)", parser);
         
         char c  = 'm';
@@ -132,13 +122,14 @@ public class TestRegParserCompiler2 {
     public void testEscapeUnicode() {
         var typeName = RPTEscapeUnicode.Name;
         
-        var parser = RegParser.newRegParser(new PTypeRef.Simple(typeName));
+        var parser = newRegParser(new PTypeRef.Simple(typeName));
         validate("(!EscapeUnicode!)", parser);
         
         char c  = 'm';
-        var result = parser.match("\\u" + RPTEscapeHex.HEX.charAt((c / (16 * 16 * 16)) % 16) + ""
-                + RPTEscapeHex.HEX.charAt((c / (16 * 16)) % 16) + "" + RPTEscapeHex.HEX.charAt((c / (16)) % 16) + ""
-                + RPTEscapeHex.HEX.charAt(c % 16), typeProvider);
+        var result = parser.match("\\u" + HEX.charAt((c / (16 * 16 * 16)) % 16) + ""
+                                        + HEX.charAt((c / (16 * 16)) % 16) + ""
+                                        + HEX.charAt((c / (16)) % 16) + ""
+                                        + HEX.charAt(c % 16), typeProvider);
         validate("\n"
                 + "00 => [    6] = <NoName>        :EscapeUnicode    = \"\\\\u006D\"",
                 result);
@@ -154,7 +145,7 @@ public class TestRegParserCompiler2 {
     
     @Test
     public void testPredefinedCharClasses() {
-        var parser = RegParser.newRegParser(RPCompiler_ParserTypes.PredefinedCheckers);
+        var parser = newRegParser(RPCompiler_ParserTypes.PredefinedCheckers);
         
         var result = parser.match("\\jd", typeProvider);
         validate("\n"
@@ -262,7 +253,7 @@ public class TestRegParserCompiler2 {
         var typeName = RPTType.Name;
         var type  = typeProvider.getType(typeName);
         
-        var parser = RegParser.newRegParser(new PTypeRef.Simple(typeName));
+        var parser = newRegParser(new PTypeRef.Simple(typeName));
         validate("(!Type!)", parser);
         
         var result = parser.match("!Text!", typeProvider);
@@ -301,7 +292,7 @@ public class TestRegParserCompiler2 {
         var typeName = RPTQuantifier.Name;
         var type  = typeProvider.getType(typeName);
         
-        var parser = RegParser.newRegParser(new PTypeRef.Simple(typeName));
+        var parser = newRegParser(new PTypeRef.Simple(typeName));
         validate("(!Quantifier!)", parser);
         
         var result = parser.match("{5,10}*", typeProvider);
@@ -334,22 +325,22 @@ public class TestRegParserCompiler2 {
         validate("{2,5}",  type.compile("{ 2 , 5 }",  null, typeProvider));
         validate("{2,5}*", type.compile("{ 2 , 5 }*", null, typeProvider));
         
-        validate( 0,                  ((Quantifier) type.compile("?",     null, typeProvider)).getLowerBound());
-        validate( 1,                  ((Quantifier) type.compile("?",     null, typeProvider)).getUpperBound());
-        validate( 0,                  ((Quantifier) type.compile("*",     null, typeProvider)).getLowerBound());
-        validate(-1,                  ((Quantifier) type.compile("*",     null, typeProvider)).getUpperBound());
-        validate( 1,                  ((Quantifier) type.compile("+",     null, typeProvider)).getLowerBound());
-        validate(-1,                  ((Quantifier) type.compile("+",     null, typeProvider)).getUpperBound());
-        validate( 5,                  ((Quantifier) type.compile("{5}",   null, typeProvider)).getLowerBound());
-        validate( 5,                  ((Quantifier) type.compile("{5}",   null, typeProvider)).getUpperBound());
-        validate( 5,                  ((Quantifier) type.compile("{5,}",  null, typeProvider)).getLowerBound());
-        validate(-1,                  ((Quantifier) type.compile("{5,}",  null, typeProvider)).getUpperBound());
-        validate( 0,                  ((Quantifier) type.compile("{,5}",  null, typeProvider)).getLowerBound());
-        validate( 5,                  ((Quantifier) type.compile("{,5}",  null, typeProvider)).getUpperBound());
-        validate( 2,                  ((Quantifier) type.compile("{2,5}", null, typeProvider)).getLowerBound());
-        validate( 5,                  ((Quantifier) type.compile("{2,5}", null, typeProvider)).getUpperBound());
-        validate( Greediness.Maximum, ((Quantifier) type.compile("?+",    null, typeProvider)).getGreediness());
-        validate( Greediness.Minimum, ((Quantifier) type.compile("?*",    null, typeProvider)).getGreediness());
+        validate( 0,       ((Quantifier) type.compile("?",     null, typeProvider)).getLowerBound());
+        validate( 1,       ((Quantifier) type.compile("?",     null, typeProvider)).getUpperBound());
+        validate( 0,       ((Quantifier) type.compile("*",     null, typeProvider)).getLowerBound());
+        validate(-1,       ((Quantifier) type.compile("*",     null, typeProvider)).getUpperBound());
+        validate( 1,       ((Quantifier) type.compile("+",     null, typeProvider)).getLowerBound());
+        validate(-1,       ((Quantifier) type.compile("+",     null, typeProvider)).getUpperBound());
+        validate( 5,       ((Quantifier) type.compile("{5}",   null, typeProvider)).getLowerBound());
+        validate( 5,       ((Quantifier) type.compile("{5}",   null, typeProvider)).getUpperBound());
+        validate( 5,       ((Quantifier) type.compile("{5,}",  null, typeProvider)).getLowerBound());
+        validate(-1,       ((Quantifier) type.compile("{5,}",  null, typeProvider)).getUpperBound());
+        validate( 0,       ((Quantifier) type.compile("{,5}",  null, typeProvider)).getLowerBound());
+        validate( 5,       ((Quantifier) type.compile("{,5}",  null, typeProvider)).getUpperBound());
+        validate( 2,       ((Quantifier) type.compile("{2,5}", null, typeProvider)).getLowerBound());
+        validate( 5,       ((Quantifier) type.compile("{2,5}", null, typeProvider)).getUpperBound());
+        validate( Maximum, ((Quantifier) type.compile("?+",    null, typeProvider)).getGreediness());
+        validate( Minimum, ((Quantifier) type.compile("?*",    null, typeProvider)).getGreediness());
     }
     
     @Test
@@ -381,7 +372,7 @@ public class TestRegParserCompiler2 {
         var type     = typeProvider.getType(typeName);
         var text     = "[^a-zasdfg[A-Z][0-9].\\s\\jp{Blank}]&&[[:JDigit:]]";
         
-        var parser = RegParser.newRegParser(new PTypeRef.Simple(typeName));
+        var parser = newRegParser(new PTypeRef.Simple(typeName));
         validate("(!CharSetItem!)", parser);
         
         var result = parser.match(text, typeProvider);
@@ -444,13 +435,13 @@ public class TestRegParserCompiler2 {
     @Test
     public void testRegParser() {
         {
-            var parser = RegParser.newRegParser("abc");
+            var parser = newRegParser("abc");
             validate("abc",  parser);
             validate(3,      parser.match("abc", typeProvider).getEndPosition());
             validate("null", parser.match("def", typeProvider));
         }
         {
-            var parser = RegParser.newRegParser("(a|b|c)");
+            var parser = newRegParser("(a|b|c)");
             validate("(a|b|c)", parser);
             validate(1,      parser.match("a", typeProvider).getEndPosition());
             validate(1,      parser.match("b", typeProvider).getEndPosition());
@@ -458,7 +449,7 @@ public class TestRegParserCompiler2 {
             validate("null", parser.match("d", typeProvider));
         }
         {
-            var parser = RegParser.newRegParser("Col(o|ou)?r");
+            var parser = newRegParser("Col(o|ou)?r");
             validate("Col(o|ou)?r", parser);
             validate(4,      parser.match("Colr",   typeProvider).getEndPosition());
             validate(5,      parser.match("Color",  typeProvider).getEndPosition());
@@ -467,7 +458,7 @@ public class TestRegParserCompiler2 {
         }
         {
             typeProvider.addRPType(new PTIdentifier());
-            var parser = RegParser.newRegParser("(var|int)\\b+!$Identifier!\\b*=\\b*[0-9]+\\b*;");
+            var parser = newRegParser("(var|int)\\b+!$Identifier!\\b*=\\b*[0-9]+\\b*;");
             validate(12, parser.match("var V1 = 45;", typeProvider).getEndPosition());
             validate(10, parser.match("var V1=45;",   typeProvider).getEndPosition());
             validate(12, parser.match("var V1 = 5 ;", typeProvider).getEndPosition());
@@ -478,18 +469,18 @@ public class TestRegParserCompiler2 {
         typeProvider.addRPType(PTBackRefCI.BackRefCI_Instance);
         
         {
-            var parser = RegParser.newRegParser("(#X:~[:AlphabetAndDigit:]+~)\\-(#X;)\\-(#X;)");
+            var parser = newRegParser("(#X:~[:AlphabetAndDigit:]+~)\\-(#X;)\\-(#X;)");
             validate(5, parser.match("5-5-5", typeProvider).getEndPosition());
         }
         
         {
-            var parser = RegParser.newRegParser("($X:~[:AlphabetAndDigit:]+~)\\-($X';)\\-($X';)");
+            var parser = newRegParser("($X:~[:AlphabetAndDigit:]+~)\\-($X';)\\-($X';)");
             validate(5, parser.match("A-A-A", typeProvider).getEndPosition());
             validate(5, parser.match("a-A-a", typeProvider).getEndPosition());
         }
         
         {
-            var parser = RegParser.newRegParser(new PTypeRef.Simple(RPTRegParser.Name));
+            var parser = newRegParser(new PTypeRef.Simple(RPTRegParser.Name));
             validate("(!RegParser!)", parser);
             
             var result = parser.parse("one'Two'three", typeProvider);
@@ -503,14 +494,14 @@ public class TestRegParserCompiler2 {
         }
         
         {
-            var parser = RegParser.newRegParser("one'Two'three");
+            var parser = newRegParser("one'Two'three");
             validate("one(!textCI(\"Two\")!)three", parser);
             validate(11, parser.match("oneTwothree", typeProvider).getEndPosition());
             validate(11, parser.match("oneTWOthree", typeProvider).getEndPosition());
         }
         
         {
-            var parser = RegParser.newRegParser("'var'\\b+(#Name:!$Identifier!)\\b*=\\b*(#Value:~[0-9]*~)\\b*;");
+            var parser = newRegParser("'var'\\b+(#Name:!$Identifier!)\\b*=\\b*(#Value:~[0-9]*~)\\b*;");
             validate("(!textCI(\"var\")!)[\\ \\t]+(#Name:!$Identifier!)[\\ \\t]*=[\\ \\t]*(#Value:~[0-9]*~)[\\ \\t]*;",
                     parser);
             

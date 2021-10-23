@@ -1,5 +1,9 @@
 package net.nawaman.regparser;
 
+import static net.nawaman.regparser.Greediness.Maximum;
+import static net.nawaman.regparser.PredefinedCharClasses.Digit;
+import static net.nawaman.regparser.Quantifier.ZeroOrMore_Maximum;
+import static net.nawaman.regparser.RegParser.newRegParser;
 import static net.nawaman.regparser.TestUtils.validate;
 
 import org.junit.ClassRule;
@@ -18,20 +22,18 @@ public class TestSelfContain {
             return "int0To24~";
         }
         
-        Checker Checker = RegParser.newRegParser(PredefinedCharClasses.Digit,
-                new Quantifier(1, 2, Greediness.Maximum));
+        Checker checker = newRegParser(Digit, new Quantifier(1, 2, Maximum));
         
         @Override
-        public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
-            return this.Checker;
+        public Checker getChecker(ParseResult postResult, String param, PTypeProvider typeProvider) {
+            return this.checker;
         }
         
         @Override
-        public boolean doValidate(ParseResult pHostResult, ParseResult pThisResult, String pParam,
-                PTypeProvider pProvider) {
-            String S = pThisResult.getText();
-            int    I = Integer.parseInt(S);
-            return (I >= 0) && (I <= 24);
+        public boolean doValidate(ParseResult hostResult, ParseResult thisResult, String param, PTypeProvider typeProvider) {
+            var text  = thisResult.getText();
+            int value = Integer.parseInt(text);
+            return (value >= 0) && (value <= 24);
         }
     };
     
@@ -42,28 +44,26 @@ public class TestSelfContain {
             return "$int25To50~";
         }
         
-        Checker Checker = RegParser.newRegParser(PredefinedCharClasses.Digit,
-                new Quantifier(1, 2, Greediness.Maximum));
+        Checker checker = RegParser.newRegParser(Digit, new Quantifier(1, 2, Maximum));
         
         @Override
-        public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
-            return this.Checker;
+        public Checker getChecker(ParseResult hostResult, String param, PTypeProvider typeProvider) {
+            return this.checker;
         }
         
         @Override
-        public boolean doValidate(ParseResult pHostResult, ParseResult pThisResult, String pParam,
-                PTypeProvider pProvider) {
-            String S = pThisResult.getText();
-            int    I = Integer.parseInt(S);
-            return (I >= 25) && (I <= 50);
+        public boolean doValidate(ParseResult hostResult, ParseResult thisResult, String param, PTypeProvider typeProvider) {
+            var text  = thisResult.getText();
+            int value = Integer.parseInt(text);
+            return (value >= 25) && (value <= 50);
         }
     };
     
-    private RegParser regParser = RegParser.newRegParser(
+    private RegParser regParser = newRegParser(
                             new CheckerAlternative(
-                                RegParser.newRegParser("#ValueLow",  Int0To24),
-                                RegParser.newRegParser("#ValueHigh", Int25To50)
-                            ), Quantifier.ZeroOrMore_Maximum);
+                                newRegParser("#ValueLow",  Int0To24),
+                                newRegParser("#ValueHigh", Int25To50)
+                            ), ZeroOrMore_Maximum);
     
     @Test
     public void testValidate() {

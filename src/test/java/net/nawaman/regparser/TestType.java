@@ -1,5 +1,14 @@
 package net.nawaman.regparser;
 
+import static net.nawaman.regparser.Greediness.Maximum;
+import static net.nawaman.regparser.PredefinedCharClasses.Alphabet;
+import static net.nawaman.regparser.PredefinedCharClasses.Any;
+import static net.nawaman.regparser.PredefinedCharClasses.Blank;
+import static net.nawaman.regparser.PredefinedCharClasses.Digit;
+import static net.nawaman.regparser.Quantifier.OneOrMore;
+import static net.nawaman.regparser.Quantifier.ZeroOrMore;
+import static net.nawaman.regparser.Quantifier.ZeroOrMore_Maximum;
+import static net.nawaman.regparser.Quantifier.ZeroOrMore_Minimum;
 import static net.nawaman.regparser.RegParser.newRegParser;
 import static net.nawaman.regparser.TestUtils.validate;
 
@@ -25,11 +34,11 @@ public class TestType {
             return "$byte?";
         }
         
-        Checker Checker = RegParser.newRegParser(PredefinedCharClasses.Digit, new Quantifier(1, 3));
+        Checker checker = newRegParser(Digit, new Quantifier(1, 3));
         
         @Override
         public Checker getChecker(ParseResult hostResult, String param, PTypeProvider provider) {
-            return this.Checker;
+            return this.checker;
         }
         
         @Override
@@ -48,7 +57,7 @@ public class TestType {
     
     @Test
     public void testBasicType() {
-        var regParser = RegParser.newRegParser(defaultTypeProvider, RPEntry._new("#Value", defaultTypeProvider.getType("$byte?")));
+        var regParser = newRegParser(defaultTypeProvider, RPEntry._new("#Value", defaultTypeProvider.getType("$byte?")));
         var result    = regParser.parse("192");
         validate("192", result.textOf("#Value"));
     }
@@ -62,7 +71,7 @@ public class TestType {
                 return "$byte?";
             }
         };
-        var regParser = RegParser.newRegParser(defaultTypeProvider, RPEntry._new("#Value", refToByte));
+        var regParser = newRegParser(defaultTypeProvider, RPEntry._new("#Value", refToByte));
         var result    = regParser.parse("192");
         validate("192", result.textOf("#Value"));
     }
@@ -77,11 +86,11 @@ public class TestType {
                 return "$byte?";
             }
             
-            Checker Checker = RegParser.newRegParser(PredefinedCharClasses.Digit, new Quantifier(1, 3));
+            Checker checker = newRegParser(Digit, new Quantifier(1, 3));
             
             @Override
-            public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
-                return this.Checker;
+            public Checker getChecker(ParseResult hostResult, String param, PTypeProvider typeProvider) {
+                return this.checker;
             }
             
             @Override
@@ -92,7 +101,7 @@ public class TestType {
             }
         };
         
-        var regParser = RegParser.newRegParser(RPEntry._new("#Value", byteType));
+        var regParser = newRegParser(RPEntry._new("#Value", byteType));
         var result    = regParser.parse("192");
         validate("192", result.textOf("#Value"));
     }
@@ -107,14 +116,11 @@ public class TestType {
                 return "$int(0-4)?";
             }
             
-            Checker Checker = RegParser.newRegParser(
-                                PredefinedCharClasses.Digit,
-                                new Quantifier(1, 1, Greediness.Maximum)
-                            );
+            Checker checker = newRegParser(Digit, new Quantifier(1, 1, Maximum));
             
             @Override
             public Checker getChecker(ParseResult hostResult, String param, PTypeProvider provider) {
-                return this.Checker;
+                return this.checker;
             }
             
             @Override
@@ -132,12 +138,11 @@ public class TestType {
                 return "$int(5-9)?";
             }
             
-            Checker Checker = RegParser.newRegParser(PredefinedCharClasses.Digit,
-                    new Quantifier(1, 1, Greediness.Maximum));
+            Checker checker = newRegParser(Digit, new Quantifier(1, 1, Maximum));
             
             @Override
-            public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
-                return this.Checker;
+            public Checker getChecker(ParseResult hostResult, String param, PTypeProvider typeProvider) {
+                return this.checker;
             }
             
             @Override
@@ -147,12 +152,12 @@ public class TestType {
                 return (value >= 5) && (value <= 9);
             }
         };
-        var regParser = RegParser.newRegParser(
+        var regParser = newRegParser(
                             new CheckerAlternative(
-                                    RegParser.newRegParser("#Value_Low",  int0To4),
-                                    RegParser.newRegParser("#Value_High", int5To9)
+                                    newRegParser("#Value_Low",  int0To4),
+                                    newRegParser("#Value_High", int5To9)
                             ),
-                            Quantifier.ZeroOrMore_Maximum
+                            ZeroOrMore_Maximum
                         );
         
         var result = regParser.parse("3895482565");
@@ -169,27 +174,24 @@ public class TestType {
                 return "block";
             }
             
-            Checker Checker = RegParser.newRegParser(    // <([^<]|!block!)*+>
-                    new CharSingle('<'),
-                    new CheckerAlternative(
-                            RegParser.newRegParser("#Other",
-                                    RegParser.newRegParser(
-                                            new CharNot(new CharSet("<>")), Quantifier.OneOrMore)
-                                    ),
-                            RegParser.newRegParser("#SubBlock", new PTypeRef.Simple("block"))
-                    ),
-                    Quantifier.ZeroOrMore_Minimum, new CharSingle('>'));
+            Checker checker = newRegParser(    // <([^<]|!block!)*+>
+                                new CharSingle('<'),
+                                new CheckerAlternative(
+                                        newRegParser("#Other",    newRegParser(new CharNot(new CharSet("<>")), OneOrMore)),
+                                        newRegParser("#SubBlock", new PTypeRef.Simple("block"))
+                                ), ZeroOrMore_Minimum,
+                                new CharSingle('>'));
             
             @Override
-            public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
-                return this.Checker;
+            public Checker getChecker(ParseResult hostResult, String param, PTypeProvider typeProvider) {
+                return this.checker;
             }
         };
         
         var typeProvider = new PTypeProvider.Simple(blockType);
         validate("!block!", typeProvider.getType("block"));
         
-        var regParser = RegParser.newRegParser(typeProvider, RPEntry._new("#Block", blockType));
+        var regParser = newRegParser(typeProvider, RPEntry._new("#Block", blockType));
         validate("(#Block:!block!)", regParser);
         
         var parseResult = regParser.parse("<123456>");
@@ -232,10 +234,10 @@ public class TestType {
         defaultTypeProvider.addRPType(PTBackRef.BackRef_Instance);
         defaultTypeProvider.addRPType(PTBackRefCI.BackRefCI_Instance);
         
-        var regParser = RegParser.newRegParser(defaultTypeProvider,
-                    RPEntry._new("#X", new PTypeRef.Simple("$byte?")), 
-                    new CharSingle('x'),
-                    RegParser.newRegParser(defaultTypeProvider, new PTypeRef.Simple(PTBackRef.BackRef_Instance.getName(), "#X"))
+        var regParser = newRegParser(defaultTypeProvider,
+                            RPEntry._new("#X", new PTypeRef.Simple("$byte?")), 
+                            new CharSingle('x'),
+                            newRegParser(defaultTypeProvider, new PTypeRef.Simple(PTBackRef.BackRef_Instance.getName(), "#X"))
                 );
         validate("(#X:!$byte?!)[x]((!$BackRef?(\"#X\")!))", regParser);
         
@@ -255,17 +257,16 @@ public class TestType {
         // Add the type
         var typeProvider = new PTypeProvider.Simple(PTBackRef.BackRef_Instance);
         
-        var parser = RegParser.newRegParser(typeProvider, new CharSingle('<'),
-                RPEntry._new("Begin",
-                        RegParser.newRegParser(typeProvider, new CharUnion(new CharRange('a', 'z'), new CharRange('A', 'Z')),
-                                Quantifier.OneOrMore)),
-                PredefinedCharClasses.Blank, Quantifier.ZeroOrMore, new CharSingle('>'), PredefinedCharClasses.Any,
-                Quantifier.ZeroOrMore_Minimum,
-                RegParser.newRegParser(typeProvider, "#End",
-                        RegParser.newRegParser(typeProvider, new WordChecker("</"),
-                                RPEntry._new("#EndTag",
-                                        new PTypeRef.Simple(PTBackRef.BackRef_Instance.getName(), "Begin")),
-                                new CharSingle('>'))));
+        var parser = newRegParser(typeProvider, 
+                        new CharSingle('<'),
+                        RPEntry._new("Begin", newRegParser(typeProvider, new CharUnion(new CharRange('a', 'z'), new CharRange('A', 'Z')), OneOrMore)),
+                        Blank, ZeroOrMore,
+                        new CharSingle('>'),
+                        Any, ZeroOrMore_Minimum,
+                        newRegParser(typeProvider, "#End",
+                                newRegParser(typeProvider, new WordChecker("</"),
+                                        RPEntry._new("#EndTag", new PTypeRef.Simple(PTBackRef.BackRef_Instance.getName(), "Begin")),
+                                        new CharSingle('>'))));
         
         validate(
                 "[<](Begin:~[[a-z][A-Z]]+~)[\\ \\t]*[>].**((#End:~</(#EndTag:!$BackRef?(\"Begin\")!)[>]~))",
@@ -303,13 +304,13 @@ public class TestType {
                 return "Identifier";
             }
             
-            Checker Checker = RegParser.newRegParser(new CharUnion(PredefinedCharClasses.Alphabet, new CharSingle('_')),
-                    new CharUnion(PredefinedCharClasses.Alphabet, new CharSingle('_'), PredefinedCharClasses.Digit),
-                    Quantifier.ZeroOrMore);
+            Checker checker = newRegParser(
+                                    new CharUnion(Alphabet, new CharSingle('_')),
+                                    new CharUnion(Alphabet, new CharSingle('_'), Digit), ZeroOrMore);
             
             @Override
-            public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
-                return this.Checker;
+            public Checker getChecker(ParseResult hostResult, String param, PTypeProvider typeProvider) {
+                return this.checker;
             }
         };
         
@@ -320,21 +321,20 @@ public class TestType {
                 return "StringValue";
             }
             
-            Checker Checker = RegParser
-                    .newRegParser(
-                            new CheckerAlternative(
-                                    RegParser.newRegParser(new CharSingle('\"'),
-                                            new CheckerAlternative(new CharNot(new CharSingle('\"')),
-                                                    new WordChecker("\\\"")),
-                                            Quantifier.ZeroOrMore_Minimum, new CharSingle('\"')),
-                                    RegParser.newRegParser(new CharSingle('\''),
-                                            new CheckerAlternative(new CharNot(new CharSingle('\'')),
-                                                    new WordChecker("\\\'")),
-                                            Quantifier.ZeroOrMore_Minimum, new CharSingle('\''))));
+            Checker checker = newRegParser(
+                                new CheckerAlternative(
+                                        newRegParser(new CharSingle('\"'),
+                                                new CheckerAlternative(new CharNot(new CharSingle('\"')),
+                                                        new WordChecker("\\\"")),
+                                                Quantifier.ZeroOrMore_Minimum, new CharSingle('\"')),
+                                        RegParser.newRegParser(new CharSingle('\''),
+                                                new CheckerAlternative(new CharNot(new CharSingle('\'')),
+                                                        new WordChecker("\\\'")),
+                                                Quantifier.ZeroOrMore_Minimum, new CharSingle('\''))));
             
             @Override
-            public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
-                return this.Checker;
+            public Checker getChecker(ParseResult hostResult, String param, PTypeProvider typeProvider) {
+                return this.checker;
             }
         };
         
@@ -345,14 +345,15 @@ public class TestType {
                 return "Attribute";
             }
             
-            Checker Checker = RegParser.newRegParser("#AttrName", new PTypeRef.Simple("Identifier"),
-                    PredefinedCharClasses.Blank, Quantifier.ZeroOrMore, new CharSingle('='),
-                    PredefinedCharClasses.Blank, Quantifier.ZeroOrMore, "#AttrValue",
-                    new PTypeRef.Simple("StringValue"));
+            Checker checker = newRegParser(
+                                "#AttrName", new PTypeRef.Simple("Identifier"),
+                                Blank, ZeroOrMore, new CharSingle('='),
+                                Blank, ZeroOrMore, "#AttrValue",
+                                new PTypeRef.Simple("StringValue"));
             
             @Override
-            public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
-                return this.Checker;
+            public Checker getChecker(ParseResult hostResult, String param, PTypeProvider typeProvider) {
+                return this.checker;
             }
         };
         
@@ -363,31 +364,28 @@ public class TestType {
                 return "Tag";
             }
             
-            Checker Checker = RegParser.newRegParser(new CharSingle('<'),
-                    RPEntry._new("$Begin", RegParser.newRegParser(
-                            new CharUnion(new CharRange('a', 'z'), new CharRange('A', 'Z')), Quantifier.OneOrMore)),
-                    PredefinedCharClasses.Blank, Quantifier.ZeroOrMore,
-                    RegParser.newRegParser(RegParser.newRegParser(PredefinedCharClasses.Blank, Quantifier.ZeroOrMore,
-                            "$Attr", new PTypeRef.Simple("Attribute"), PredefinedCharClasses.Blank,
-                            Quantifier.ZeroOrMore), Quantifier.ZeroOrMore),
-                    new CheckerAlternative(
-                            RegParser.newRegParser(new CharSingle('>'),
-                                    new CheckerAlternative(
-                                            RegParser.newRegParser("#Other",
-                                                    RegParser.newRegParser(new CharNot(new CharSet("<>")),
-                                                            Quantifier.OneOrMore)),
-                                            RegParser.newRegParser("#SubBlock", new PTypeRef.Simple("Tag"))),
-                                    Quantifier.ZeroOrMore_Minimum,
-                                    RegParser.newRegParser("#End", RegParser.newRegParser(new WordChecker("</"),
-                                            RPEntry._new("#EndTag",
-                                                    new PTypeRef.Simple(PTBackRefCI.BackRefCI_Instance.getName(),
-                                                            "$Begin")),
-                                            new CharSingle('>')))),
-                            RegParser.newRegParser(new WordChecker("/>"))));
+            Checker checker = newRegParser(
+                                new CharSingle('<'),
+                                RPEntry._new("$Begin", newRegParser(new CharUnion(new CharRange('a', 'z'), new CharRange('A', 'Z')), OneOrMore)),
+                                Blank, ZeroOrMore,
+                                newRegParser(newRegParser(Blank, ZeroOrMore,
+                                        "$Attr", new PTypeRef.Simple("Attribute"), Blank,
+                                        ZeroOrMore), ZeroOrMore),
+                                new CheckerAlternative(
+                                        newRegParser(new CharSingle('>'),
+                                                new CheckerAlternative(
+                                                        newRegParser("#Other", newRegParser(new CharNot(new CharSet("<>")), OneOrMore)),
+                                                        newRegParser("#SubBlock", new PTypeRef.Simple("Tag"))), ZeroOrMore_Minimum,
+                                                newRegParser("#End", newRegParser(new WordChecker("</"),
+                                                        RPEntry._new("#EndTag",
+                                                                new PTypeRef.Simple(PTBackRefCI.BackRefCI_Instance.getName(),
+                                                                        "$Begin")),
+                                                        new CharSingle('>')))),
+                                        newRegParser(new WordChecker("/>"))));
             
             @Override
-            public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
-                return this.Checker;
+            public Checker getChecker(ParseResult hostResult, String param, PTypeProvider typeProvider) {
+                return this.checker;
             }
         };
         

@@ -1,5 +1,6 @@
 package net.nawaman.regparser;
 
+import static net.nawaman.regparser.RegParser.newRegParser;
 import static net.nawaman.regparser.TestUtils.validate;
 
 import org.junit.ClassRule;
@@ -13,7 +14,7 @@ public class TestCheckerFixeds {
     @Test
     public void testCheckerFixeds() {
         var typeProvider = new PTypeProvider.Extensible();
-        typeProvider.addType("Number", RegParser.newRegParser("[0-9]*"));
+        typeProvider.addType("Number", newRegParser("[0-9]*"));
         typeProvider.addType("TestCG", new CheckerFixeds(
                                 new CheckerFixeds.Entry(1), 
                                 new CheckerFixeds.Entry(4),

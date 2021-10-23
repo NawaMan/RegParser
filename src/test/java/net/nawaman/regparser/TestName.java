@@ -1,5 +1,12 @@
 package net.nawaman.regparser;
 
+import static net.nawaman.regparser.PredefinedCharClasses.Alphabet;
+import static net.nawaman.regparser.PredefinedCharClasses.AlphabetAndDigit;
+import static net.nawaman.regparser.PredefinedCharClasses.Blank;
+import static net.nawaman.regparser.PredefinedCharClasses.Digit;
+import static net.nawaman.regparser.Quantifier.OneOrMore;
+import static net.nawaman.regparser.Quantifier.ZeroOrMore;
+import static net.nawaman.regparser.Quantifier.ZeroOrOne;
 import static net.nawaman.regparser.RegParser.newRegParser;
 import static net.nawaman.regparser.TestUtils.validate;
 
@@ -15,29 +22,23 @@ public class TestName {
     public void test1() {
         var parser 
                 = newRegParser(
-                    RPEntry._new("#Name",
-                        RegParser.newRegParser(
-                            PredefinedCharClasses.Alphabet, 
-                            PredefinedCharClasses.AlphabetAndDigit,
-                            Quantifier.ZeroOrMore
-                        )
-                    ),
-                    PredefinedCharClasses.Blank, Quantifier.ZeroOrMore, 
-                    new CharSingle('['),
-                    PredefinedCharClasses.Blank, Quantifier.ZeroOrMore,
-                    RPEntry._new("#Index", PredefinedCharClasses.Digit, Quantifier.OneOrMore),
-                    PredefinedCharClasses.Blank, Quantifier.ZeroOrMore,
+                    RPEntry._new("#Name", newRegParser(Alphabet, AlphabetAndDigit, ZeroOrMore)),
+                    Blank, ZeroOrMore, 
+                    new CharSingle('['), 
+                    Blank, ZeroOrMore, 
+                    RPEntry._new("#Index", Digit, OneOrMore), 
+                    Blank, ZeroOrMore, 
                     new CharSingle(']'),
-                    PredefinedCharClasses.Blank, Quantifier.ZeroOrMore,
+                    Blank, ZeroOrMore,
                     RPEntry._new(
-                        RegParser.newRegParser(
+                        newRegParser(
                             new CharSingle('='),
-                            PredefinedCharClasses.Blank, Quantifier.ZeroOrMore,
-                            RPEntry._new("#Value", RegParser.newRegParser(PredefinedCharClasses.Digit, Quantifier.OneOrMore))
+                            Blank, ZeroOrMore,
+                            RPEntry._new("#Value", newRegParser(Digit, OneOrMore))
                         ),
-                        Quantifier.ZeroOrOne
+                        ZeroOrOne
                     ),
-                    PredefinedCharClasses.Blank, Quantifier.ZeroOrMore, new CharSingle(';')
+                    Blank, ZeroOrMore, new CharSingle(';')
                 );
         
         var result = parser.parse("Var[55] = 70;");
@@ -60,24 +61,37 @@ public class TestName {
     @Test
     public void test2() {
         var parser 
-                = RegParser.newRegParser(
+                = newRegParser(
                     new CharSingle('{'), 
-                    PredefinedCharClasses.Blank, Quantifier.ZeroOrMore,
-                    RPEntry._new("#Value", RegParser.newRegParser(PredefinedCharClasses.Digit, Quantifier.OneOrMore)),
-                    PredefinedCharClasses.Blank, Quantifier.ZeroOrMore,
+                    Blank, ZeroOrMore,
+                    RPEntry._new("#Value", newRegParser(Digit, OneOrMore)),
+                    Blank, ZeroOrMore,
                     RPEntry._new(
-                        RegParser.newRegParser(
+                        newRegParser(
                             new CharSingle(','), 
-                            PredefinedCharClasses.Blank, Quantifier.ZeroOrMore,
-                            RPEntry._new("#Value", RegParser.newRegParser(PredefinedCharClasses.Digit, Quantifier.OneOrMore))),
-                        Quantifier.ZeroOrMore),
-                    PredefinedCharClasses.Blank, Quantifier.ZeroOrMore,
-                    new CharSingle(','),         Quantifier.ZeroOrOne,
-                    PredefinedCharClasses.Blank, Quantifier.ZeroOrMore,
+                            Blank, ZeroOrMore,
+                            RPEntry._new("#Value", newRegParser(Digit, OneOrMore))
+                        ), ZeroOrMore
+                    ),
+                    Blank,               ZeroOrMore,
+                    new CharSingle(','), ZeroOrOne,
+                    Blank,               ZeroOrMore,
                     new CharSingle('}'),
-                    PredefinedCharClasses.Blank, Quantifier.ZeroOrMore,
+                    Blank,               ZeroOrMore,
                     new CharSingle(';'));
+        
         var result = parser.parse("{ 5, 7, 454, 5 };");
+        validate("\n"
+                + "00 => [    2] = <NoName>        :<NoType>         = \"{ \"\n"
+                + "01 => [    3] = #Value          :<NoType>         = \"5\"\n"
+                + "02 => [    5] = <NoName>        :<NoType>         = \", \"\n"
+                + "03 => [    6] = #Value          :<NoType>         = \"7\"\n"
+                + "04 => [    8] = <NoName>        :<NoType>         = \", \"\n"
+                + "05 => [   11] = #Value          :<NoType>         = \"454\"\n"
+                + "06 => [   13] = <NoName>        :<NoType>         = \", \"\n"
+                + "07 => [   14] = #Value          :<NoType>         = \"5\"\n"
+                + "08 => [   17] = <NoName>        :<NoType>         = \" };\"",
+                result);
         
         validate("[#Value]",            result.getAllNames());
         validate("[5,7,454,5]",         Util.toString(result.textsOf("#Value")));

@@ -1,5 +1,12 @@
 package net.nawaman.regparser;
 
+import static net.nawaman.regparser.Greediness.Possessive;
+import static net.nawaman.regparser.Quantifier.One;
+import static net.nawaman.regparser.Quantifier.OneOrMore;
+import static net.nawaman.regparser.Quantifier.Zero;
+import static net.nawaman.regparser.Quantifier.ZeroOrMore;
+import static net.nawaman.regparser.Quantifier.ZeroOrOne;
+import static net.nawaman.regparser.RegParser.newRegParser;
 import static net.nawaman.regparser.TestUtils.validate;
 
 import org.junit.ClassRule;
@@ -13,8 +20,8 @@ public class TestRegParser {
     
     @Test
     public void testQuantifierZero() {
-        var parser = RegParser.newRegParser(
-                        new WordChecker("One"), Quantifier.Zero,
+        var parser = newRegParser(
+                        new WordChecker("One"), Zero,
                         new WordChecker("Two"));
         validate(null, parser.parse("OneTwo"));
         validate(   3, parser.parse("TwoOne").getEndPosition());
@@ -22,7 +29,7 @@ public class TestRegParser {
     
     @Test
     public void testQuantifierOne() {
-        var parser = RegParser.newRegParser(
+        var parser = newRegParser(
                         new WordChecker("One"),
                         new WordChecker("Two"));
         validate(   6, parser.parse("OneTwo").getEndPosition());
@@ -31,8 +38,8 @@ public class TestRegParser {
     
     @Test
     public void testQuantifierZeroOrOne() {
-        var parser = RegParser.newRegParser(
-                        new WordChecker("One"), Quantifier.ZeroOrOne,
+        var parser = newRegParser(
+                        new WordChecker("One"), ZeroOrOne,
                         new WordChecker("Two"));
         validate(6, parser.parse("OneTwo").getEndPosition());
         validate(3, parser.parse("TwoOne").getEndPosition());
@@ -40,9 +47,9 @@ public class TestRegParser {
     
     @Test
     public void testQuantifierZeroOrOne_withPrefix() {
-        var parser = RegParser.newRegParser(
+        var parser = newRegParser(
                         new WordChecker("One"), 
-                        new WordChecker("Two"), Quantifier.ZeroOrOne,
+                        new WordChecker("Two"), ZeroOrOne,
                         new WordChecker("One"));
         validate(null, parser.parse("OneTwo"));
         validate(null, parser.parse("TwoOne"));
@@ -52,9 +59,9 @@ public class TestRegParser {
     
     @Test
     public void testQuantifierOneOrMore() {
-        var parser = RegParser.newRegParser(
+        var parser = newRegParser(
                         new WordChecker("One"), 
-                        new WordChecker("Two"), Quantifier.OneOrMore,
+                        new WordChecker("Two"), OneOrMore,
                         new WordChecker("One"));
         validate(null, parser.parse("OneTwo"));
         validate(null, parser.parse("TwoOne"));
@@ -66,9 +73,9 @@ public class TestRegParser {
     
     @Test
     public void testQuantifierZeroOrMore() {
-        var parser = RegParser.newRegParser(
+        var parser = newRegParser(
                         new WordChecker("One"), 
-                        new WordChecker("Two"), Quantifier.ZeroOrMore,
+                        new WordChecker("Two"), ZeroOrMore,
                         new WordChecker("One"));
         validate(null, parser.parse("OneTwo"));
         validate(null, parser.parse("TwoOne"));
@@ -80,9 +87,9 @@ public class TestRegParser {
     
     @Test
     public void testQuantifierOneOrMore_withRange() {
-        var parser = RegParser.newRegParser(
+        var parser = newRegParser(
                         new WordChecker("One"), 
-                        new CharRange('0', '9'), Quantifier.OneOrMore,
+                        new CharRange('0', '9'), OneOrMore,
                         new WordChecker("One"));
         validate(null, parser.parse("One123"));
         validate(null, parser.parse("123One"));
@@ -94,9 +101,9 @@ public class TestRegParser {
     
     @Test
     public void testQuantifierMixed_One_andZeroOrMore() {
-        var parser = RegParser.newRegParser(
-                        RPEntry._new(new WordChecker("One"), Quantifier.One),
-                        RPEntry._new(new CharRange('0', '9'), Quantifier.ZeroOrMore),
+        var parser = newRegParser(
+                        RPEntry._new(new WordChecker("One"), One),
+                        RPEntry._new(new CharRange('0', '9'), ZeroOrMore),
                         RPEntry._new(new WordChecker("One")));
         validate(null, parser.parse("One123"));
         validate(null, parser.parse("123One"));
@@ -108,8 +115,8 @@ public class TestRegParser {
     
     @Test
     public void testQuantifierRange() {
-        var parser = RegParser.newRegParser(
-                        RPEntry._new(new WordChecker("One"), Quantifier.One),
+        var parser = newRegParser(
+                        RPEntry._new(new WordChecker("One"), One),
                         RPEntry._new(new CharRange('0', '9'), new Quantifier(0, 5)),
                         RPEntry._new(new WordChecker("One")));
         validate(null, parser.parse("One123"));
@@ -122,8 +129,8 @@ public class TestRegParser {
     
     @Test
     public void testQuantifierRange_open() {
-        var parser = RegParser.newRegParser(
-                        RPEntry._new(new WordChecker("One"), Quantifier.One),
+        var parser = newRegParser(
+                        RPEntry._new(new WordChecker("One"), One),
                         RPEntry._new(new CharRange('0', '9'), new Quantifier(5, -1)), 
                         RPEntry._new(new WordChecker("One")));
         validate(null, parser.parse("One123"));
@@ -137,14 +144,14 @@ public class TestRegParser {
     @Ignore("Does not seems to work.")
     @Test
     public void testQuantifierPossessive() {
-        var parser = RegParser.newRegParser(
+        var parser = newRegParser(
                         RPEntry._new(new WordChecker("Col")),
                         RPEntry._new(
                                 new CheckerAlternative(
                                         new WordChecker("o"),
                                         new WordChecker("ou")
                                 ),
-                                new Quantifier(2, Greediness.Possessive)
+                                new Quantifier(2, Possessive)
                         ), 
                         RPEntry._new(new WordChecker("r")));
         
@@ -154,7 +161,7 @@ public class TestRegParser {
     
     @Test
     public void testAlternative() {
-        var parser = RegParser.newRegParser(
+        var parser = newRegParser(
                         RPEntry._new(new WordChecker("Col")),
                         RPEntry._new(new CheckerAlternative(new WordChecker("o"), new WordChecker("ou"))),
                         RPEntry._new(new WordChecker("ur")));
@@ -165,12 +172,9 @@ public class TestRegParser {
     
     @Test
     public void testAlternative_withQualifer() {
-        var parser = RegParser.newRegParser(
+        var parser = newRegParser(
                         RPEntry._new(new WordChecker("Col")),
-                        RPEntry._new(new CheckerAlternative(
-                                            new WordChecker("o"), 
-                                            new WordChecker("ou")), 
-                                        Quantifier.OneOrMore),
+                        RPEntry._new(new CheckerAlternative(new WordChecker("o"), new WordChecker("ou")), OneOrMore),
                         RPEntry._new(new WordChecker("r")));
         
         validate(null, parser.parse("Colur"));
