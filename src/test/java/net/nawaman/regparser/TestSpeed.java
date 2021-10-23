@@ -2,7 +2,6 @@ package net.nawaman.regparser;
 
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.regex.Pattern;

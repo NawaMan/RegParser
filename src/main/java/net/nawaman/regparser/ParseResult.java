@@ -421,6 +421,11 @@ abstract public class ParseResult implements Serializable {
     // Second Stage related ---------------------------------------------------------------------------------------------
     
     /** Parse the result entry - Only when the entry has no sub */
+    public boolean parseEntry(int pEntryIndex, RegParser pParser) {
+        return parseEntry(pEntryIndex, pParser, null);
+    }
+    
+    /** Parse the result entry - Only when the entry has no sub */
     public boolean parseEntry(int pEntryIndex, RegParser pParser, PTypeProvider pProvider) {
         if (pParser == null)
             return false;

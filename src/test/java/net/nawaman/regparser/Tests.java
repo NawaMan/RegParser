@@ -86,10 +86,10 @@ public class Tests {
 //        StartTime = System.currentTimeMillis();
 //        Test_11_Speed.main(ToQuietAsArray);
 //        ExecTime.add(System.currentTimeMillis() - StartTime);
-        
-        StartTime = System.currentTimeMillis();
-        Test_12_Chagnable_ParseResult.main(ToQuietAsArray);
-        ExecTime.add(System.currentTimeMillis() - StartTime);
+//        
+//        StartTime = System.currentTimeMillis();
+//        Test_12_Chagnable_ParseResult.main(ToQuietAsArray);
+//        ExecTime.add(System.currentTimeMillis() - StartTime);
         
         System.out.println("Tests  Times: " + Arrays.toString(ExecTime.toArray(new Long[0])));
         

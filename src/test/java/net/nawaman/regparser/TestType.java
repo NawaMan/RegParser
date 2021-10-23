@@ -1,5 +1,6 @@
 package net.nawaman.regparser;
 
+import static net.nawaman.regparser.RegParser.newRegParser;
 import static net.nawaman.regparser.TestUtils.validate;
 
 import org.junit.Before;
@@ -441,6 +442,15 @@ public class TestType {
                 + ". . 00 - - => [   88] = <NoName>        :<NoType>         = \"</\"\n"
                 + ". . 01 - - => [   91] = #EndTag         :$BackRefCI?      = \"Tag\"\n"
                 + ". . 02 - - => [   92] = <NoName>        :<NoType>         = \">\"",
+                result);
+    }
+    
+    @Test
+    public void testTextCaseInsensitive() {
+        var parser = newRegParser("!textCI(`Te\\\"st`)!");
+        var result = parser.parse("te\"st");
+        validate("\n"
+                + "00 => [    5] = <NoName>        :textCI           = \"te\\\"st\"",
                 result);
     }
 }
