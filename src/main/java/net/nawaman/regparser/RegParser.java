@@ -1037,7 +1037,7 @@ public class RegParser implements Checker, Serializable {
             if (pOffset >= TextLength) {
                 boolean ToTry = false;
                 // If the current multiple matchings end prematurely
-                if (pTimes < FPQ.LBound) {
+                if (pTimes < FPQ.lowerBound()) {
                     RPEntry RPE = this.Entries[pIndex];
                     Checker C   = RPE.getChecker();
                     // If this is a normal checker, return null
@@ -1056,10 +1056,10 @@ public class RegParser implements Checker, Serializable {
                         Checker    C = RPE.getChecker();
                         Quantifier Q = RPE.getQuantifier();
                         // If the rest of the entry is not optional 
-                        if ((Q == null) || (Q.LBound != 0)) {
+                        if ((Q == null) || (Q.lowerBound() != 0)) {
                             // Inside a RegParser or Alternative with Q.LowerBound == 1, there may be a checker with {0}
                             // Inside.
-                            if (((Q == null) || (Q.LBound == 1)) && ((C instanceof RegParser)
+                            if (((Q == null) || (Q.lowerBound() == 1)) && ((C instanceof RegParser)
                                     || (C instanceof CheckerAlternative)
                                     || ((C == null) && ((RPE.getType() != null) || (RPE.getTypeRef() != null))))) {
                                 ToTry = true;
@@ -1145,9 +1145,9 @@ public class RegParser implements Checker, Serializable {
                         if (RPE.getChecker() == PredefinedCharClasses.Any) {
                             if ((RPE.getName() == null) && (RPE.getTypeRef() == null) && (RPE.getType() == null)) {
                                 // Is this limited - Match till the limit
-                                int LB = RPE.getQuantifier().getLowerBound();
+                                int LB = RPE.getQuantifier().lowerBound();
                                 if (pOffset + LB <= TextLength) {    // There is enough space for the minimum (the lower bound)
-                                    int UB = RPE.getQuantifier().getUpperBound();
+                                    int UB = RPE.getQuantifier().upperBound();
                                     if (UB != -1) {    // With limit
                                         if (pOffset + UB <= TextLength) { // Can it contain the maximum
                                             // Take the minimum
@@ -1172,7 +1172,7 @@ public class RegParser implements Checker, Serializable {
                         int REC = pResult.getEntryListSize();
                         
                         // Check if it reaches the maximum
-                        if ((FPQ.UBound == -1) || (pTimes < FPQ.UBound)) {    // Not yet
+                        if ((FPQ.hasNoUpperBound()) || (pTimes < FPQ.upperBound())) {    // Not yet
                             int FREC = pResult.getEntryListSize();
                             // Try the first part
                             if (this.parseEach_P(pText, pOffset, pIndex, pResult, pProvider, pTabs) != null) {    // Match
@@ -1187,7 +1187,7 @@ public class RegParser implements Checker, Serializable {
                             
                         }
                         // Check if it fail to reach the minimum, return as not found
-                        if (pTimes < FPQ.LBound) {
+                        if (pTimes < FPQ.lowerBound()) {
                             // Recover what may have been added in the fail attempt
                             pResult.reset(REC);
                             return null;
@@ -1204,7 +1204,7 @@ public class RegParser implements Checker, Serializable {
                 if (FPQ.isMaximum()) {
                     
                     // Check if it reaches the maximum
-                    if ((FPQ.UBound == -1) || (pTimes < FPQ.UBound)) {    // Not yet
+                    if ((FPQ.hasNoUpperBound()) || (pTimes < FPQ.upperBound())) {    // Not yet
                         
                         PType    FT  = this.Entries[pIndex].getType();
                         PTypeRef FTR = this.Entries[pIndex].getTypeRef();
@@ -1278,7 +1278,7 @@ public class RegParser implements Checker, Serializable {
                         }
                     }
                     // Check if it fail to reach the minimum, return as not found
-                    if (pTimes < FPQ.LBound)
+                    if (pTimes < FPQ.lowerBound())
                         return null;
                     
                     // To the next entry, so change the entry index and restart the repeat
@@ -1290,7 +1290,7 @@ public class RegParser implements Checker, Serializable {
                     if (FPQ.isMinimum()) {
                         
                         // Check if it has reach the minimum
-                        if (pTimes >= FPQ.LBound) {
+                        if (pTimes >= FPQ.lowerBound()) {
                             // Try the last part
                             int REC = pResult.getEntryListSize();
                             // Parse the last part. If match, return
@@ -1307,7 +1307,7 @@ public class RegParser implements Checker, Serializable {
                         }
                         
                         // Check it reach the maximum
-                        if ((FPQ.UBound != -1) && (pTimes >= FPQ.UBound))
+                        if ((FPQ.hasUpperBound()) && (pTimes >= FPQ.upperBound()))
                             return null; // Yes
                             
                         PType    FT  = this.Entries[pIndex].getType();

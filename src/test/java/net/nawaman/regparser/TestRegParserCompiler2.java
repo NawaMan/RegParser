@@ -327,22 +327,22 @@ public class TestRegParserCompiler2 {
         validate("{2,5}",  type.compile("{ 2 , 5 }",  null, typeProvider));
         validate("{2,5}*", type.compile("{ 2 , 5 }*", null, typeProvider));
         
-        validate( 0,       ((Quantifier) type.compile("?",     null, typeProvider)).getLowerBound());
-        validate( 1,       ((Quantifier) type.compile("?",     null, typeProvider)).getUpperBound());
-        validate( 0,       ((Quantifier) type.compile("*",     null, typeProvider)).getLowerBound());
-        validate(-1,       ((Quantifier) type.compile("*",     null, typeProvider)).getUpperBound());
-        validate( 1,       ((Quantifier) type.compile("+",     null, typeProvider)).getLowerBound());
-        validate(-1,       ((Quantifier) type.compile("+",     null, typeProvider)).getUpperBound());
-        validate( 5,       ((Quantifier) type.compile("{5}",   null, typeProvider)).getLowerBound());
-        validate( 5,       ((Quantifier) type.compile("{5}",   null, typeProvider)).getUpperBound());
-        validate( 5,       ((Quantifier) type.compile("{5,}",  null, typeProvider)).getLowerBound());
-        validate(-1,       ((Quantifier) type.compile("{5,}",  null, typeProvider)).getUpperBound());
-        validate( 0,       ((Quantifier) type.compile("{,5}",  null, typeProvider)).getLowerBound());
-        validate( 5,       ((Quantifier) type.compile("{,5}",  null, typeProvider)).getUpperBound());
-        validate( 2,       ((Quantifier) type.compile("{2,5}", null, typeProvider)).getLowerBound());
-        validate( 5,       ((Quantifier) type.compile("{2,5}", null, typeProvider)).getUpperBound());
-        validate( Maximum, ((Quantifier) type.compile("?+",    null, typeProvider)).getGreediness());
-        validate( Minimum, ((Quantifier) type.compile("?*",    null, typeProvider)).getGreediness());
+        validate( 0,       ((Quantifier) type.compile("?",     null, typeProvider)).lowerBound());
+        validate( 1,       ((Quantifier) type.compile("?",     null, typeProvider)).upperBound());
+        validate( 0,       ((Quantifier) type.compile("*",     null, typeProvider)).lowerBound());
+        validate(-1,       ((Quantifier) type.compile("*",     null, typeProvider)).upperBound());
+        validate( 1,       ((Quantifier) type.compile("+",     null, typeProvider)).lowerBound());
+        validate(-1,       ((Quantifier) type.compile("+",     null, typeProvider)).upperBound());
+        validate( 5,       ((Quantifier) type.compile("{5}",   null, typeProvider)).lowerBound());
+        validate( 5,       ((Quantifier) type.compile("{5}",   null, typeProvider)).upperBound());
+        validate( 5,       ((Quantifier) type.compile("{5,}",  null, typeProvider)).lowerBound());
+        validate(-1,       ((Quantifier) type.compile("{5,}",  null, typeProvider)).upperBound());
+        validate( 0,       ((Quantifier) type.compile("{,5}",  null, typeProvider)).lowerBound());
+        validate( 5,       ((Quantifier) type.compile("{,5}",  null, typeProvider)).upperBound());
+        validate( 2,       ((Quantifier) type.compile("{2,5}", null, typeProvider)).lowerBound());
+        validate( 5,       ((Quantifier) type.compile("{2,5}", null, typeProvider)).upperBound());
+        validate( Maximum, ((Quantifier) type.compile("?+",    null, typeProvider)).greediness());
+        validate( Minimum, ((Quantifier) type.compile("?*",    null, typeProvider)).greediness());
     }
     
     @Test
