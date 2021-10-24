@@ -25,21 +25,29 @@ package net.nawaman.regparser;
  */
 @SuppressWarnings("serial")
 public class PTBackRefCI extends PTBackRef {
-	
-	static public final PTBackRefCI BackRefCI_Instance = new PTBackRefCI();
-	
-	PTBackRefCI() {}
-	
-	@Override public String getName() { return "$BackRefCI?"; }
-	
-	@Override public boolean doValidate(ParseResult pHostResult, ParseResult pThisResult, String pParam,
-			PTypeProvider pProvider) {
-		if(pHostResult == null) return false;
-		String W = pHostResult.getLastStrMatchByName(pParam);
-		String T = pThisResult.getText().toLowerCase();
-		if(W == T) return true;
-		if((W == null) || (T == null)) return true;
-		return W.toLowerCase().equals(pThisResult.getText().toLowerCase());
-	}
-
+    
+    static public final PTBackRefCI BackRefCI_Instance = new PTBackRefCI();
+    
+    PTBackRefCI() {
+    }
+    
+    @Override
+    public String getName() {
+        return "$BackRefCI?";
+    }
+    
+    @Override
+    public boolean doValidate(ParseResult pHostResult, ParseResult pThisResult, String pParam,
+            PTypeProvider pProvider) {
+        if (pHostResult == null)
+            return false;
+        String W = pHostResult.getLastStrMatchByName(pParam);
+        String T = pThisResult.getText().toLowerCase();
+        if (W == T)
+            return true;
+        if ((W == null) || (T == null))
+            return true;
+        return W.toLowerCase().equals(pThisResult.getText().toLowerCase());
+    }
+    
 }

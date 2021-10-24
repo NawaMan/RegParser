@@ -28,38 +28,44 @@ package net.nawaman.regparser;
  */
 @SuppressWarnings("serial")
 abstract public class CharChecker implements Checker {
-	
-	/** Returns the empty array of CharCheckers */
-	static public final CharChecker[] EmptyCharCheckerArray = new CharChecker[0];
-	
-	/** Checks of the char c is in this char checker */
-	abstract public boolean inSet(char c);
+    
+    /** Returns the empty array of CharCheckers */
+    static public final CharChecker[] EmptyCharCheckerArray = new CharChecker[0];
+    
+    /** Checks of the char c is in this char checker */
+    abstract public boolean inSet(char c);
 
-	
-	/**
-	 * Returns the length of the match if the string S starts with this checker.<br />
-	 * @param	S is the string to be parse
-	 * @param	pOffset the starting point of the checking
-	 * @return	the length of the match or -1 if the string S does not start with this checker
-	 */
-	@Override public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider) {
-		return this.getStartLengthOf(S, pOffset, pProvider, null);
-	}
-	
-	/**
-	 * Returns the length of the match if the string S starts with this checker.<br />
-	 * @param	S is the string to be parse
-	 * @param	pOffset the starting point of the checking
-	 * @param   pResult the parse result of the current parsing. This is only available when this checker is called from a RegParser
-	 * @return	the length of the match or -1 if the string S does not start with this checker
-	 */
-	@Override public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider, ParseResult pResult) {
-		if((pOffset < 0) || (pOffset >= S.length())) return -1;
-		char c = S.charAt(pOffset);
-		return this.inSet(c)?1:-1;
-	}
-	
-	
-	/** Return the optimized version of this Checker */
-	@Override public Checker getOptimized() { return this; }
+    
+    /**
+     * Returns the length of the match if the string S starts with this checker.<br />
+     * @param    S is the string to be parse
+     * @param    pOffset the starting point of the checking
+     * @return    the length of the match or -1 if the string S does not start with this checker
+     */
+    @Override
+    public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider) {
+        return this.getStartLengthOf(S, pOffset, pProvider, null);
+    }
+    
+    /**
+     * Returns the length of the match if the string S starts with this checker.<br />
+     * @param    S is the string to be parse
+     * @param    pOffset the starting point of the checking
+     * @param   pResult the parse result of the current parsing. This is only available when this checker is called from a RegParser
+     * @return    the length of the match or -1 if the string S does not start with this checker
+     */
+    @Override
+    public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider, ParseResult pResult) {
+        if ((pOffset < 0) || (pOffset >= S.length()))
+            return -1;
+        char c = S.charAt(pOffset);
+        return this.inSet(c) ? 1 : -1;
+    }
+    
+    
+    /** Return the optimized version of this Checker */
+    @Override
+    public Checker getOptimized() {
+        return this;
+    }
 }

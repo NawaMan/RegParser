@@ -29,28 +29,28 @@ import java.io.Serializable;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public interface Checker extends Serializable {
-	
-	/** Returns the empty array of Checkers */
-	static public final Checker[] EmptyCheckerArray = new Checker[0];
-	
-	/**
-	 * Returns the length of the match if the string S starts with this checker.<br />
-	 * @param	S is the string to be parse
-	 * @param	pOffset the starting point of the checking
-	 * @return	the length of the match or -1 if the string S does not start with this checker
-	 */
-	public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider);
-	
-	/**
-	 * Returns the length of the match if the string S starts with this checker.<br />
-	 * @param	S is the string to be parse
-	 * @param	pOffset the starting point of the checking
-	 * @param   pResult the parse result of the current parsing. This is only available when this checker is called from a RegParser
-	 * @return	the length of the match or -1 if the string S does not start with this checker
-	 */
-	public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider, ParseResult pResult);
-	
-	/** Return the optimized version of this Checker */
-	public Checker getOptimized();
-	
+    
+    /** Returns the empty array of Checkers */
+    static public final Checker[] EmptyCheckerArray = new Checker[0];
+    
+    /**
+     * Returns the length of the match if the string S starts with this checker.<br />
+     * @param    S is the string to be parse
+     * @param    pOffset the starting point of the checking
+     * @return    the length of the match or -1 if the string S does not start with this checker
+     */
+    public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider);
+    
+    /**
+     * Returns the length of the match if the string S starts with this checker.<br />
+     * @param    S is the string to be parse
+     * @param    pOffset the starting point of the checking
+     * @param   pResult the parse result of the current parsing. This is only available when this checker is called from a RegParser
+     * @return    the length of the match or -1 if the string S does not start with this checker
+     */
+    public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider, ParseResult pResult);
+    
+    /** Return the optimized version of this Checker */
+    public Checker getOptimized();
+    
 }

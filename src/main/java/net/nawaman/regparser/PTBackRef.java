@@ -25,45 +25,58 @@ package net.nawaman.regparser;
  */
 @SuppressWarnings("serial")
 public class PTBackRef extends PType {
-	
-	static public final PTBackRef BackRef_Instance = new PTBackRef();
-	
-	PTBackRef() {}
-	
-	/**{@inheritDoc}*/ @Override
-	public String getName() {
-		return "$BackRef?";
-	}
-	
-	String getLastMatchByName(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
-		if(pHostResult == null) return null;
-		String W = pHostResult.getLastStrMatchByName(pParam);
-		
-		// Elevate up (in case pHostResult is a node)
-		while(W == null) {
-			if     (pHostResult instanceof ParseResult.Temp) pHostResult = ((ParseResult.Temp)pHostResult).First;
-			else if(pHostResult instanceof ParseResult.Node) pHostResult = ((ParseResult.Node)pHostResult).Parent;
-			if(pHostResult == null) return null;
-			else {		
-				ParseResult.Entry E = pHostResult.getLastMatchByName(pParam);
-				if((E == null) && (pHostResult instanceof ParseResult.Root)) return null;
-				W = pHostResult.getLastStrMatchByName(pParam);
-			}
-		}
-		return W;
-	}
-	
-	/**{@inheritDoc}*/ @Override
-	public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
-		String W = this.getLastMatchByName(pHostResult, pParam, pProvider);
-		if(W == null) return WordChecker.EmptyWord;
-		return CheckerAny.getCheckerAny(W.length());
-	}
-
-	/**{@inheritDoc}*/ @Override
-	public boolean doValidate(ParseResult pHostResult, ParseResult pThisResult, String pParam, PTypeProvider pProvider) {
-		String W = this.getLastMatchByName(pHostResult, pParam, pProvider);
-		if(W == null) return false;
-		return W.equals(pThisResult.getText());
-	}
+    
+    static public final PTBackRef BackRef_Instance = new PTBackRef();
+    
+    PTBackRef() {
+    }
+    
+    /**{@inheritDoc}*/
+    @Override
+    public String getName() {
+        return "$BackRef?";
+    }
+    
+    String getLastMatchByName(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
+        if (pHostResult == null)
+            return null;
+        String W = pHostResult.getLastStrMatchByName(pParam);
+        
+        // Elevate up (in case pHostResult is a node)
+        while (W == null) {
+            if (pHostResult instanceof ParseResult.Temp)
+                pHostResult = ((ParseResult.Temp) pHostResult).First;
+            else
+                if (pHostResult instanceof ParseResult.Node)
+                    pHostResult = ((ParseResult.Node) pHostResult).Parent;
+            if (pHostResult == null)
+                return null;
+            else {
+                ParseResult.Entry E = pHostResult.getLastMatchByName(pParam);
+                if ((E == null) && (pHostResult instanceof ParseResult.Root))
+                    return null;
+                W = pHostResult.getLastStrMatchByName(pParam);
+            }
+        }
+        return W;
+    }
+    
+    /**{@inheritDoc}*/
+    @Override
+    public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
+        String W = this.getLastMatchByName(pHostResult, pParam, pProvider);
+        if (W == null)
+            return WordChecker.EmptyWord;
+        return CheckerAny.getCheckerAny(W.length());
+    }
+    
+    /**{@inheritDoc}*/
+    @Override
+    public boolean doValidate(ParseResult pHostResult, ParseResult pThisResult, String pParam,
+            PTypeProvider pProvider) {
+        String W = this.getLastMatchByName(pHostResult, pParam, pProvider);
+        if (W == null)
+            return false;
+        return W.equals(pThisResult.getText());
+    }
 }

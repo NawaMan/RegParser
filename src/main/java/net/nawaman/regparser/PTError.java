@@ -25,53 +25,64 @@ package net.nawaman.regparser;
  **/
 @SuppressWarnings("serial")
 public class PTError extends PType {
-
-	protected PTError(String pTheName, String pErrMessage, boolean pIsFatal) {
-		this.TheName    = pTheName;
-		this.ErrMessage = pErrMessage;
-		this.IsFatal    = pIsFatal;
-	}
-	protected PTError(String pTheName, String pErrMessage) {
-		this(pTheName, pErrMessage, false);
-	}
-	public PTError(String pTheName, Checker pTheChecker, String pErrMessage) {
-		this(pTheName, pErrMessage, false);
-		this.TheChecker = pTheChecker;
-	}
-	public PTError(String pTheName, Checker pTheChecker, String pErrMessage, boolean pIsFatal) {
-		this(pTheName, pErrMessage, pIsFatal);
-		this.TheChecker = pTheChecker;
-	}
-
-	String  TheName;
-	Checker TheChecker;
-	String  ErrMessage;
-	boolean IsFatal = false;
-
-	
-	/**{@inheritDoc}*/ @Override final public String getName() { return this.TheName; }
-
-	/**{@inheritDoc}*/ @Override final public Checker getChecker(ParseResult pHostResult, String pParam,
-			PTypeProvider pProvider) {
-		return this.TheChecker;
-	}
-	
-	final protected void setChecker(Checker pChecker) {
-		if(this.TheChecker != null) return;
-		this.TheChecker = pChecker;
-	} 
-	
-	/**{@inheritDoc}*/ @Override public Object doCompile(ParseResult pThisResult, int pEntryIndex, String pParam,
-			CompilationContext pCContext, PTypeProvider pProvider) {
-		
-		String ErrMsg = String.format("%s%s\n",
-				this.ErrMessage,
-				(pParam == null)?"":String.format(" (%s)", pParam),
-				pCContext.getLocationAsString(pThisResult.getStartPositionOf(pEntryIndex)));
-		
-		if(pCContext != null) pCContext.reportError(ErrMsg, null);
-		if(this.IsFatal) throw new RuntimeException("FATAL ERROR! The compilation cannot be continued: " + ErrMsg);
-		return null;
-	}
-
+    
+    protected PTError(String pTheName, String pErrMessage, boolean pIsFatal) {
+        this.TheName    = pTheName;
+        this.ErrMessage = pErrMessage;
+        this.IsFatal    = pIsFatal;
+    }
+    
+    protected PTError(String pTheName, String pErrMessage) {
+        this(pTheName, pErrMessage, false);
+    }
+    
+    public PTError(String pTheName, Checker pTheChecker, String pErrMessage) {
+        this(pTheName, pErrMessage, false);
+        this.TheChecker = pTheChecker;
+    }
+    
+    public PTError(String pTheName, Checker pTheChecker, String pErrMessage, boolean pIsFatal) {
+        this(pTheName, pErrMessage, pIsFatal);
+        this.TheChecker = pTheChecker;
+    }
+    
+    String  TheName;
+    Checker TheChecker;
+    String  ErrMessage;
+    boolean IsFatal = false;
+    
+    
+    /**{@inheritDoc}*/
+    @Override
+    final public String getName() {
+        return this.TheName;
+    }
+    
+    /**{@inheritDoc}*/
+    @Override
+    final public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
+        return this.TheChecker;
+    }
+    
+    final protected void setChecker(Checker pChecker) {
+        if (this.TheChecker != null)
+            return;
+        this.TheChecker = pChecker;
+    }
+    
+    /**{@inheritDoc}*/
+    @Override
+    public Object doCompile(ParseResult pThisResult, int pEntryIndex, String pParam, CompilationContext pCContext,
+            PTypeProvider pProvider) {
+        
+        String ErrMsg = String.format("%s%s\n", this.ErrMessage, (pParam == null) ? "" : String.format(" (%s)", pParam),
+                pCContext.getLocationAsString(pThisResult.getStartPositionOf(pEntryIndex)));
+        
+        if (pCContext != null)
+            pCContext.reportError(ErrMsg, null);
+        if (this.IsFatal)
+            throw new RuntimeException("FATAL ERROR! The compilation cannot be continued: " + ErrMsg);
+        return null;
+    }
+    
 }

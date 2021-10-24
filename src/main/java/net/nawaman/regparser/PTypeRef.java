@@ -27,57 +27,68 @@ import java.io.Serializable;
  */
 @SuppressWarnings("serial")
 abstract public class PTypeRef implements Serializable {
-	
-	abstract public String getName();
-	
-	public String getParam() {
-		return null;
-	}
-	
-	static public class Simple extends PTypeRef {
-		public Simple(String pTypeName) {
-			this.TypeName = pTypeName;
-		}
-		public Simple(String pTypeName, String pParam) {
-			this.TypeName = pTypeName; this.Param = pParam;
-		}
-		
-		String TypeName;
-		String Param;
-		
-		/**{@inheritDoc}*/ @Override
-		public String getName()  {
-			return this.TypeName;
-		}
-		/**{@inheritDoc}*/ @Override
-		public String getParam() {
-			return this.Param;
-		}
-	}
-	
-	// Object --------------------------------------------------------------------------------------
-	
-	/**{@inheritDoc}*/ @Override
-	public String toString() {
-		return "!"+this.getName()+((this.getParam() == null)?"":("(\""+Util.escapeText(this.getParam())+"\")"))+"!";
-	}
-	
-	public String toDetail() {
-		return this.toString();
-	}
-
-	/**{@inheritDoc}*/ @Override
-	public boolean equals(Object O) {
-		if(!(O instanceof PTypeRef)) return false;
-		
-		String TN = this.getName();
-		String ON = ((PTypeRef)O).getName();
-		if((TN != ON) || ((TN != null) && !TN.equals(ON))) return false;
-
-		String TP = this.getParam();
-		String OP = ((PTypeRef)O).getParam();
-		if((TP != OP) || ((TP != null) && !TP.equals(OP))) return false;
-		
-		return true;
-	}
+    
+    abstract public String getName();
+    
+    public String getParam() {
+        return null;
+    }
+    
+    static public class Simple extends PTypeRef {
+        public Simple(String pTypeName) {
+            this.TypeName = pTypeName;
+        }
+        
+        public Simple(String pTypeName, String pParam) {
+            this.TypeName = pTypeName;
+            this.Param    = pParam;
+        }
+        
+        String TypeName;
+        String Param;
+        
+        /**{@inheritDoc}*/
+        @Override
+        public String getName() {
+            return this.TypeName;
+        }
+        
+        /**{@inheritDoc}*/
+        @Override
+        public String getParam() {
+            return this.Param;
+        }
+    }
+    
+    // Object --------------------------------------------------------------------------------------
+    
+    /**{@inheritDoc}*/
+    @Override
+    public String toString() {
+        return "!" + this.getName()
+                + ((this.getParam() == null) ? "" : ("(\"" + Util.escapeText(this.getParam()) + "\")")) + "!";
+    }
+    
+    public String toDetail() {
+        return this.toString();
+    }
+    
+    /**{@inheritDoc}*/
+    @Override
+    public boolean equals(Object O) {
+        if (!(O instanceof PTypeRef))
+            return false;
+        
+        String TN = this.getName();
+        String ON = ((PTypeRef) O).getName();
+        if ((TN != ON) || ((TN != null) && !TN.equals(ON)))
+            return false;
+        
+        String TP = this.getParam();
+        String OP = ((PTypeRef) O).getParam();
+        if ((TP != OP) || ((TP != null) && !TP.equals(OP)))
+            return false;
+        
+        return true;
+    }
 }

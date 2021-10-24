@@ -18,7 +18,8 @@
 
 package net.nawaman.regparser.parsers;
 
-import net.nawaman.regparser.*;
+import net.nawaman.regparser.PTypeProvider;
+import net.nawaman.regparser.ParseResult;
 
 /**
  * Parser for detecting C-like identifier (for case-insensitive)
@@ -27,15 +28,24 @@ import net.nawaman.regparser.*;
  */
 @SuppressWarnings("serial")
 public class PTIdentifierCI extends PTIdentifier {
-	@SuppressWarnings("hiding")
-	static public String Name = "$IdentifierCI";
-	@Override public String getName() { return Name; }
-	@Override public boolean doValidate(ParseResult pHostResult, ParseResult pThisResult, String pParam,
-			PTypeProvider pProvider) {
-		String S = pThisResult.getText();
-		if(S == pParam)                     return  true;
-		if((S == null) || (pParam == null)) return false;
-		return (S.toLowerCase().equals(pParam.toLowerCase()));
-	}
-
+    
+    @SuppressWarnings("hiding")
+    static public String Name = "$IdentifierCI";
+    
+    @Override
+    public String getName() {
+        return Name;
+    }
+    
+    @Override
+    public boolean doValidate(ParseResult pHostResult, ParseResult pThisResult, String pParam,
+            PTypeProvider pProvider) {
+        String S = pThisResult.getText();
+        if (S == pParam)
+            return true;
+        if ((S == null) || (pParam == null))
+            return false;
+        return (S.toLowerCase().equals(pParam.toLowerCase()));
+    }
+    
 }

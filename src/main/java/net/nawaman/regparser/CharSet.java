@@ -18,7 +18,7 @@
 
 package net.nawaman.regparser;
 
-import java.util.*;
+import java.util.HashSet;
 
 /**
  * Checker form a set of character (represented by a string)
@@ -26,35 +26,44 @@ import java.util.*;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class CharSet extends CharChecker {
-	
-	static private final long serialVersionUID = 2165464135465416515L;
-	
-	public CharSet(String pSet) {
-		this.Set = (pSet == null)?"":pSet;
-	}
-	
-	String Set;
-	
-	/** Checks of the char c is in this char checker */
-	@Override public boolean inSet(char c) {
-		return (this.Set.indexOf(c) != -1);
-	}
-	
-	@Override public String toString() {
-		return "[" + RPCompiler_ParserTypes.escapeOfRegParser(this.Set) + "]";
-	}
-	@Override public boolean equals(Object O) {
-		if(O == this) return true;
-		if(!(O instanceof CharSet)) return false;
-		HashSet<Character> CCs = new HashSet<Character>();
-		for(Character CC : this.Set.toCharArray()) CCs.add(CC);
-		for(Character CC : ((CharSet)O).Set.toCharArray()) {
-			if(!CCs.contains(CC)) return false;
-		}
-		return true;
-	}
-	
-	@Override public int hashCode() {
-		return "CharSet".hashCode() + this.Set.hashCode();
-	}
+    
+    static private final long serialVersionUID = 2165464135465416515L;
+    
+    public CharSet(String pSet) {
+        this.Set = (pSet == null) ? "" : pSet;
+    }
+    
+    String Set;
+    
+    /** Checks of the char c is in this char checker */
+    @Override
+    public boolean inSet(char c) {
+        return (this.Set.indexOf(c) != -1);
+    }
+    
+    @Override
+    public String toString() {
+        return "[" + RPCompiler_ParserTypes.escapeOfRegParser(this.Set) + "]";
+    }
+    
+    @Override
+    public boolean equals(Object O) {
+        if (O == this)
+            return true;
+        if (!(O instanceof CharSet))
+            return false;
+        HashSet<Character> CCs = new HashSet<Character>();
+        for (Character CC : this.Set.toCharArray())
+            CCs.add(CC);
+        for (Character CC : ((CharSet) O).Set.toCharArray()) {
+            if (!CCs.contains(CC))
+                return false;
+        }
+        return true;
+    }
+    
+    @Override
+    public int hashCode() {
+        return "CharSet".hashCode() + this.Set.hashCode();
+    }
 }

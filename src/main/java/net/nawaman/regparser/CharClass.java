@@ -18,7 +18,8 @@
 
 package net.nawaman.regparser;
 
-import java.util.regex.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Checker that is associated with Java Pattern Character set.
@@ -26,68 +27,82 @@ import java.util.regex.*;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 final public class CharClass extends CharChecker {
-	
-	static private final long serialVersionUID = 1235456543213546515L;
-	
-	CharClass(String pJavaCharClass, String pClassName) {
-		this.JavaCharClass = pJavaCharClass; this.ClassName = pClassName;
-	}
-	
-	String  ClassName;
-	String  JavaCharClass;
-	Pattern JCCPatternSingle   = null;
-	Pattern JCCPatternMultiple = null;
-	
-	private Pattern getJCCPatternSingle() {
-		if(this.JCCPatternSingle == null)
-			this.JCCPatternSingle = Pattern.compile(this.JavaCharClass + "{1}", Pattern.DOTALL);
-		return this.JCCPatternSingle;
-	}
-	
-	private Pattern getJCCPatternMultiple() {
-		if(this.JCCPatternMultiple == null)
-			this.JCCPatternMultiple = Pattern.compile(this.JavaCharClass + "+", Pattern.DOTALL);
-		return this.JCCPatternMultiple;
-	}
-	
-	/** Checks of the char c is in this char checker */
-	@Override public boolean inSet(char c) {
-		Pattern P = this.getJCCPatternSingle();
-		Matcher M = P.matcher(new StringBuffer().append(c));
-		return M.find();
-	}
-
-	
-	/**
-	 * Returns the length of the match if the string S starts with this checker.<br />
-	 * @param	S is the string to be parse
-	 * @param	pOffset the starting point of the checking
-	 * @param   pResult the parse result of the current parsing. This is only available when this checker is called from a RegParser
-	 * @return	the length of the match or -1 if the string S does not start with this checker
-	 */
-	@Override public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider, ParseResult pResult) {
-		if(pOffset >= S.length()) return -1;
-		
-		Pattern P = this.getJCCPatternMultiple();
-		Matcher M = P.matcher(new StringBuffer().append(S.charAt(pOffset)));
-		if(!M.find() || (M.start() != 0)) return -1;
-		return (M.end() < 0)?-1:M.end();
-	}
-
-	
-	@Override public String toString() {
-		return this.ClassName;
-	}
-	@Override public boolean equals(Object O) {
-		if(O == this) return true;
-		return (O instanceof CharClass) && ((CharClass)O).ClassName.equals(this.ClassName);
-	}
-	@Override public int hashCode() {
-		return "CharClass".hashCode() + this.ClassName.hashCode();
-	}
-	
-
-	/** Return the optimized version of this Checker */
-	@Override public Checker getOptimized() { return this; }
-	
+    
+    static private final long serialVersionUID = 1235456543213546515L;
+    
+    CharClass(String pJavaCharClass, String pClassName) {
+        this.JavaCharClass = pJavaCharClass;
+        this.ClassName     = pClassName;
+    }
+    
+    String  ClassName;
+    String  JavaCharClass;
+    Pattern JCCPatternSingle   = null;
+    Pattern JCCPatternMultiple = null;
+    
+    private Pattern getJCCPatternSingle() {
+        if (this.JCCPatternSingle == null)
+            this.JCCPatternSingle = Pattern.compile(this.JavaCharClass + "{1}", Pattern.DOTALL);
+        return this.JCCPatternSingle;
+    }
+    
+    private Pattern getJCCPatternMultiple() {
+        if (this.JCCPatternMultiple == null)
+            this.JCCPatternMultiple = Pattern.compile(this.JavaCharClass + "+", Pattern.DOTALL);
+        return this.JCCPatternMultiple;
+    }
+    
+    /** Checks of the char c is in this char checker */
+    @Override
+    public boolean inSet(char c) {
+        Pattern P = this.getJCCPatternSingle();
+        Matcher M = P.matcher(new StringBuffer().append(c));
+        return M.find();
+    }
+    
+    
+    /**
+     * Returns the length of the match if the string S starts with this checker.<br />
+     * @param    S is the string to be parse
+     * @param    pOffset the starting point of the checking
+     * @param   pResult the parse result of the current parsing. This is only available when this checker is called from a RegParser
+     * @return    the length of the match or -1 if the string S does not start with this checker
+     */
+    @Override
+    public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider, ParseResult pResult) {
+        if (pOffset >= S.length())
+            return -1;
+        
+        Pattern P = this.getJCCPatternMultiple();
+        Matcher M = P.matcher(new StringBuffer().append(S.charAt(pOffset)));
+        if (!M.find() || (M.start() != 0))
+            return -1;
+        return (M.end() < 0) ? -1 : M.end();
+    }
+    
+    
+    @Override
+    public String toString() {
+        return this.ClassName;
+    }
+    
+    @Override
+    public boolean equals(Object O) {
+        if (O == this)
+            return true;
+        return (O instanceof CharClass) && ((CharClass) O).ClassName.equals(this.ClassName);
+    }
+    
+    @Override
+    public int hashCode() {
+        return "CharClass".hashCode() + this.ClassName.hashCode();
+    }
+    
+    
+    /** Return the optimized version of this Checker */
+    @Override
+    public Checker getOptimized() {
+        return this;
+    }
+    
 }

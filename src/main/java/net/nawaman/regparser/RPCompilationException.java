@@ -25,6 +25,11 @@ package net.nawaman.regparser;
  */
 @SuppressWarnings("serial")
 public class RPCompilationException extends RuntimeException {
-	public RPCompilationException()                { super(); }
-	public RPCompilationException(String pMessage) { super(pMessage); }
+    public RPCompilationException() {
+        super();
+    }
+    
+    public RPCompilationException(String pMessage) {
+        super(pMessage);
+    }
 }

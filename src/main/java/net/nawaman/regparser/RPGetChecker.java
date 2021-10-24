@@ -24,8 +24,8 @@ package net.nawaman.regparser;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  **/
 public interface RPGetChecker {
-
-	/** Returns the checker */
-	public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider);
-	
+    
+    /** Returns the checker */
+    public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider);
+    
 }

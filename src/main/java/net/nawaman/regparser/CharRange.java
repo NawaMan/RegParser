@@ -24,38 +24,47 @@ package net.nawaman.regparser;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class CharRange extends CharChecker {
-	
-	static private final long serialVersionUID = 2356484436956456452L;
-	
-	/** Construct a character range */
-	public CharRange(char pStartC, char pEndC) {
-		this.StartC = pStartC;
-		this.EndC   = pEndC;
-		if(this.StartC > this.EndC) {
-			this.StartC = pEndC;
-			this.EndC   = pStartC;
-		}
-	}
-	
-	char StartC;
-	char EndC;
-
-	/** Checks of the char c is in this char checker */
-	@Override public boolean inSet(char c) {
-		return (c >= this.StartC) && (c <= this.EndC);
-	}
-
-	@Override public String toString() {
-		if((this.StartC == 0) && (this.EndC == Character.MAX_VALUE)) return ".";
-		return "["+RPCompiler_ParserTypes.escapeOfRegParser(""+this.StartC)+"-"+RPCompiler_ParserTypes.escapeOfRegParser(""+this.EndC)+"]";
-	}
-	@Override public boolean equals(Object O) {
-		if(O == this) return true;
-		if(!(O instanceof CharRange)) return false;
-		return (this.StartC == ((CharRange)O).StartC) && (this.EndC == ((CharRange)O).EndC);
-	}
-	
-	@Override public int hashCode() {
-		return "CharRange".hashCode() + this.StartC + this.EndC;
-	}
+    
+    static private final long serialVersionUID = 2356484436956456452L;
+    
+    /** Construct a character range */
+    public CharRange(char pStartC, char pEndC) {
+        this.StartC = pStartC;
+        this.EndC   = pEndC;
+        if (this.StartC > this.EndC) {
+            this.StartC = pEndC;
+            this.EndC   = pStartC;
+        }
+    }
+    
+    char StartC;
+    char EndC;
+    
+    /** Checks of the char c is in this char checker */
+    @Override
+    public boolean inSet(char c) {
+        return (c >= this.StartC) && (c <= this.EndC);
+    }
+    
+    @Override
+    public String toString() {
+        if ((this.StartC == 0) && (this.EndC == Character.MAX_VALUE))
+            return ".";
+        return "[" + RPCompiler_ParserTypes.escapeOfRegParser("" + this.StartC) + "-"
+                + RPCompiler_ParserTypes.escapeOfRegParser("" + this.EndC) + "]";
+    }
+    
+    @Override
+    public boolean equals(Object O) {
+        if (O == this)
+            return true;
+        if (!(O instanceof CharRange))
+            return false;
+        return (this.StartC == ((CharRange) O).StartC) && (this.EndC == ((CharRange) O).EndC);
+    }
+    
+    @Override
+    public int hashCode() {
+        return "CharRange".hashCode() + this.StartC + this.EndC;
+    }
 }

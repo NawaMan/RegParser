@@ -26,57 +26,73 @@ import java.util.Hashtable;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  **/
 public class CheckerAny implements Checker {
-	
-	static private final long serialVersionUID = 1468541215412541527L;
-	
-	static Hashtable<Integer, CheckerAny> CheckerAnys = new Hashtable<Integer, CheckerAny>();
-	
-	/** Get an instance of Checker any */
-	static public CheckerAny getCheckerAny(int pLength) {
-		if(pLength < -1) pLength = -1;
-		CheckerAny CA = CheckerAnys.get(pLength);
-		if(CA == null) {
-			CA = new CheckerAny(pLength);
-			CheckerAnys.put(pLength, CA);
-		}
-		return CA;
-	} 
-
-	CheckerAny(int pLength) {
-		this.Length = (pLength < -1)?1:pLength;
-	}
-	
-	int Length;
-	
-	/** Returns the length of this checker */ public int getLength() { return this.Length; }
-	
-	/**{@inheritDoc}*/ @Override public Checker getOptimized() { return this; }
-
-	
-	/**
-	 * Returns the length of the match if the string S starts with this checker.<br />
-	 * @param	S is the string to be parse
-	 * @param	pOffset the starting point of the checking
-	 * @return	the length of the match or -1 if the string S does not start with this checker
-	 */
-	@Override public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider) {
-		return this.getStartLengthOf(S, pOffset, pProvider, null);
-	}
-	
-	/**
-	 * Returns the length of the match if the string S starts with this checker.<br />
-	 * @param	S is the string to be parse
-	 * @param	pOffset the starting point of the checking
-	 * @param   pResult the parse result of the current parsing. This is only available when this checker is called from a RegParser
-	 * @return	the length of the match or -1 if the string S does not start with this checker
-	 */
-	@Override public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider, ParseResult pResult) {
-		int SL = (S == null)?0:S.length();
-		if(pOffset     >= SL) return 0;
-		if(this.Length == -1) return (SL - pOffset);
-		return this.Length;
-	}
-
-	
-	/**{@inheritDoc}*/ @Override public String toString() { return "." + ((this.Length == -1)?"*":"{"+this.Length+"}"); }
+    
+    static private final long serialVersionUID = 1468541215412541527L;
+    
+    static Hashtable<Integer, CheckerAny> CheckerAnys = new Hashtable<Integer, CheckerAny>();
+    
+    /** Get an instance of Checker any */
+    static public CheckerAny getCheckerAny(int pLength) {
+        if (pLength < -1)
+            pLength = -1;
+        CheckerAny CA = CheckerAnys.get(pLength);
+        if (CA == null) {
+            CA = new CheckerAny(pLength);
+            CheckerAnys.put(pLength, CA);
+        }
+        return CA;
+    }
+    
+    CheckerAny(int pLength) {
+        this.Length = (pLength < -1) ? 1 : pLength;
+    }
+    
+    int Length;
+    
+    /** Returns the length of this checker */
+    public int getLength() {
+        return this.Length;
+    }
+    
+    /**{@inheritDoc}*/
+    @Override
+    public Checker getOptimized() {
+        return this;
+    }
+    
+    
+    /**
+     * Returns the length of the match if the string S starts with this checker.<br />
+     * @param    S is the string to be parse
+     * @param    pOffset the starting point of the checking
+     * @return    the length of the match or -1 if the string S does not start with this checker
+     */
+    @Override
+    public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider) {
+        return this.getStartLengthOf(S, pOffset, pProvider, null);
+    }
+    
+    /**
+     * Returns the length of the match if the string S starts with this checker.<br />
+     * @param    S is the string to be parse
+     * @param    pOffset the starting point of the checking
+     * @param   pResult the parse result of the current parsing. This is only available when this checker is called from a RegParser
+     * @return    the length of the match or -1 if the string S does not start with this checker
+     */
+    @Override
+    public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider, ParseResult pResult) {
+        int SL = (S == null) ? 0 : S.length();
+        if (pOffset >= SL)
+            return 0;
+        if (this.Length == -1)
+            return (SL - pOffset);
+        return this.Length;
+    }
+    
+    
+    /**{@inheritDoc}*/
+    @Override
+    public String toString() {
+        return "." + ((this.Length == -1) ? "*" : "{" + this.Length + "}");
+    }
 }

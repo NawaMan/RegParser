@@ -18,7 +18,15 @@
 
 package net.nawaman.regparser.parsers;
 
-import net.nawaman.regparser.*;
+import net.nawaman.regparser.CharSingle;
+import net.nawaman.regparser.CharUnion;
+import net.nawaman.regparser.Checker;
+import net.nawaman.regparser.PType;
+import net.nawaman.regparser.PTypeProvider;
+import net.nawaman.regparser.ParseResult;
+import net.nawaman.regparser.PredefinedCharClasses;
+import net.nawaman.regparser.Quantifier;
+import net.nawaman.regparser.RegParser;
 
 /**
  * Parser for detecting C-like identifier
@@ -27,12 +35,21 @@ import net.nawaman.regparser.*;
  */
 @SuppressWarnings("serial")
 public class PTIdentifier extends PType {
-	static public String Name = "$Identifier";
-	@Override public String getName() { return Name; }
-	Checker Checker = RegParser.newRegParser(
-		new CharUnion(PredefinedCharClasses.Alphabet, new CharSingle('_')),
-		new CharUnion(PredefinedCharClasses.Alphabet, new CharSingle('_'), PredefinedCharClasses.Digit),
-		Quantifier.ZeroOrMore
-	);
-	@Override public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) { return this.Checker; }
+    
+    static public String Name = "$Identifier";
+    
+    @Override
+    public String getName() {
+        return Name;
+    }
+    
+    Checker Checker = RegParser.newRegParser(new CharUnion(PredefinedCharClasses.Alphabet, new CharSingle('_')),
+            new CharUnion(PredefinedCharClasses.Alphabet, new CharSingle('_'), PredefinedCharClasses.Digit),
+            Quantifier.ZeroOrMore);
+    
+    @Override
+    public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
+        return this.Checker;
+    }
+    
 }

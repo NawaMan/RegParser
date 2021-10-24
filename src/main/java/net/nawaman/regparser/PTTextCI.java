@@ -19,8 +19,7 @@
 package net.nawaman.regparser;
 
 // Usage: !text("Text")! will match everything that is equals to "Text" case insensitively
-
-import java.util.*;
+import java.util.Hashtable;
 
 /**
  * Parser Type for Case-Insensitive Text
@@ -29,25 +28,37 @@ import java.util.*;
  */
 @SuppressWarnings("serial")
 public class PTTextCI extends PType {
-	
-	static Hashtable<Integer, Checker> Checkers = new Hashtable<Integer, Checker>();
-	
-	static public String Name = "textCI";
-	@Override public String getName() { return Name; }
-	@Override public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
-		if(pParam == null) pParam = "";
-		int     L = pParam.length();
-		Checker C = Checkers.get(L);
-		if(C != null) return C;
-		C = RegParser.newRegParser(PredefinedCharClasses.Any, new Quantifier(L, L));
-		Checkers.put(L, C);
-		return C;
-	}
-	@Override public boolean doValidate(ParseResult pHostResult, ParseResult pThisResult, String pParam,
-			PTypeProvider pProvider) {
-		String S = pThisResult.getText();
-		if(S == pParam)                     return  true;
-		if((S == null) || (pParam == null)) return false;
-		return (S.toLowerCase().equals(pParam.toLowerCase()));
-	}
+    
+    static Hashtable<Integer, Checker> Checkers = new Hashtable<Integer, Checker>();
+    
+    static public String Name = "textCI";
+    
+    @Override
+    public String getName() {
+        return Name;
+    }
+    
+    @Override
+    public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
+        if (pParam == null)
+            pParam = "";
+        int     L = pParam.length();
+        Checker C = Checkers.get(L);
+        if (C != null)
+            return C;
+        C = RegParser.newRegParser(PredefinedCharClasses.Any, new Quantifier(L, L));
+        Checkers.put(L, C);
+        return C;
+    }
+    
+    @Override
+    public boolean doValidate(ParseResult pHostResult, ParseResult pThisResult, String pParam,
+            PTypeProvider pProvider) {
+        String S = pThisResult.getText();
+        if (S == pParam)
+            return true;
+        if ((S == null) || (pParam == null))
+            return false;
+        return (S.toLowerCase().equals(pParam.toLowerCase()));
+    }
 }
