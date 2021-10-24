@@ -22,6 +22,8 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Vector;
 
+import net.nawaman.regparser.types.PTError;
+
 /**
  * The result of the parsing
  *

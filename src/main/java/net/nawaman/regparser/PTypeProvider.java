@@ -27,6 +27,10 @@ import java.util.Hashtable;
 import java.util.Set;
 import java.util.Vector;
 
+import net.nawaman.regparser.types.PTComposable;
+import net.nawaman.regparser.types.PTJavaChecker;
+import net.nawaman.regparser.types.PTTextCI;
+
 /**
  * Supply types to the parser
  * 

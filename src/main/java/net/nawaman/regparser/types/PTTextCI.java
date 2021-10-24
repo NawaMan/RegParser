@@ -16,10 +16,18 @@
  * ---------------------------------------------------------------------------------------------------------------------
  */
 
-package net.nawaman.regparser;
+package net.nawaman.regparser.types;
 
 // Usage: !text("Text")! will match everything that is equals to "Text" case insensitively
 import java.util.Hashtable;
+
+import net.nawaman.regparser.Checker;
+import net.nawaman.regparser.PType;
+import net.nawaman.regparser.PTypeProvider;
+import net.nawaman.regparser.ParseResult;
+import net.nawaman.regparser.PredefinedCharClasses;
+import net.nawaman.regparser.Quantifier;
+import net.nawaman.regparser.RegParser;
 
 /**
  * Parser Type for Case-Insensitive Text

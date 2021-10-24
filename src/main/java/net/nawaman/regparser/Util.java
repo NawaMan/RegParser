@@ -350,6 +350,7 @@ public class Util {
         TextOut.close();
     }
     
+    // TODO - Mark public recently
     /**
      * Returns the class by its name and throws exception if not found.
      * 
@@ -357,7 +358,7 @@ public class Util {
      * @exception ExceptionInInitializerError  if the initialization provoked by this method fails
      * @exception ClassNotFoundException       if the class cannot be located
      **/
-    static Class<?> getClassByName(String Name, ClassLoader CL) {
+    public static Class<?> getClassByName(String Name, ClassLoader CL) {
         try {
             String OrgName = Name;
             // Try to extract the class name from the signature

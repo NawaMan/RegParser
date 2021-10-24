@@ -16,7 +16,13 @@
  * ---------------------------------------------------------------------------------------------------------------------
  */
 
-package net.nawaman.regparser;
+package net.nawaman.regparser.types;
+
+import net.nawaman.regparser.Checker;
+import net.nawaman.regparser.PType;
+import net.nawaman.regparser.PTypeProvider;
+import net.nawaman.regparser.ParseResult;
+import net.nawaman.regparser.RPGetChecker;
 
 /**
  * A simple type (type without a compiler).

@@ -35,6 +35,7 @@ import net.nawaman.regparser.checkers.CheckerNot;
 import net.nawaman.regparser.checkers.WordChecker;
 import net.nawaman.regparser.types.PTIdentifier;
 import net.nawaman.regparser.types.PTStrLiteral;
+import net.nawaman.regparser.types.PTTextCI;
 
 /**
  * Compiler of RegParser language.

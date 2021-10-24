@@ -16,7 +16,15 @@
  * ---------------------------------------------------------------------------------------------------------------------
  */
 
-package net.nawaman.regparser;
+package net.nawaman.regparser.types;
+
+import net.nawaman.regparser.Checker;
+import net.nawaman.regparser.CompilationContext;
+import net.nawaman.regparser.PTypeProvider;
+import net.nawaman.regparser.ParseResult;
+import net.nawaman.regparser.RPCompiler;
+import net.nawaman.regparser.RPGetChecker;
+import net.nawaman.regparser.RPVerifier;
 
 /**
  * RegParser that is constructed from difference component.

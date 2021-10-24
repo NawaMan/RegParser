@@ -23,6 +23,7 @@ import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParserItem;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTType;
 import net.nawaman.regparser.types.PTIdentifier;
 import net.nawaman.regparser.types.PTStrLiteral;
+import net.nawaman.regparser.types.PTTextCI;
 
 public class TestRegParserCompiler1 {
     

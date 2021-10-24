@@ -40,6 +40,7 @@ import net.nawaman.regparser.checkers.CheckerAlternative;
 import net.nawaman.regparser.checkers.CheckerFixeds;
 import net.nawaman.regparser.types.PTIdentifier;
 import net.nawaman.regparser.types.PTStrLiteral;
+import net.nawaman.regparser.types.PTTextCI;
 
 /**
  * The regular parser
