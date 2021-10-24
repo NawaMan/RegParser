@@ -180,13 +180,13 @@ public class CheckerFixeds implements Checker {
     
     /**{@inheritDoc}*/
     @Override
-    public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider) {
-        return this.getStartLengthOf(S, pOffset, pProvider, null);
+    public int startLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider) {
+        return this.startLengthOf(S, pOffset, pProvider, null);
     }
     
     /**{@inheritDoc}*/
     @Override
-    public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider, ParseResult pResult) {
+    public int startLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider, ParseResult pResult) {
         return this.getNeededLength();
     }
     

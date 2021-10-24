@@ -73,7 +73,7 @@ final public class CharClass extends CharChecker {
      * @return    the length of the match or -1 if the string S does not start with this checker
      */
     @Override
-    public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider, ParseResult pResult) {
+    public int startLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider, ParseResult pResult) {
         if (pOffset >= S.length())
             return -1;
         

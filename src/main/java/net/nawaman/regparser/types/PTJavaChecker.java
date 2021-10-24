@@ -128,13 +128,13 @@ public class PTJavaChecker extends PType {
                 C = new Checker() {
                     /**{@inherDoc}*/
                     @Override
-                    public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pTProvider) {
-                        return this.getStartLengthOf(S, pOffset, pTProvider, null);
+                    public int startLengthOf(CharSequence S, int pOffset, PTypeProvider pTProvider) {
+                        return this.startLengthOf(S, pOffset, pTProvider, null);
                     }
                     
                     /**{@inherDoc}*/
                     @Override
-                    public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pTProvider,
+                    public int startLengthOf(CharSequence S, int pOffset, PTypeProvider pTProvider,
                             ParseResult pResult) {
                         try {
                             return ((Integer) TheMethod.invoke(null, S, pOffset, pTProvider, pResult)).intValue();

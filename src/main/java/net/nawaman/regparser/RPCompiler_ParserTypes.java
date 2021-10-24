@@ -628,13 +628,13 @@ public class RPCompiler_ParserTypes {
                 // Create the checker
                 this.TheChecker = RegParser.newRegParser(
                     PredefinedCheckers, Quantifier.Zero,
-                    "#Start", new CheckerAlternative(true, Cs.toArray(Checker.EmptyCheckerArray)),
+                    "#Start", new CheckerAlternative(true, Cs.toArray(Checker.EMPTY_CHECKER_ARRAY)),
                     PredefinedCharClasses.WhiteSpace, Quantifier.ZeroOrMore,
                     RegParser.newRegParser(
                         new CharSingle('-'),
                         PredefinedCheckers, Quantifier.Zero,
                         PredefinedCharClasses.WhiteSpace, Quantifier.ZeroOrMore,
-                        "#End", new CheckerAlternative(true, Cs.toArray(Checker.EmptyCheckerArray))
+                        "#End", new CheckerAlternative(true, Cs.toArray(Checker.EMPTY_CHECKER_ARRAY))
                     ), Quantifier.ZeroOrOne
                 );
             }
@@ -720,7 +720,7 @@ public class RPCompiler_ParserTypes {
                             "#NOT", new CharSingle('^'), Quantifier.ZeroOrOne,
                             new CharSingle(':'), Quantifier.Zero,
                             //"#Content", 
-                            new CheckerAlternative(true, Cs.toArray(Checker.EmptyCheckerArray)), Quantifier.OneOrMore,
+                            new CheckerAlternative(true, Cs.toArray(Checker.EMPTY_CHECKER_ARRAY)), Quantifier.OneOrMore,
                             new CharSingle(']')
                         ),
                         RegParser.newRegParser(
@@ -730,7 +730,7 @@ public class RPCompiler_ParserTypes {
                                 "#NOT", new CharSingle('^'), Quantifier.ZeroOrOne,
                                 new CharSingle(':'), Quantifier.Zero,
                                 //"#Content", 
-                                new CheckerAlternative(Cs.toArray(Checker.EmptyCheckerArray)), Quantifier.OneOrMore,
+                                new CheckerAlternative(Cs.toArray(Checker.EMPTY_CHECKER_ARRAY)), Quantifier.OneOrMore,
                                 new CharSingle(']')
                             )
                         ), Quantifier.ZeroOrMore
@@ -970,7 +970,7 @@ public class RPCompiler_ParserTypes {
                 Cs.add(RegParser.newRegParser(new CharNot(new CharSet(RPCompiler_ParserTypes.Escapable)), Quantifier.OneOrMore_Minimum));
                 
                 // Create the checker
-                this.TheChecker = RegParser.newRegParser(new CheckerAlternative(true, Cs.toArray(Checker.EmptyCheckerArray)));
+                this.TheChecker = RegParser.newRegParser(new CheckerAlternative(true, Cs.toArray(Checker.EMPTY_CHECKER_ARRAY)));
             }
             return this.TheChecker;
         }
@@ -1218,7 +1218,7 @@ public class RPCompiler_ParserTypes {
                 if(IsNot) return new CheckerNot(RPPs.get(0));
                 return RPPs.get(0);
             } else {
-                Checker[] NewRPEs = RPPs.toArray(net.nawaman.regparser.Checker.EmptyCheckerArray);
+                Checker[] NewRPEs = RPPs.toArray(net.nawaman.regparser.Checker.EMPTY_CHECKER_ARRAY);
                 Checker C = null;
                 if(IsDefault) C = new CheckerAlternative(true, NewRPEs);
                 else          C = new CheckerAlternative(      NewRPEs);

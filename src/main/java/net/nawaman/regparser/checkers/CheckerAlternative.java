@@ -95,8 +95,8 @@ public class CheckerAlternative implements Checker {
      * @return    the length of the match or -1 if the string S does not start with this checker
      */
     @Override
-    public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider) {
-        return this.getStartLengthOf(S, pOffset, pProvider, null);
+    public int startLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider) {
+        return this.startLengthOf(S, pOffset, pProvider, null);
     }
     
     /**
@@ -107,14 +107,14 @@ public class CheckerAlternative implements Checker {
      * @return    the length of the match or -1 if the string S does not start with this checker
      */
     @Override
-    public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider, ParseResult pResult) {
+    public int startLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider, ParseResult pResult) {
         for (int i = this.Checkers.length; --i >= 0;) {
             Checker C = this.Checkers[i];
-            int     I = C.getStartLengthOf(S, pOffset, pProvider, pResult);
+            int     I = C.startLengthOf(S, pOffset, pProvider, pResult);
             if (I != -1)
                 return I;
         }
-        return (this.Default != null) ? this.Default.getStartLengthOf(S, pOffset, pProvider, pResult) : -1;
+        return (this.Default != null) ? this.Default.startLengthOf(S, pOffset, pProvider, pResult) : -1;
     }
     
     public boolean hasDefault() {

@@ -772,7 +772,7 @@ public class RegParser implements Checker, Serializable {
                     return null; //pResult;
                     
                 int REC      = pResult.getEntryListSize();
-                int LengthFP = FP.getStartLengthOf(pText, pOffset, pProvider, pResult);
+                int LengthFP = FP.startLengthOf(pText, pOffset, pProvider, pResult);
                 if (LengthFP == -1) {
                     // Recover what may have been added in the fail attempt
                     pResult.reset(REC);
@@ -920,7 +920,7 @@ public class RegParser implements Checker, Serializable {
                                 } else {
                                     // The type contain a checker
                                     int REC      = pResult.getEntryListSize();
-                                    int LengthFP = FP.getStartLengthOf(pText, pOffset, pProvider, pResult);
+                                    int LengthFP = FP.startLengthOf(pText, pOffset, pProvider, pResult);
                                     if (LengthFP == -1) {
                                         // Recover what may have been added in the fail attempt
                                         pResult.reset(REC);
@@ -1445,8 +1445,8 @@ public class RegParser implements Checker, Serializable {
      * @param    pOffset the starting point of the checking
      * @return    the length of the match or -1 if the string S does not start with this checker
      */
-    public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider) {
-        return this.getStartLengthOf(S, pOffset, pProvider, null);
+    public int startLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider) {
+        return this.startLengthOf(S, pOffset, pProvider, null);
     }
     
     /**
@@ -1457,7 +1457,7 @@ public class RegParser implements Checker, Serializable {
      * @return    the length of the match or -1 if the string S does not start with this checker
      */
     @Override
-    public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider, ParseResult pResult) {
+    public int startLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider, ParseResult pResult) {
         if (pResult == null) {
             ParseResult PR = this.parse(S.toString(), pOffset, pProvider);
             if (PR == null)

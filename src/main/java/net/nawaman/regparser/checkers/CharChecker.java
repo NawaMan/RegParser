@@ -47,8 +47,8 @@ abstract public class CharChecker implements Checker {
      * @return    the length of the match or -1 if the string S does not start with this checker
      */
     @Override
-    public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider) {
-        return this.getStartLengthOf(S, pOffset, pProvider, null);
+    public int startLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider) {
+        return this.startLengthOf(S, pOffset, pProvider, null);
     }
     
     /**
@@ -59,7 +59,7 @@ abstract public class CharChecker implements Checker {
      * @return    the length of the match or -1 if the string S does not start with this checker
      */
     @Override
-    public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider, ParseResult pResult) {
+    public int startLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider, ParseResult pResult) {
         if ((pOffset < 0) || (pOffset >= S.length()))
             return -1;
         char c = S.charAt(pOffset);

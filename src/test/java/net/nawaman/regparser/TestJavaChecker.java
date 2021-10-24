@@ -18,11 +18,11 @@ public class TestJavaChecker {
         public DigitChecker() {
         }
         
-        public int getStartLengthOf(CharSequence string, int offset, PTypeProvider typeProvider) {
-            return this.getStartLengthOf(string, offset, typeProvider, null);
+        public int startLengthOf(CharSequence string, int offset, PTypeProvider typeProvider) {
+            return this.startLengthOf(string, offset, typeProvider, null);
         }
         
-        public int getStartLengthOf(CharSequence string, int offset, PTypeProvider typeProvider, ParseResult result) {
+        public int startLengthOf(CharSequence string, int offset, PTypeProvider typeProvider, ParseResult result) {
             return DigitChecker.getLengthOf(string, offset, typeProvider, result);
         }
         

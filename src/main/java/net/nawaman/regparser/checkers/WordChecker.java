@@ -53,8 +53,8 @@ public class WordChecker implements Checker {
      * @param    pOffset the starting point of the checking
      * @return    the length of the match or -1 if the string S does not start with this checker
      */
-    public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider) {
-        return this.getStartLengthOf(S, pOffset, pProvider, null);
+    public int startLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider) {
+        return this.startLengthOf(S, pOffset, pProvider, null);
     }
     
     /**
@@ -65,7 +65,7 @@ public class WordChecker implements Checker {
      * @return    the length of the match or -1 if the string S does not start with this checker
      */
     @Override
-    public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider, ParseResult pResult) {
+    public int startLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider, ParseResult pResult) {
         return S.toString().startsWith(this.Word, pOffset) ? this.Word.length() : -1;
     }
     

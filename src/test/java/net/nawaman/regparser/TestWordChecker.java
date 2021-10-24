@@ -15,10 +15,10 @@ public class TestWordChecker {
     @Test
     public void testWord() {
         var wordChecker = new WordChecker("555");
-        validate( 3, wordChecker.getStartLengthOf("555222",   0, null));
-        validate(-1, wordChecker.getStartLengthOf("555222",   2, null));
-        validate(-1, wordChecker.getStartLengthOf("00555222", 0, null));
-        validate(-1, wordChecker.getStartLengthOf("5505222",  0, null));
+        validate( 3, wordChecker.startLengthOf("555222",   0, null));
+        validate(-1, wordChecker.startLengthOf("555222",   2, null));
+        validate(-1, wordChecker.startLengthOf("00555222", 0, null));
+        validate(-1, wordChecker.startLengthOf("5505222",  0, null));
     }
     
 }

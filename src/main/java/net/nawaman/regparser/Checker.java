@@ -23,32 +23,32 @@ import java.io.Serializable;
 /**
  * A basic building block for RegParser.
  * 
- * Checker can check if a given CharSequence starts with characters in the right sequence. If match, the length if the
- *   match is returned; Otherwise, -1 is returned. 
+ * Checker can check if a given CharSequence starts with characters in the right sequence.
+ * If match, the length if the match is returned; Otherwise, -1 is returned. 
  *
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public interface Checker extends Serializable {
     
     /** Returns the empty array of Checkers */
-    static public final Checker[] EmptyCheckerArray = new Checker[0];
+    public static final Checker[] EMPTY_CHECKER_ARRAY = new Checker[0];
     
     /**
-     * Returns the length of the match if the string S starts with this checker.<br />
-     * @param    S is the string to be parse
-     * @param    pOffset the starting point of the checking
-     * @return    the length of the match or -1 if the string S does not start with this checker
+     * Returns the length of the match if the string S starts (from offset) with this checker.<br />
+     * @param  text    the string to be parsed
+     * @param  offset  the starting point of the checking
+     * @return         the length of the match or -1 if the string S does not start with this checker
      */
-    public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider);
+    public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider);
     
     /**
-     * Returns the length of the match if the string S starts with this checker.<br />
-     * @param    S is the string to be parse
-     * @param    pOffset the starting point of the checking
-     * @param   pResult the parse result of the current parsing. This is only available when this checker is called from a RegParser
-     * @return    the length of the match or -1 if the string S does not start with this checker
+     * Returns the length of the match if the string S starts (from offset) with this checker.<br />
+     * @param  text         the string to be parsed
+     * @param  offset       the starting point of the checking
+     * @param  parseResult  the parse result of the current parsing. Only given in special case from RegParser.
+     * @return              the length of the match or -1 if the string S does not start with this checker
      */
-    public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider, ParseResult pResult);
+    public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider, ParseResult parseResult);
     
     /** Return the optimized version of this Checker */
     public Checker getOptimized();
