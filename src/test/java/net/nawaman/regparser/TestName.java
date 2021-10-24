@@ -95,9 +95,9 @@ public class TestName {
                 + "08 => [   17] = <NoName>        :<NoType>         = \" };\"",
                 result);
         
-        validate("[#Value]",            result.getAllNames());
-        validate("[5,7,454,5]",         Util.toString(result.textsOf("#Value")));
-        validate("[[5],[7],[454],[5]]", Util.toString(result.getAllOfStrMatchesByName("#Value")));
+        validate("[#Value]",               result.getAllNames());
+        validate("[5, 7, 454, 5]",         Util.toString(result.textsOf("#Value")));
+        validate("[[5], [7], [454], [5]]", Util.toString(result.getAllOfStrMatchesByName("#Value")));
     }
     
 }

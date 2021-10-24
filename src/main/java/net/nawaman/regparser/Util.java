@@ -18,21 +18,19 @@
 
 package net.nawaman.regparser;
 
-import java.io.BufferedReader;
+import static java.lang.String.format;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.util.Arrays;
 
 /**
@@ -42,72 +40,55 @@ import java.util.Arrays;
  */
 public class Util {
     
-    static String[] EmptyStringArray = new String[0];
+    static String[] EMPTY_STRING_ARRAY = new String[0];
     
     // Object ----------------------------------------------------------------------------------------------------------
     
     /** Returns string representation of an object value. */
-    static public String toString(Object O) {
-        if (O instanceof int[]) {
-            return Arrays.toString((int[])O);
-        }
-        if (O instanceof String[]) {
-            return Arrays.toString((String[])O);
+    static public String toString(Object object) {
+        if (object == null) {
+            return "null";
         }
         
-        return (O == null) ? "null" : O.toString();
-    }
-    
-    /** Checks if object O1 and O2 equals. */
-    static public boolean equal(Object O1, Object O2) {
-        if (O1 == O2)
-            return true;
-        if ((O1 == null) || (O2 == null))
-            return false;
-        return O1.hashCode() == O2.hashCode();
+        if (object.getClass().isArray()) {
+            if (object instanceof int[]) {
+                return Arrays.toString((int[])object);
+            }
+            if (object instanceof double[]) {
+                return Arrays.toString((int[])object);
+            }
+            if (object instanceof boolean[]) {
+                return Arrays.toString((int[])object);
+            }
+            if (object instanceof Object[]) {
+                return Arrays.deepToString((Object[])object);
+            }
+            if (object instanceof char[]) {
+                return Arrays.toString((int[])object);
+            }
+            if (object instanceof long[]) {
+                return Arrays.toString((int[])object);
+            }
+            if (object instanceof byte[]) {
+                return Arrays.toString((int[])object);
+            }
+            if (object instanceof short[]) {
+                return Arrays.toString((int[])object);
+            }
+        }
+        
+        return (object == null) ? "null" : object.toString();
     }
     
     // Exception -------------------------------------------------------------------------------------------------------
     
-    static public String getThrowableToString(Throwable T) {
-        StringBuffer          SB   = new StringBuffer();
-        ByteArrayOutputStream BAOS = new ByteArrayOutputStream();
-        PrintStream           PS   = new PrintStream(BAOS);
-        T.printStackTrace(PS);
-        SB.append(BAOS.toString());
-        return SB.toString();
-    }
-    
-    // Array -----------------------------------------------------------------------------------------------------------
-    
-    /** Returns string representation of an object value with customized Open, Close and Separator. */
-    static public <T> String toString(T[] O) {
-        return toString(O, "[", "]", ",");
-    }
-    
-    /** Returns string representation of an object value with customized Open, Close and Separator. */
-    static public <T> String toString(T[] O, String Open, String Close, String Separator) {
-        StringBuffer SB = new StringBuffer();
-        SB.append(Open);
-        if (O != null) {
-            for (int i = 0; i < Array.getLength(O); i++) {
-                if (i != 0)
-                    SB.append(Separator);
-                Object Oi = Array.get(O, i);
-                if (Oi instanceof String)
-                    SB.append(Oi);
-                else
-                    if (Oi == null)
-                        SB.append("null");
-                    else
-                        if (Oi.getClass().isArray())
-                            SB.append(Arrays.toString((Object[])Oi));
-                        else
-                            SB.append(Oi.toString());
-            }
-        }
-        SB.append(Close);
-        return SB.toString();
+    static public String getThrowableToString(Throwable throwable) {
+        var stringBuffer = new StringBuffer();
+        var byteStream   = new ByteArrayOutputStream();
+        var printStream  = new PrintStream(byteStream);
+        throwable.printStackTrace(printStream);
+        stringBuffer.append(byteStream.toString());
+        return stringBuffer.toString();
     }
     
     // String ----------------------------------------------------------------------------------------------------------
@@ -116,115 +97,135 @@ public class Util {
      * Converts the CharSequence to a escape text
      * For example Tab => '\t', Newline => '\n' e.g.
      */
-    static public CharSequence escapeText(CharSequence CS) {
-        //if(CS == null) return null;
-        StringBuffer SB = new StringBuffer();
-        for (int i = 0; i < CS.length(); i++) {
+    static public CharSequence escapeText(CharSequence text) {
+        if(text == null) {
+            return null;
+        }
+        
+        var stringBuffer = new StringBuffer();
+        for (int i = 0; i < text.length(); i++) {
             char c = ' ';
             try {
-                c = CS.charAt(i);
+                c = text.charAt(i);
             } catch (java.lang.StringIndexOutOfBoundsException E) {
                 System.out.println("escapeText: " + E.toString());
             }
-            if (c == '\t') { SB.append("\\t"); continue; }
-            if (c == '\n') { SB.append("\\n"); continue; }
-            if (c == '\r') { SB.append("\\r"); continue; }
-            if (c == '\f') { SB.append("\\f"); continue; }
-            if (c == '\b') { SB.append("\\b"); continue; }
-            if (c == '\'') { SB.append("\\\'"); continue; }
-            if (c == '\"') { SB.append("\\\""); continue; }
-            if (c == '\\') { SB.append("\\\\"); continue; }
-            SB.append(c);
+            if (c == '\t') { stringBuffer.append("\\t"); continue; }
+            if (c == '\n') { stringBuffer.append("\\n"); continue; }
+            if (c == '\r') { stringBuffer.append("\\r"); continue; }
+            if (c == '\f') { stringBuffer.append("\\f"); continue; }
+            if (c == '\b') { stringBuffer.append("\\b"); continue; }
+            if (c == '\'') { stringBuffer.append("\\\'"); continue; }
+            if (c == '\"') { stringBuffer.append("\\\""); continue; }
+            if (c == '\\') { stringBuffer.append("\\\\"); continue; }
+            stringBuffer.append(c);
         }
-        return SB;
+        return stringBuffer;
     }
     
     /**
-     * Converts the CharSequence to a escape text
+     * Unescape an escaped text.
      * For example '\t' => Tab, '\n' => Newline e.g.
      */
-    static public CharSequence invertEscapeText(CharSequence CS) {
-        StringBuffer SB = new StringBuffer();
-        for (int i = 0; i < CS.length(); i++) {
-            char c = ' ';
+    static public CharSequence unescapeText(CharSequence text) {
+        if(text == null) {
+            return null;
+        }
+        
+        var buffer = new StringBuffer();
+        for (int i = 0; i < text.length(); i++) {
+            char ch = ' ';
             try {
-                c = CS.charAt(i);
+                ch = text.charAt(i);
             } catch (java.lang.StringIndexOutOfBoundsException E) {
-                System.out.println("invertEscapeText: " + E.toString());
-            }
-            if (c != '\\') { SB.append(c); continue; }
-            i++;
-            c = CS.charAt(i);
-            switch (c) {
-            case 't': {
-                SB.append("\t");
-                continue;
-            }
-            case 'n': {
-                SB.append("\n");
-                continue;
-            }
-            case 'r': {
-                SB.append("\r");
-                continue;
-            }
-            case 'f': {
-                SB.append("\f");
-                continue;
-            }
-            case 'b': {
-                SB.append("\b");
-                continue;
-            }
-            case '\'': {
-                SB.append("\'");
-                continue;
-            }
-            case '\"': {
-                SB.append("\"");
-                continue;
-            }
-            case '\\': {
-                SB.append("\\");
-                continue;
-            }
+                System.out.println("unescapeText: " + E.toString());
             }
             
-            if (c == 'u') {
-                if (i + 6 >= CS.length()) { SB.append(c); continue; }
-                // Found Hexadecimal Unicode Escape
-                String UniEsc = CS.subSequence(i + 1, i + 5).toString().toUpperCase();
-                // 4-digit hexadecimal
-                int C    = 0;
-                int Base = 1;
-                for (int uc = (UniEsc.length() - 1); uc >= 0; uc--) {
-                    int I = "0123456789ABCDEF".indexOf(UniEsc.charAt(uc));
-                    if (I == -1) { SB.append("(*ERROR*)"); break; }
-                    C    += I * Base;
-                    Base *= 16;
+            if (ch != '\\') {
+                buffer.append(ch);
+                continue;
+            }
+            i++;
+            ch = text.charAt(i);
+            switch (ch) {
+                case 't': {
+                    buffer.append("\t");
+                    continue;
                 }
-                SB.append("" + C);
+                case 'n': {
+                    buffer.append("\n");
+                    continue;
+                }
+                case 'r': {
+                    buffer.append("\r");
+                    continue;
+                }
+                case 'f': {
+                    buffer.append("\f");
+                    continue;
+                }
+                case 'b': {
+                    buffer.append("\b");
+                    continue;
+                }
+                case '\'': {
+                    buffer.append("\'");
+                    continue;
+                }
+                case '\"': {
+                    buffer.append("\"");
+                    continue;
+                }
+                case '\\': {
+                    buffer.append("\\");
+                    continue;
+                }
+            }
+            
+            if (ch == 'u') {
+                if (i + 6 >= text.length()) {
+                    buffer.append(ch);
+                    continue;
+                }
+                // Found Hexadecimal Unicode Escape
+                var uniEsc = text.subSequence(i + 1, i + 5).toString().toUpperCase();
+                // 4-digit hexadecimal
+                int c    = 0;
+                int base = 1;
+                for (int uc = (uniEsc.length() - 1); uc >= 0; uc--) {
+                    int I = "0123456789ABCDEF".indexOf(uniEsc.charAt(uc));
+                    if (I == -1) {
+                        buffer.append("(*ERROR*)");
+                        break;
+                    }
+                    c    += I * base;
+                    base *= 16;
+                }
+                buffer.append("" + c);
                 i += 5;
             }
-            if ((c >= '0') && (c <= '7')) {
+            if ((ch >= '0') && (ch <= '7')) {
                 // Found Octal Unicode Escape
-                String UniEsc = CS.subSequence(i, i + 3).toString().toUpperCase();
+                var uniEsc = text.subSequence(i, i + 3).toString().toUpperCase();
                 // 2-digit octal
-                int C    = 0;
-                int Base = 1;
-                for (int uc = (UniEsc.length() - 1); uc >= 0; uc--) {
-                    int I = "01234567".indexOf(UniEsc.charAt(uc));
-                    if (I == -1) { SB.append("(*ERROR*)"); break; }
-                    C    += I * Base;
-                    Base *= 8;
+                int c    = 0;
+                int base = 1;
+                for (int uc = (uniEsc.length() - 1); uc >= 0; uc--) {
+                    int idx = "01234567".indexOf(uniEsc.charAt(uc));
+                    if (idx == -1) {
+                        buffer.append("(*ERROR*)");
+                        break;
+                    }
+                    c    += idx * base;
+                    base *= 8;
                 }
-                SB.append("" + C);
+                buffer.append("" + c);
             }
             
-            SB.append(c);
+            buffer.append(ch);
             continue;
         }
-        return SB;
+        return buffer;
     }
     
     // File ------------------------------------------------------------------------------------------------------------
@@ -235,32 +236,25 @@ public class Util {
     }
     
     /** Loads objects from a file */
-    static public Serializable[] loadObjectsFromFile(File pFile) throws IOException {
-        FileInputStream FIS = null;
-        try {
-            FIS = new FileInputStream(pFile);
-            return loadObjectsFromStream(FIS);
+    static public Serializable[] loadObjectsFromFile(File file) throws IOException {
+        try (var fileInStream = new FileInputStream(file)) {
+            return loadObjectsFromStream(fileInStream);
         } catch (Exception E) {
-            throw new RuntimeException("File Loading Error: There is error while tring to load objects from file '"
-                    + pFile.getAbsolutePath() + File.pathSeparator + pFile.getName() + "'.", E);
-        } finally {
-            if (FIS != null)
-                FIS.close();
+            var errMsg = format("File Loading Error: There is error while tring to load objects from file '%s%s%s'.", 
+                    file.getAbsolutePath(), File.pathSeparator, file.getName());
+            throw new RuntimeException(errMsg, E);
         }
     }
     
     /** Loads objects from a file */
-    static public Serializable[] loadObjectsFromStream(InputStream IS) throws IOException {
-        try {
-            Object            O   = null;
-            ObjectInputStream OIS = new ObjectInputStream(IS);
-            // Check Signature of the file
-            O = OIS.readObject();
-            if (!(O instanceof Serializable[])) {
+    static public Serializable[] loadObjectsFromStream(InputStream inputStream) throws IOException {
+        try (var objectInStream = new ObjectInputStream(inputStream)) {
+            var object = objectInStream.readObject();
+            if (!(object instanceof Serializable[])) {
                 throw new RuntimeException("File Loading Error: The file does not contain an array of serilizables.");
             }
             
-            return (Serializable[])O;
+            return (Serializable[])object;
         } catch (IOException IOE) {
             throw IOE;
         } catch (ClassNotFoundException E) {
@@ -269,88 +263,29 @@ public class Util {
     }
     
     /** Saves objects to a file */
-    static public void saveObjectsToFile(String pFileName, Serializable[] pObjects) throws IOException {
-        Util.saveObjectsToFile(new File(pFileName), pObjects);
+    static public void saveObjectsToFile(String fileName, Serializable[] objects) throws IOException {
+        Util.saveObjectsToFile(new File(fileName), objects);
     }
     
     /** Saves objects to a file */
-    static public void saveObjectsToFile(File pFile, Serializable[] pObjects) throws IOException {
-        saveObjectsToStream(new FileOutputStream(pFile), pObjects);
+    static public void saveObjectsToFile(File file, Serializable[] objects) throws IOException {
+        try (var fileOutStream = new FileOutputStream(file)) {
+            saveObjectsToStream(fileOutStream, objects);
+        }
     }
     
     /** Saves objects to a file */
-    static public void saveObjectsToStream(OutputStream pOS, Serializable[] pObjects) throws IOException {
-        // Save it to the file
+    static public void saveObjectsToStream(OutputStream outputStream, Serializable[] objects) throws IOException {
         try {
-            ObjectOutputStream OOS = new ObjectOutputStream(pOS);
-            OOS.writeObject(pObjects);
+            var objectStream = new ObjectOutputStream(outputStream);
+            objectStream.writeObject(objects);
         } finally {
-            if (pOS != null)
-                pOS.close();
+            if (outputStream != null) {
+                outputStream.close();
+            }
         }
     }
     
-    // Text file -------------------------------------------------------------------------------------------------------
-    
-    /** Loads a text from a file */
-    static public String loadTextFile(String pTextFileName) throws IOException {
-        return Util.loadTextFile(new File(pTextFileName));
-    }
-    
-    /** Loads a text from a file */
-    static public String loadTextFile(File pTextFile) throws IOException {
-        FileInputStream FIS = null;
-        try {
-            FIS = new FileInputStream(pTextFile);
-            return Util.loadTextFromStream(FIS);
-        } finally {
-            if (FIS != null)
-                FIS.close();
-        }
-    }
-    
-    /** Loads a text from a file */
-    static public String loadTextFromStream(InputStream IS) throws IOException {
-        InputStreamReader IDR = new InputStreamReader(IS);
-        BufferedReader    BR  = new BufferedReader(IDR);
-        
-        StringBuffer SB = new StringBuffer();
-        String       Line;
-        while ((Line = BR.readLine()) != null)
-            SB.append(Line).append('\n');
-        
-        BR.close();
-        
-        if (SB.length() == 0)
-            return "";
-        return SB.toString().substring(0, SB.length() - 1);
-    }
-    
-    /** Saves a text to a file */
-    static public void saveTextToFile(String pTextFileName, String pText) throws IOException {
-        Util.saveTextToFile(new File(pTextFileName), pText);
-    }
-    
-    /** Saves a text to a file */
-    static public void saveTextToFile(File pTextFile, String pText) throws IOException {
-        FileOutputStream FOS = null;
-        try {
-            FOS = new FileOutputStream(pTextFile);
-            Util.saveTextToStream(FOS, pText);
-        } finally {
-            if (FOS != null)
-                FOS.toString();
-        }
-    }
-    
-    /** Saves a text to a file */
-    static public void saveTextToStream(OutputStream OS, CharSequence pText) throws IOException {
-        OutputStreamWriter TextOut = new OutputStreamWriter(OS);
-        TextOut.write(pText.toString());
-        TextOut.close();
-    }
-    
-    // TODO - Mark public recently
     /**
      * Returns the class by its name and throws exception if not found.
      * 
@@ -358,55 +293,61 @@ public class Util {
      * @exception ExceptionInInitializerError  if the initialization provoked by this method fails
      * @exception ClassNotFoundException       if the class cannot be located
      **/
-    public static Class<?> getClassByName(String Name, ClassLoader CL) {
+    public static Class<?> getClassByName(String className, ClassLoader classLoader) {
         try {
-            String OrgName = Name;
             // Try to extract the class name from the signature
-            String SubClassName = "";
+            var subClassName = "";
             while (true) {
-                Class<?> Cls = null;
+                Class<?> clazz = null;
                 try {
                     // Get class by the normal mean
-                    Cls = (CL == null) ? Class.forName(Name) : Class.forName(Name, true, CL);
-                } catch (ClassNotFoundException E) {
+                    clazz = (classLoader == null)
+                          ? Class.forName(className)
+                          : Class.forName(className, true, classLoader);
+                } catch (ClassNotFoundException exception) {
                     // When not found, try to see if the class is declared in side other class.
                     // By trimming the string after the last "."
-                    int Ind = Name.lastIndexOf('.');
+                    int idx = className.lastIndexOf('.');
                     // If there is no more ".", the class is not found.
-                    if (Ind == -1)
-                        throw new ClassNotFoundException(OrgName);
-                    String S = Name.substring(Ind + 1);
-                    if (SubClassName.length() == 0)
-                        SubClassName = S;
-                    else
-                        SubClassName = S + "." + SubClassName;
-                    Name = Name.substring(0, Ind);
+                    if (idx == -1) {
+                        throw new ClassNotFoundException(className);
+                    }
+                    
+                    var subString = className.substring(idx + 1);
+                    subClassName = subString + ((subClassName.length() == 0) ? "" : ("." + subClassName));
+                    className    = className.substring(0, idx);
                     // The continue, until forName(String) return a class
                     continue;
                 }
                 
                 // After get the base class, get the sub class if any
-                if (SubClassName.length() == 0)
-                    return Cls;
-                String[] SNs = SubClassName.split("\\.");
+                if (subClassName.length() == 0) {
+                    return clazz;
+                }
+                
+                var subNames = subClassName.split("\\.");
                 // Loop to get each level of sub-class.
-                for (int i = 0; i < SNs.length; i++) {
-                    Class<?>[] SubClasses = Cls.getDeclaredClasses();
-                    boolean    IsFound    = false;
-                    for (int j = SubClasses.length; --j >= 0;) {
-                        if (SubClasses[j].getCanonicalName().equals(Cls.getCanonicalName() + "." + SNs[i])) {
-                            IsFound = true;
-                            Cls     = SubClasses[j];
+                for (int i = 0; i < subNames.length; i++) {
+                    var     subClasses = clazz.getDeclaredClasses();
+                    boolean isFound    = false;
+                    for (int j = subClasses.length; --j >= 0;) {
+                        if (subClasses[j].getCanonicalName().equals(clazz.getCanonicalName() + "." + subNames[i])) {
+                            isFound = true;
+                            clazz     = subClasses[j];
                             break;
                         }
                     }
                     // Throw an error if not found
-                    if (!IsFound) { throw new ClassNotFoundException(OrgName); }
+                    if (!isFound) {
+                        throw new ClassNotFoundException(className);
+                    }
                 }
-                return Cls;
+                return clazz;
             }
-        } catch (Exception E) {
+        } catch (Exception exception) {
+            System.err.println("Problem getting class by name: " + className);
+            exception.printStackTrace();
+            return null;
         }
-        return null;
     }
 }

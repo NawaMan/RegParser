@@ -456,7 +456,7 @@ public class RPCompiler_ParserTypes {
             ParseResult.Entry PE = pThisResult.getLastMatchByName("#Param");
             if((PE != null) && PE.hasSubResult()) {
                 Param = pThisResult.getLastMatchByName("#Param").getSubResult().getLastStrMatchByName("#ParamValue");
-                if(Param != null) Param = Util.invertEscapeText(Param.substring(1, Param.length() - 1)).toString();
+                if(Param != null) Param = Util.unescapeText(Param.substring(1, Param.length() - 1)).toString();
                 
             }
             return new PTypeRef.Simple(TName, Param);

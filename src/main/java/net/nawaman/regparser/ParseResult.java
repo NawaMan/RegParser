@@ -554,7 +554,7 @@ abstract public class ParseResult implements Serializable {
                 Ns.add(E.getRPEntry().getName());
             }
         }
-        for (String N : Ns.toArray(Util.EmptyStringArray)) {
+        for (String N : Ns.toArray(Util.EMPTY_STRING_ARRAY)) {
             if (!N.startsWith(pPrefix))
                 Ns.remove(N);
         }
