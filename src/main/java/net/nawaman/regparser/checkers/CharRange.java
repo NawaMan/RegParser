@@ -16,56 +16,57 @@
  * ---------------------------------------------------------------------------------------------------------------------
  */
 
-package net.nawaman.regparser;
+package net.nawaman.regparser.checkers;
+
+import net.nawaman.regparser.RPCompiler_ParserTypes;
 
 /**
- * The char set of a opposite of a given char set.
+ * The checker that is associated with a range of character
  *
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-public class CharNot extends CharChecker {
+public class CharRange extends CharChecker {
     
-    static private final long serialVersionUID = 5313543126135165121L;
+    static private final long serialVersionUID = 2356484436956456452L;
     
     /** Construct a character range */
-    public CharNot(CharChecker pCharChecker) {
-        if (pCharChecker == null)
-            throw new NullPointerException();
-        this.CC = (pCharChecker instanceof CharNot) ? ((CharNot) pCharChecker).CC : pCharChecker;
+    public CharRange(char pStartC, char pEndC) {
+        this.StartC = pStartC;
+        this.EndC   = pEndC;
+        if (this.StartC > this.EndC) {
+            this.StartC = pEndC;
+            this.EndC   = pStartC;
+        }
     }
     
-    CharChecker CC;
+    char StartC;
+    char EndC;
     
     /** Checks of the char c is in this char checker */
     @Override
     public boolean inSet(char c) {
-        return !this.CC.inSet(c);
+        return (c >= this.StartC) && (c <= this.EndC);
+    }
+    
+    @Override
+    public String toString() {
+        if ((this.StartC == 0) && (this.EndC == Character.MAX_VALUE))
+            return ".";
+        return "[" + RPCompiler_ParserTypes.escapeOfRegParser("" + this.StartC) + "-"
+                + RPCompiler_ParserTypes.escapeOfRegParser("" + this.EndC) + "]";
     }
     
     @Override
     public boolean equals(Object O) {
         if (O == this)
             return true;
-        if (!(O instanceof CharNot))
+        if (!(O instanceof CharRange))
             return false;
-        return this.CC.equals(((CharNot) O).CC);
+        return (this.StartC == ((CharRange) O).StartC) && (this.EndC == ((CharRange) O).EndC);
     }
     
     @Override
     public int hashCode() {
-        return "CharNot".hashCode() + this.CC.hashCode();
-    }
-    
-    @Override
-    public String toString() {
-        return "[^" + this.CC.toString() + "]";
-    }
-    
-    /** Return the optimized version of this Checker */
-    @Override
-    public Checker getOptimized() {
-        if (this.CC instanceof CharNot)
-            return ((CharNot) this.CC).CC;
-        return this;
+        return "CharRange".hashCode() + this.StartC + this.EndC;
     }
 }

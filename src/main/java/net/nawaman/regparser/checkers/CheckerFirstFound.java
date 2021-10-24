@@ -16,47 +16,34 @@
  * ---------------------------------------------------------------------------------------------------------------------
  */
 
-package net.nawaman.regparser;
+package net.nawaman.regparser.checkers;
+
+import net.nawaman.regparser.Checker;
 
 /**
- * Single character char set
+ * This checker simplify the creation of CheckerAlternative with default.
+ * 
+ * With this checker, all checkers are check from the first to the last. If a match is found, the search stop.
  *
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-/**  */
-public class CharSingle extends CharChecker {
+public class CheckerFirstFound extends CheckerAlternative {
     
-    static private final long serialVersionUID = 1651564132135121525L;
+    static private final long serialVersionUID = 4464247859465463549L;
     
-    /** Construct a character range */
-    public CharSingle(char pC) {
-        this.C = pC;
+    static Checker[] getLaters(Checker... pLaters) {
+        Checker[] Cs = new Checker[pLaters.length - 1];
+        System.arraycopy(pLaters, 1, Cs, 0, Cs.length);
+        return Cs;
     }
     
-    char C;
-    
-    /** Checks of the char c is in this char checker */
-    @Override
-    public boolean inSet(char c) {
-        return (c == this.C);
+    /** Constructs a char set */
+    public CheckerFirstFound(Checker... pLaters) {
+        super(true, pLaters[0],
+                (pLaters.length == 1) ? null
+                        : (pLaters.length == 2) ? pLaters[1]
+                                : (pLaters.length == 3) ? new CheckerAlternative(true, getLaters(pLaters))
+                                        : new CheckerFirstFound(getLaters(pLaters)));
     }
     
-    @Override
-    public String toString() {
-        return "[" + RPCompiler_ParserTypes.escapeOfRegParser("" + this.C) + "]";
-    }
-    
-    @Override
-    public boolean equals(Object O) {
-        if (O == this)
-            return true;
-        if (!(O instanceof CharSingle))
-            return false;
-        return this.C == ((CharSingle) O).C;
-    }
-    
-    @Override
-    public int hashCode() {
-        return "CharSingle".hashCode() + this.C;
-    }
 }

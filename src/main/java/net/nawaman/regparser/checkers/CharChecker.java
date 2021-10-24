@@ -16,50 +16,29 @@
  * ---------------------------------------------------------------------------------------------------------------------
  */
 
-package net.nawaman.regparser;
+package net.nawaman.regparser.checkers;
 
-import java.util.Hashtable;
+import net.nawaman.regparser.Checker;
+import net.nawaman.regparser.PTypeProvider;
+import net.nawaman.regparser.ParseResult;
 
 /**
- * The checker of any character.
+ * Checker that involves a character.
+ * 
+ * General implementation of this class is that if the first character is in a set, 1 will be returned. Otherwise -1 is
+ *   returned. 
  * 
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
- **/
-public class CheckerAny implements Checker {
+ */
+@SuppressWarnings("serial")
+abstract public class CharChecker implements Checker {
     
-    static private final long serialVersionUID = 1468541215412541527L;
+    /** Returns the empty array of CharCheckers */
+    static public final CharChecker[] EmptyCharCheckerArray = new CharChecker[0];
     
-    static Hashtable<Integer, CheckerAny> CheckerAnys = new Hashtable<Integer, CheckerAny>();
-    
-    /** Get an instance of Checker any */
-    static public CheckerAny getCheckerAny(int pLength) {
-        if (pLength < -1)
-            pLength = -1;
-        CheckerAny CA = CheckerAnys.get(pLength);
-        if (CA == null) {
-            CA = new CheckerAny(pLength);
-            CheckerAnys.put(pLength, CA);
-        }
-        return CA;
-    }
-    
-    CheckerAny(int pLength) {
-        this.Length = (pLength < -1) ? 1 : pLength;
-    }
-    
-    int Length;
-    
-    /** Returns the length of this checker */
-    public int getLength() {
-        return this.Length;
-    }
-    
-    /**{@inheritDoc}*/
-    @Override
-    public Checker getOptimized() {
-        return this;
-    }
-    
+    /** Checks of the char c is in this char checker */
+    abstract public boolean inSet(char c);
+
     
     /**
      * Returns the length of the match if the string S starts with this checker.<br />
@@ -81,18 +60,16 @@ public class CheckerAny implements Checker {
      */
     @Override
     public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider, ParseResult pResult) {
-        int SL = (S == null) ? 0 : S.length();
-        if (pOffset >= SL)
-            return 0;
-        if (this.Length == -1)
-            return (SL - pOffset);
-        return this.Length;
+        if ((pOffset < 0) || (pOffset >= S.length()))
+            return -1;
+        char c = S.charAt(pOffset);
+        return this.inSet(c) ? 1 : -1;
     }
     
     
-    /**{@inheritDoc}*/
+    /** Return the optimized version of this Checker */
     @Override
-    public String toString() {
-        return "." + ((this.Length == -1) ? "*" : "{" + this.Length + "}");
+    public Checker getOptimized() {
+        return this;
     }
 }

@@ -16,55 +16,49 @@
  * ---------------------------------------------------------------------------------------------------------------------
  */
 
-package net.nawaman.regparser;
+package net.nawaman.regparser.checkers;
+
+import net.nawaman.regparser.RPCompiler_ParserTypes;
 
 /**
- * The checker that is associated with a range of character
+ * Single character char set
  *
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-public class CharRange extends CharChecker {
+/**  */
+public class CharSingle extends CharChecker {
     
-    static private final long serialVersionUID = 2356484436956456452L;
+    static private final long serialVersionUID = 1651564132135121525L;
     
     /** Construct a character range */
-    public CharRange(char pStartC, char pEndC) {
-        this.StartC = pStartC;
-        this.EndC   = pEndC;
-        if (this.StartC > this.EndC) {
-            this.StartC = pEndC;
-            this.EndC   = pStartC;
-        }
+    public CharSingle(char pC) {
+        this.C = pC;
     }
     
-    char StartC;
-    char EndC;
+    public final char C;
     
     /** Checks of the char c is in this char checker */
     @Override
     public boolean inSet(char c) {
-        return (c >= this.StartC) && (c <= this.EndC);
+        return (c == this.C);
     }
     
     @Override
     public String toString() {
-        if ((this.StartC == 0) && (this.EndC == Character.MAX_VALUE))
-            return ".";
-        return "[" + RPCompiler_ParserTypes.escapeOfRegParser("" + this.StartC) + "-"
-                + RPCompiler_ParserTypes.escapeOfRegParser("" + this.EndC) + "]";
+        return "[" + RPCompiler_ParserTypes.escapeOfRegParser("" + this.C) + "]";
     }
     
     @Override
     public boolean equals(Object O) {
         if (O == this)
             return true;
-        if (!(O instanceof CharRange))
+        if (!(O instanceof CharSingle))
             return false;
-        return (this.StartC == ((CharRange) O).StartC) && (this.EndC == ((CharRange) O).EndC);
+        return this.C == ((CharSingle) O).C;
     }
     
     @Override
     public int hashCode() {
-        return "CharRange".hashCode() + this.StartC + this.EndC;
+        return "CharSingle".hashCode() + this.C;
     }
 }

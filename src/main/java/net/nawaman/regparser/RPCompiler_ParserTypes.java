@@ -22,8 +22,19 @@ import java.lang.reflect.Field;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import net.nawaman.regparser.parsers.PTIdentifier;
-import net.nawaman.regparser.parsers.PTStrLiteral;
+import net.nawaman.regparser.checkers.CharChecker;
+import net.nawaman.regparser.checkers.CharIntersect;
+import net.nawaman.regparser.checkers.CharNot;
+import net.nawaman.regparser.checkers.CharRange;
+import net.nawaman.regparser.checkers.CharSet;
+import net.nawaman.regparser.checkers.CharSingle;
+import net.nawaman.regparser.checkers.CharUnion;
+import net.nawaman.regparser.checkers.CheckerAlternative;
+import net.nawaman.regparser.checkers.CheckerFirstFound;
+import net.nawaman.regparser.checkers.CheckerNot;
+import net.nawaman.regparser.checkers.WordChecker;
+import net.nawaman.regparser.types.PTIdentifier;
+import net.nawaman.regparser.types.PTStrLiteral;
 
 /**
  * Compiler of RegParser language.
@@ -36,7 +47,7 @@ public class RPCompiler_ParserTypes {
     
     static final public String Escapable = ".?*-+^&'{}()[]|\\~ \t\n\r\f\u000B\u000C";
     
-    static String escapeOfRegParser(String pWord) {
+    public static String escapeOfRegParser(String pWord) {
         if(pWord == null) return null;
         pWord = Util.escapeText(pWord).toString();
         
@@ -752,13 +763,12 @@ public class RPCompiler_ParserTypes {
                     
                     if((CC instanceof CharSingle) && (CCs.size() > 0)) {
                         CharChecker PCC = CCs.get(CCs.size() - 1);
-                        // Append the precious one if able
+                        // Append the previous one if able
                         if(PCC instanceof CharSingle) {
                             CC = new CharSet("" + ((CharSingle)PCC).C + ((CharSingle)CC).C);
                             CCs.remove(CCs.size() - 1);
                         } else if(PCC instanceof CharSet) {
-                            ((CharSet)PCC).Set += ((CharSingle)CC).C;
-                            CC = PCC;
+                            CC = new CharSet("" + ((CharSet)PCC).Set + ((CharSingle)CC).C);
                             CCs.remove(CCs.size() - 1);
                         }
                     }
@@ -1157,7 +1167,8 @@ public class RPCompiler_ParserTypes {
                         RPI = RPEntry._new((Checker)this.compile(pThisResult, i, null, pContext, pProvider));
                         
                         if(RPI.getChecker() instanceof RegParser) {
-                            RPEntry[] Entries = ((RegParser)(RPI.getChecker())).Entries;
+                            var parserEntries = ((RegParser)(RPI.getChecker())).entries();
+                            RPEntry[] Entries = (parserEntries == null) ? null : parserEntries.toArray(RPEntry[]::new);
                             if(Entries == null) 
                                 RPI = null;
                             else if(Entries.length == 1)

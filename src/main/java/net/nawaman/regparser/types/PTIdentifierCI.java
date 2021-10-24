@@ -8,7 +8,7 @@
  * The project is a free software; you can redistribute it and/or modify it under the SIMILAR terms of the GNU General
  * Public License as published by the Free Software Foundation; either version 2 of the License, or any later version.
  * You are only required to inform me about your modification and redistribution as or as part of commercial software
- * package. You can inform me via me<at>nawaman<dot>net.
+ * package. You can inform me via nawaman<at>gmail<dot>com.
  * 
  * The project is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the 
  * implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
@@ -16,32 +16,36 @@
  * ---------------------------------------------------------------------------------------------------------------------
  */
 
-package net.nawaman.regparser;
+package net.nawaman.regparser.types;
+
+import net.nawaman.regparser.PTypeProvider;
+import net.nawaman.regparser.ParseResult;
 
 /**
- * This checker simplify the creation of CheckerAlternative with default.
- * 
- * With this checker, all checkers are check from the first to the last. If a match is found, the search stop.
+ * Parser for detecting C-like identifier (for case-insensitive)
  *
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-public class CheckerFirstFound extends CheckerAlternative {
+@SuppressWarnings("serial")
+public class PTIdentifierCI extends PTIdentifier {
     
-    static private final long serialVersionUID = 4464247859465463549L;
+    @SuppressWarnings("hiding")
+    static public String Name = "$IdentifierCI";
     
-    static Checker[] getLaters(Checker... pLaters) {
-        Checker[] Cs = new Checker[pLaters.length - 1];
-        System.arraycopy(pLaters, 1, Cs, 0, Cs.length);
-        return Cs;
+    @Override
+    public String getName() {
+        return Name;
     }
     
-    /** Constructs a char set */
-    public CheckerFirstFound(Checker... pLaters) {
-        super(true, pLaters[0],
-                (pLaters.length == 1) ? null
-                        : (pLaters.length == 2) ? pLaters[1]
-                                : (pLaters.length == 3) ? new CheckerAlternative(true, getLaters(pLaters))
-                                        : new CheckerFirstFound(getLaters(pLaters)));
+    @Override
+    public boolean doValidate(ParseResult pHostResult, ParseResult pThisResult, String pParam,
+            PTypeProvider pProvider) {
+        String S = pThisResult.getText();
+        if (S == pParam)
+            return true;
+        if ((S == null) || (pParam == null))
+            return false;
+        return (S.toLowerCase().equals(pParam.toLowerCase()));
     }
     
 }

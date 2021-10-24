@@ -5,6 +5,12 @@ import static net.nawaman.regparser.TestUtils.validate;
 import org.junit.ClassRule;
 import org.junit.Test;
 
+import net.nawaman.regparser.checkers.CharIntersect;
+import net.nawaman.regparser.checkers.CharNot;
+import net.nawaman.regparser.checkers.CharRange;
+import net.nawaman.regparser.checkers.CharSingle;
+import net.nawaman.regparser.checkers.CharUnion;
+
 public class TestCharChecker {
     
     @ClassRule

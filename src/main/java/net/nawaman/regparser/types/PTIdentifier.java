@@ -16,36 +16,40 @@
  * ---------------------------------------------------------------------------------------------------------------------
  */
 
-package net.nawaman.regparser.parsers;
+package net.nawaman.regparser.types;
 
+import net.nawaman.regparser.Checker;
+import net.nawaman.regparser.PType;
 import net.nawaman.regparser.PTypeProvider;
 import net.nawaman.regparser.ParseResult;
+import net.nawaman.regparser.PredefinedCharClasses;
+import net.nawaman.regparser.Quantifier;
+import net.nawaman.regparser.RegParser;
+import net.nawaman.regparser.checkers.CharSingle;
+import net.nawaman.regparser.checkers.CharUnion;
 
 /**
- * Parser for detecting C-like identifier (for case-insensitive)
- *
+ * Parser for detecting C-like identifier
+ * 
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 @SuppressWarnings("serial")
-public class PTIdentifierCI extends PTIdentifier {
+public class PTIdentifier extends PType {
     
-    @SuppressWarnings("hiding")
-    static public String Name = "$IdentifierCI";
+    static public String Name = "$Identifier";
     
     @Override
     public String getName() {
         return Name;
     }
     
+    Checker Checker = RegParser.newRegParser(new CharUnion(PredefinedCharClasses.Alphabet, new CharSingle('_')),
+            new CharUnion(PredefinedCharClasses.Alphabet, new CharSingle('_'), PredefinedCharClasses.Digit),
+            Quantifier.ZeroOrMore);
+    
     @Override
-    public boolean doValidate(ParseResult pHostResult, ParseResult pThisResult, String pParam,
-            PTypeProvider pProvider) {
-        String S = pThisResult.getText();
-        if (S == pParam)
-            return true;
-        if ((S == null) || (pParam == null))
-            return false;
-        return (S.toLowerCase().equals(pParam.toLowerCase()));
+    public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
+        return this.Checker;
     }
     
 }

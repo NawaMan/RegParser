@@ -16,36 +16,48 @@
  * ---------------------------------------------------------------------------------------------------------------------
  */
 
-package net.nawaman.regparser.parsers;
+package net.nawaman.regparser.types;
 
-import net.nawaman.regparser.CharSingle;
-import net.nawaman.regparser.CharUnion;
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.PType;
 import net.nawaman.regparser.PTypeProvider;
 import net.nawaman.regparser.ParseResult;
-import net.nawaman.regparser.PredefinedCharClasses;
 import net.nawaman.regparser.Quantifier;
 import net.nawaman.regparser.RegParser;
+import net.nawaman.regparser.checkers.CharNot;
+import net.nawaman.regparser.checkers.CharSingle;
+import net.nawaman.regparser.checkers.CheckerAlternative;
+import net.nawaman.regparser.checkers.WordChecker;
 
 /**
- * Parser for detecting C-like identifier
- * 
+ * Parser for detecting String literal "'`
+ *
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 @SuppressWarnings("serial")
-public class PTIdentifier extends PType {
+public class PTStrLiteral extends PType {
     
-    static public String Name = "$Identifier";
+    static public String Name = "$StringLiteral";
     
     @Override
     public String getName() {
         return Name;
     }
     
-    Checker Checker = RegParser.newRegParser(new CharUnion(PredefinedCharClasses.Alphabet, new CharSingle('_')),
-            new CharUnion(PredefinedCharClasses.Alphabet, new CharSingle('_'), PredefinedCharClasses.Digit),
-            Quantifier.ZeroOrMore);
+    Checker Checker = RegParser
+            .newRegParser("#String",
+                    new CheckerAlternative(
+                            RegParser.newRegParser(new CharSingle('\"'),
+                                    RegParser.newRegParser(new CheckerAlternative(new CharNot(new CharSingle('\'')),
+                                            new WordChecker("\\\""))),
+                                    Quantifier.ZeroOrMore, new CharSingle('\"')),
+                            RegParser.newRegParser(new CharSingle('\''),
+                                    RegParser.newRegParser(new CheckerAlternative(new CharNot(new CharSingle('\'')),
+                                            new WordChecker("\\\'"))),
+                                    Quantifier.ZeroOrMore, new CharSingle('\'')),
+                            RegParser.newRegParser(new CharSingle('`'), RegParser.newRegParser(
+                                    new CheckerAlternative(new CharNot(new CharSingle('`')), new WordChecker("\\`"))),
+                                    Quantifier.ZeroOrMore, new CharSingle('`'))));
     
     @Override
     public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {

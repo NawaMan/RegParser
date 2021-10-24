@@ -16,10 +16,14 @@
  * ---------------------------------------------------------------------------------------------------------------------
  */
 
-package net.nawaman.regparser;
+package net.nawaman.regparser.checkers;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import net.nawaman.regparser.Checker;
+import net.nawaman.regparser.PTypeProvider;
+import net.nawaman.regparser.ParseResult;
 
 /**
  * Checker that is associated with Java Pattern Character set.
@@ -30,7 +34,7 @@ final public class CharClass extends CharChecker {
     
     static private final long serialVersionUID = 1235456543213546515L;
     
-    CharClass(String pJavaCharClass, String pClassName) {
+    public CharClass(String pJavaCharClass, String pClassName) {
         this.JavaCharClass = pJavaCharClass;
         this.ClassName     = pClassName;
     }

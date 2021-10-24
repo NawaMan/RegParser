@@ -23,8 +23,9 @@ import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRange;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParser;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParserItem;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTType;
-import net.nawaman.regparser.parsers.PTIdentifier;
-import net.nawaman.regparser.parsers.PTStrLiteral;
+import net.nawaman.regparser.checkers.CharChecker;
+import net.nawaman.regparser.types.PTIdentifier;
+import net.nawaman.regparser.types.PTStrLiteral;
 
 public class TestRegParserCompiler2 {
     

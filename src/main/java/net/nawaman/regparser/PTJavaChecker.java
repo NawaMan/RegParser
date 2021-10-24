@@ -22,6 +22,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Hashtable;
 
+import net.nawaman.regparser.checkers.CharNot;
+
 /**
  * Parser Type for java checker.
  * 

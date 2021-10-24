@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.Vector;
+import java.util.stream.Stream;
 
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTCharSetItem;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTComment;
@@ -35,8 +36,10 @@ import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRange;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParser;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParserItem;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTType;
-import net.nawaman.regparser.parsers.PTIdentifier;
-import net.nawaman.regparser.parsers.PTStrLiteral;
+import net.nawaman.regparser.checkers.CheckerAlternative;
+import net.nawaman.regparser.checkers.CheckerFixeds;
+import net.nawaman.regparser.types.PTIdentifier;
+import net.nawaman.regparser.types.PTStrLiteral;
 
 /**
  * The regular parser
@@ -56,7 +59,9 @@ public class RegParser implements Checker, Serializable {
     static PTypeProvider.Extensible RPTProvider       = null;
     static String                   RegParserCompiler = "RegParserCompiler." + RegParserTypeExt;
     
-    RegParser() {
+    // TODO - Should this be like this - Nawa 2021
+    public RegParser(RPEntry[] entries) {
+        this.Entries = entries;
     }
     
     static public class ConstructionEntry {
@@ -243,9 +248,9 @@ public class RegParser implements Checker, Serializable {
                         RPEs.add(RPEntry._new(CE.getName(), CE.getTypeRef(), CE.getQuantifier()));
         }
         
-        RegParser RP = (pTProvider == null) ? new RegParser() : new RegParser.WithDefaultTypeProvider(pTProvider);
-        RP.Entries = RPEs.toArray(RPEntry.EmptyRPEntryArray);
-        
+        RegParser RP = (pTProvider == null)
+                ? new RegParser(RPEs.toArray(RPEntry.EmptyRPEntryArray))
+                : new RegParser.WithDefaultTypeProvider(RPEs.toArray(RPEntry.EmptyRPEntryArray), pTProvider);
         return RP;
     }
     
@@ -449,9 +454,9 @@ public class RegParser implements Checker, Serializable {
                         throw new IllegalArgumentException("Invalid parameters (" + Arrays.toString(pParams) + ").");
         }
         
-        RegParser RP = (pTProvider == null) ? new RegParser() : new RegParser.WithDefaultTypeProvider(pTProvider);
-        RP.Entries = RPEs.toArray(RPEntry.EmptyRPEntryArray);
-        
+        RegParser RP = (pTProvider == null)
+                ? new RegParser(RPEs.toArray(RPEntry.EmptyRPEntryArray))
+                : new RegParser.WithDefaultTypeProvider(RPEs.toArray(RPEntry.EmptyRPEntryArray), pTProvider);
         return RP;
     }
     
@@ -512,8 +517,7 @@ public class RegParser implements Checker, Serializable {
         // If have type provider
         if ((RP != null) && (pTProvider != null)) {
             RPEntry[] Es = RP.Entries;
-            RP         = new RegParser.WithDefaultTypeProvider(pTProvider);
-            RP.Entries = Es;
+            RP         = new RegParser.WithDefaultTypeProvider(Es, pTProvider);
         }
         
         if (IsToSave) {
@@ -536,7 +540,12 @@ public class RegParser implements Checker, Serializable {
     
     // Data ------------------------------------------------------------------------------------------------------------
     
-    RPEntry[] Entries = null;
+    private final RPEntry[] Entries;
+    
+    public Stream<RPEntry> entries() {
+        // TODO - Rethink this.
+        return (Entries == null) ? null : Stream.of(Entries);
+    }
     
     /** Returns the number of RegParser entry this RegParser composes of */
     public int getEntryCount() {
@@ -567,16 +576,18 @@ public class RegParser implements Checker, Serializable {
             if ((pRegParser instanceof WithDefaultTypeProvider) && (PTProvider instanceof PTypeProvider.Library))
                 ((PTypeProvider.Library) PTProvider).addProvider(pTProvider);
             else {
-                WithDefaultTypeProvider RPWDTP = new WithDefaultTypeProvider(PTProvider);
-                RPWDTP.Entries = pRegParser.Entries;
-                if ((PTProvider != null) && (PTProvider != pTProvider))
-                    RPWDTP.TProvider = new PTypeProvider.Library(pTProvider, PTProvider);
-                pRegParser = RPWDTP;
+                var parserEntries = ((RegParser)(pRegParser)).entries();
+                var entries = (parserEntries == null) ? null : parserEntries.toArray(RPEntry[]::new);
+                    var TProvider = ((PTProvider != null) && (PTProvider != pTProvider))
+                            ? null
+                            : new PTypeProvider.Library(pTProvider, PTProvider);
+                pRegParser = new WithDefaultTypeProvider(entries, TProvider);
             }
             return pRegParser;
         }
         
-        WithDefaultTypeProvider(PTypeProvider pTProvider) {
+        WithDefaultTypeProvider(RPEntry[] Entries, PTypeProvider pTProvider) {
+            super(Entries);
             this.TProvider = pTProvider;
         }
         

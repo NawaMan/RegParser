@@ -16,9 +16,14 @@
  * ---------------------------------------------------------------------------------------------------------------------
  */
 
-package net.nawaman.regparser;
+package net.nawaman.regparser.checkers;
 
 import java.util.Vector;
+
+import net.nawaman.regparser.Checker;
+import net.nawaman.regparser.PTypeProvider;
+import net.nawaman.regparser.ParseResult;
+import net.nawaman.regparser.RegParser;
 
 /**
  * Checker for alternative values.
@@ -73,13 +78,14 @@ public class CheckerAlternative implements Checker {
             this.Checkers[i] = C;
         }
         
-        this.Default = pHasDefault ? pCheckers[pCheckers.length - 1] : null;
-        if (this.Default != null)
-            this.Default = this.Default.getOptimized();
+        var DefaultValue = pHasDefault ? pCheckers[pCheckers.length - 1] : null;
+        if (DefaultValue != null)
+            DefaultValue = DefaultValue.getOptimized();
+        this.Default = DefaultValue;
     }
     
-    Checker   Default;
-    Checker[] Checkers;
+    public final Checker   Default;
+    public final Checker[] Checkers;
     
     
     /**

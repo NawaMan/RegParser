@@ -13,6 +13,8 @@ import static net.nawaman.regparser.TestUtils.validate;
 import org.junit.ClassRule;
 import org.junit.Test;
 
+import net.nawaman.regparser.checkers.CharSingle;
+
 public class TestName {
     
     @ClassRule

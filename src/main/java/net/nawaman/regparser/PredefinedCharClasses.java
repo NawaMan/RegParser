@@ -18,6 +18,14 @@
 
 package net.nawaman.regparser;
 
+import net.nawaman.regparser.checkers.CharChecker;
+import net.nawaman.regparser.checkers.CharClass;
+import net.nawaman.regparser.checkers.CharNot;
+import net.nawaman.regparser.checkers.CharRange;
+import net.nawaman.regparser.checkers.CharSet;
+import net.nawaman.regparser.checkers.CharSingle;
+import net.nawaman.regparser.checkers.CharUnion;
+
 /**
  * Predefine character classes
  *

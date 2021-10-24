@@ -20,6 +20,8 @@ package net.nawaman.regparser;
 
 import java.io.Serializable;
 
+import net.nawaman.regparser.checkers.WordChecker;
+
 /**
  * Regular Parser Entry
  * 

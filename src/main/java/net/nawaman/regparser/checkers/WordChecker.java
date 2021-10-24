@@ -16,25 +16,36 @@
  * ---------------------------------------------------------------------------------------------------------------------
  */
 
-package net.nawaman.regparser;
+package net.nawaman.regparser.checkers;
+
+import net.nawaman.regparser.Checker;
+import net.nawaman.regparser.PTypeProvider;
+import net.nawaman.regparser.ParseResult;
+import net.nawaman.regparser.RPCompiler_ParserTypes;
 
 /**
- * Checker that involves a character.
- * 
- * General implementation of this class is that if the first character is in a set, 1 will be returned. Otherwise -1 is
- *   returned. 
- * 
+ * Checker for checking a sequence of character or a word
+ *
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 @SuppressWarnings("serial")
-abstract public class CharChecker implements Checker {
+public class WordChecker implements Checker {
     
-    /** Returns the empty array of CharCheckers */
-    static public final CharChecker[] EmptyCharCheckerArray = new CharChecker[0];
+    static public final WordChecker EmptyWord = new WordChecker();
     
-    /** Checks of the char c is in this char checker */
-    abstract public boolean inSet(char c);
-
+    private WordChecker() {
+        this.Word = "";
+    }
+    
+    public WordChecker(String pWord) {
+        if (pWord == null)
+            throw new NullPointerException();
+        if (pWord.length() == 0)
+            throw new IllegalArgumentException();
+        this.Word = pWord;
+    }
+    
+    String Word;
     
     /**
      * Returns the length of the match if the string S starts with this checker.<br />
@@ -42,7 +53,6 @@ abstract public class CharChecker implements Checker {
      * @param    pOffset the starting point of the checking
      * @return    the length of the match or -1 if the string S does not start with this checker
      */
-    @Override
     public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider) {
         return this.getStartLengthOf(S, pOffset, pProvider, null);
     }
@@ -56,16 +66,27 @@ abstract public class CharChecker implements Checker {
      */
     @Override
     public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider, ParseResult pResult) {
-        if ((pOffset < 0) || (pOffset >= S.length()))
-            return -1;
-        char c = S.charAt(pOffset);
-        return this.inSet(c) ? 1 : -1;
+        return S.toString().startsWith(this.Word, pOffset) ? this.Word.length() : -1;
     }
     
+    @Override
+    public String toString() {
+        return RPCompiler_ParserTypes.escapeOfRegParser(this.Word);
+    }
     
-    /** Return the optimized version of this Checker */
+    @Override
+    public boolean equals(Object O) {
+        if (O == this)
+            return true;
+        if (!(O instanceof WordChecker))
+            return false;
+        return this.Word.equals(((WordChecker) O).Word);
+    }
+    
+    /** Return the optimized version of this RegParser */
     @Override
     public Checker getOptimized() {
         return this;
     }
+    
 }

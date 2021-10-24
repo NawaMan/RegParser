@@ -16,6 +16,14 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
+import net.nawaman.regparser.checkers.CharNot;
+import net.nawaman.regparser.checkers.CharRange;
+import net.nawaman.regparser.checkers.CharSet;
+import net.nawaman.regparser.checkers.CharSingle;
+import net.nawaman.regparser.checkers.CharUnion;
+import net.nawaman.regparser.checkers.CheckerAlternative;
+import net.nawaman.regparser.checkers.WordChecker;
+
 
 public class TestType {
     

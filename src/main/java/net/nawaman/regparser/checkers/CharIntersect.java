@@ -16,11 +16,13 @@
  * ---------------------------------------------------------------------------------------------------------------------
  */
 
-package net.nawaman.regparser;
+package net.nawaman.regparser.checkers;
 
 import java.lang.reflect.Array;
 import java.util.HashSet;
 import java.util.Vector;
+
+import net.nawaman.regparser.Checker;
 
 /**
  * Char checker that is the character is must be in all CharCheckers.

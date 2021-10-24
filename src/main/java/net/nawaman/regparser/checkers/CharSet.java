@@ -16,9 +16,11 @@
  * ---------------------------------------------------------------------------------------------------------------------
  */
 
-package net.nawaman.regparser;
+package net.nawaman.regparser.checkers;
 
 import java.util.HashSet;
+
+import net.nawaman.regparser.RPCompiler_ParserTypes;
 
 /**
  * Checker form a set of character (represented by a string)
@@ -33,7 +35,7 @@ public class CharSet extends CharChecker {
         this.Set = (pSet == null) ? "" : pSet;
     }
     
-    String Set;
+    public final String Set;
     
     /** Checks of the char c is in this char checker */
     @Override

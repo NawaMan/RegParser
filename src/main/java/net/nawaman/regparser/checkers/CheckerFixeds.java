@@ -16,9 +16,17 @@
  * ---------------------------------------------------------------------------------------------------------------------
  */
 
-package net.nawaman.regparser;
+package net.nawaman.regparser.checkers;
 
 import java.util.Vector;
+
+import net.nawaman.regparser.Checker;
+import net.nawaman.regparser.PType;
+import net.nawaman.regparser.PTypeProvider;
+import net.nawaman.regparser.PTypeRef;
+import net.nawaman.regparser.ParseResult;
+import net.nawaman.regparser.RPEntry;
+import net.nawaman.regparser.RegParser;
 
 /**
  * Checker that separate text into pre-defined groups
@@ -118,17 +126,17 @@ public class CheckerFixeds implements Checker {
                 pLength = -1;
             Checker C = null;
             if (pSecondStage != null) {
-                RegParser RP = new RegParser();
+                RPEntry[] Entries;
                 if (pSecondStage instanceof Checker)
-                    RP.Entries = new RPEntry[] { RPEntry._new(pName, (Checker) pSecondStage) };
+                    Entries = new RPEntry[] { RPEntry._new(pName, (Checker) pSecondStage) };
                 else if (pSecondStage instanceof PType)
-                    RP.Entries = new RPEntry[] { RPEntry._new(pName, (PType) pSecondStage) };
+                    Entries = new RPEntry[] { RPEntry._new(pName, (PType) pSecondStage) };
                 else if (pSecondStage instanceof PTypeRef)
-                    RP.Entries = new RPEntry[] { RPEntry._new(pName, (PTypeRef) pSecondStage) };
+                    Entries = new RPEntry[] { RPEntry._new(pName, (PTypeRef) pSecondStage) };
                 else
                     throw new IllegalArgumentException(
                             "Second stage must be null, Checker, PTypeRef or PType (" + pSecondStage + ").");
-                C = RP;
+                C = new RegParser(Entries);
             }
             this.Entry = RPEntry._new(pName, CheckerAny.getCheckerAny(pLength), null, C);
         }

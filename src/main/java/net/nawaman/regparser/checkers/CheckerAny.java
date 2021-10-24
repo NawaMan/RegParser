@@ -16,31 +16,54 @@
  * ---------------------------------------------------------------------------------------------------------------------
  */
 
-package net.nawaman.regparser;
+package net.nawaman.regparser.checkers;
+
+import java.util.Hashtable;
+
+import net.nawaman.regparser.Checker;
+import net.nawaman.regparser.PTypeProvider;
+import net.nawaman.regparser.ParseResult;
 
 /**
- * Checker for checking a sequence of character or a word
- *
+ * The checker of any character.
+ * 
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
- */
-@SuppressWarnings("serial")
-public class WordChecker implements Checker {
+ **/
+public class CheckerAny implements Checker {
     
-    static public final WordChecker EmptyWord = new WordChecker();
+    static private final long serialVersionUID = 1468541215412541527L;
     
-    private WordChecker() {
-        this.Word = "";
+    static Hashtable<Integer, CheckerAny> CheckerAnys = new Hashtable<Integer, CheckerAny>();
+    
+    /** Get an instance of Checker any */
+    static public CheckerAny getCheckerAny(int pLength) {
+        if (pLength < -1)
+            pLength = -1;
+        CheckerAny CA = CheckerAnys.get(pLength);
+        if (CA == null) {
+            CA = new CheckerAny(pLength);
+            CheckerAnys.put(pLength, CA);
+        }
+        return CA;
     }
     
-    public WordChecker(String pWord) {
-        if (pWord == null)
-            throw new NullPointerException();
-        if (pWord.length() == 0)
-            throw new IllegalArgumentException();
-        this.Word = pWord;
+    CheckerAny(int pLength) {
+        this.Length = (pLength < -1) ? 1 : pLength;
     }
     
-    String Word;
+    int Length;
+    
+    /** Returns the length of this checker */
+    public int getLength() {
+        return this.Length;
+    }
+    
+    /**{@inheritDoc}*/
+    @Override
+    public Checker getOptimized() {
+        return this;
+    }
+    
     
     /**
      * Returns the length of the match if the string S starts with this checker.<br />
@@ -48,6 +71,7 @@ public class WordChecker implements Checker {
      * @param    pOffset the starting point of the checking
      * @return    the length of the match or -1 if the string S does not start with this checker
      */
+    @Override
     public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider) {
         return this.getStartLengthOf(S, pOffset, pProvider, null);
     }
@@ -61,27 +85,18 @@ public class WordChecker implements Checker {
      */
     @Override
     public int getStartLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider, ParseResult pResult) {
-        return S.toString().startsWith(this.Word, pOffset) ? this.Word.length() : -1;
+        int SL = (S == null) ? 0 : S.length();
+        if (pOffset >= SL)
+            return 0;
+        if (this.Length == -1)
+            return (SL - pOffset);
+        return this.Length;
     }
     
+    
+    /**{@inheritDoc}*/
     @Override
     public String toString() {
-        return RPCompiler_ParserTypes.escapeOfRegParser(this.Word);
+        return "." + ((this.Length == -1) ? "*" : "{" + this.Length + "}");
     }
-    
-    @Override
-    public boolean equals(Object O) {
-        if (O == this)
-            return true;
-        if (!(O instanceof WordChecker))
-            return false;
-        return this.Word.equals(((WordChecker) O).Word);
-    }
-    
-    /** Return the optimized version of this RegParser */
-    @Override
-    public Checker getOptimized() {
-        return this;
-    }
-    
 }

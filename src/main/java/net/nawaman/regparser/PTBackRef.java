@@ -18,6 +18,9 @@
 
 package net.nawaman.regparser;
 
+import net.nawaman.regparser.checkers.CheckerAny;
+import net.nawaman.regparser.checkers.WordChecker;
+
 /**
  * RegParser Type for Back referencing.
  * 
