@@ -24,7 +24,7 @@ import net.nawaman.regparser.PTypeProvider;
 import net.nawaman.regparser.ParseResult;
 import net.nawaman.regparser.RPCompiler;
 import net.nawaman.regparser.RPGetChecker;
-import net.nawaman.regparser.RPVerifier;
+import net.nawaman.regparser.ResultVerifier;
 
 /**
  * RegParser that is constructed from difference component.
@@ -38,22 +38,22 @@ public class PTComposable extends PTSimple {
         super(pTheName);
     }
     
-    public PTComposable(String pTheName, Checker pTheChecker, RPVerifier pVerifier, RPCompiler pCompiler) {
+    public PTComposable(String pTheName, Checker pTheChecker, ResultVerifier pVerifier, RPCompiler pCompiler) {
         super(pTheName, pTheChecker);
         this.Verifier = pVerifier;
         this.Compiler = pCompiler;
     }
     
-    public PTComposable(String pTheName, RPGetChecker pTheGetChecker, RPVerifier pVerifier, RPCompiler pCompiler) {
+    public PTComposable(String pTheName, RPGetChecker pTheGetChecker, ResultVerifier pVerifier, RPCompiler pCompiler) {
         super(pTheName, pTheGetChecker);
         this.Verifier = pVerifier;
         this.Compiler = pCompiler;
     }
     
-    RPVerifier Verifier;
+    ResultVerifier Verifier;
     RPCompiler Compiler;
     
-    protected boolean setVerifier(RPVerifier pVerifier) {
+    protected boolean setVerifier(ResultVerifier pVerifier) {
         if (this.Verifier != null)
             return false;
         this.Verifier = pVerifier;

@@ -18,14 +18,16 @@
 
 package net.nawaman.regparser;
 
+import net.nawaman.regparser.types.PTComposable;
+
 /**
- * Regular Parser Verifier to be used with PTVerifier.
+ * Regular Parser Verifier to be used with {@link PTComposable}.
  * 
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  **/
-public interface RPVerifier {
+public interface ResultVerifier {
     
     /** Validate the parse result */
-    public boolean validate(ParseResult pHostResult, ParseResult pThisResult, String pParam, PTypeProvider pProvider);
+    public boolean validate(ParseResult hostResult, ParseResult thisResult, String parameter, PTypeProvider typeProvider);
     
 }

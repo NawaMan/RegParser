@@ -20,17 +20,21 @@ package net.nawaman.regparser;
 
 import static java.lang.String.format;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.util.Arrays;
 
 /**
@@ -89,6 +93,40 @@ public class Util {
         throwable.printStackTrace(printStream);
         stringBuffer.append(byteStream.toString());
         return stringBuffer.toString();
+    }
+    
+    // Array -----------------------------------------------------------------------------------------------------------
+    
+    /** Returns string representation of an object value with customized Open, Close and Separator. */
+    static public <T> String toString(T[] array) {
+        return toString(array, "[", "]", ",");
+    }
+    
+    /** Returns string representation of an object value with customized prefix, suffix and delimiter. */
+    static public <T> String toString(T[] array, String prefix, String suffix, String delimiter) {
+        var buffer = new StringBuffer();
+        buffer.append(prefix);
+        if (array != null) {
+            for (int i = 0; i < Array.getLength(array); i++) {
+                if (i != 0) {
+                    buffer.append(delimiter);
+                }
+                var element = Array.get(array, i);
+                if (element instanceof String) {
+                    buffer.append(element);
+                } else if (element == null) {
+                    buffer.append("null");
+                } else {
+                    if (element.getClass().isArray()) {
+                        buffer.append(Arrays.toString((Object[])element));
+                    } else {
+                        buffer.append(element.toString());
+                    }
+                }
+            }
+        }
+        buffer.append(suffix);
+        return buffer.toString();
     }
     
     // String ----------------------------------------------------------------------------------------------------------
@@ -283,6 +321,59 @@ public class Util {
             if (outputStream != null) {
                 outputStream.close();
             }
+        }
+    }
+    
+    // Text file -------------------------------------------------------------------------------------------------------
+    
+    /** Loads a text from a file */
+    static public String loadTextFile(String textFileName)  throws IOException {
+        return Util.loadTextFile(new File(textFileName));
+    }
+    
+    /** Loads a text from a file */
+    static public String loadTextFile(File textFile) throws IOException {
+        try (var fileInputStream = new FileInputStream(textFile)){
+            return Util.loadTextFromStream(fileInputStream);
+        }
+    }
+    
+    /** Loads a text from a file */
+    static public String loadTextFromStream(InputStream inputStream) throws IOException {
+        try (var streamReader = new InputStreamReader(inputStream);
+             var reader       = new BufferedReader(streamReader)) {
+            var stringBuffer  = new StringBuffer();
+            
+            String Line;
+            while ((Line = reader.readLine()) != null) {
+                stringBuffer.append(Line).append('\n');
+            }
+            
+            if(stringBuffer.length() == 0) {
+                return "";
+            }
+            
+            return stringBuffer.toString()
+                    .substring(0, stringBuffer.length() - 1);
+        }
+    }
+    
+    /** Saves a text to a file */
+    static public void saveTextToFile(String textFileName, String text)  throws IOException {
+        Util.saveTextToFile(new File(textFileName), text);
+    }
+    
+    /** Saves a text to a file */
+    static public void saveTextToFile(File textFile, String text)  throws IOException {
+        try (var fileOutputStream = new FileOutputStream(textFile)) {
+            Util.saveTextToStream(fileOutputStream, text);
+        }
+    }
+    
+    /** Saves a text to a file */
+    static public void saveTextToStream(OutputStream outputStream, CharSequence text) throws IOException {
+        try (var writer = new OutputStreamWriter(outputStream)) {
+            writer.write(text.toString());
         }
     }
     

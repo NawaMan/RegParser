@@ -299,7 +299,7 @@ public interface PTypeProvider extends Serializable {
             return this.addType(pName, pChecker, null, null);
         }
         
-        public boolean addType(String pName, Checker pChecker, RPVerifier pVertifier) {
+        public boolean addType(String pName, Checker pChecker, ResultVerifier pVertifier) {
             return this.addType(pName, pChecker, pVertifier, null);
         }
         
@@ -307,7 +307,7 @@ public interface PTypeProvider extends Serializable {
             return this.addType(pName, pChecker, null, pCompiler);
         }
         
-        public boolean addType(String pName, Checker pChecker, RPVerifier pVertifier, RPCompiler pCompiler) {
+        public boolean addType(String pName, Checker pChecker, ResultVerifier pVertifier, RPCompiler pCompiler) {
             if (pChecker == null)
                 return false;
             if (pChecker instanceof RegParser)
@@ -322,7 +322,7 @@ public interface PTypeProvider extends Serializable {
             return this.addType(pName, pRegParser, null, null);
         }
         
-        public boolean addType(String pName, String pRegParser, RPVerifier pVertifier) {
+        public boolean addType(String pName, String pRegParser, ResultVerifier pVertifier) {
             return this.addType(pName, pRegParser, pVertifier, null);
         }
         
@@ -330,7 +330,7 @@ public interface PTypeProvider extends Serializable {
             return this.addType(pName, pRegParser, null, pCompiler);
         }
         
-        public boolean addType(String pName, String pRegParser, RPVerifier pVertifier, RPCompiler pCompiler) {
+        public boolean addType(String pName, String pRegParser, ResultVerifier pVertifier, RPCompiler pCompiler) {
             RegParser RP = RegParser.newRegParser(this, pRegParser);
             if (RP == null)
                 return false;
