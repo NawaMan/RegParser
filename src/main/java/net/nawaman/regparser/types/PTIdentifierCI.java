@@ -29,7 +29,6 @@ import net.nawaman.regparser.ParseResult;
 @SuppressWarnings("serial")
 public class PTIdentifierCI extends PTIdentifier {
     
-    @SuppressWarnings("hiding")
     static public String Name = "$IdentifierCI";
     
     @Override
