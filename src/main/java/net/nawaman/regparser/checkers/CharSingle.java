@@ -18,7 +18,7 @@
 
 package net.nawaman.regparser.checkers;
 
-import net.nawaman.regparser.RPCompiler_ParserTypes;
+import static net.nawaman.regparser.RPCompiler_ParserTypes.escapeOfRegParser;
 
 /**
  * Single character char set
@@ -28,37 +28,40 @@ import net.nawaman.regparser.RPCompiler_ParserTypes;
 /**  */
 public class CharSingle extends CharChecker {
     
-    static private final long serialVersionUID = 1651564132135121525L;
+    private static final long serialVersionUID = 1651564132135121525L;
     
     /** Construct a character range */
-    public CharSingle(char pC) {
-        this.C = pC;
+    public CharSingle(char ch) {
+        this.ch = ch;
     }
     
-    public final char C;
+    public final char ch;
     
     /** Checks of the char c is in this char checker */
     @Override
     public boolean inSet(char c) {
-        return (c == this.C);
+        return (c == this.ch);
     }
     
     @Override
     public String toString() {
-        return "[" + RPCompiler_ParserTypes.escapeOfRegParser("" + this.C) + "]";
+        var escapeOfRegParser = escapeOfRegParser("" + this.ch);
+        return "[" + escapeOfRegParser + "]";
     }
     
     @Override
     public boolean equals(Object O) {
-        if (O == this)
+        if (O == this) {
             return true;
-        if (!(O instanceof CharSingle))
+        }
+        if (!(O instanceof CharSingle)) {
             return false;
-        return this.C == ((CharSingle) O).C;
+        }
+        return this.ch == ((CharSingle) O).ch;
     }
     
     @Override
     public int hashCode() {
-        return "CharSingle".hashCode() + this.C;
+        return "CharSingle".hashCode() + this.ch;
     }
 }

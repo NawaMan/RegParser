@@ -145,7 +145,7 @@ public class PTJavaChecker extends PType {
                     
                     /**{@inherDoc}*/
                     @Override
-                    public Checker getOptimized() {
+                    public Checker optimize() {
                         return this;
                     }
                 };

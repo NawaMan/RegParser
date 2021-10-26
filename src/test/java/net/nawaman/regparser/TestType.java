@@ -169,8 +169,8 @@ public class TestType {
                         );
         
         var result = regParser.parse("3895482565");
-        validate("[3, 4, 2]",             Util.toString(result.textsOf("#Value_Low")));
-        validate("[8, 9, 5, 8, 5, 6, 5]", Util.toString(result.textsOf("#Value_High")));
+        validate("[3,4,2]",         Util.toString(result.textsOf("#Value_Low")));
+        validate("[8,9,5,8,5,6,5]", Util.toString(result.textsOf("#Value_High")));
     }
     
     @Test

@@ -18,7 +18,7 @@
 
 package net.nawaman.regparser.checkers;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.PTypeProvider;
@@ -46,134 +46,136 @@ import net.nawaman.regparser.RegParser;
  */
 public class CheckerAlternative implements Checker {
     
-    static private final long serialVersionUID = 2146515415886541851L;
+    private static final long serialVersionUID = 2146515415886541851L;
     
     /** Constructs a char set */
-    public CheckerAlternative(Checker... pCheckers) {
-        this(false, pCheckers);
+    public CheckerAlternative(Checker... checkers) {
+        this(false, checkers);
     }
     
     /** Constructs a char set */
-    public CheckerAlternative(boolean pHasDefault, Checker... pCheckers) {
+    public CheckerAlternative(boolean hasDefault, Checker... checkers) {
         // Combine if one of them is alternative
         
-        Vector<Checker> CCs = new Vector<Checker>();
-        for (int i = 0; i < (pCheckers.length - (pHasDefault ? 1 : 0)); i++) {
-            Checker C = pCheckers[i];
-            if (C != null) {
-                if ((C instanceof CheckerAlternative) && !((CheckerAlternative) C).hasDefault()) {
-                    CheckerAlternative CA = (CheckerAlternative) C;
-                    for (int c = 0; c < CA.Checkers.length; c++)
-                        CCs.add(CA.Checkers[c]);
-                } else
-                    CCs.add(C);
+        var list = new ArrayList<Checker>();
+        for (int i = 0; i < (checkers.length - (hasDefault ? 1 : 0)); i++) {
+            var checker = checkers[i];
+            if (checker != null) {
+                if ((checker instanceof CheckerAlternative) && !((CheckerAlternative) checker).hasDefault()) {
+                    var checkerAlternative = (CheckerAlternative) checker;
+                    for (int c = 0; c < checkerAlternative.checkers.length; c++) {
+                        list.add(checkerAlternative.checkers[c]);
+                    }
+                } else {
+                    list.add(checker);
+                }
             }
         }
+        
         // Generate the array
-        this.Checkers = new Checker[CCs.size()];
-        for (int i = 0; i < CCs.size(); i++) {
-            Checker C = CCs.get(i);
-            if (C instanceof RegParser)
-                C = ((RegParser) C).getOptimized();
-            this.Checkers[i] = C;
+        this.checkers = new Checker[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            var checker = list.get(i);
+            if (checker instanceof RegParser) {
+                checker = ((RegParser) checker).optimize();
+            }
+            this.checkers[i] = checker;
         }
         
-        var DefaultValue = pHasDefault ? pCheckers[pCheckers.length - 1] : null;
-        if (DefaultValue != null)
-            DefaultValue = DefaultValue.getOptimized();
-        this.Default = DefaultValue;
-    }
-    
-    public final Checker   Default;
-    public final Checker[] Checkers;
-    
-    
-    /**
-     * Returns the length of the match if the string S starts with this checker.<br />
-     * @param    S is the string to be parse
-     * @param    pOffset the starting point of the checking
-     * @return    the length of the match or -1 if the string S does not start with this checker
-     */
-    @Override
-    public int startLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider) {
-        return this.startLengthOf(S, pOffset, pProvider, null);
-    }
-    
-    /**
-     * Returns the length of the match if the string S starts with this checker.<br />
-     * @param    S is the string to be parse
-     * @param    pOffset the starting point of the checking
-     * @param   pResult the parse result of the current parsing. This is only available when this checker is called from a RegParser
-     * @return    the length of the match or -1 if the string S does not start with this checker
-     */
-    @Override
-    public int startLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider, ParseResult pResult) {
-        for (int i = this.Checkers.length; --i >= 0;) {
-            Checker C = this.Checkers[i];
-            int     I = C.startLengthOf(S, pOffset, pProvider, pResult);
-            if (I != -1)
-                return I;
+        var defaultValue = hasDefault ? checkers[checkers.length - 1] : null;
+        if (defaultValue != null) {
+            defaultValue = defaultValue.optimize();
         }
-        return (this.Default != null) ? this.Default.startLengthOf(S, pOffset, pProvider, pResult) : -1;
+        this.defaultChecker = defaultValue;
+    }
+    
+    public final Checker   defaultChecker;
+    public final Checker[] checkers;
+    
+    
+    @Override
+    public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider) {
+        return this.startLengthOf(text, offset, typeProvider, null);
+    }
+    
+    @Override
+    public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider, ParseResult parseResult) {
+        for (int i = this.checkers.length; --i >= 0;) {
+            var checker = this.checkers[i];
+            int index   = checker.startLengthOf(text, offset, typeProvider, parseResult);
+            if (index != -1) {
+                return index;
+            }
+        }
+        return (this.defaultChecker != null)
+                ? this.defaultChecker.startLengthOf(text, offset, typeProvider, parseResult)
+                : -1;
     }
     
     public boolean hasDefault() {
-        return this.Default != null;
+        return this.defaultChecker != null;
     }
     
-    public Checker getDefault() {
-        return this.Default;
+    public Checker defaultChecker() {
+        return this.defaultChecker;
     }
     
     // Object ----------------------------------------------------------------------------------------------------------
     
     @Override
     public String toString() {
-        StringBuffer SB = new StringBuffer();
-        SB.append("(");
-        if (this.Checkers != null) {
-            for (int i = 0; i < this.Checkers.length; i++) {
-                Checker C = this.Checkers[i];
-                if (C == null)
+        var buffer = new StringBuffer();
+        buffer.append("(");
+        if (this.checkers != null) {
+            for (int i = 0; i < this.checkers.length; i++) {
+                var checker = this.checkers[i];
+                if (checker == null) {
                     continue;
-                if (i != 0)
-                    SB.append("|");
-                SB.append(C.toString());
+                }
+                if (i != 0) {
+                    buffer.append("|");
+                }
+                buffer.append(checker.toString());
             }
         }
-        if (this.Default != null)
-            SB.append("||").append(this.Default);
-        SB.append(")");
-        return SB.toString();
+        if (this.defaultChecker != null) {
+            buffer.append("||").append(this.defaultChecker);
+        }
+        buffer.append(")");
+        return buffer.toString();
     }
     
     @Override
     public boolean equals(Object O) {
-        if (O == this)
+        if (O == this) {
             return true;
-        if (!(O instanceof CheckerAlternative))
-            return false;
-        if (this.Checkers.length != ((CheckerAlternative) O).Checkers.length)
-            return false;
-        for (int i = this.Checkers.length; --i >= 0;) {
-            if (!this.Checkers[i].equals(((CheckerAlternative) O).Checkers[i]))
-                return false;
         }
-        return (this.Default != null) ? this.Default.equals(((CheckerAlternative) O).Default) : true;
+        if (!(O instanceof CheckerAlternative)) {
+            return false;
+        }
+        if (this.checkers.length != ((CheckerAlternative) O).checkers.length) {
+            return false;
+        }
+        for (int i = this.checkers.length; --i >= 0;) {
+            if (!this.checkers[i].equals(((CheckerAlternative) O).checkers[i])) {
+                return false;
+            }
+        }
+        return (this.defaultChecker != null) ? this.defaultChecker.equals(((CheckerAlternative) O).defaultChecker) : true;
     }
     
     @Override
     public int hashCode() {
         int h = "CheckerAlternative".hashCode();
-        for (int i = 0; i < this.Checkers.length; i++)
-            h += this.Checkers[i].hashCode();
+        for (int i = 0; i < this.checkers.length; i++) {
+            h += this.checkers[i].hashCode();
+        }
         
-        return h + ((this.Default != null) ? this.Default.hashCode() : 0);
+        return h + ((this.defaultChecker != null) ? this.defaultChecker.hashCode() : 0);
     }
     
-    /** Return the optimized version of this Checker */
     @Override
-    public Checker getOptimized() {
+    public Checker optimize() {
         return this;
     }
     

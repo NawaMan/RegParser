@@ -18,9 +18,9 @@
 
 package net.nawaman.regparser.checkers;
 
-import java.util.HashSet;
+import static net.nawaman.regparser.RPCompiler_ParserTypes.escapeOfRegParser;
 
-import net.nawaman.regparser.RPCompiler_ParserTypes;
+import java.util.HashSet;
 
 /**
  * Checker form a set of character (represented by a string)
@@ -29,43 +29,48 @@ import net.nawaman.regparser.RPCompiler_ParserTypes;
  */
 public class CharSet extends CharChecker {
     
-    static private final long serialVersionUID = 2165464135465416515L;
+    private static final long serialVersionUID = 2165464135465416515L;
     
-    public CharSet(String pSet) {
-        this.Set = (pSet == null) ? "" : pSet;
+    public CharSet(String set) {
+        this.set = (set == null) ? "" : set;
     }
     
-    public final String Set;
+    public final String set;
     
     /** Checks of the char c is in this char checker */
     @Override
     public boolean inSet(char c) {
-        return (this.Set.indexOf(c) != -1);
+        return (this.set.indexOf(c) != -1);
     }
     
     @Override
     public String toString() {
-        return "[" + RPCompiler_ParserTypes.escapeOfRegParser(this.Set) + "]";
+        var escapeOfRegParser = escapeOfRegParser(this.set);
+        return "[" + escapeOfRegParser + "]";
     }
     
     @Override
     public boolean equals(Object O) {
-        if (O == this)
+        if (O == this) {
             return true;
-        if (!(O instanceof CharSet))
+        }
+        if (!(O instanceof CharSet)) {
             return false;
-        HashSet<Character> CCs = new HashSet<Character>();
-        for (Character CC : this.Set.toCharArray())
-            CCs.add(CC);
-        for (Character CC : ((CharSet) O).Set.toCharArray()) {
-            if (!CCs.contains(CC))
+        }
+        var chars = new HashSet<Character>();
+        for (var chr : this.set.toCharArray()) {
+            chars.add(chr);
+        }
+        for (var ch : ((CharSet) O).set.toCharArray()) {
+            if (!chars.contains(ch)) {
                 return false;
+            }
         }
         return true;
     }
     
     @Override
     public int hashCode() {
-        return "CharSet".hashCode() + this.Set.hashCode();
+        return "CharSet".hashCode() + this.set.hashCode();
     }
 }

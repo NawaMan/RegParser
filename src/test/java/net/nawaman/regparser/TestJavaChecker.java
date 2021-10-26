@@ -36,7 +36,7 @@ public class TestJavaChecker {
             return 0;
         }
         
-        public Checker getOptimized() {
+        public Checker optimize() {
             return this;
         }
     }

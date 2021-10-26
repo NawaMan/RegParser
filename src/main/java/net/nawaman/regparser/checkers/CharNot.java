@@ -18,6 +18,8 @@
 
 package net.nawaman.regparser.checkers;
 
+import static java.util.Objects.requireNonNull;
+
 import net.nawaman.regparser.Checker;
 
 /**
@@ -27,47 +29,51 @@ import net.nawaman.regparser.Checker;
  */
 public class CharNot extends CharChecker {
     
-    static private final long serialVersionUID = 5313543126135165121L;
+    private static final long serialVersionUID = 5313543126135165121L;
     
     /** Construct a character range */
-    public CharNot(CharChecker pCharChecker) {
-        if (pCharChecker == null)
-            throw new NullPointerException();
-        this.CC = (pCharChecker instanceof CharNot) ? ((CharNot) pCharChecker).CC : pCharChecker;
+    public CharNot(CharChecker charChecker) {
+        requireNonNull(charChecker);
+        this.charChecker = (charChecker instanceof CharNot) 
+                         ? ((CharNot) charChecker).charChecker
+                         : charChecker;
     }
     
-    CharChecker CC;
+    private final CharChecker charChecker;
     
     /** Checks of the char c is in this char checker */
     @Override
     public boolean inSet(char c) {
-        return !this.CC.inSet(c);
+        return !charChecker.inSet(c);
     }
     
     @Override
     public boolean equals(Object O) {
-        if (O == this)
+        if (O == this) {
             return true;
-        if (!(O instanceof CharNot))
+        }
+        if (!(O instanceof CharNot)) {
             return false;
-        return this.CC.equals(((CharNot) O).CC);
+        }
+        return this.charChecker.equals(((CharNot) O).charChecker);
     }
     
     @Override
     public int hashCode() {
-        return "CharNot".hashCode() + this.CC.hashCode();
+        return "CharNot".hashCode() + this.charChecker.hashCode();
     }
     
     @Override
     public String toString() {
-        return "[^" + this.CC.toString() + "]";
+        return "[^" + this.charChecker.toString() + "]";
     }
     
     /** Return the optimized version of this Checker */
     @Override
-    public Checker getOptimized() {
-        if (this.CC instanceof CharNot)
-            return ((CharNot) this.CC).CC;
+    public Checker optimize() {
+        if (this.charChecker instanceof CharNot) {
+            return ((CharNot) this.charChecker).charChecker;
+        }
         return this;
     }
 }

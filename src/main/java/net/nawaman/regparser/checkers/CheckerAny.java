@@ -31,72 +31,60 @@ import net.nawaman.regparser.ParseResult;
  **/
 public class CheckerAny implements Checker {
     
-    static private final long serialVersionUID = 1468541215412541527L;
+    private static final long serialVersionUID = 1468541215412541527L;
     
-    static Hashtable<Integer, CheckerAny> CheckerAnys = new Hashtable<Integer, CheckerAny>();
+    static Hashtable<Integer, CheckerAny> checkerAnys = new Hashtable<Integer, CheckerAny>();
     
     /** Get an instance of Checker any */
-    static public CheckerAny getCheckerAny(int pLength) {
-        if (pLength < -1)
-            pLength = -1;
-        CheckerAny CA = CheckerAnys.get(pLength);
-        if (CA == null) {
-            CA = new CheckerAny(pLength);
-            CheckerAnys.put(pLength, CA);
+    public static CheckerAny getCheckerAny(int length) {
+        if (length < -1) {
+            length = -1;
         }
-        return CA;
+        var checkerAny = checkerAnys.get(length);
+        if (checkerAny == null) {
+            checkerAny = new CheckerAny(length);
+            checkerAnys.put(length, checkerAny);
+        }
+        return checkerAny;
     }
     
-    CheckerAny(int pLength) {
-        this.Length = (pLength < -1) ? 1 : pLength;
+    CheckerAny(int length) {
+        this.length = (length < -1) ? 1 : length;
     }
     
-    int Length;
+    private final int length;
     
     /** Returns the length of this checker */
-    public int getLength() {
-        return this.Length;
+    public int length() {
+        return this.length;
     }
     
     /**{@inheritDoc}*/
     @Override
-    public Checker getOptimized() {
+    public Checker optimize() {
         return this;
     }
     
-    
-    /**
-     * Returns the length of the match if the string S starts with this checker.<br />
-     * @param    S is the string to be parse
-     * @param    pOffset the starting point of the checking
-     * @return    the length of the match or -1 if the string S does not start with this checker
-     */
     @Override
-    public int startLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider) {
-        return this.startLengthOf(S, pOffset, pProvider, null);
+    public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider) {
+        return this.startLengthOf(text, offset, typeProvider, null);
     }
     
-    /**
-     * Returns the length of the match if the string S starts with this checker.<br />
-     * @param    S is the string to be parse
-     * @param    pOffset the starting point of the checking
-     * @param   pResult the parse result of the current parsing. This is only available when this checker is called from a RegParser
-     * @return    the length of the match or -1 if the string S does not start with this checker
-     */
     @Override
-    public int startLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider, ParseResult pResult) {
-        int SL = (S == null) ? 0 : S.length();
-        if (pOffset >= SL)
+    public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider, ParseResult parseResult) {
+        int SL = (text == null) ? 0 : text.length();
+        if (offset >= SL) {
             return 0;
-        if (this.Length == -1)
-            return (SL - pOffset);
-        return this.Length;
+        }
+        if (this.length == -1) {
+            return (SL - offset);
+        }
+        return this.length;
     }
     
     
-    /**{@inheritDoc}*/
     @Override
     public String toString() {
-        return "." + ((this.Length == -1) ? "*" : "{" + this.Length + "}");
+        return "." + ((this.length == -1) ? "*" : "{" + this.length + "}");
     }
 }

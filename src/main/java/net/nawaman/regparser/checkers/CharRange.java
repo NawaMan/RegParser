@@ -27,46 +27,46 @@ import net.nawaman.regparser.RPCompiler_ParserTypes;
  */
 public class CharRange extends CharChecker {
     
-    static private final long serialVersionUID = 2356484436956456452L;
+    private static final long serialVersionUID = 2356484436956456452L;
     
     /** Construct a character range */
-    public CharRange(char pStartC, char pEndC) {
-        this.StartC = pStartC;
-        this.EndC   = pEndC;
-        if (this.StartC > this.EndC) {
-            this.StartC = pEndC;
-            this.EndC   = pStartC;
-        }
+    public CharRange(char startChar, char endChar) {
+        this.startChar = (startChar < endChar) ? startChar : endChar;
+        this.endChar   = (startChar < endChar) ? endChar   : startChar;
     }
     
-    char StartC;
-    char EndC;
+    private final char startChar;
+    private final char endChar;
     
-    /** Checks of the char c is in this char checker */
     @Override
     public boolean inSet(char c) {
-        return (c >= this.StartC) && (c <= this.EndC);
+        return (c >= this.startChar) && (c <= this.endChar);
     }
     
     @Override
     public String toString() {
-        if ((this.StartC == 0) && (this.EndC == Character.MAX_VALUE))
+        if ((this.startChar == 0) && (this.endChar == Character.MAX_VALUE)) {
             return ".";
-        return "[" + RPCompiler_ParserTypes.escapeOfRegParser("" + this.StartC) + "-"
-                + RPCompiler_ParserTypes.escapeOfRegParser("" + this.EndC) + "]";
+        }
+        var start = RPCompiler_ParserTypes.escapeOfRegParser("" + this.startChar);
+        var end   = RPCompiler_ParserTypes.escapeOfRegParser("" + this.endChar);
+        return "[" + start + "-" + end + "]";
     }
     
     @Override
     public boolean equals(Object O) {
-        if (O == this)
+        if (O == this) {
             return true;
-        if (!(O instanceof CharRange))
+        }
+        if (!(O instanceof CharRange)) {
             return false;
-        return (this.StartC == ((CharRange) O).StartC) && (this.EndC == ((CharRange) O).EndC);
+        }
+        return (this.startChar == ((CharRange) O).startChar)
+            && (this.endChar   == ((CharRange) O).endChar);
     }
     
     @Override
     public int hashCode() {
-        return "CharRange".hashCode() + this.StartC + this.EndC;
+        return "CharRange".hashCode() + this.startChar + this.endChar;
     }
 }

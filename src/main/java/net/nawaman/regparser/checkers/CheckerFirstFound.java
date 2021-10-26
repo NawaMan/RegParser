@@ -29,21 +29,24 @@ import net.nawaman.regparser.Checker;
  */
 public class CheckerFirstFound extends CheckerAlternative {
     
-    static private final long serialVersionUID = 4464247859465463549L;
+    private static final long serialVersionUID = 4464247859465463549L;
     
-    static Checker[] getLaters(Checker... pLaters) {
-        Checker[] Cs = new Checker[pLaters.length - 1];
-        System.arraycopy(pLaters, 1, Cs, 0, Cs.length);
-        return Cs;
+    private static Checker[] getLaters(Checker... laters) {
+        var checkers = new Checker[laters.length - 1];
+        System.arraycopy(laters, 1, checkers, 0, checkers.length);
+        return checkers;
     }
     
     /** Constructs a char set */
-    public CheckerFirstFound(Checker... pLaters) {
-        super(true, pLaters[0],
-                (pLaters.length == 1) ? null
-                        : (pLaters.length == 2) ? pLaters[1]
-                                : (pLaters.length == 3) ? new CheckerAlternative(true, getLaters(pLaters))
-                                        : new CheckerFirstFound(getLaters(pLaters)));
+    public CheckerFirstFound(Checker... laters) {
+        super(true, laters[0],
+                (laters.length == 1)
+                    ? null
+                    : (laters.length == 2) 
+                        ? laters[1]
+                        : (laters.length == 3) 
+                            ? new CheckerAlternative(true, getLaters(laters))
+                            : new CheckerFirstFound(getLaters(laters)));
     }
     
 }

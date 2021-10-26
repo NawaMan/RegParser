@@ -18,6 +18,8 @@
 
 package net.nawaman.regparser.checkers;
 
+import static java.util.Objects.requireNonNull;
+
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.PTypeProvider;
 import net.nawaman.regparser.ParseResult;
@@ -29,66 +31,54 @@ import net.nawaman.regparser.ParseResult;
  */
 public class CheckerNot implements Checker {
     
-    static private final long serialVersionUID = 4485946546354964247L;
+    private static final long serialVersionUID = 4485946546354964247L;
     
-    public CheckerNot(Checker pChecker) {
-        if (pChecker == null)
-            throw new NullPointerException();
-        this.Checker = pChecker;
+    public CheckerNot(Checker checker) {
+        this.checker = requireNonNull(checker);
     }
     
-    Checker Checker;
+    private final Checker checker;
     
-    
-    /**
-     * Returns the length of the match if the string S starts with this checker.<br />
-     * @param    S is the string to be parse
-     * @param    pOffset the starting point of the checking
-     * @return    the length of the match or -1 if the string S does not start with this checker
-     */
     @Override
-    public int startLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider) {
-        return this.startLengthOf(S, pOffset, pProvider, null);
+    public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider) {
+        return this.startLengthOf(text, offset, typeProvider, null);
     }
     
-    /**
-     * Returns the length of the match if the string S starts with this checker.<br />
-     * @param    S is the string to be parse
-     * @param    pOffset the starting point of the checking
-     * @param   pResult the parse result of the current parsing. This is only available when this checker is called from a RegParser
-     * @return    the length of the match or -1 if the string S does not start with this checker
-     */
     @Override
-    public int startLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider, ParseResult pResult) {
-        if (this.Checker.startLengthOf(S, pOffset, pProvider, pResult) != -1)
+    public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider, ParseResult parseResult) {
+        if (this.checker.startLengthOf(text, offset, typeProvider, parseResult) != -1) {
             return -1;
+        }
         return 1;
     }
     
     /** Return the optimized version of this Checker */
     @Override
-    public Checker getOptimized() {
-        if (this.Checker instanceof CheckerNot)
-            return ((CheckerNot) this.Checker).Checker;
+    public Checker optimize() {
+        if (this.checker instanceof CheckerNot) {
+            return ((CheckerNot) this.checker).checker;
+        }
         return this;
     }
     
     @Override
     public String toString() {
-        return "(^" + this.Checker.toString() + ")";
+        return "(^" + this.checker.toString() + ")";
     }
     
     @Override
     public boolean equals(Object O) {
-        if (O == this)
+        if (O == this) {
             return true;
-        if (!(O instanceof CheckerNot))
+        }
+        if (!(O instanceof CheckerNot)) {
             return false;
-        return this.Checker.equals(((CheckerNot) O).Checker);
+        }
+        return this.checker.equals(((CheckerNot) O).checker);
     }
     
     @Override
     public int hashCode() {
-        return "CheckerNot".hashCode() + this.Checker.hashCode();
+        return "CheckerNot".hashCode() + this.checker.hashCode();
     }
 }

@@ -766,10 +766,10 @@ public class RPCompiler_ParserTypes {
                         CharChecker PCC = CCs.get(CCs.size() - 1);
                         // Append the previous one if able
                         if(PCC instanceof CharSingle) {
-                            CC = new CharSet("" + ((CharSingle)PCC).C + ((CharSingle)CC).C);
+                            CC = new CharSet("" + ((CharSingle)PCC).ch + ((CharSingle)CC).ch);
                             CCs.remove(CCs.size() - 1);
                         } else if(PCC instanceof CharSet) {
-                            CC = new CharSet("" + ((CharSet)PCC).Set + ((CharSingle)CC).C);
+                            CC = new CharSet("" + ((CharSet)PCC).set + ((CharSingle)CC).ch);
                             CCs.remove(CCs.size() - 1);
                         }
                     }
@@ -782,7 +782,7 @@ public class RPCompiler_ParserTypes {
                 
                 // Ending and intersect
                 if("#Intersect".equals(PName)) {
-                    CharChecker NewCC = (CCs.size() == 1)?CCs.get(0):new CharUnion(CCs.toArray(CharChecker.EmptyCharCheckerArray));
+                    CharChecker NewCC = (CCs.size() == 1)?CCs.get(0):new CharUnion(CCs.toArray(CharChecker.EMPTY_CHAR_CHECKER_ARRAY));
                     if(IsNot) NewCC = new CharNot(NewCC);
                     CCCs.add(NewCC);
                     CCs = new Vector<CharChecker>();
@@ -791,13 +791,13 @@ public class RPCompiler_ParserTypes {
             }
             
             if(CCs.size() > 0) {
-                CharChecker NewCC = (CCs.size() == 1)?CCs.get(0):new CharUnion(CCs.toArray(CharChecker.EmptyCharCheckerArray));
+                CharChecker NewCC = (CCs.size() == 1)?CCs.get(0):new CharUnion(CCs.toArray(CharChecker.EMPTY_CHAR_CHECKER_ARRAY));
                 if(IsNot) NewCC = new CharNot(NewCC);
                 CCCs.add(NewCC);
             }
             
             if(CCCs.size() == 1) return CCCs.get(0);
-            else                 return new CharIntersect(CCCs.toArray(CharChecker.EmptyCharCheckerArray));
+            else                 return new CharIntersect(CCCs.toArray(CharChecker.EMPTY_CHAR_CHECKER_ARRAY));
         }
     }
     
@@ -1189,9 +1189,9 @@ public class RPCompiler_ParserTypes {
                             Q = (Quantifier)pProvider.getType(RPTQuantifier.Name).compile(Sub, 1, null, pContext, pProvider); 
                         }
                         if(Q != Quantifier.One) {
-                            if(RPI.getChecker() != null) RPI = RPEntry._new(RPI.getName(), RPI.getChecker(), Q, RPI.getSecondStage());
-                            if(RPI.getTypeRef() != null) RPI = RPEntry._new(RPI.getName(), RPI.getTypeRef(), Q, RPI.getSecondStage());
-                            if(RPI.getType()    != null) RPI = RPEntry._new(RPI.getName(), RPI.getType(),    Q, RPI.getSecondStage());
+                            if(RPI.getChecker() != null) RPI = RPEntry._new(RPI.name(), RPI.getChecker(), Q, RPI.secondStage());
+                            if(RPI.getTypeRef() != null) RPI = RPEntry._new(RPI.name(), RPI.getTypeRef(), Q, RPI.secondStage());
+                            if(RPI.getType()    != null) RPI = RPEntry._new(RPI.name(), RPI.getType(),    Q, RPI.secondStage());
                         }
                         
                     }

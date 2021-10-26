@@ -188,7 +188,7 @@ abstract public class RPEntry implements Serializable {
     
     // Constructor ---------------------------------------------------------------------------------
     
-    public String getName() {
+    public String name() {
         return null;
     }
     
@@ -208,7 +208,7 @@ abstract public class RPEntry implements Serializable {
         return Quantifier.One;
     }
     
-    public RegParser getSecondStage() {
+    public RegParser secondStage() {
         return null;
     }
     
@@ -217,7 +217,7 @@ abstract public class RPEntry implements Serializable {
     @Override
     public String toString() {
         StringBuffer SB = new StringBuffer();
-        String       N  = this.getName();
+        String       N  = this.name();
         Checker      C  = this.getChecker();
         PTypeRef     TR = this.getTypeRef();
         PType        T  = this.getType();
@@ -286,7 +286,7 @@ abstract public class RPEntry implements Serializable {
         static private final long serialVersionUID = 6546356543546354612L;
         
         protected Direct(Checker pChecker) {
-            this.TheChecker = (pChecker instanceof RegParser) ? ((RegParser) pChecker).getOptimized() : pChecker;
+            this.TheChecker = (pChecker instanceof RegParser) ? ((RegParser) pChecker).optimize() : pChecker;
         }
         
         protected Checker TheChecker = null;
@@ -328,7 +328,7 @@ abstract public class RPEntry implements Serializable {
         String Name = null;
         
         @Override
-        public String getName() {
+        public String name() {
             return this.Name;
         }
     }
@@ -399,7 +399,7 @@ abstract public class RPEntry implements Serializable {
         String Name = null;
         
         @Override
-        public String getName() {
+        public String name() {
             return this.Name;
         }
     }
@@ -470,7 +470,7 @@ abstract public class RPEntry implements Serializable {
         String Name = null;
         
         @Override
-        public String getName() {
+        public String name() {
             return this.Name;
         }
     }
@@ -507,8 +507,8 @@ abstract public class RPEntry implements Serializable {
         RegParser Parser;
         
         @Override
-        public String getName() {
-            return this.Delegate.getName();
+        public String name() {
+            return this.Delegate.name();
         }
         
         @Override
@@ -532,7 +532,7 @@ abstract public class RPEntry implements Serializable {
         }
         
         @Override
-        public RegParser getSecondStage() {
+        public RegParser secondStage() {
             return this.Parser;
         }
     }

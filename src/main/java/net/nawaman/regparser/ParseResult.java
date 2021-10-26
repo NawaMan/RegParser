@@ -178,7 +178,7 @@ abstract public class ParseResult implements Serializable {
         RPEntry REE = PRE.getRPEntry();
         if (REE == null)
             return null;
-        return REE.getName();
+        return REE.name();
     }
     
     /** Returns the type name of the sub entry at the index */
@@ -363,7 +363,7 @@ abstract public class ParseResult implements Serializable {
             if (RPEntry == null)
                 continue;
             
-            RegParser RP = RPEntry.getSecondStage();
+            RegParser RP = RPEntry.secondStage();
             if (RP == null)
                 continue;
             
@@ -503,7 +503,7 @@ abstract public class ParseResult implements Serializable {
     boolean hasNames() {
         for (int i = this.getResultEntryCount(); --i >= 0;) {
             Entry E = this.getResultEntryAt(i);
-            if (E.hasRPEntry() && (E.getRPEntry().getName() != null))
+            if (E.hasRPEntry() && (E.getRPEntry().name() != null))
                 return true;
             if (E.hasSubResult() && E.getSubResult().hasNames())
                 return true;
@@ -531,10 +531,10 @@ abstract public class ParseResult implements Serializable {
         for (int i = this.getResultEntryCount(); --i >= 0;) {
             Entry E = this.getResultEntryAt(i);
             if (E.hasRPEntry()) {
-                String N = E.getRPEntry().getName();
+                String N = E.getRPEntry().name();
                 if (N == null)
                     continue;
-                Ns.add(E.getRPEntry().getName());
+                Ns.add(E.getRPEntry().name());
             }
         }
         return (Ns.size() == 0) ? null : Ns;
@@ -548,10 +548,10 @@ abstract public class ParseResult implements Serializable {
         for (int i = this.getResultEntryCount(); --i >= 0;) {
             Entry E = this.getResultEntryAt(i);
             if (E.hasRPEntry()) {
-                String N = E.getRPEntry().getName();
+                String N = E.getRPEntry().name();
                 if (N == null)
                     continue;
-                Ns.add(E.getRPEntry().getName());
+                Ns.add(E.getRPEntry().name());
             }
         }
         for (String N : Ns.toArray(Util.EMPTY_STRING_ARRAY)) {
@@ -565,7 +565,7 @@ abstract public class ParseResult implements Serializable {
     public int getLastIndexOfEntryName(String pName) {
         for (int i = this.getResultEntryCount(); --i >= 0;) {
             Entry E = this.getResultEntryAt(i);
-            if (E.hasRPEntry() && pName.equals(E.getRPEntry().getName()))
+            if (E.hasRPEntry() && pName.equals(E.getRPEntry().name()))
                 return i;
         }
         return -1;
@@ -576,7 +576,7 @@ abstract public class ParseResult implements Serializable {
         Vector<Integer> Is = new Vector<Integer>();
         for (int i = 0; i < this.getResultEntryCount(); i++) {
             Entry E = this.getResultEntryAt(i);
-            if (E.hasRPEntry() && pName.equals(E.getRPEntry().getName()))
+            if (E.hasRPEntry() && pName.equals(E.getRPEntry().name()))
                 Is.add(i);
         }
         if (Is.size() == 0)
@@ -591,7 +591,7 @@ abstract public class ParseResult implements Serializable {
     String getLastStrMatchByName(String pName) {
         for (int i = this.getResultEntryCount(); --i >= 0;) {
             Entry E = this.getResultEntryAt(i);
-            if (E.hasRPEntry() && pName.equals(E.getRPEntry().getName()))
+            if (E.hasRPEntry() && pName.equals(E.getRPEntry().name()))
                 return this.getTextOf(i);
         }
         return null;
@@ -602,7 +602,7 @@ abstract public class ParseResult implements Serializable {
         Vector<String> Ms = new Vector<String>();
         for (int i = this.getResultEntryCount(); --i >= 0;) {
             Entry E = this.getResultEntryAt(i);
-            if (E.hasRPEntry() && pName.equals(E.getRPEntry().getName()))
+            if (E.hasRPEntry() && pName.equals(E.getRPEntry().name()))
                 Ms.add(this.getTextOf(i));
             
             else
@@ -624,7 +624,7 @@ abstract public class ParseResult implements Serializable {
         Vector<String> Ms = new Vector<String>();
         for (int i = this.getResultEntryCount(); --i >= 0;) {
             Entry E = this.getResultEntryAt(i);
-            if (E.hasRPEntry() && pName.equals(E.getRPEntry().getName()))
+            if (E.hasRPEntry() && pName.equals(E.getRPEntry().name()))
                 Ms.add(this.getTextOf(i));
         }
         
@@ -643,7 +643,7 @@ abstract public class ParseResult implements Serializable {
         Vector<Integer> Ms  = new Vector<Integer>();
         for (int i = 0; i < this.getResultEntryCount(); i++) {
             Entry E = this.getResultEntryAt(i);
-            if (E.hasRPEntry() && pName.equals(E.getRPEntry().getName()))
+            if (E.hasRPEntry() && pName.equals(E.getRPEntry().name()))
                 Ms.add(i);
             
             else
@@ -675,7 +675,7 @@ abstract public class ParseResult implements Serializable {
         Vector<String>   Ms  = new Vector<String>();
         for (int i = 0; i < this.getResultEntryCount(); i++) {
             Entry E = this.getResultEntryAt(i);
-            if (E.hasRPEntry() && pName.equals(E.getRPEntry().getName()))
+            if (E.hasRPEntry() && pName.equals(E.getRPEntry().name()))
                 Ms.add(this.getTextOf(i));
             
             else
@@ -705,7 +705,7 @@ abstract public class ParseResult implements Serializable {
     public Entry getLastMatchByName(String pName) {
         for (int i = this.getResultEntryCount(); --i >= 0;) {
             Entry E = this.getResultEntryAt(i);
-            if (E.hasRPEntry() && pName.equals(E.getRPEntry().getName()))
+            if (E.hasRPEntry() && pName.equals(E.getRPEntry().name()))
                 return E;
         }
         return null;
@@ -716,7 +716,7 @@ abstract public class ParseResult implements Serializable {
         Vector<Entry> Es = new Vector<Entry>();
         for (int i = this.getResultEntryCount(); --i >= 0;) {
             Entry E = this.getResultEntryAt(i);
-            if (E.hasRPEntry() && pName.equals(E.getRPEntry().getName()))
+            if (E.hasRPEntry() && pName.equals(E.getRPEntry().name()))
                 Es.add(E);
             
             else
@@ -738,7 +738,7 @@ abstract public class ParseResult implements Serializable {
         Vector<Entry> Es = new Vector<Entry>();
         for (int i = this.getResultEntryCount(); --i >= 0;) {
             Entry E = this.getResultEntryAt(i);
-            if (E.hasRPEntry() && pName.equals(E.getRPEntry().getName()))
+            if (E.hasRPEntry() && pName.equals(E.getRPEntry().name()))
                 Es.add(E);
         }
         
@@ -757,7 +757,7 @@ abstract public class ParseResult implements Serializable {
         Vector<Entry>   Es  = new Vector<Entry>();
         for (int i = 0; i < this.getResultEntryCount(); i++) {
             Entry E = this.getResultEntryAt(i);
-            if (E.hasRPEntry() && pName.equals(E.getRPEntry().getName()))
+            if (E.hasRPEntry() && pName.equals(E.getRPEntry().name()))
                 Es.add(E);
             
             else
@@ -1475,8 +1475,8 @@ abstract public class ParseResult implements Serializable {
             }    // No Entry
             
             String PName = null;
-            if ((RPT.getRPEntry() != null) && (RPT.getRPEntry().getName() != null))
-                PName = RPT.getRPEntry().getName();
+            if ((RPT.getRPEntry() != null) && (RPT.getRPEntry().name() != null))
+                PName = RPT.getRPEntry().name();
             else
                 PName = "<NoName>";
             while (PName.length() < 16)
@@ -1837,7 +1837,7 @@ abstract public class ParseResult implements Serializable {
         }
         
         public String getName() {
-            return this.hasRPEntry() ? this.getRPEntry().getName() : null;
+            return this.hasRPEntry() ? this.getRPEntry().name() : null;
         }
         
         public PTypeRef getTypeRef() {

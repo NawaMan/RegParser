@@ -19,8 +19,8 @@
 package net.nawaman.regparser.checkers;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Vector;
 
 import net.nawaman.regparser.Checker;
 
@@ -31,69 +31,78 @@ import net.nawaman.regparser.Checker;
  */
 public class CharUnion extends CharChecker {
     
-    static private final long serialVersionUID = 2263513546518947854L;
+    private static final long serialVersionUID = 2263513546518947854L;
     
     /** Constructs a char set */
-    public CharUnion(CharChecker... pCharCheckers) {
+    public CharUnion(CharChecker... charCheckers) {
         // Combine if one of them is alternative
         
-        Vector<CharChecker> CCs = new Vector<CharChecker>();
-        for (int i = 0; i < pCharCheckers.length; i++) {
-            CharChecker C = pCharCheckers[i];
-            if (C != null) {
-                if (C instanceof CharUnion) {
-                    CharUnion CU = (CharUnion) C;
-                    for (int c = 0; c < CU.CharCheckers.length; c++)
-                        CCs.add(CU.CharCheckers[c]);
-                } else
-                    CCs.add(pCharCheckers[i]);
+        var list = new ArrayList<CharChecker>();
+        for (int i = 0; i < charCheckers.length; i++) {
+            var charChecker = charCheckers[i];
+            if (charChecker != null) {
+                if (charChecker instanceof CharUnion) {
+                    var charUnion = (CharUnion) charChecker;
+                    for (int c = 0; c < charUnion.charCheckers.length; c++)
+                        list.add(charUnion.charCheckers[c]);
+                } else {
+                    list.add(charCheckers[i]);
+                }
             }
         }
         // Generate the array
-        this.CharCheckers = new CharChecker[CCs.size()];
-        for (int i = 0; i < CCs.size(); i++)
-            this.CharCheckers[i] = CCs.get(i);
+        this.charCheckers = new CharChecker[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            this.charCheckers[i] = list.get(i);
+        }
     }
     
-    CharChecker[] CharCheckers;
+    private final CharChecker[] charCheckers;
     
     /** Checks of the char c is in this char checker */
     @Override
     public boolean inSet(char c) {
-        for (CharChecker CC : this.CharCheckers)
-            if (CC.inSet(c))
+        for (var charChecker : this.charCheckers) {
+            if (charChecker.inSet(c)) {
                 return true;
+            }
+        }
         return false;
     }
     
     @Override
     public String toString() {
-        StringBuffer SB = new StringBuffer();
-        SB.append("[");
-        if (this.CharCheckers != null) {
-            for (int i = 0; i < Array.getLength(this.CharCheckers); i++) {
-                Checker C = this.CharCheckers[i];
-                if (C == null)
+        var buffer = new StringBuffer();
+        buffer.append("[");
+        if (this.charCheckers != null) {
+            for (int i = 0; i < Array.getLength(this.charCheckers); i++) {
+                var checker = this.charCheckers[i];
+                if (checker == null) {
                     continue;
-                SB.append(C.toString());
+                }
+                buffer.append(checker.toString());
             }
         }
-        SB.append("]");
-        return SB.toString();
+        buffer.append("]");
+        return buffer.toString();
     }
     
     @Override
     public boolean equals(Object O) {
-        if (O == this)
+        if (O == this) {
             return true;
-        if (!(O instanceof CharUnion))
+        }
+        if (!(O instanceof CharUnion)) {
             return false;
-        HashSet<CharChecker> CCs = new HashSet<CharChecker>();
-        for (CharChecker CC : this.CharCheckers)
-            CCs.add(CC);
-        for (CharChecker CC : ((CharUnion) O).CharCheckers) {
-            if (!CCs.contains(CC))
+        }
+        var set = new HashSet<CharChecker>();
+        for (var charChecker : this.charCheckers) {
+            set.add(charChecker);
+        }
+        for (var charChecker : ((CharUnion) O).charCheckers) {
+            if (!set.contains(charChecker)) {
                 return false;
+            }
         }
         return true;
     }
@@ -101,17 +110,19 @@ public class CharUnion extends CharChecker {
     @Override
     public int hashCode() {
         int h = "CharUnion".hashCode();
-        for (int i = 0; i < this.CharCheckers.length; i++)
-            h += this.CharCheckers[i].hashCode();
+        for (int i = 0; i < this.charCheckers.length; i++) {
+            h += this.charCheckers[i].hashCode();
+        }
         
         return h;
     }
     
     /** Return the optimized version of this Checker */
     @Override
-    public Checker getOptimized() {
-        if (this.CharCheckers.length == 1)
-            return this.CharCheckers[0];
+    public Checker optimize() {
+        if (this.charCheckers.length == 1) {
+            return this.charCheckers[0];
+        }
         return this;
     }
 }

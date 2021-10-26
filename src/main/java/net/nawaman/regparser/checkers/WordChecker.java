@@ -18,6 +18,8 @@
 
 package net.nawaman.regparser.checkers;
 
+import static java.util.Objects.requireNonNull;
+
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.PTypeProvider;
 import net.nawaman.regparser.ParseResult;
@@ -28,64 +30,51 @@ import net.nawaman.regparser.RPCompiler_ParserTypes;
  *
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-@SuppressWarnings("serial")
 public class WordChecker implements Checker {
+    
+    private static final long serialVersionUID = 2437987587867902188L;
     
     static public final WordChecker EmptyWord = new WordChecker();
     
     private WordChecker() {
-        this.Word = "";
+        this.word = "";
     }
     
-    public WordChecker(String pWord) {
-        if (pWord == null)
-            throw new NullPointerException();
-        if (pWord.length() == 0)
+    public WordChecker(String word) {
+        this.word = requireNonNull(word);
+        if (word.length() == 0)
             throw new IllegalArgumentException();
-        this.Word = pWord;
     }
     
-    String Word;
+    private final String word;
     
-    /**
-     * Returns the length of the match if the string S starts with this checker.<br />
-     * @param    S is the string to be parse
-     * @param    pOffset the starting point of the checking
-     * @return    the length of the match or -1 if the string S does not start with this checker
-     */
-    public int startLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider) {
-        return this.startLengthOf(S, pOffset, pProvider, null);
+    public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider) {
+        return this.startLengthOf(text, offset, typeProvider, null);
     }
     
-    /**
-     * Returns the length of the match if the string S starts with this checker.<br />
-     * @param    S is the string to be parse
-     * @param    pOffset the starting point of the checking
-     * @param   pResult the parse result of the current parsing. This is only available when this checker is called from a RegParser
-     * @return    the length of the match or -1 if the string S does not start with this checker
-     */
     @Override
-    public int startLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider, ParseResult pResult) {
-        return S.toString().startsWith(this.Word, pOffset) ? this.Word.length() : -1;
+    public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider, ParseResult parseResult) {
+        return text.toString().startsWith(this.word, offset) ? this.word.length() : -1;
     }
     
     @Override
     public String toString() {
-        return RPCompiler_ParserTypes.escapeOfRegParser(this.Word);
+        return RPCompiler_ParserTypes.escapeOfRegParser(this.word);
     }
     
     @Override
     public boolean equals(Object O) {
-        if (O == this)
+        if (O == this) {
             return true;
-        if (!(O instanceof WordChecker))
+        }
+        if (!(O instanceof WordChecker)) {
             return false;
-        return this.Word.equals(((WordChecker) O).Word);
+        }
+        return this.word.equals(((WordChecker) O).word);
     }
     
-    /** Return the optimized version of this RegParser */
     @Override
-    public Checker getOptimized() {
+    public Checker optimize() {
         return this;
     }
     

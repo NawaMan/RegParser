@@ -18,9 +18,10 @@
 
 package net.nawaman.regparser.checkers;
 
-import java.lang.reflect.Array;
+import static java.lang.reflect.Array.getLength;
+
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Vector;
 
 import net.nawaman.regparser.Checker;
 
@@ -31,85 +32,94 @@ import net.nawaman.regparser.Checker;
  */
 public class CharIntersect extends CharChecker {
     
-    static private final long serialVersionUID = 2351321651321651211L;
+    private static final long serialVersionUID = 2351321651321651211L;
     
     /** Constructs a char set */
-    public CharIntersect(CharChecker... pCharCheckers) {
+    public CharIntersect(CharChecker... charCheckers) {
         // Combine if one of them is alternative
         
-        Vector<CharChecker> CCs = new Vector<CharChecker>();
-        for (int i = 0; i < pCharCheckers.length; i++) {
-            CharChecker C = pCharCheckers[i];
-            if (C != null) {
-                if (C instanceof CharIntersect) {
-                    CharIntersect CI = (CharIntersect) C;
-                    for (int c = 0; c < CI.CharCheckers.length; c++)
-                        CCs.add(CI.CharCheckers[c]);
-                } else
-                    CCs.add(pCharCheckers[i]);
+        var list = new ArrayList<CharChecker>();
+        for (int i = 0; i < charCheckers.length; i++) {
+            var charChecker = charCheckers[i];
+            if (charChecker != null) {
+                if (charChecker instanceof CharIntersect) {
+                    var charIntersect = (CharIntersect) charChecker;
+                    for (int c = 0; c < charIntersect.charCheckers.length; c++)
+                        list.add(charIntersect.charCheckers[c]);
+                } else {
+                    list.add(charCheckers[i]);
+                }
             }
         }
         // Generate the array
-        this.CharCheckers = new CharChecker[CCs.size()];
-        for (int i = 0; i < CCs.size(); i++)
-            this.CharCheckers[i] = CCs.get(i);
+        this.charCheckers = new CharChecker[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            this.charCheckers[i] = list.get(i);
+        }
     }
     
-    CharChecker[] CharCheckers;
+    private final CharChecker[] charCheckers;
     
-    /** Checks of the char c is in this char checker */
     @Override
     public boolean inSet(char c) {
-        for (CharChecker CC : this.CharCheckers)
-            if (!CC.inSet(c))
+        for (var charChecker : this.charCheckers) {
+            if (!charChecker.inSet(c)) {
                 return false;
+            }
+        }
         return true;
     }
     
     @Override
     public String toString() {
-        StringBuffer SB = new StringBuffer();
-        SB.append("[");
-        if (this.CharCheckers != null) {
-            for (int i = 0; i < Array.getLength(this.CharCheckers); i++) {
-                Checker C = this.CharCheckers[i];
-                if (C == null)
+        var buffer = new StringBuffer();
+        buffer.append("[");
+        if (this.charCheckers != null) {
+            for (int i = 0; i < getLength(this.charCheckers); i++) {
+                var checker = this.charCheckers[i];
+                if (checker == null) {
                     continue;
-                if (i != 0)
-                    SB.append("&&");
-                SB.append(C.toString());
+                }
+                if (i != 0) {
+                    buffer.append("&&");
+                }
+                buffer.append(checker.toString());
             }
         }
-        SB.append("]");
-        return SB.toString();
+        buffer.append("]");
+        return buffer.toString();
     }
     
     @Override
     public boolean equals(Object O) {
-        if (O == this)
+        if (O == this) {
             return true;
-        if (!(O instanceof CharIntersect))
+        }
+        if (!(O instanceof CharIntersect)) {
             return false;
-        HashSet<CharChecker> CCs = new HashSet<CharChecker>();
-        for (CharChecker CC : this.CharCheckers)
-            CCs.add(CC);
-        for (CharChecker CC : ((CharIntersect) O).CharCheckers) {
-            if (!CCs.contains(CC))
+        }
+        var checkers = new HashSet<CharChecker>();
+        for (var charChecker : this.charCheckers) {
+            checkers.add(charChecker);
+        }
+        for (var charChecker : ((CharIntersect) O).charCheckers) {
+            if (!checkers.contains(charChecker)) {
                 return false;
+            }
         }
         return true;
     }
     
     @Override
     public int hashCode() {
-        return "CharIntersect".hashCode() + this.CharCheckers.hashCode();
+        return "CharIntersect".hashCode() + this.charCheckers.hashCode();
     }
     
-    /** Return the optimized version of this Checker */
     @Override
-    public Checker getOptimized() {
-        if (this.CharCheckers.length == 1)
-            return this.CharCheckers[0];
+    public Checker optimize() {
+        if (this.charCheckers.length == 1) {
+            return this.charCheckers[0];
+        }
         return this;
     }
     

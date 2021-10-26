@@ -51,6 +51,6 @@ public interface Checker extends Serializable {
     public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider, ParseResult parseResult);
     
     /** Return the optimized version of this Checker */
-    public Checker getOptimized();
+    public Checker optimize();
     
 }

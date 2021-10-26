@@ -25,8 +25,8 @@ import net.nawaman.regparser.ParseResult;
 /**
  * Checker that involves a character.
  * 
- * General implementation of this class is that if the first character is in a set, 1 will be returned. Otherwise -1 is
- *   returned. 
+ * General implementation of this class is that if the first character is in a set, 1 will be returned.
+ * Otherwise -1 is returned. 
  * 
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
@@ -34,42 +34,28 @@ import net.nawaman.regparser.ParseResult;
 abstract public class CharChecker implements Checker {
     
     /** Returns the empty array of CharCheckers */
-    static public final CharChecker[] EmptyCharCheckerArray = new CharChecker[0];
+    public static final CharChecker[] EMPTY_CHAR_CHECKER_ARRAY = new CharChecker[0];
     
     /** Checks of the char c is in this char checker */
     abstract public boolean inSet(char c);
-
     
-    /**
-     * Returns the length of the match if the string S starts with this checker.<br />
-     * @param    S is the string to be parse
-     * @param    pOffset the starting point of the checking
-     * @return    the length of the match or -1 if the string S does not start with this checker
-     */
     @Override
-    public int startLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider) {
-        return this.startLengthOf(S, pOffset, pProvider, null);
+    public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider) {
+        return this.startLengthOf(text, offset, typeProvider, null);
     }
     
-    /**
-     * Returns the length of the match if the string S starts with this checker.<br />
-     * @param    S is the string to be parse
-     * @param    pOffset the starting point of the checking
-     * @param   pResult the parse result of the current parsing. This is only available when this checker is called from a RegParser
-     * @return    the length of the match or -1 if the string S does not start with this checker
-     */
     @Override
-    public int startLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider, ParseResult pResult) {
-        if ((pOffset < 0) || (pOffset >= S.length()))
+    public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider, ParseResult parseResult) {
+        if ((offset < 0) || (offset >= text.length())) {
             return -1;
-        char c = S.charAt(pOffset);
+        }
+        
+        char c = text.charAt(offset);
         return this.inSet(c) ? 1 : -1;
     }
     
-    
-    /** Return the optimized version of this Checker */
     @Override
-    public Checker getOptimized() {
+    public Checker optimize() {
         return this;
     }
 }

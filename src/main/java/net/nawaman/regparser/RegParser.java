@@ -700,7 +700,7 @@ public class RegParser implements Checker, Serializable {
     /** Parse an entry at the index pIndex possessively */
     protected ParseResult parseEach_P(CharSequence pText, int pOffset, int pIndex, ParseResult pResult,
             PTypeProvider pProvider, int pTabs) {
-        String   FN  = this.Entries[pIndex].getName();
+        String   FN  = this.Entries[pIndex].name();
         PTypeRef FTR = this.Entries[pIndex].getTypeRef();
         PType    FT  = this.Entries[pIndex].getType();
         Checker  FP  = this.Entries[pIndex].getChecker();
@@ -730,10 +730,10 @@ public class RegParser implements Checker, Serializable {
             ParseResult MaxResult = null;
             
             CheckerAlternative CA = (CheckerAlternative) FP;
-            for (int c = CA.Checkers.length; --c >= 0;) {
+            for (int c = CA.checkers.length; --c >= 0;) {
                 ParseResult TryResult = IsFPAsNode ? new ParseResult.Node(pOffset, pResult)
                         : new ParseResult.Temp(pResult);
-                if (this.parseEach_P(pText, pOffset, pIndex, null, null, null, CA.Checkers[c], TryResult, pProvider,
+                if (this.parseEach_P(pText, pOffset, pIndex, null, null, null, CA.checkers[c], TryResult, pProvider,
                         pTabs) == null)
                     continue;
                 
@@ -749,7 +749,7 @@ public class RegParser implements Checker, Serializable {
                 
                 ParseResult TryResult = IsFPAsNode ? new ParseResult.Node(pOffset, pResult)
                         : new ParseResult.Temp(pResult);
-                if (this.parseEach_P(pText, pOffset, pIndex, null, null, null, CA.getDefault(), TryResult, pProvider,
+                if (this.parseEach_P(pText, pOffset, pIndex, null, null, null, CA.defaultChecker(), TryResult, pProvider,
                         pTabs) == null)
                     return null;
                 
@@ -872,10 +872,10 @@ public class RegParser implements Checker, Serializable {
                                 ParseResult MaxResult = null;
                                 
                                 CheckerAlternative CA = (CheckerAlternative) FP;
-                                for (int c = CA.Checkers.length; --c >= 0;) {
+                                for (int c = CA.checkers.length; --c >= 0;) {
                                     ParseResult TryResult = IsFPAsNode ? new ParseResult.Node(pOffset, pResult)
                                             : new ParseResult.Temp(pResult);
-                                    if (this.parseEach_P(pText, pOffset, pIndex, null, null, null, CA.Checkers[c],
+                                    if (this.parseEach_P(pText, pOffset, pIndex, null, null, null, CA.checkers[c],
                                             TryResult, pProvider, pTabs + 1) == null)
                                         continue;
                                     
@@ -891,7 +891,7 @@ public class RegParser implements Checker, Serializable {
                                     
                                     ParseResult TryResult = IsFPAsNode ? new ParseResult.Node(pOffset, pResult)
                                             : new ParseResult.Temp(pResult);
-                                    if (this.parseEach_P(pText, pOffset, pIndex, null, null, null, CA.getDefault(),
+                                    if (this.parseEach_P(pText, pOffset, pIndex, null, null, null, CA.defaultChecker(),
                                             TryResult, pProvider, pTabs + 1) == null)
                                         return null;
                                     
@@ -904,17 +904,17 @@ public class RegParser implements Checker, Serializable {
                                 if (FP instanceof CheckerFixeds) {
                                     CheckerFixeds CG = ((CheckerFixeds) FP);
                                     // Check if there enough space for it
-                                    if (pText.length() >= (pOffset + CG.getNeededLength())) {
+                                    if (pText.length() >= (pOffset + CG.neededLength())) {
                                         EndPosition = pOffset;
                                         ThisResult  = new ParseResult.Node(pOffset, pResult);
-                                        for (int i = 0; i < CG.getEntryCount(); i++) {
-                                            int l = CG.getEntry(i).getLength();
+                                        for (int i = 0; i < CG.entryCount(); i++) {
+                                            int l = CG.entry(i).length();
                                             if (l != -1)
                                                 EndPosition += l;
                                             else
                                                 EndPosition = pText.length();
                                             ThisResult.append(
-                                                    ParseResult.newEntry(EndPosition, CG.getEntry(i).getRPEntry()));
+                                                    ParseResult.newEntry(EndPosition, CG.entry(i).entry()));
                                         }
                                     }
                                 } else {
@@ -957,17 +957,17 @@ public class RegParser implements Checker, Serializable {
                         if (IsFPGroup) {
                             CheckerFixeds CG = ((CheckerFixeds) FP);
                             // There is not enough space for it
-                            if (pText.length() < (pOffset + CG.getNeededLength()))
+                            if (pText.length() < (pOffset + CG.neededLength()))
                                 return null;
                             
                             int EndPosition = pOffset;
-                            for (int i = 0; i < CG.getEntryCount(); i++) {
-                                int l = CG.getEntry(i).getLength();
+                            for (int i = 0; i < CG.entryCount(); i++) {
+                                int l = CG.entry(i).length();
                                 if (l != -1)
                                     EndPosition += l;
                                 else
                                     EndPosition = pText.length();
-                                pResult.append(ParseResult.newEntry(EndPosition, CG.getEntry(i).getRPEntry()));
+                                pResult.append(ParseResult.newEntry(EndPosition, CG.entry(i).entry()));
                             }
                             
                             // Return the result
@@ -1129,7 +1129,7 @@ public class RegParser implements Checker, Serializable {
                             return null;
                         }
                         // Append an empty entry when found zero (if named or typed)
-                        if ((this.Entries[pIndex].getName() != null) || (this.Entries[pIndex].getType() != null)
+                        if ((this.Entries[pIndex].name() != null) || (this.Entries[pIndex].getType() != null)
                                 || (this.Entries[pIndex].getTypeRef() != null))
                             pResult.append(new ParseResult.Entry_WithRPEntry(pOffset, this.Entries[pIndex]));
                         
@@ -1143,7 +1143,7 @@ public class RegParser implements Checker, Serializable {
                         // Is it any
                         RPEntry RPE = this.Entries[pIndex];
                         if (RPE.getChecker() == PredefinedCharClasses.Any) {
-                            if ((RPE.getName() == null) && (RPE.getTypeRef() == null) && (RPE.getType() == null)) {
+                            if ((RPE.name() == null) && (RPE.getTypeRef() == null) && (RPE.getType() == null)) {
                                 // Is this limited - Match till the limit
                                 int LB = RPE.getQuantifier().lowerBound();
                                 if (pOffset + LB <= TextLength) {    // There is enough space for the minimum (the lower bound)
@@ -1220,8 +1220,8 @@ public class RegParser implements Checker, Serializable {
                             
                             // Not yet
                             CheckerAlternative CA = (CheckerAlternative) FP;
-                            for (int c = CA.Checkers.length; --c >= 0;) {
-                                Checker C = CA.Checkers[c];
+                            for (int c = CA.checkers.length; --c >= 0;) {
+                                Checker C = CA.checkers[c];
                                 // Try the first part
                                 ParseResult.Temp TryResult = new ParseResult.Temp(pResult);
                                 if (this.parseEach_P(pText, pOffset, pIndex, null, null, null, C, TryResult, pProvider,
@@ -1252,7 +1252,7 @@ public class RegParser implements Checker, Serializable {
                             
                             if (CA.hasDefault()) {
                                 int REC = pResult.getEntryListSize();
-                                if (this.parseEach_P(pText, pOffset, pIndex, null, null, null, CA.getDefault(), pResult,
+                                if (this.parseEach_P(pText, pOffset, pIndex, null, null, null, CA.defaultChecker(), pResult,
                                         pProvider, pTabs) != null) {
                                     // Found the match.
                                     break MainLoop;
@@ -1324,10 +1324,10 @@ public class RegParser implements Checker, Serializable {
                             
                             // Not yet
                             CheckerAlternative CA = (CheckerAlternative) FP;
-                            for (int c = CA.Checkers.length; --c >= 0;) {
+                            for (int c = CA.checkers.length; --c >= 0;) {
                                 // Try the first part
                                 ParseResult.Temp TryResult = new ParseResult.Temp(pResult);
-                                if (this.parseEach_P(pText, pOffset, pIndex, null, null, null, CA.Checkers[c],
+                                if (this.parseEach_P(pText, pOffset, pIndex, null, null, null, CA.checkers[c],
                                         TryResult, pProvider, pTabs) != null) {
                                     // Match
                                     // Try the later part, if not match, continue other alternatives
@@ -1355,7 +1355,7 @@ public class RegParser implements Checker, Serializable {
                             
                             if (CA.hasDefault()) {
                                 int REC = pResult.getEntryListSize();
-                                if (this.parseEach_P(pText, pOffset, pIndex, null, null, null, CA.getDefault(), pResult,
+                                if (this.parseEach_P(pText, pOffset, pIndex, null, null, null, CA.defaultChecker(), pResult,
                                         pProvider, pTabs) != null) {
                                     // Found the match.
                                     break MainLoop;
@@ -1408,8 +1408,8 @@ public class RegParser implements Checker, Serializable {
     }
     
     /** Return the optimized version of this Checker */
-    public Checker getOptimized() {
-        if ((this.Entries.length == 1) && (this.Entries[0].getName() == null) && (this.Entries[0].getTypeRef() == null)
+    public Checker optimize() {
+        if ((this.Entries.length == 1) && (this.Entries[0].name() == null) && (this.Entries[0].getTypeRef() == null)
                 && ((this.Entries[0].getQuantifier() == null) || this.Entries[0].getQuantifier().isOne_Possessive())) {
             return this.Entries[0].getChecker();
         }
@@ -1420,15 +1420,15 @@ public class RegParser implements Checker, Serializable {
         for (int i = 0; i < this.Entries.length; i++) {
             RPEntry RPE = this.Entries[i];
             if ((RPE.getTypeRef() == null) && (RPE.getChecker() instanceof RegParser)) {
-                Checker New = ((RegParser) RPE.getChecker()).getOptimized();
+                Checker New = ((RegParser) RPE.getChecker()).optimize();
                 if (New != RPE.getChecker()) {
-                    RPEs[i]   = RPEntry._new(RPE.getName(), New, RPE.getQuantifier());
+                    RPEs[i]   = RPEntry._new(RPE.name(), New, RPE.getQuantifier());
                     IsChanged = true;
                 } else {
-                    RPEs[i] = RPEntry._new(RPE.getName(), RPE.getChecker(), RPE.getQuantifier());
+                    RPEs[i] = RPEntry._new(RPE.name(), RPE.getChecker(), RPE.getQuantifier());
                 }
             } else
-                RPEs[i] = RPEntry._new(RPE.getName(), RPE.getChecker(), RPE.getQuantifier());
+                RPEs[i] = RPEntry._new(RPE.name(), RPE.getChecker(), RPE.getQuantifier());
         }
         
         if (IsChanged)
