@@ -107,7 +107,7 @@ public class TestSpeed {
         }
         int ratio = sum/round;
         System.out.println("Ratio: " + ratio);
-        assertTrue(ratio < 75);
+        assertTrue(ratio < 100);
     }
     
 }
