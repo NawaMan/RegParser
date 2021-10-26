@@ -33,8 +33,8 @@ public enum Greediness {
     Possessive;
     
     /** Symbol for Maximum in RegParser language */
-    static public final String MaximumSign = "+";
-    static public final String MinimumSign = "*";
+    public static final String MaximumSign = "+";
+    public static final String MinimumSign = "*";
     
     /** Checks if this is a maximum greediness */
     public boolean isMaximum() {
@@ -52,7 +52,7 @@ public enum Greediness {
     }
     
     /** Returns the sign of this greediness */
-    public String getSign() {
+    public String sign() {
         switch (this) {
             case Maximum:
                 return MaximumSign;

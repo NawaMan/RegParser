@@ -214,33 +214,33 @@ public final class Quantifier implements Serializable {
             }
             
             if (this.isZeroOrOne()) {
-                return "?" + this.greediness.getSign();
+                return "?" + this.greediness.sign();
             }
             if (this.isZeroOrMore()) {
-                return "*" + this.greediness.getSign();
+                return "*" + this.greediness.sign();
             }
             if (this.isOneOrMore()) {
-                return "+" + this.greediness.getSign();
+                return "+" + this.greediness.sign();
             }
             
             if (this.isZero()) {
                 return "{0}";
             }
             if (this.isOne()) {
-                return "" + this.greediness.getSign();
+                return "" + this.greediness.sign();
             }
             
             if (this.lowerBound == this.upperBound) {
-                return "{" + this.lowerBound + "}" + this.greediness.getSign();
+                return "{" + this.lowerBound + "}" + this.greediness.sign();
             }
             if (this.lowerBound == 0) {
-                return "{," + this.upperBound + "}" + this.greediness.getSign();
+                return "{," + this.upperBound + "}" + this.greediness.sign();
             }
             if (this.upperBound == -1) {
-                return "{" + this.lowerBound + ",}" + this.greediness.getSign();
+                return "{" + this.lowerBound + ",}" + this.greediness.sign();
             }
             
-            return "{" + this.lowerBound + "," + this.upperBound + "}" + this.greediness.getSign();
+            return "{" + this.lowerBound + "," + this.upperBound + "}" + this.greediness.sign();
         });
     }
     
