@@ -95,7 +95,7 @@ public class TestParseResult {
                 + ". 01 - => [   13] = $Operator       :<NoType>         = \"*\"\n"
                 + ". 02 - => [   14] = $Operand        :<NoType>         = \"5\"\n"
                 + "04 - - => [   15] = <NoName>        :<NoType>         = \";\"",
-                result.getSubOf(3, 0).getRoot());
+                result.getSubOf(3, 0).root());
     }
     
     @Test

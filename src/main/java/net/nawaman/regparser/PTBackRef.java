@@ -80,6 +80,6 @@ public class PTBackRef extends PType {
         String W = this.getLastMatchByName(pHostResult, pParam, pProvider);
         if (W == null)
             return false;
-        return W.equals(pThisResult.getText());
+        return W.equals(pThisResult.text());
     }
 }

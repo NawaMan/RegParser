@@ -572,7 +572,7 @@ public class TestRegParserCompiler1 {
     public void testIncomplete() {
         var parser = newRegParser(new PTypeRef.Simple(RPTRegParser.Name), OneOrMore);
         var result = parser.parse("a(a)s)?a", typeProvider);
-        validate(5, result.getEndPosition());
+        validate(5, result.endPosition());
         
         validate("\n"
                 + "00 - - - - => [    5] = <NoName>        :RegParser        = \"a(a)s\"\n"
@@ -591,7 +591,7 @@ public class TestRegParserCompiler1 {
     public void testError() {
         var parser = newRegParser(new PTypeRef.Simple(RPTRegParser.Name), OneOrMore);
         var result = parser.parse("a(a(s)?a", typeProvider);
-        validate(8, result.getEndPosition());
+        validate(8, result.endPosition());
         validate("\n"
                 + "00 - - - - => [    8] = <NoName>        :RegParser        = \"a(a(s)?a\"\n"
                 + ". 00 - - - => [    1] = #Item[]         :RegParserItem[]  = \"a\"\n"

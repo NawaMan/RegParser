@@ -42,12 +42,12 @@ public class PTBackRefCI extends PTBackRef {
         if (pHostResult == null)
             return false;
         String W = pHostResult.getLastStrMatchByName(pParam);
-        String T = pThisResult.getText().toLowerCase();
+        String T = pThisResult.text().toLowerCase();
         if (W == T)
             return true;
         if ((W == null) || (T == null))
             return true;
-        return W.toLowerCase().equals(pThisResult.getText().toLowerCase());
+        return W.toLowerCase().equals(pThisResult.text().toLowerCase());
     }
     
 }

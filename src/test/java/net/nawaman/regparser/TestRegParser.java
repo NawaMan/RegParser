@@ -28,7 +28,7 @@ public class TestRegParser {
                         new WordChecker("One"), Zero,
                         new WordChecker("Two"));
         validate(null, parser.parse("OneTwo"));
-        validate(   3, parser.parse("TwoOne").getEndPosition());
+        validate(   3, parser.parse("TwoOne").endPosition());
     }
     
     @Test
@@ -36,7 +36,7 @@ public class TestRegParser {
         var parser = newRegParser(
                         new WordChecker("One"),
                         new WordChecker("Two"));
-        validate(   6, parser.parse("OneTwo").getEndPosition());
+        validate(   6, parser.parse("OneTwo").endPosition());
         validate(null, parser.parse("TwoOne"));
     }
     
@@ -45,8 +45,8 @@ public class TestRegParser {
         var parser = newRegParser(
                         new WordChecker("One"), ZeroOrOne,
                         new WordChecker("Two"));
-        validate(6, parser.parse("OneTwo").getEndPosition());
-        validate(3, parser.parse("TwoOne").getEndPosition());
+        validate(6, parser.parse("OneTwo").endPosition());
+        validate(3, parser.parse("TwoOne").endPosition());
     }
     
     @Test
@@ -57,8 +57,8 @@ public class TestRegParser {
                         new WordChecker("One"));
         validate(null, parser.parse("OneTwo"));
         validate(null, parser.parse("TwoOne"));
-        validate(   9, parser.parse("OneTwoOne").getEndPosition());
-        validate(   6, parser.parse("OneOne").getEndPosition());
+        validate(   9, parser.parse("OneTwoOne").endPosition());
+        validate(   6, parser.parse("OneOne").endPosition());
     }
     
     @Test
@@ -70,9 +70,9 @@ public class TestRegParser {
         validate(null, parser.parse("OneTwo"));
         validate(null, parser.parse("TwoOne"));
         validate(null, parser.parse("OneOne"));
-        validate(   9, parser.parse("OneTwoOne").getEndPosition());
-        validate(  12, parser.parse("OneTwoTwoOne").getEndPosition());
-        validate(  15, parser.parse("OneTwoTwoTwoOne").getEndPosition());
+        validate(   9, parser.parse("OneTwoOne").endPosition());
+        validate(  12, parser.parse("OneTwoTwoOne").endPosition());
+        validate(  15, parser.parse("OneTwoTwoTwoOne").endPosition());
     }
     
     @Test
@@ -83,10 +83,10 @@ public class TestRegParser {
                         new WordChecker("One"));
         validate(null, parser.parse("OneTwo"));
         validate(null, parser.parse("TwoOne"));
-        validate(   6, parser.parse("OneOne").getEndPosition());
-        validate(   9, parser.parse("OneTwoOne").getEndPosition());
-        validate(  12, parser.parse("OneTwoTwoOne").getEndPosition());
-        validate(  15, parser.parse("OneTwoTwoTwoOne").getEndPosition());
+        validate(   6, parser.parse("OneOne").endPosition());
+        validate(   9, parser.parse("OneTwoOne").endPosition());
+        validate(  12, parser.parse("OneTwoTwoOne").endPosition());
+        validate(  15, parser.parse("OneTwoTwoTwoOne").endPosition());
     }
     
     @Test
@@ -98,9 +98,9 @@ public class TestRegParser {
         validate(null, parser.parse("One123"));
         validate(null, parser.parse("123One"));
         validate(null, parser.parse("OneOne"));
-        validate(   9, parser.parse("One123One").getEndPosition());
-        validate(  12, parser.parse("One123456One").getEndPosition());
-        validate(  15, parser.parse("One123456789One").getEndPosition());
+        validate(   9, parser.parse("One123One").endPosition());
+        validate(  12, parser.parse("One123456One").endPosition());
+        validate(  15, parser.parse("One123456789One").endPosition());
     }
     
     @Test
@@ -111,10 +111,10 @@ public class TestRegParser {
                         RPEntry._new(new WordChecker("One")));
         validate(null, parser.parse("One123"));
         validate(null, parser.parse("123One"));
-        validate(   6, parser.parse("OneOne").getEndPosition());
-        validate(   9, parser.parse("One123One").getEndPosition());
-        validate(  12, parser.parse("One123456One").getEndPosition());
-        validate(  15, parser.parse("One123456789One").getEndPosition());
+        validate(   6, parser.parse("OneOne").endPosition());
+        validate(   9, parser.parse("One123One").endPosition());
+        validate(  12, parser.parse("One123456One").endPosition());
+        validate(  15, parser.parse("One123456789One").endPosition());
     }
     
     @Test
@@ -125,8 +125,8 @@ public class TestRegParser {
                         RPEntry._new(new WordChecker("One")));
         validate(null, parser.parse("One123"));
         validate(null, parser.parse("123One"));
-        validate(   6, parser.parse("OneOne").getEndPosition());
-        validate(   9, parser.parse("One123One").getEndPosition());
+        validate(   6, parser.parse("OneOne").endPosition());
+        validate(   9, parser.parse("One123One").endPosition());
         validate(null, parser.parse("One123456One"));
         validate(null, parser.parse("One123456789One"));
     }
@@ -141,8 +141,8 @@ public class TestRegParser {
         validate(null, parser.parse("123One"));
         validate(null, parser.parse("OneOne"));
         validate(null, parser.parse("One123One"));
-        validate(  12, parser.parse("One123456One").getEndPosition());
-        validate(  15, parser.parse("One123456789One").getEndPosition());
+        validate(  12, parser.parse("One123456One").endPosition());
+        validate(  15, parser.parse("One123456789One").endPosition());
     }
     
     @Ignore("Does not seems to work.")
@@ -159,8 +159,8 @@ public class TestRegParser {
                         ), 
                         RPEntry._new(new WordChecker("r")));
         
-        validate(5, parser.parse("Color").getEndPosition());
-        validate(6, parser.parse("Colour").getEndPosition());
+        validate(5, parser.parse("Color").endPosition());
+        validate(6, parser.parse("Colour").endPosition());
     }
     
     @Test
@@ -171,7 +171,7 @@ public class TestRegParser {
                         RPEntry._new(new WordChecker("ur")));
         
         validate(null, parser.parse("Colour"));
-        validate(   7, parser.parse("Colouur").getEndPosition());
+        validate(   7, parser.parse("Colouur").endPosition());
     }
     
     @Test
@@ -182,11 +182,11 @@ public class TestRegParser {
                         RPEntry._new(new WordChecker("r")));
         
         validate(null, parser.parse("Colur"));
-        validate(   6, parser.parse("Colour").getEndPosition());
-        validate(   7, parser.parse("Coloour").getEndPosition());
-        validate(   8, parser.parse("Colouour").getEndPosition());
-        validate(  10, parser.parse("Colooouour").getEndPosition());
-        validate(  12, parser.parse("Colouoouoour").getEndPosition());
+        validate(   6, parser.parse("Colour").endPosition());
+        validate(   7, parser.parse("Coloour").endPosition());
+        validate(   8, parser.parse("Colouour").endPosition());
+        validate(  10, parser.parse("Colooouour").endPosition());
+        validate(  12, parser.parse("Colouoouoour").endPosition());
     }
     
 }

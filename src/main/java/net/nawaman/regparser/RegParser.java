@@ -655,7 +655,7 @@ public class RegParser implements Checker, Serializable {
     public ParseResult match(CharSequence pText) {
         ParseResult PR = this.parse(pText, 0, 0, 0, null, null, null, null, 0);
         if ((PR != null) && (pText != null)) {
-            if (PR.getEndPosition() != pText.length())
+            if (PR.endPosition() != pText.length())
                 return null;
             PR.collapse(null);
         }
@@ -666,7 +666,7 @@ public class RegParser implements Checker, Serializable {
     public ParseResult match(CharSequence pText, int pOffset, int pEndPosition) {
         ParseResult PR = this.parse(pText, pOffset, 0, 0, null, null, null, null, 0);
         if ((PR != null) && (pText != null)) {
-            if (PR.getEndPosition() != pEndPosition)
+            if (PR.endPosition() != pEndPosition)
                 return null;
             PR.collapse(null);
         }
@@ -677,7 +677,7 @@ public class RegParser implements Checker, Serializable {
     public ParseResult match(CharSequence pText, PTypeProvider pProvider) {
         ParseResult PR = this.parse(pText, 0, 0, 0, null, pProvider, null, null, 0);
         if ((PR != null) && (pText != null)) {
-            if (PR.getEndPosition() != pText.length())
+            if (PR.endPosition() != pText.length())
                 return null;
             PR.collapse(pProvider);
         }
@@ -688,7 +688,7 @@ public class RegParser implements Checker, Serializable {
     public ParseResult match(CharSequence pText, int pOffset, int pEndPosition, PTypeProvider pProvider) {
         ParseResult PR = this.parse(pText, pOffset, 0, 0, null, pProvider, null, null, 0);
         if ((PR != null) && (pText != null)) {
-            if (PR.getEndPosition() != pEndPosition)
+            if (PR.endPosition() != pEndPosition)
                 return null;
             PR.collapse(pProvider);
         }
@@ -738,10 +738,10 @@ public class RegParser implements Checker, Serializable {
                     continue;
                 
                 // Find the longest length
-                if (MaxEnd >= TryResult.getEndPosition())
+                if (MaxEnd >= TryResult.endPosition())
                     continue;
                 MaxResult = TryResult;
-                MaxEnd    = TryResult.getEndPosition();
+                MaxEnd    = TryResult.endPosition();
             }
             if (MaxResult == null) {
                 if (!CA.hasDefault())
@@ -754,13 +754,13 @@ public class RegParser implements Checker, Serializable {
                     return null;
                 
                 MaxResult = TryResult;
-                MaxEnd    = TryResult.getEndPosition();
+                MaxEnd    = TryResult.endPosition();
             }
             if (IsFPAsNode) {
-                pResult.append(ParseResult.newEntry(MaxResult.getEndPosition(), this.Entries[pIndex], MaxResult));
+                pResult.append(ParseResult.newEntry(MaxResult.endPosition(), this.Entries[pIndex], MaxResult));
             } else {
                 if (IsFPType || IsFPName)
-                    pResult.append(ParseResult.newEntry(MaxResult.getEndPosition(), this.Entries[pIndex]));
+                    pResult.append(ParseResult.newEntry(MaxResult.endPosition(), this.Entries[pIndex]));
                 else
                     pResult.mergeWith((ParseResult.Temp) MaxResult);
             }
@@ -771,7 +771,7 @@ public class RegParser implements Checker, Serializable {
                 if (pOffset >= pText.length())
                     return null; //pResult;
                     
-                int REC      = pResult.getEntryListSize();
+                int REC      = pResult.entryListSize();
                 int LengthFP = FP.startLengthOf(pText, pOffset, pProvider, pResult);
                 if (LengthFP == -1) {
                     // Recover what may have been added in the fail attempt
@@ -796,17 +796,17 @@ public class RegParser implements Checker, Serializable {
                         // Merge the result
                         if (IsFPAsNode) {
                             pResult.append(
-                                    ParseResult.newEntry(TryResult.getEndPosition(), this.Entries[pIndex], TryResult));
+                                    ParseResult.newEntry(TryResult.endPosition(), this.Entries[pIndex], TryResult));
                         } else {
                             if (IsFPType || IsFPName)
-                                pResult.append(ParseResult.newEntry(TryResult.getEndPosition(), this.Entries[pIndex]));
+                                pResult.append(ParseResult.newEntry(TryResult.endPosition(), this.Entries[pIndex]));
                             else
-                                pResult.append(ParseResult.newEntry(TryResult.getEndPosition()));
+                                pResult.append(ParseResult.newEntry(TryResult.endPosition()));
                         }
                         return pResult;
                         
                     } else {
-                        int REC = pResult.getEntryListSize();
+                        int REC = pResult.entryListSize();
                         if ((((RegParser) FP).parse(pText, pOffset, 0, 0, pResult, pProvider, null, null,
                                 pTabs)) == null) {
                             // Recover what may have been added in the fail attempt
@@ -862,7 +862,7 @@ public class RegParser implements Checker, Serializable {
                             if (TryResult == null)
                                 return null;
                             
-                            EndPosition = TryResult.getEndPosition();
+                            EndPosition = TryResult.endPosition();
                             ThisResult  = TryResult;
                             
                         } else
@@ -880,10 +880,10 @@ public class RegParser implements Checker, Serializable {
                                         continue;
                                     
                                     // Find the longest length
-                                    if (MaxEnd >= TryResult.getEndPosition())
+                                    if (MaxEnd >= TryResult.endPosition())
                                         continue;
                                     MaxResult = TryResult;
-                                    MaxEnd    = TryResult.getEndPosition();
+                                    MaxEnd    = TryResult.endPosition();
                                 }
                                 if (MaxResult == null) {
                                     if (!CA.hasDefault())
@@ -896,7 +896,7 @@ public class RegParser implements Checker, Serializable {
                                         return null;
                                     
                                     MaxResult = TryResult;
-                                    MaxEnd    = TryResult.getEndPosition();
+                                    MaxEnd    = TryResult.endPosition();
                                 }
                                 EndPosition = MaxEnd;
                                 ThisResult  = MaxResult;
@@ -919,7 +919,7 @@ public class RegParser implements Checker, Serializable {
                                     }
                                 } else {
                                     // The type contain a checker
-                                    int REC      = pResult.getEntryListSize();
+                                    int REC      = pResult.entryListSize();
                                     int LengthFP = FP.startLengthOf(pText, pOffset, pProvider, pResult);
                                     if (LengthFP == -1) {
                                         // Recover what may have been added in the fail attempt
@@ -1025,7 +1025,7 @@ public class RegParser implements Checker, Serializable {
             if (pIndex > LastEntryIndex)
                 break MainLoop;
             
-            pOffset = pResult.getEndPosition();
+            pOffset = pResult.endPosition();
             if (pOffset < 0)
                 return null;
             
@@ -1108,7 +1108,7 @@ public class RegParser implements Checker, Serializable {
             if (FPQ.isPossessive()) {
                 
                 if (FPQ.isOne_Possessive()) {    // Match one
-                    int REC = pResult.getEntryListSize();
+                    int REC = pResult.entryListSize();
                     if (this.parseEach_P(pText, pOffset, pIndex, pResult, pProvider, pTabs) == null) {
                         // Recover what may have been added in the fail attempt
                         pResult.reset(REC);
@@ -1122,7 +1122,7 @@ public class RegParser implements Checker, Serializable {
                     
                 } else
                     if (FPQ.isZero()) {        // Match Zero
-                        int REC = pResult.getEntryListSize();
+                        int REC = pResult.entryListSize();
                         if (this.parseEach_P(pText, pOffset, pIndex, pResult, pProvider, pTabs) != null) {
                             // Recover what may have been added in the fail attempt
                             pResult.reset(REC);
@@ -1169,15 +1169,15 @@ public class RegParser implements Checker, Serializable {
                             }
                         }
                         
-                        int REC = pResult.getEntryListSize();
+                        int REC = pResult.entryListSize();
                         
                         // Check if it reaches the maximum
                         if ((FPQ.hasNoUpperBound()) || (pTimes < FPQ.upperBound())) {    // Not yet
-                            int FREC = pResult.getEntryListSize();
+                            int FREC = pResult.entryListSize();
                             // Try the first part
                             if (this.parseEach_P(pText, pOffset, pIndex, pResult, pProvider, pTabs) != null) {    // Match
                                 // Only the one that advances the parsing
-                                if ((FREC != pResult.getEntryListSize()) && (pOffset != pResult.getEndPosition())) {
+                                if ((FREC != pResult.entryListSize()) && (pOffset != pResult.endPosition())) {
                                     pTimes++;
                                     continue;
                                 }
@@ -1228,16 +1228,16 @@ public class RegParser implements Checker, Serializable {
                                         pTabs) != null) {
                                     // Match
                                     // Try the later part, if not match, continue other alternatives
-                                    if (this.parse(pText, TryResult.getEndPosition(), pIndex, pTimes + 1, TryResult,
+                                    if (this.parse(pText, TryResult.endPosition(), pIndex, pTimes + 1, TryResult,
                                             pProvider, pRPType, pRPTParam, pTabs) == null)
                                         continue;
                                     
                                     // Match, so record as max
                                     // Find the longer length
-                                    if (MaxLength >= TryResult.getEndPosition())
+                                    if (MaxLength >= TryResult.endPosition())
                                         continue;
                                     MaxResult = TryResult;
-                                    MaxLength = TryResult.getEndPosition();
+                                    MaxLength = TryResult.endPosition();
                                     
                                     if ((MaxLength + pOffset) >= TextLength)
                                         break;
@@ -1251,7 +1251,7 @@ public class RegParser implements Checker, Serializable {
                             }
                             
                             if (CA.hasDefault()) {
-                                int REC = pResult.getEntryListSize();
+                                int REC = pResult.entryListSize();
                                 if (this.parseEach_P(pText, pOffset, pIndex, null, null, null, CA.defaultChecker(), pResult,
                                         pProvider, pTabs) != null) {
                                     // Found the match.
@@ -1262,11 +1262,11 @@ public class RegParser implements Checker, Serializable {
                             }
                             
                         } else {
-                            int REC = pResult.getEntryListSize();
+                            int REC = pResult.entryListSize();
                             // Try the first part
                             if (this.parseEach_P(pText, pOffset, pIndex, pResult, pProvider, pTabs) != null) {
                                 // Try the first part again. If match, return 
-                                if (this.parse(pText, pResult.getEndPosition(), pIndex, pTimes + 1, pResult, pProvider,
+                                if (this.parse(pText, pResult.endPosition(), pIndex, pTimes + 1, pResult, pProvider,
                                         pRPType, pRPTParam, pTabs) != null) {
                                     // Found the match.
                                     break MainLoop;
@@ -1292,7 +1292,7 @@ public class RegParser implements Checker, Serializable {
                         // Check if it has reach the minimum
                         if (pTimes >= FPQ.lowerBound()) {
                             // Try the last part
-                            int REC = pResult.getEntryListSize();
+                            int REC = pResult.entryListSize();
                             // Parse the last part. If match, return
                             if (this.parse(pText, pOffset, pIndex + 1, 0, pResult, pProvider, pRPType, pRPTParam,
                                     pTabs) != null) {
@@ -1331,16 +1331,16 @@ public class RegParser implements Checker, Serializable {
                                         TryResult, pProvider, pTabs) != null) {
                                     // Match
                                     // Try the later part, if not match, continue other alternatives
-                                    if (this.parse(pText, TryResult.getEndPosition(), pIndex, pTimes + 1, TryResult,
+                                    if (this.parse(pText, TryResult.endPosition(), pIndex, pTimes + 1, TryResult,
                                             pProvider, pRPType, pRPTParam, pTabs) == null)
                                         continue;
                                     
                                     // Match, so record as max
                                     // Find the longer length
-                                    if (MinLength <= TryResult.getEndPosition())
+                                    if (MinLength <= TryResult.endPosition())
                                         continue;
                                     MinResult = TryResult;
-                                    MinLength = TryResult.getEndPosition();
+                                    MinLength = TryResult.endPosition();
                                     
                                     if ((MinLength + pOffset) >= pOffset)
                                         break;
@@ -1354,7 +1354,7 @@ public class RegParser implements Checker, Serializable {
                             }
                             
                             if (CA.hasDefault()) {
-                                int REC = pResult.getEntryListSize();
+                                int REC = pResult.entryListSize();
                                 if (this.parseEach_P(pText, pOffset, pIndex, null, null, null, CA.defaultChecker(), pResult,
                                         pProvider, pTabs) != null) {
                                     // Found the match.
@@ -1368,7 +1368,7 @@ public class RegParser implements Checker, Serializable {
                             return null;
                             
                         } else {
-                            int REC = pResult.getEntryListSize();
+                            int REC = pResult.entryListSize();
                             // Try the first part
                             if (this.parseEach_P(pText, pOffset, pIndex, pResult, pProvider, pTabs) != null) {
                                 pTimes++;
@@ -1462,16 +1462,16 @@ public class RegParser implements Checker, Serializable {
             ParseResult PR = this.parse(S.toString(), pOffset, pProvider);
             if (PR == null)
                 return -1;
-            return PR.getEndPosition() - pOffset;
+            return PR.endPosition() - pOffset;
         }
         
-        int REC = pResult.getEntryListSize();
+        int REC = pResult.entryListSize();
         if ((this.parse(S, pOffset, 0, 0, pResult, pProvider, null, null, 0)) == null) {
             // Recover what may have been added in the fail attempt
             pResult.reset(REC);
             return -1;
         }
-        return pResult.getEndPosition() - pOffset;
+        return pResult.endPosition() - pOffset;
     }
     
     @Override

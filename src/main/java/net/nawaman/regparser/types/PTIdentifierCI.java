@@ -39,7 +39,7 @@ public class PTIdentifierCI extends PTIdentifier {
     @Override
     public boolean doValidate(ParseResult pHostResult, ParseResult pThisResult, String pParam,
             PTypeProvider pProvider) {
-        String S = pThisResult.getText();
+        String S = pThisResult.text();
         if (S == pParam)
             return true;
         if ((S == null) || (pParam == null))

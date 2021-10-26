@@ -34,7 +34,7 @@ public class TestGreediness {
         var parser = newRegParser(
                         RPEntry._new(Java_Any, ZeroOrMore_Maximum),
                         RPEntry._new(new WordChecker("end")));
-        validate(28, parser.parse("1234567end123456789012345end9012").getEndPosition());
+        validate(28, parser.parse("1234567end123456789012345end9012").endPosition());
     }
     
     @Test
@@ -42,7 +42,7 @@ public class TestGreediness {
         var parser = newRegParser(
                         RPEntry._new(Java_Any, ZeroOrMore_Minimum),
                         RPEntry._new(new WordChecker("end")));
-        validate(10, parser.parse("1234567end123456789012345end9012").getEndPosition());
+        validate(10, parser.parse("1234567end123456789012345end9012").endPosition());
     }
     
     @Test
@@ -82,7 +82,7 @@ public class TestGreediness {
         var parser = newRegParser(
                 RPEntry._new(Java_Any, new Quantifier(1, 17, Maximum)),
                 RPEntry._new(new WordChecker("end")));
-        validate(10, parser.parse("1234567end123456789012345end9012").getEndPosition());
+        validate(10, parser.parse("1234567end123456789012345end9012").endPosition());
     }
     
     @Test
@@ -90,7 +90,7 @@ public class TestGreediness {
         var parser = newRegParser(
                 RPEntry._new(Java_Any, new Quantifier(1, 31, Maximum)),
                 RPEntry._new(new WordChecker("end")));
-        validate(28, parser.parse("1234567end123456789012345end9012").getEndPosition());
+        validate(28, parser.parse("1234567end123456789012345end9012").endPosition());
     }
     
     @Test
@@ -106,7 +106,7 @@ public class TestGreediness {
         var parser = newRegParser(
                 RPEntry._new(Java_Any, new Quantifier(1, 17, Minimum)),
                 RPEntry._new(new WordChecker("end")));
-        validate(10, parser.parse("1234567end123456789012345end9012").getEndPosition());
+        validate(10, parser.parse("1234567end123456789012345end9012").endPosition());
     }
     
     @Test
@@ -114,7 +114,7 @@ public class TestGreediness {
         var parser = newRegParser(
                 RPEntry._new(Java_Any, new Quantifier(1, 31, Minimum)),
                 RPEntry._new(new WordChecker("end")));
-        validate(10, parser.parse("1234567end123456789012345end9012").getEndPosition());
+        validate(10, parser.parse("1234567end123456789012345end9012").endPosition());
     }
     
     @Test
@@ -158,7 +158,7 @@ public class TestGreediness {
                                             new WordChecker("d")
                                         ), ZeroOrMore_Maximum),
                             RPEntry._new(new WordChecker("end")));
-        validate(28, parser.parse("1234567end123456789012345end9012").getEndPosition());
+        validate(28, parser.parse("1234567end123456789012345end9012").endPosition());
     }
     
     @Test
@@ -180,7 +180,7 @@ public class TestGreediness {
                                             new WordChecker("d")
                                         ), ZeroOrMore_Minimum),
                             RPEntry._new(new WordChecker("end")));
-        validate(10, parser.parse("1234567end123456789012345end9012").getEndPosition());
+        validate(10, parser.parse("1234567end123456789012345end9012").endPosition());
     }
     
     @Test
@@ -302,7 +302,7 @@ public class TestGreediness {
                                         ), new Quantifier(1, 17, Maximum)
                                 ),
                                 RPEntry._new(new WordChecker("end")));
-        validate(10, parser.parse("1234567end123456789012345end9012").getEndPosition());
+        validate(10, parser.parse("1234567end123456789012345end9012").endPosition());
     }
     
     @Test
@@ -326,7 +326,7 @@ public class TestGreediness {
                                         ), new Quantifier(1, 31, Maximum)
                                 ),
                                 RPEntry._new(new WordChecker("end")));
-        validate(28, parser.parse("1234567end123456789012345end9012").getEndPosition());
+        validate(28, parser.parse("1234567end123456789012345end9012").endPosition());
     }
     
     @Test
@@ -374,7 +374,7 @@ public class TestGreediness {
                                         ), new Quantifier(1, 17, Minimum)
                                 ),
                                 RPEntry._new(new WordChecker("end")));
-        validate(10, parser.parse("1234567end123456789012345end9012").getEndPosition());
+        validate(10, parser.parse("1234567end123456789012345end9012").endPosition());
     }
     
     @Test
@@ -398,6 +398,6 @@ public class TestGreediness {
                                         ), new Quantifier(1, 31, Minimum)
                                 ),
                                 RPEntry._new(new WordChecker("end")));
-        validate(10, parser.parse("1234567end123456789012345end9012").getEndPosition());
+        validate(10, parser.parse("1234567end123456789012345end9012").endPosition());
     }
 }

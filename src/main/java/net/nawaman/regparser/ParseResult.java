@@ -18,9 +18,15 @@
 
 package net.nawaman.regparser;
 
+import static java.util.stream.Collectors.toList;
+
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Vector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import net.nawaman.regparser.types.PTError;
 
@@ -31,63 +37,84 @@ import net.nawaman.regparser.types.PTError;
  */
 abstract public class ParseResult implements Serializable {
     
-    static private final long serialVersionUID = 4543543556454654354L;
+    private static final long serialVersionUID = 4543543556454654354L;
     
     /** Constructor */
     ParseResult() {
+        this(null);
+    }
+    
+    /** Constructor */
+    ParseResult(List<Entry> resultEntries) {
+        this.resultEntries 
+                = (resultEntries == null)
+                ? new ArrayList<>()
+                : resultEntries.stream().collect(toList());
     }
     
     // Text ----------------------------------------------------------------------------------------
     
     /** Get the original text as a CharSequence */
-    abstract public CharSequence getOriginalText();
+    public abstract CharSequence originalText();
     
     /** Get the original text as a string */
-    final public String getOriginalString() {
-        return this.getOriginalText().toString();
+    public final String originalString() {
+        return this.originalText().toString();
     }
     
     /** Get the match text */
-    public String getText() {
-        CharSequence OrgText = this.getOriginalText();
+    public String text() {
+        var orgText = this.originalText();
         // Ensure proper range
-        int S = this.getStartPosition();
-        int E = this.getEndPosition();
-        if ((OrgText == null) || (S > OrgText.length()) || (S < 0))
+        int start = this.startPosition();
+        int end   = this.endPosition();
+        if ((orgText == null) || (start > orgText.length()) || (start < 0)) {
             return null;
-        if ((E > OrgText.length()) || (E < 0))
+        }
+        if ((end > orgText.length()) || (end < 0)) {
             return null;
+        }
         // Quick Return
-        if (S == E)
+        if (start == end) {
             return "";
+        }
         // Normal Return
-        return OrgText.subSequence(S, E).toString();
+        return orgText.subSequence(start, end).toString();
     }
     
     // Parent --------------------------------------------------------------------------------------
     
-    protected ParseResult getParent() {
+    protected ParseResult parent() {
         return null;
     }
     
-    public ParseResult getRoot() {
-        ParseResult PR     = this;
-        ParseResult Parent = null;
-        while ((Parent = PR.getParent()) != null) {
-            PR = Parent;
+    public ParseResult root() {
+        ParseResult result = this;
+        ParseResult parent = null;
+        while ((parent = result.parent()) != null) {
+            result = parent;
         }
-        return PR;
+        return result;
     }
     
     // Position ------------------------------------------------------------------------------------
     
-    Vector<Entry> PREntries = null;
+    private List<Entry> resultEntries;
+    
+    public Stream<Entry> entries() {
+        return (resultEntries == null) ? Stream.empty() : resultEntries.stream();
+    }
+    
+    public List<Entry> entryList() {
+        var stream = (resultEntries == null) ? Stream.<Entry>empty() : resultEntries.stream();
+        return stream.collect(toList());
+    }
     
     /** Returns the start position of the match */
-    abstract public int getStartPosition();
+    abstract public int startPosition();
     
     /** Returns the end position that this parse result match */
-    public int getEndPosition() {
+    public int endPosition() {
         return this.getEndPositionOf(this.getResultEntryCount() - 1);
     }
     
@@ -95,43 +122,46 @@ abstract public class ParseResult implements Serializable {
     
     /** Appends the result with an entry */
     ParseResult append(Entry pEntry) {
-        if (pEntry == null)
+        if (pEntry == null) {
             throw new NullPointerException();
-        if (this.PREntries == null)
-            this.PREntries = new Vector<Entry>();
-        this.PREntries.add(pEntry);
+        }
+        if (this.resultEntries == null)
+            this.resultEntries = new ArrayList<>();
+        this.resultEntries.add(pEntry);
         return this;
     }
     
     /** Returns the entry list size - This does not neccessary means the result entry count */
-    int getEntryListSize() {
-        if (this.PREntries == null)
+    int entryListSize() {
+        if (this.resultEntries == null) {
             return 0;
-        return this.PREntries.size();
+        }
+        return this.resultEntries.size();
     }
     
     /** Reset the entry since the index */
-    void reset(int pIndex) {
-        if (this.PREntries == null)
+    void reset(int index) {
+        if (this.resultEntries == null)
             return;
-        for (int i = this.PREntries.size(); --i >= pIndex;)
-            this.PREntries.remove(i);
+        for (int i = this.resultEntries.size(); --i >= index;)
+            this.resultEntries.remove(i);
     }
     
     // Result Entries ------------------------------------------------------------------------------
     
     /** Merge a temporary result with this result */
     void mergeWith(Temp pTemp) {
-        if ((pTemp == null) || (pTemp.PREntries == null))
+        if ((pTemp == null) || (pTemp.entryListSize() == 0))
             return;
         
-        if (this.PREntries == null)
-            this.PREntries = pTemp.PREntries;
-        else
-            this.PREntries.addAll(pTemp.PREntries);
+        var tempEntries = pTemp.entries().collect(toList());
+        if (this.resultEntries == null) {
+            this.resultEntries = new ArrayList<>();
+        }
+        this.resultEntries.addAll(tempEntries);
         
-        for (int i = this.PREntries.size(); --i > 0;) {
-            Entry E = this.PREntries.get(i);
+        for (int i = this.resultEntries.size(); --i > 0;) {
+            Entry E = this.resultEntries.get(i);
             if (E.hasSubResult() && (E.getSubResult() instanceof Node))
                 ((Node) E.getSubResult()).Parent = this;
         }
@@ -139,14 +169,14 @@ abstract public class ParseResult implements Serializable {
     
     /** Returns the number of the result entry */
     public int getResultEntryCount() {
-        return ((this.PREntries == null) ? 0 : this.PREntries.size());
+        return ((this.resultEntries == null) ? 0 : this.resultEntries.size());
     }
     
     /** Returns a result entry at the index pIndex */
     public Entry getResultEntryAt(int pIndex) {
         if ((pIndex < 0) || pIndex >= this.getResultEntryCount())
             return null;
-        return this.PREntries.get(pIndex);
+        return this.resultEntries.get(pIndex);
     }
     
     /** Returns the result entry at the index */
@@ -215,7 +245,7 @@ abstract public class ParseResult implements Serializable {
     /** Returns the start position of an entry at the index */
     public int getStartPositionOf(int pIndex) {
         if (pIndex == 0)
-            return this.getStartPosition();
+            return this.startPosition();
         if (pIndex < 0)
             return -1;
         if (pIndex >= this.getResultEntryCount())
@@ -226,7 +256,7 @@ abstract public class ParseResult implements Serializable {
     /** Returns the end position of an entry at the index */
     public int getEndPositionOf(int pIndex) {
         if (pIndex == -1)
-            return this.getStartPosition();
+            return this.startPosition();
         if (pIndex < 0)
             return -1;
         if (pIndex >= this.getResultEntryCount())
@@ -236,7 +266,7 @@ abstract public class ParseResult implements Serializable {
     
     /** Returns the text of an entry at the index */
     public String getTextOf(int pIndex) {
-        CharSequence Text = this.getOriginalText();
+        CharSequence Text = this.originalText();
         if (Text == null)
             return null;
         int S = this.getStartPositionOf(pIndex);
@@ -272,24 +302,24 @@ abstract public class ParseResult implements Serializable {
     /** Collapse the result so entry with $ and [] will be combine */
     void collapse(PTypeProvider pProvider) {
         /* */
-        if (this.PREntries == null)
+        if (this.resultEntries == null)
             return;
-        if (this.PREntries.size() == 0)
+        if (this.resultEntries.size() == 0)
             return;
         
-        Entry   LatestPRP       = this.PREntries.get(this.PREntries.size() - 1);
+        Entry   LatestPRP       = this.resultEntries.get(this.resultEntries.size() - 1);
         boolean IsLPRPHasNoName = (LatestPRP.getName() == null) && (LatestPRP.getType() == null)
                 && (LatestPRP.getTypeRef() == null);
         
         // Basic collapse of the no name and no type
-        for (int i = (this.PREntries.size() - 1); --i >= 0;) {
-            Entry ThisPRP = this.PREntries.get(i);
+        for (int i = (this.resultEntries.size() - 1); --i >= 0;) {
+            Entry ThisPRP = this.resultEntries.get(i);
             
             boolean IsThisPRPNoName = ((ThisPRP.getName() == null) && (ThisPRP.getType() == null)
                     && (ThisPRP.getTypeRef() == null));
             // If both has no name, collapse
             if (IsThisPRPNoName && IsLPRPHasNoName)
-                this.PREntries.remove(i);
+                this.resultEntries.remove(i);
             
             IsLPRPHasNoName = IsThisPRPNoName;
             LatestPRP       = ThisPRP;
@@ -297,18 +327,17 @@ abstract public class ParseResult implements Serializable {
         
         // Collapse sub entry that does not have name or type
         // Remove the entry without sub/type then replace it with the one with out a sub
-        for (int i = this.PREntries.size(); --i >= 0;) {
-            ParseResult.Entry ThisPRP = this.PREntries.get(i);
+        for (int i = this.resultEntries.size(); --i >= 0;) {
+            ParseResult.Entry ThisPRP = this.resultEntries.get(i);
             
             if (ThisPRP.hasSubResult() && !ThisPRP.getSubResult().hasNames() && !ThisPRP.getSubResult().hasTypes()) {
                 if (ThisPRP instanceof ParseResult.Entry_WithSub) {
-                    this.PREntries.remove(i);
-                    this.PREntries.insertElementAt(new ParseResult.Entry(ThisPRP.getEndPosition()), i);
+                    this.resultEntries.remove(i);
+                    this.resultEntries.add(i, new ParseResult.Entry(ThisPRP.getEndPosition()));
                 } else
                     if (ThisPRP instanceof ParseResult.Entry_WithRPEntry_WithSub) {
-                        this.PREntries.remove(i);
-                        this.PREntries.insertElementAt(
-                                new ParseResult.Entry_WithRPEntry(ThisPRP.getEndPosition(), ThisPRP.getRPEntry()), i);
+                        this.resultEntries.remove(i);
+                        this.resultEntries.add(i, new ParseResult.Entry_WithRPEntry(ThisPRP.getEndPosition(), ThisPRP.getRPEntry()));
                     }
             }
             
@@ -318,26 +347,26 @@ abstract public class ParseResult implements Serializable {
         }
         
         // Collapse entry that its sub does not contain any named or typed entry
-        for (int i = this.PREntries.size(); --i >= 0;) {
-            ParseResult.Entry ThisPRP = this.PREntries.get(i);
+        for (int i = this.resultEntries.size(); --i >= 0;) {
+            ParseResult.Entry ThisPRP = this.resultEntries.get(i);
             if (!ThisPRP.hasSubResult())
                 continue;
             if (ThisPRP.getSubResult().hasNames())
                 continue;
             if (ThisPRP.getSubResult().hasTypes())
                 continue;
-            this.PREntries.remove(i);
-            this.PREntries.insertElementAt(ParseResult.newEntry(ThisPRP.getEndPosition(), ThisPRP.getRPEntry()), i);
+            this.resultEntries.remove(i);
+            this.resultEntries.add(i, ParseResult.newEntry(ThisPRP.getEndPosition(), ThisPRP.getRPEntry()));
         }
         
         // Collapse the same type and same name that end with '[]'
-        LatestPRP = this.PREntries.get(this.PREntries.size() - 1);
+        LatestPRP = this.resultEntries.get(this.resultEntries.size() - 1);
         PType    LatestType = LatestPRP.getType();
         PTypeRef LatestTRef = LatestPRP.getTypeRef();
         String   LatestName = LatestPRP.getName();
         
-        for (int i = (this.PREntries.size() - 1); --i >= 0;) {
-            ParseResult.Entry ThisPRP  = this.PREntries.get(i);
+        for (int i = (this.resultEntries.size() - 1); --i >= 0;) {
+            ParseResult.Entry ThisPRP  = this.resultEntries.get(i);
             PType             ThisType = ThisPRP.getType();
             PTypeRef          ThisTRef = ThisPRP.getTypeRef();
             String            ThisName = ThisPRP.getName();
@@ -347,7 +376,7 @@ abstract public class ParseResult implements Serializable {
                     && (((ThisName != null) && ThisName.endsWith("[]"))
                             || ((ThisType != null) && ThisType.getName().endsWith("[]"))
                             || ((ThisTRef != null) && ThisTRef.getName().endsWith("[]")))) {
-                this.PREntries.remove(i);
+                this.resultEntries.remove(i);
             }
             LatestPRP  = ThisPRP;
             LatestType = ThisType;
@@ -356,8 +385,8 @@ abstract public class ParseResult implements Serializable {
         }
         
         // Process Second Stage Entry
-        for (int i = this.PREntries.size(); --i >= 0;) {
-            ParseResult.Entry ThisPRP = this.PREntries.get(i);
+        for (int i = this.resultEntries.size(); --i >= 0;) {
+            ParseResult.Entry ThisPRP = this.resultEntries.get(i);
             
             RPEntry RPEntry = ThisPRP.getRPEntry();
             if (RPEntry == null)
@@ -376,8 +405,8 @@ abstract public class ParseResult implements Serializable {
         }
         
         // Collapse auto skip name that end with '*'
-        for (int i = 0; i < this.PREntries.size(); i++) {
-            ParseResult.Entry ThisPRP = this.PREntries.get(i);
+        for (int i = 0; i < this.resultEntries.size(); i++) {
+            ParseResult.Entry ThisPRP = this.resultEntries.get(i);
             if (!ThisPRP.hasSubResult())
                 continue;
             String N = ThisPRP.getName();
@@ -395,8 +424,8 @@ abstract public class ParseResult implements Serializable {
         }
         
         // Collapse auto skip name that end with '+', has sub and only one entry
-        for (int i = 0; i < this.PREntries.size(); i++) {
-            ParseResult.Entry ThisPRP = this.PREntries.get(i);
+        for (int i = 0; i < this.resultEntries.size(); i++) {
+            ParseResult.Entry ThisPRP = this.resultEntries.get(i);
             if (!ThisPRP.hasSubResult())
                 continue;
             if (ThisPRP.getSubResult().getResultEntryCount() != 1)
@@ -434,19 +463,19 @@ abstract public class ParseResult implements Serializable {
         Entry Entry = this.getResultEntryAt(pEntryIndex);
         if ((Entry == null) || Entry.hasSubResult())
             return false;
-        String      Text = this.getOriginalString().substring(0, this.getEndPositionOf(pEntryIndex));
+        String      Text = this.originalString().substring(0, this.getEndPositionOf(pEntryIndex));
         ParseResult PR   = pParser.parse(Text, this.getStartPositionOf(pEntryIndex), pProvider);
         if (PR == null)
             return false;
         
         if (PR.getResultEntryCount() == 0)
             return true;
-        if (PR.getEndPosition() == Text.length()) {
+        if (PR.endPosition() == Text.length()) {
             // If the end position is equal, there is no need to keep the old one.
-            this.PREntries.remove(pEntryIndex);
+            this.resultEntries.remove(pEntryIndex);
         }
         for (int i = PR.getResultEntryCount(); --i >= 0;)
-            this.PREntries.insertElementAt(PR.PREntries.get(i), pEntryIndex);
+            this.resultEntries.add(pEntryIndex, PR.resultEntries.get(i));
         
         return true;
     }
@@ -461,11 +490,11 @@ abstract public class ParseResult implements Serializable {
         ParseResult PR = Entry.getSubResult();
         
         // Remove the main one
-        this.PREntries.remove(pEntryIndex);
+        this.resultEntries.remove(pEntryIndex);
         
         // Replace with the sub of the main one
         for (int i = PR.getResultEntryCount(); --i >= 0;) {
-            this.PREntries.insertElementAt(PR.PREntries.get(i), pEntryIndex);
+            this.resultEntries.add(pEntryIndex, PR.resultEntries.get(i));
         }
         
         return true;
@@ -1293,7 +1322,7 @@ abstract public class ParseResult implements Serializable {
         int Pos = this.getStartPositionOf(pEntryIndex);
         if (Pos == -1)
             return null;
-        return getLocationAsColRow(this.getOriginalText(), Pos);
+        return getLocationAsColRow(this.originalText(), Pos);
     }
     
     /** Returns the string representation of the starting of the entry index */
@@ -1301,7 +1330,7 @@ abstract public class ParseResult implements Serializable {
         int Pos = this.getStartPositionOf(pEntryIndex);
         if (Pos == -1)
             return null;
-        return getLocationAsString(this.getOriginalText(), Pos);
+        return getLocationAsString(this.originalText(), Pos);
     }
     
     /** Returns the string representation of the starting of the given text at the position (character number) */
@@ -1515,13 +1544,17 @@ abstract public class ParseResult implements Serializable {
         static private final long serialVersionUID = 4121353565468546546L;
         
         protected Normal(int pStartPosition) {
+            this(pStartPosition, null);
+        }
+        protected Normal(int pStartPosition, List<Entry> resultEntries) {
+            super(resultEntries);
             this.StartPosition = pStartPosition;
         }
         
         int StartPosition = 0;
         
         @Override
-        public int getStartPosition() {
+        public int startPosition() {
             return this.StartPosition;
         }
     }
@@ -1531,6 +1564,11 @@ abstract public class ParseResult implements Serializable {
         static private final long serialVersionUID = 3255656565625655652L;
         
         protected Temp(ParseResult pFirst) {
+            this(pFirst, null);
+        }
+        
+        protected Temp(ParseResult pFirst, List<Entry> resultEntries) {
+            super(resultEntries);
             this.First = pFirst;
         }
         
@@ -1538,10 +1576,10 @@ abstract public class ParseResult implements Serializable {
         
         @Override
         public int getResultEntryCount() {
-            int         Count = ((this.PREntries == null) ? 0 : this.PREntries.size());
+            int         Count = this.entryListSize();
             ParseResult F     = this.First;
             while (F instanceof Temp) {
-                Count += ((F.PREntries == null) ? 0 : F.PREntries.size());
+                Count += ((F.resultEntries == null) ? 0 : F.resultEntries.size());
                 F      = ((Temp) F).First;
             }
             return F.getResultEntryCount() + Count;
@@ -1560,17 +1598,17 @@ abstract public class ParseResult implements Serializable {
                 }
                 return T.getResultEntryAt(pIndex);
             }
-            return this.PREntries.get(pIndex - this.First.getResultEntryCount());
+            return this.entries().skip(pIndex - this.First.getResultEntryCount()).findFirst().orElse(null);
         }
         
         @Override
-        public int getStartPosition() {
-            return this.First.getStartPosition();
+        public int startPosition() {
+            return this.First.startPosition();
         }
         
         @Override
-        public CharSequence getOriginalText() {
-            return this.First.getOriginalText();
+        public CharSequence originalText() {
+            return this.First.originalText();
         }
         
         @Override
@@ -1579,8 +1617,8 @@ abstract public class ParseResult implements Serializable {
             // The optimization is done by going to the root or the first 'First' part that is not a Temp and then all
             //     all entries from then down to the current Temp Result.
             if (!(this.First instanceof Temp)) {
-                Temp T = new Temp(this.First.getDuplicate());
-                T.PREntries = (this.PREntries == null) ? null : new Vector<Entry>(this.PREntries);
+                var resultEntries = this.entries().collect(Collectors.toList());
+                Temp T = new Temp(this.First.getDuplicate(), resultEntries);
                 return T;
             } else {
                 Vector<Temp> Firsts = new Vector<Temp>();
@@ -1592,13 +1630,14 @@ abstract public class ParseResult implements Serializable {
                     Firsts.add(F);
                 }
                 
-                Temp T = new Temp(F.First.getDuplicate());
-                T.PREntries = new Vector<Entry>();
+                var resultEntries = new ArrayList<Entry>();
                 for (int i = Firsts.size(); --i >= 0;) {
-                    if (Firsts.get(i).PREntries == null)
+                    if (Firsts.get(i).entries().count() == 0) {
                         continue;
-                    T.PREntries.addAll(Firsts.get(i).PREntries);
+                    }
+                    resultEntries.addAll(Firsts.get(i).entryList());
                 }
+                Temp T = new Temp(F.First.getDuplicate(), resultEntries);
                 return T;
             }
         }
@@ -1610,21 +1649,24 @@ abstract public class ParseResult implements Serializable {
         static private final long serialVersionUID = 2543546515135214354L;
         
         protected Root(int pStartPosition, CharSequence pOrgText) {
-            super(pStartPosition);
+            this(pStartPosition, pOrgText, null);
+        }
+        
+        protected Root(int pStartPosition, CharSequence pOrgText, List<Entry> resultEntries) {
+            super(pStartPosition, resultEntries);
             this.OrgText = pOrgText;
         }
         
         CharSequence OrgText = null;
         
         @Override
-        public CharSequence getOriginalText() {
+        public CharSequence originalText() {
             return this.OrgText;
         }
         
         @Override
         ParseResult getDuplicate() {
-            Root R = new Root(this.getStartPosition(), this.OrgText);
-            R.PREntries = (this.PREntries == null) ? null : new Vector<Entry>(this.PREntries);
+            Root R = new Root(this.startPosition(), this.OrgText, this.entryList());
             return R;
         }
     }
@@ -1635,7 +1677,11 @@ abstract public class ParseResult implements Serializable {
         static private final long serialVersionUID = 2545684654651635454L;
         
         protected Node(int pStartPosition, ParseResult pParseResult) {
-            super(pStartPosition);
+            this(pStartPosition, pParseResult, null);
+        }
+        
+        protected Node(int pStartPosition, ParseResult pParseResult, List<Entry> resultEntries) {
+            super(pStartPosition, resultEntries);
             this.Parent = pParseResult;
             for (int i = 0; i < this.Parent.getResultEntryCount(); i++) {
                 if (pStartPosition == this.Parent.getEndPositionOf(i)) {
@@ -1649,22 +1695,21 @@ abstract public class ParseResult implements Serializable {
         int         Index  = 0;
         
         @Override
-        protected ParseResult getParent() {
+        protected ParseResult parent() {
             return this.Parent;
         }
         
         @Override
-        public CharSequence getOriginalText() {
-            return this.Parent.getOriginalText();
+        public CharSequence originalText() {
+            return this.Parent.originalText();
         }
         
         @Override
         ParseResult getDuplicate() {
             // Duplication of Node cannot be optimize the same way with Temp (by avoiding recursive) because Node hold
             //     structure that is important for verification and compilation.
-            Node N = new Node(this.getStartPosition(), this.Parent.getDuplicate());
-            N.Index     = this.Index;
-            N.PREntries = (this.PREntries == null) ? null : new Vector<Entry>(this.PREntries);
+            Node N = new Node(this.startPosition(), this.Parent.getDuplicate(), this.entryList());
+            N.Index = this.Index;
             return N;
         }
         

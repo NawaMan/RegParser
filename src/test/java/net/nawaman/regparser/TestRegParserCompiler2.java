@@ -439,32 +439,32 @@ public class TestRegParserCompiler2 {
         {
             var parser = newRegParser("abc");
             validate("abc",  parser);
-            validate(3,      parser.match("abc", typeProvider).getEndPosition());
+            validate(3,      parser.match("abc", typeProvider).endPosition());
             validate("null", parser.match("def", typeProvider));
         }
         {
             var parser = newRegParser("(a|b|c)");
             validate("(a|b|c)", parser);
-            validate(1,      parser.match("a", typeProvider).getEndPosition());
-            validate(1,      parser.match("b", typeProvider).getEndPosition());
-            validate(1,      parser.match("c", typeProvider).getEndPosition());
+            validate(1,      parser.match("a", typeProvider).endPosition());
+            validate(1,      parser.match("b", typeProvider).endPosition());
+            validate(1,      parser.match("c", typeProvider).endPosition());
             validate("null", parser.match("d", typeProvider));
         }
         {
             var parser = newRegParser("Col(o|ou)?r");
             validate("Col(o|ou)?r", parser);
-            validate(4,      parser.match("Colr",   typeProvider).getEndPosition());
-            validate(5,      parser.match("Color",  typeProvider).getEndPosition());
-            validate(6,      parser.match("Colour", typeProvider).getEndPosition());
+            validate(4,      parser.match("Colr",   typeProvider).endPosition());
+            validate(5,      parser.match("Color",  typeProvider).endPosition());
+            validate(6,      parser.match("Colour", typeProvider).endPosition());
             validate("null", parser.match("Shape",  typeProvider));
         }
         {
             typeProvider.addRPType(new PTIdentifier());
             var parser = newRegParser("(var|int)\\b+!$Identifier!\\b*=\\b*[0-9]+\\b*;");
-            validate(12, parser.match("var V1 = 45;", typeProvider).getEndPosition());
-            validate(10, parser.match("var V1=45;",   typeProvider).getEndPosition());
-            validate(12, parser.match("var V1 = 5 ;", typeProvider).getEndPosition());
-            validate(11, parser.match("int V1 = 5;",  typeProvider).getEndPosition());
+            validate(12, parser.match("var V1 = 45;", typeProvider).endPosition());
+            validate(10, parser.match("var V1=45;",   typeProvider).endPosition());
+            validate(12, parser.match("var V1 = 5 ;", typeProvider).endPosition());
+            validate(11, parser.match("int V1 = 5;",  typeProvider).endPosition());
         }
         
         typeProvider.addRPType(PTBackRef.BackRef_Instance);
@@ -472,13 +472,13 @@ public class TestRegParserCompiler2 {
         
         {
             var parser = newRegParser("(#X:~[:AlphabetAndDigit:]+~)\\-(#X;)\\-(#X;)");
-            validate(5, parser.match("5-5-5", typeProvider).getEndPosition());
+            validate(5, parser.match("5-5-5", typeProvider).endPosition());
         }
         
         {
             var parser = newRegParser("($X:~[:AlphabetAndDigit:]+~)\\-($X';)\\-($X';)");
-            validate(5, parser.match("A-A-A", typeProvider).getEndPosition());
-            validate(5, parser.match("a-A-a", typeProvider).getEndPosition());
+            validate(5, parser.match("A-A-A", typeProvider).endPosition());
+            validate(5, parser.match("a-A-a", typeProvider).endPosition());
         }
         
         {
@@ -498,8 +498,8 @@ public class TestRegParserCompiler2 {
         {
             var parser = newRegParser("one'Two'three");
             validate("one(!textCI(\"Two\")!)three", parser);
-            validate(11, parser.match("oneTwothree", typeProvider).getEndPosition());
-            validate(11, parser.match("oneTWOthree", typeProvider).getEndPosition());
+            validate(11, parser.match("oneTwothree", typeProvider).endPosition());
+            validate(11, parser.match("oneTWOthree", typeProvider).endPosition());
         }
         
         {

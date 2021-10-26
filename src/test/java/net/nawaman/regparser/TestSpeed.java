@@ -93,7 +93,7 @@ public class TestSpeed {
         System.out.println("RegExpr   :" + Arrays.toString(regexTimes));
         System.out.println("RegParser :" + Arrays.toString(parserTimes));
         System.out.println(matcher.end());
-        System.out.println(result.getEndPosition());
+        System.out.println(result.endPosition());
         
         var ratios = new int[round];
         for (int i = 0; i < round; i++) {

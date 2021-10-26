@@ -51,7 +51,7 @@ public class TestType {
         
         @Override
         public boolean doValidate(ParseResult hostResult, ParseResult thisResult, String param, PTypeProvider provider) {
-            var text  = thisResult.getText();
+            var text  = thisResult.text();
             int value = Integer.parseInt(text);
             return (value >= 0) && (value <= 255);
         }
@@ -103,7 +103,7 @@ public class TestType {
             
             @Override
             public boolean doValidate(ParseResult hostResult, ParseResult thisResult, String param, PTypeProvider provider) {
-                var text  = thisResult.getText();
+                var text  = thisResult.text();
                 int value = Integer.parseInt(text);
                 return (value >= 0) && (value <= 255);
             }
@@ -133,7 +133,7 @@ public class TestType {
             
             @Override
             public boolean doValidate(ParseResult hostResult, ParseResult thisResult, String param, PTypeProvider provider) {
-                var text  = thisResult.getText();
+                var text  = thisResult.text();
                 int value = Integer.parseInt(text);
                 return (value >= 0) && (value <= 4);
             }
@@ -155,7 +155,7 @@ public class TestType {
             
             @Override
             public boolean doValidate(ParseResult hostResult, ParseResult thisResult, String param, PTypeProvider provider) {
-                var text  = thisResult.getText();
+                var text  = thisResult.text();
                 int value = Integer.parseInt(text);
                 return (value >= 5) && (value <= 9);
             }
@@ -209,7 +209,7 @@ public class TestType {
                 + ". 01 => [    7] = #Other          :<NoType>         = \"123456\"\n"
                 + ". 02 => [    8] = <NoName>        :<NoType>         = \">\"",
                 parseResult);
-        validate("<123456>", parseResult.getText());
+        validate("<123456>", parseResult.text());
         
         parseResult = regParser.parse("< < - >  < < : > ; > >");
         validate("\n"
@@ -233,7 +233,7 @@ public class TestType {
                 + ". 05 - - => [   21] = #Other          :<NoType>         = \" \"\n"
                 + ". 06 - - => [   22] = <NoName>        :<NoType>         = \">\"",
                 parseResult);
-        validate("< < - >  < < : > ; > >", parseResult.getText());
+        validate("< < - >  < < : > ; > >", parseResult.text());
     }
     
     @Test
@@ -255,7 +255,7 @@ public class TestType {
                 + "01 => [    3] = <NoName>        :<NoType>         = \"x\"\n"
                 + "02 => [    5] = <NoName>        :$BackRef?        = \"56\"",
                 parseResult);
-        validate("56x56", parseResult.getText());
+        validate("56x56", parseResult.text());
         
         validate(null, regParser.parse("56x78"));
     }
