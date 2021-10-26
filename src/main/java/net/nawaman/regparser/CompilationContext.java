@@ -18,6 +18,8 @@
 
 package net.nawaman.regparser;
 
+import static java.lang.String.format;
+
 /**
  * Compilation Context
  *
@@ -26,25 +28,25 @@ package net.nawaman.regparser;
 public interface CompilationContext {
     
     /** Returns the position as a string */
-    public String getLocationAsString(int pPos);
+    public String getLocationAsString(int offset);
     
     /** Reports a warning with a cause*/
-    public void reportWarning(String pMessage, Throwable pCause);
+    public void reportWarning(String message, Throwable cause);
     
     /** Reports an error with a cause */
-    public void reportError(String pMessage, Throwable pCause);
+    public void reportError(String message, Throwable cause);
     
     /** Reports a fatal error with a cause */
-    public void reportFatalError(String pMessage, Throwable pCause);
+    public void reportFatalError(String message, Throwable cause);
     
     /** Reports a warning with a cause*/
-    public void reportWarning(String pMessage, Throwable pCause, int pPos);
+    public void reportWarning(String message, Throwable cause, int offset);
     
     /** Reports an error with a cause */
-    public void reportError(String pMessage, Throwable pCause, int pPos);
+    public void reportError(String message, Throwable cause, int offset);
     
     /** Reports a fatal error with a cause */
-    public void reportFatalError(String pMessage, Throwable pCause, int pPos);
+    public void reportFatalError(String message, Throwable cause, int offset);
     
     /** A simple implementation of Context */
     static public class Simple implements CompilationContext {
@@ -53,66 +55,73 @@ public interface CompilationContext {
             this(true);
         }
         
-        public Simple(boolean pUseErrorPrintStreamForWarning) {
-            this.UseErrorPrintStreamForWarning = pUseErrorPrintStreamForWarning;
+        public Simple(boolean useErrorPrintStreamForWarning) {
+            this.useErrorPrintStreamForWarning = useErrorPrintStreamForWarning;
         }
         
-        boolean UseErrorPrintStreamForWarning = true;
+        private boolean useErrorPrintStreamForWarning = true;
         
         /** Returns the position as a string */
-        public String getLocationAsString(int pPos) {
-            return String.format("Near [%s]", pPos);
+        public String getLocationAsString(int offset) {
+            return String.format("Near [%s]", offset);
         }
         
         /** Reports a warning with a cause*/
-        public void reportWarning(String pMessage, Throwable pCause) {
-            if (this.UseErrorPrintStreamForWarning)
-                System.err.println("WARNING: " + pMessage);
-            else
-                System.out.println("WARNING: " + pMessage);
-            if (pCause != null)
-                pCause.printStackTrace(this.UseErrorPrintStreamForWarning ? System.err : System.out);
+        public void reportWarning(String message, Throwable cause) {
+            try (var printStream  = (this.useErrorPrintStreamForWarning) ? System.err : System.out) {
+                printStream.println("WARNING: " + message);
+                if (cause != null) {
+                    cause.printStackTrace(printStream);
+                }
+            }
         }
         
         /** Reports an error with a cause */
-        public void reportError(String pMessage, Throwable pCause) {
-            System.err.println("ERROR: " + pMessage);
-            if (pCause != null)
-                pCause.printStackTrace(System.err);
+        public void reportError(String message, Throwable cause) {
+            System.err.println("ERROR: " + message);
+            if (cause != null) {
+                cause.printStackTrace(System.err);
+            }
         }
         
         /** Reports a fatal error with a cause */
-        public void reportFatalError(String pMessage, Throwable pCause) {
-            System.err.println("FATAL ERROR: " + pMessage);
-            if (pCause != null)
-                pCause.printStackTrace(System.err);
+        public void reportFatalError(String message, Throwable cause) {
+            System.err.println("FATAL ERROR: " + message);
+            if (cause != null) {
+                cause.printStackTrace(System.err);
+            }
         }
         
         /** Reports a warning with a cause*/
-        public void reportWarning(String pMessage, Throwable pCause, int pPos) {
-            String Msg = String.format("WARNING: %s%s", pMessage,
-                    (pPos < 0) ? "" : String.format(" near %s", this.getLocationAsString(pPos)));
-            ((this.UseErrorPrintStreamForWarning) ? System.err : System.out).println(Msg);
-            if (pCause != null)
-                pCause.printStackTrace(this.UseErrorPrintStreamForWarning ? System.err : System.out);
+        public void reportWarning(String message, Throwable cause, int offset) {
+            var location     = (offset < 0) ? "" : format(" near %s", this.getLocationAsString(offset));
+            var errorMessage = format("WARNING: %s%s", message, location);
+            try (var printStream  = (this.useErrorPrintStreamForWarning) ? System.err : System.out) {
+                printStream.println(errorMessage);
+                if (cause != null) {
+                    cause.printStackTrace(printStream);
+                }
+            }
         }
         
         /** Reports an error with a cause */
-        public void reportError(String pMessage, Throwable pCause, int pPos) {
-            String Msg = String.format("ERROR: %s%s", pMessage,
-                    (pPos < 0) ? "" : String.format(" near %s", this.getLocationAsString(pPos)));
-            System.err.println(Msg);
-            if (pCause != null)
-                pCause.printStackTrace(System.err);
+        public void reportError(String message, Throwable cause, int offset) {
+            var location     = (offset < 0) ? "" : format(" near %s", this.getLocationAsString(offset));
+            var errorMessage = format("ERROR: %s%s", message, location);
+            System.err.println(errorMessage);
+            if (cause != null) {
+                cause.printStackTrace(System.err);
+            }
         }
         
         /** Reports a fatal error with a cause */
-        public void reportFatalError(String pMessage, Throwable pCause, int pPos) {
-            String Msg = String.format("FATAL ERROR: %s%s", pMessage,
-                    (pPos < 0) ? "" : String.format(" near %s", this.getLocationAsString(pPos)));
-            System.err.println(Msg);
-            if (pCause != null)
-                pCause.printStackTrace(System.err);
+        public void reportFatalError(String message, Throwable cause, int offset) {
+            var location     = (offset < 0) ? "" : format(" near %s", this.getLocationAsString(offset));
+            var errorMessage = format("FATAL ERROR: %s%s", message, location);
+            System.err.println(errorMessage);
+            if (cause != null) {
+                cause.printStackTrace(System.err);
+            }
         }
         
         /** Returns the string representation of this compilation context */
