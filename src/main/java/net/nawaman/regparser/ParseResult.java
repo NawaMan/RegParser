@@ -192,7 +192,7 @@ abstract public class ParseResult implements Serializable {
     }
     
     /** Returns the result entry at the nested indexes */
-    public ParseResult.Entry subEntryAt(int... indexes) {
+    public ParseResult.Entry entryAt(int... indexes) {
         if ((indexes == null) || (indexes.length == 0)) {
             return null;
         }
@@ -222,7 +222,7 @@ abstract public class ParseResult implements Serializable {
     
     /** Returns the name of the sub entry at the indexes */
     public String nameAt(int... indexes) {
-        var resultEntry = subEntryAt(indexes);
+        var resultEntry = entryAt(indexes);
         if (resultEntry == null) {
             return null;
         }
@@ -235,7 +235,7 @@ abstract public class ParseResult implements Serializable {
     
     /** Returns the type name of the sub entry at the indexes */
     public String typeNameAt(int... indexes) {
-        var resultEntry = subEntryAt(indexes);
+        var resultEntry = entryAt(indexes);
         if (resultEntry == null) {
             return null;
         }
@@ -243,7 +243,7 @@ abstract public class ParseResult implements Serializable {
         if (parserEntry == null) {
             return null;
         }
-        var typeRef = parserEntry.getTypeRef();
+        var typeRef = parserEntry.typeRef();
         if (typeRef != null) {
             return typeRef.name();
         }
@@ -254,17 +254,20 @@ abstract public class ParseResult implements Serializable {
         return null;
     }
     
-    /** Returns the type ref parameters of the sub entry at the index */
-    public String getParameterOfSubOf(int... pIndexes) {
-        ParseResult.Entry PRE = this.subEntryAt(pIndexes);
-        if (PRE == null)
+    /** Returns the type reference parameters of the sub entry at the index */
+    public String parameterAt(int... indexes) {
+        var result = entryAt(indexes);
+        if (result == null) {
             return null;
-        RPEntry REE = PRE.parserEntry();
-        if (REE == null)
+        }
+        var parseEntry = result.parserEntry();
+        if (parseEntry == null) {
             return null;
-        PTypeRef RETR = REE.getTypeRef();
-        if (RETR != null)
-            return RETR.getParam();
+        }
+        var typeRef = parseEntry.typeRef();
+        if (typeRef != null) {
+            return typeRef.parameter();
+        }
         return null;
     }
     
@@ -571,7 +574,7 @@ abstract public class ParseResult implements Serializable {
         for (int i = this.entryCount(); --i >= 0;) {
             Entry E = this.resultEntryAt(i);
             if (E.hasRPEntry()) {
-                if ((E.parserEntry().type() != null) || (E.parserEntry().getTypeRef() != null))
+                if ((E.parserEntry().type() != null) || (E.parserEntry().typeRef() != null))
                     return true;
             }
             if (E.hasSubResult() && E.subResult().hasNames())
@@ -1916,7 +1919,7 @@ abstract public class ParseResult implements Serializable {
         }
         
         public PTypeRef getTypeRef() {
-            return this.hasRPEntry() ? this.parserEntry().getTypeRef() : null;
+            return this.hasRPEntry() ? this.parserEntry().typeRef() : null;
         }
         
         public PType getType() {
@@ -1936,7 +1939,7 @@ abstract public class ParseResult implements Serializable {
         public String getTypeParam() {
             PTypeRef TR = this.getTypeRef();
             if (TR != null)
-                return TR.getParam();
+                return TR.parameter();
             return null;
         }
         

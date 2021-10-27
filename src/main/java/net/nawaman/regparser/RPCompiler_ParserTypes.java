@@ -1190,7 +1190,7 @@ public class RPCompiler_ParserTypes {
                         }
                         if(Q != Quantifier.One) {
                             if(RPI.getChecker() != null) RPI = RPEntry._new(RPI.name(), RPI.getChecker(), Q, RPI.secondStage());
-                            if(RPI.getTypeRef() != null) RPI = RPEntry._new(RPI.name(), RPI.getTypeRef(), Q, RPI.secondStage());
+                            if(RPI.typeRef() != null) RPI = RPEntry._new(RPI.name(), RPI.typeRef(), Q, RPI.secondStage());
                             if(RPI.type()    != null) RPI = RPEntry._new(RPI.name(), RPI.type(),    Q, RPI.secondStage());
                         }
                         

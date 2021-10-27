@@ -30,7 +30,7 @@ abstract public class PTypeRef implements Serializable {
     
     abstract public String name();
     
-    public String getParam() {
+    public String parameter() {
         return null;
     }
     
@@ -55,7 +55,7 @@ abstract public class PTypeRef implements Serializable {
         
         /**{@inheritDoc}*/
         @Override
-        public String getParam() {
+        public String parameter() {
             return this.Param;
         }
     }
@@ -66,7 +66,7 @@ abstract public class PTypeRef implements Serializable {
     @Override
     public String toString() {
         return "!" + this.name()
-                + ((this.getParam() == null) ? "" : ("(\"" + Util.escapeText(this.getParam()) + "\")")) + "!";
+                + ((this.parameter() == null) ? "" : ("(\"" + Util.escapeText(this.parameter()) + "\")")) + "!";
     }
     
     public String toDetail() {
@@ -84,8 +84,8 @@ abstract public class PTypeRef implements Serializable {
         if ((TN != ON) || ((TN != null) && !TN.equals(ON)))
             return false;
         
-        String TP = this.getParam();
-        String OP = ((PTypeRef) O).getParam();
+        String TP = this.parameter();
+        String OP = ((PTypeRef) O).parameter();
         if ((TP != OP) || ((TP != null) && !TP.equals(OP)))
             return false;
         
