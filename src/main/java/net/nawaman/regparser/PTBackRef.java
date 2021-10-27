@@ -36,7 +36,7 @@ public class PTBackRef extends PType {
     
     /**{@inheritDoc}*/
     @Override
-    public String getName() {
+    public String name() {
         return "$BackRef?";
     }
     
@@ -51,7 +51,7 @@ public class PTBackRef extends PType {
                 pHostResult = ((ParseResult.Temp) pHostResult).First;
             else
                 if (pHostResult instanceof ParseResult.Node)
-                    pHostResult = ((ParseResult.Node) pHostResult).Parent;
+                    pHostResult = ((ParseResult.Node) pHostResult).parent;
             if (pHostResult == null)
                 return null;
             else {

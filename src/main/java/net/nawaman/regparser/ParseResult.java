@@ -102,11 +102,15 @@ abstract public class ParseResult implements Serializable {
     private List<Entry> resultEntries;
     
     public Stream<Entry> entries() {
-        return (resultEntries == null) ? Stream.empty() : resultEntries.stream();
+        return (resultEntries == null)
+                ? Stream.empty()
+                : resultEntries.stream();
     }
     
     public List<Entry> entryList() {
-        var stream = (resultEntries == null) ? Stream.<Entry>empty() : resultEntries.stream();
+        var stream = (resultEntries == null)
+                    ? Stream.<Entry>empty()
+                    : resultEntries.stream();
         return stream.collect(toList());
     }
     
@@ -115,125 +119,147 @@ abstract public class ParseResult implements Serializable {
     
     /** Returns the end position that this parse result match */
     public int endPosition() {
-        return this.getEndPositionOf(this.getResultEntryCount() - 1);
+        int lastIndex = entryCount() - 1;
+        return endPositionOf(lastIndex);
     }
     
     // Append and reset ----------------------------------------------------------------------------
     
     /** Appends the result with an entry */
-    ParseResult append(Entry pEntry) {
-        if (pEntry == null) {
+    ParseResult append(Entry entry) {
+        if (entry == null) {
             throw new NullPointerException();
         }
-        if (this.resultEntries == null)
-            this.resultEntries = new ArrayList<>();
-        this.resultEntries.add(pEntry);
-        return this;
-    }
-    
-    /** Returns the entry list size - This does not neccessary means the result entry count */
-    int entryListSize() {
-        if (this.resultEntries == null) {
-            return 0;
+        if (resultEntries == null) {
+            resultEntries = new ArrayList<>();
         }
-        return this.resultEntries.size();
+        resultEntries.add(entry);
+        return this;
     }
     
     /** Reset the entry since the index */
     void reset(int index) {
-        if (this.resultEntries == null)
+        if (resultEntries == null) {
             return;
-        for (int i = this.resultEntries.size(); --i >= index;)
-            this.resultEntries.remove(i);
+        }
+        for (int i = resultEntries.size(); --i >= index;) {
+            resultEntries.remove(i);
+        }
     }
     
     // Result Entries ------------------------------------------------------------------------------
     
     /** Merge a temporary result with this result */
-    void mergeWith(Temp pTemp) {
-        if ((pTemp == null) || (pTemp.entryListSize() == 0))
+    void mergeWith(Temp temp) {
+        if ((temp == null) || (temp.entryCount() == 0)) {
             return;
+        }
         
-        var tempEntries = pTemp.entries().collect(toList());
-        if (this.resultEntries == null) {
-            this.resultEntries = new ArrayList<>();
+        var tempEntries = temp.entries().collect(toList());
+        if (resultEntries == null) {
+            resultEntries = new ArrayList<>();
         }
-        this.resultEntries.addAll(tempEntries);
+        resultEntries.addAll(tempEntries);
         
-        for (int i = this.resultEntries.size(); --i > 0;) {
-            Entry E = this.resultEntries.get(i);
-            if (E.hasSubResult() && (E.getSubResult() instanceof Node))
-                ((Node) E.getSubResult()).Parent = this;
+        for (int i = resultEntries.size(); --i > 0;) {
+            var entry = resultEntries.get(i);
+            if (entry.hasSubResult()) {
+                var subResult = entry.subResult();
+                if(subResult instanceof Node) {
+                    var subNode = (Node)subResult;
+                    subNode.parent(this);
+                }
+            }
         }
     }
     
-    /** Returns the number of the result entry */
-    public int getResultEntryCount() {
-        return ((this.resultEntries == null) ? 0 : this.resultEntries.size());
+    /** Returns the number of the result entry - may be overriden by sub classes. */
+    public int entryCount() {
+        return resultEntrySize();
     }
     
-    /** Returns a result entry at the index pIndex */
-    public Entry getResultEntryAt(int pIndex) {
-        if ((pIndex < 0) || pIndex >= this.getResultEntryCount())
+    /** Returns the entry list size */
+    final int resultEntrySize() {
+        return (resultEntries == null) ? 0 : resultEntries.size();
+    }
+    
+    /** Returns a result entry at the index. or null if the index of out of bound. */
+    public Entry resultEntryAt(int index) {
+        if ((index < 0) || index >= entryCount()) {
             return null;
-        return this.resultEntries.get(pIndex);
-    }
-    
-    /** Returns the result entry at the index */
-    public ParseResult.Entry getSubEntryOf(int... pIndexes) {
-        ParseResult PR = this;
-        if (pIndexes != null) {
-            for (int i = 0; i < (pIndexes.length - 1); i++)
-                PR = PR.getResultEntryAt(pIndexes[i]).getSubResult();
         }
-        return ((pIndexes == null) || (pIndexes.length == 0)) ? null
-                : PR.getResultEntryAt(pIndexes[pIndexes.length - 1]);
+        return resultEntries.get(index);
     }
     
-    /** Returns the sub result at the index */
-    public ParseResult getSubOf(int... pIndexes) {
-        ParseResult PR = this;
-        if (pIndexes != null) {
-            for (int i = 0; i < pIndexes.length; i++)
-                PR = PR.getResultEntryAt(pIndexes[i]).getSubResult();
+    /** Returns the result entry at the nested indexes */
+    public ParseResult.Entry subEntryAt(int... indexes) {
+        if ((indexes == null) || (indexes.length == 0)) {
+            return null;
         }
-        return ((pIndexes == null) || (pIndexes.length == 0)) ? null : PR;
+        
+        ParseResult result = this;
+        for (int i = 0; i < (indexes.length - 1); i++) {
+            int index = indexes[i];
+            result = result.resultEntryAt(index).subResult();
+        }
+        int lastIndex = indexes[indexes.length - 1];
+        return result.resultEntryAt(lastIndex);
     }
     
-    /** Returns the name of the sub entry at the index */
-    public String getNameOfSubOf(int... Index) {
-        ParseResult.Entry PRE = this.getSubEntryOf(Index);
-        if (PRE == null)
+    /** Returns the sub result at the indexes */
+    public ParseResult subResultAt(int... indexes) {
+        if ((indexes == null) || (indexes.length == 0)) {
             return null;
-        RPEntry REE = PRE.getRPEntry();
-        if (REE == null)
-            return null;
-        return REE.name();
+        }
+        
+        var result = this;
+        for (int i = 0; i < indexes.length; i++) {
+            int index = indexes[i];
+            result = result.resultEntryAt(index).subResult();
+        }
+        return result;
     }
     
-    /** Returns the type name of the sub entry at the index */
-    public String getTypeNameOfSubOf(int... pIndexes) {
-        ParseResult.Entry PRE = this.getSubEntryOf(pIndexes);
-        if (PRE == null)
+    /** Returns the name of the sub entry at the indexes */
+    public String nameAt(int... indexes) {
+        var resultEntry = subEntryAt(indexes);
+        if (resultEntry == null) {
             return null;
-        RPEntry REE = PRE.getRPEntry();
-        if (REE == null)
+        }
+        var parserEntry = resultEntry.parserEntry();
+        if (parserEntry == null) {
             return null;
-        PTypeRef RETR = REE.getTypeRef();
-        if (RETR != null)
-            return RETR.getName();
-        PType RET = REE.getType();
-        if (RET != null)
-            return RET.getName();
+        }
+        return parserEntry.name();
+    }
+    
+    /** Returns the type name of the sub entry at the indexes */
+    public String typeNameAt(int... indexes) {
+        var resultEntry = subEntryAt(indexes);
+        if (resultEntry == null) {
+            return null;
+        }
+        var parserEntry = resultEntry.parserEntry();
+        if (parserEntry == null) {
+            return null;
+        }
+        var typeRef = parserEntry.getTypeRef();
+        if (typeRef != null) {
+            return typeRef.name();
+        }
+        var type = parserEntry.type();
+        if (type != null) {
+            return type.name();
+        }
         return null;
     }
     
     /** Returns the type ref parameters of the sub entry at the index */
     public String getParameterOfSubOf(int... pIndexes) {
-        ParseResult.Entry PRE = this.getSubEntryOf(pIndexes);
+        ParseResult.Entry PRE = this.subEntryAt(pIndexes);
         if (PRE == null)
             return null;
-        RPEntry REE = PRE.getRPEntry();
+        RPEntry REE = PRE.parserEntry();
         if (REE == null)
             return null;
         PTypeRef RETR = REE.getTypeRef();
@@ -248,20 +274,20 @@ abstract public class ParseResult implements Serializable {
             return this.startPosition();
         if (pIndex < 0)
             return -1;
-        if (pIndex >= this.getResultEntryCount())
+        if (pIndex >= this.entryCount())
             return -1;
-        return this.getResultEntryAt(pIndex - 1).getEndPosition();
+        return this.resultEntryAt(pIndex - 1).getEndPosition();
     }
     
     /** Returns the end position of an entry at the index */
-    public int getEndPositionOf(int pIndex) {
+    public int endPositionOf(int pIndex) {
         if (pIndex == -1)
             return this.startPosition();
         if (pIndex < 0)
             return -1;
-        if (pIndex >= this.getResultEntryCount())
+        if (pIndex >= this.entryCount())
             return -1;
-        return this.getResultEntryAt(pIndex).getEndPosition();
+        return this.resultEntryAt(pIndex).getEndPosition();
     }
     
     /** Returns the text of an entry at the index */
@@ -270,7 +296,7 @@ abstract public class ParseResult implements Serializable {
         if (Text == null)
             return null;
         int S = this.getStartPositionOf(pIndex);
-        int E = this.getEndPositionOf(pIndex);
+        int E = this.endPositionOf(pIndex);
         if ((S < 0) || (E < 0) || (S > Text.length()) || (E > Text.length()))
             return null;
         if (S == E)
@@ -283,7 +309,7 @@ abstract public class ParseResult implements Serializable {
         ParseResult PR = this;
         if (Index != null) {
             for (int i = 0; i < (Index.length - 1); i++)
-                PR = PR.getResultEntryAt(Index[i]).getSubResult();
+                PR = PR.resultEntryAt(Index[i]).subResult();
         }
         return ((Index == null) || (Index.length == 0)) ? null : PR.getTextOf(Index[Index.length - 1]);
     }
@@ -330,20 +356,20 @@ abstract public class ParseResult implements Serializable {
         for (int i = this.resultEntries.size(); --i >= 0;) {
             ParseResult.Entry ThisPRP = this.resultEntries.get(i);
             
-            if (ThisPRP.hasSubResult() && !ThisPRP.getSubResult().hasNames() && !ThisPRP.getSubResult().hasTypes()) {
+            if (ThisPRP.hasSubResult() && !ThisPRP.subResult().hasNames() && !ThisPRP.subResult().hasTypes()) {
                 if (ThisPRP instanceof ParseResult.Entry_WithSub) {
                     this.resultEntries.remove(i);
                     this.resultEntries.add(i, new ParseResult.Entry(ThisPRP.getEndPosition()));
                 } else
                     if (ThisPRP instanceof ParseResult.Entry_WithRPEntry_WithSub) {
                         this.resultEntries.remove(i);
-                        this.resultEntries.add(i, new ParseResult.Entry_WithRPEntry(ThisPRP.getEndPosition(), ThisPRP.getRPEntry()));
+                        this.resultEntries.add(i, new ParseResult.Entry_WithRPEntry(ThisPRP.getEndPosition(), ThisPRP.parserEntry()));
                     }
             }
             
             if (!ThisPRP.hasSubResult())
                 continue;
-            ThisPRP.getSubResult().collapse(pProvider);
+            ThisPRP.subResult().collapse(pProvider);
         }
         
         // Collapse entry that its sub does not contain any named or typed entry
@@ -351,12 +377,12 @@ abstract public class ParseResult implements Serializable {
             ParseResult.Entry ThisPRP = this.resultEntries.get(i);
             if (!ThisPRP.hasSubResult())
                 continue;
-            if (ThisPRP.getSubResult().hasNames())
+            if (ThisPRP.subResult().hasNames())
                 continue;
-            if (ThisPRP.getSubResult().hasTypes())
+            if (ThisPRP.subResult().hasTypes())
                 continue;
             this.resultEntries.remove(i);
-            this.resultEntries.add(i, ParseResult.newEntry(ThisPRP.getEndPosition(), ThisPRP.getRPEntry()));
+            this.resultEntries.add(i, ParseResult.newEntry(ThisPRP.getEndPosition(), ThisPRP.parserEntry()));
         }
         
         // Collapse the same type and same name that end with '[]'
@@ -374,8 +400,8 @@ abstract public class ParseResult implements Serializable {
             if (!LatestPRP.hasSubResult() && !ThisPRP.hasSubResult() && CheckEquals(LatestType, ThisType)
                     && CheckEquals(LatestTRef, ThisTRef) && CheckEquals(LatestName, ThisName)
                     && (((ThisName != null) && ThisName.endsWith("[]"))
-                            || ((ThisType != null) && ThisType.getName().endsWith("[]"))
-                            || ((ThisTRef != null) && ThisTRef.getName().endsWith("[]")))) {
+                            || ((ThisType != null) && ThisType.name().endsWith("[]"))
+                            || ((ThisTRef != null) && ThisTRef.name().endsWith("[]")))) {
                 this.resultEntries.remove(i);
             }
             LatestPRP  = ThisPRP;
@@ -388,7 +414,7 @@ abstract public class ParseResult implements Serializable {
         for (int i = this.resultEntries.size(); --i >= 0;) {
             ParseResult.Entry ThisPRP = this.resultEntries.get(i);
             
-            RPEntry RPEntry = ThisPRP.getRPEntry();
+            RPEntry RPEntry = ThisPRP.parserEntry();
             if (RPEntry == null)
                 continue;
             
@@ -428,7 +454,7 @@ abstract public class ParseResult implements Serializable {
             ParseResult.Entry ThisPRP = this.resultEntries.get(i);
             if (!ThisPRP.hasSubResult())
                 continue;
-            if (ThisPRP.getSubResult().getResultEntryCount() != 1)
+            if (ThisPRP.subResult().entryCount() != 1)
                 continue;
             String N = ThisPRP.getName();
             String T = ThisPRP.getTypeName();
@@ -460,21 +486,21 @@ abstract public class ParseResult implements Serializable {
     public boolean parseEntry(int pEntryIndex, RegParser pParser, PTypeProvider pProvider) {
         if (pParser == null)
             return false;
-        Entry Entry = this.getResultEntryAt(pEntryIndex);
+        Entry Entry = this.resultEntryAt(pEntryIndex);
         if ((Entry == null) || Entry.hasSubResult())
             return false;
-        String      Text = this.originalString().substring(0, this.getEndPositionOf(pEntryIndex));
+        String      Text = this.originalString().substring(0, this.endPositionOf(pEntryIndex));
         ParseResult PR   = pParser.parse(Text, this.getStartPositionOf(pEntryIndex), pProvider);
         if (PR == null)
             return false;
         
-        if (PR.getResultEntryCount() == 0)
+        if (PR.entryCount() == 0)
             return true;
         if (PR.endPosition() == Text.length()) {
             // If the end position is equal, there is no need to keep the old one.
             this.resultEntries.remove(pEntryIndex);
         }
-        for (int i = PR.getResultEntryCount(); --i >= 0;)
+        for (int i = PR.entryCount(); --i >= 0;)
             this.resultEntries.add(pEntryIndex, PR.resultEntries.get(i));
         
         return true;
@@ -484,16 +510,16 @@ abstract public class ParseResult implements Serializable {
     
     /** Appends entry of the sub (entry of the node) to the current parse result and erase the entry */
     public boolean flatEntry(int pEntryIndex) {
-        Entry Entry = this.getResultEntryAt(pEntryIndex);
+        Entry Entry = this.resultEntryAt(pEntryIndex);
         if ((Entry == null) || !Entry.hasSubResult())
             return false;
-        ParseResult PR = Entry.getSubResult();
+        ParseResult PR = Entry.subResult();
         
         // Remove the main one
         this.resultEntries.remove(pEntryIndex);
         
         // Replace with the sub of the main one
-        for (int i = PR.getResultEntryCount(); --i >= 0;) {
+        for (int i = PR.entryCount(); --i >= 0;) {
             this.resultEntries.add(pEntryIndex, PR.resultEntries.get(i));
         }
         
@@ -530,11 +556,11 @@ abstract public class ParseResult implements Serializable {
     
     /** Checks if the result has entries with name */
     boolean hasNames() {
-        for (int i = this.getResultEntryCount(); --i >= 0;) {
-            Entry E = this.getResultEntryAt(i);
-            if (E.hasRPEntry() && (E.getRPEntry().name() != null))
+        for (int i = this.entryCount(); --i >= 0;) {
+            Entry E = this.resultEntryAt(i);
+            if (E.hasRPEntry() && (E.parserEntry().name() != null))
                 return true;
-            if (E.hasSubResult() && E.getSubResult().hasNames())
+            if (E.hasSubResult() && E.subResult().hasNames())
                 return true;
         }
         return false;
@@ -542,13 +568,13 @@ abstract public class ParseResult implements Serializable {
     
     /** Checks if the result has entries with name */
     boolean hasTypes() {
-        for (int i = this.getResultEntryCount(); --i >= 0;) {
-            Entry E = this.getResultEntryAt(i);
+        for (int i = this.entryCount(); --i >= 0;) {
+            Entry E = this.resultEntryAt(i);
             if (E.hasRPEntry()) {
-                if ((E.getRPEntry().getType() != null) || (E.getRPEntry().getTypeRef() != null))
+                if ((E.parserEntry().type() != null) || (E.parserEntry().getTypeRef() != null))
                     return true;
             }
-            if (E.hasSubResult() && E.getSubResult().hasNames())
+            if (E.hasSubResult() && E.subResult().hasNames())
                 return true;
         }
         return false;
@@ -557,13 +583,13 @@ abstract public class ParseResult implements Serializable {
     /** Returns names of all result entries */
     public HashSet<String> getAllNames() {
         HashSet<String> Ns = new HashSet<String>();
-        for (int i = this.getResultEntryCount(); --i >= 0;) {
-            Entry E = this.getResultEntryAt(i);
+        for (int i = this.entryCount(); --i >= 0;) {
+            Entry E = this.resultEntryAt(i);
             if (E.hasRPEntry()) {
-                String N = E.getRPEntry().name();
+                String N = E.parserEntry().name();
                 if (N == null)
                     continue;
-                Ns.add(E.getRPEntry().name());
+                Ns.add(E.parserEntry().name());
             }
         }
         return (Ns.size() == 0) ? null : Ns;
@@ -574,13 +600,13 @@ abstract public class ParseResult implements Serializable {
         HashSet<String> Ns = new HashSet<String>();
         if ((pPrefix == null) || (pPrefix.length() == 0))
             return Ns;
-        for (int i = this.getResultEntryCount(); --i >= 0;) {
-            Entry E = this.getResultEntryAt(i);
+        for (int i = this.entryCount(); --i >= 0;) {
+            Entry E = this.resultEntryAt(i);
             if (E.hasRPEntry()) {
-                String N = E.getRPEntry().name();
+                String N = E.parserEntry().name();
                 if (N == null)
                     continue;
-                Ns.add(E.getRPEntry().name());
+                Ns.add(E.parserEntry().name());
             }
         }
         for (String N : Ns.toArray(Util.EMPTY_STRING_ARRAY)) {
@@ -592,9 +618,9 @@ abstract public class ParseResult implements Serializable {
     
     /** Returns the index of the last entry that has the same name with the given name */
     public int getLastIndexOfEntryName(String pName) {
-        for (int i = this.getResultEntryCount(); --i >= 0;) {
-            Entry E = this.getResultEntryAt(i);
-            if (E.hasRPEntry() && pName.equals(E.getRPEntry().name()))
+        for (int i = this.entryCount(); --i >= 0;) {
+            Entry E = this.resultEntryAt(i);
+            if (E.hasRPEntry() && pName.equals(E.parserEntry().name()))
                 return i;
         }
         return -1;
@@ -603,9 +629,9 @@ abstract public class ParseResult implements Serializable {
     /** Returns the all indexes of the result entries that has the same name with the given name */
     public int[] getAllIndexOfEntryName(String pName) {
         Vector<Integer> Is = new Vector<Integer>();
-        for (int i = 0; i < this.getResultEntryCount(); i++) {
-            Entry E = this.getResultEntryAt(i);
-            if (E.hasRPEntry() && pName.equals(E.getRPEntry().name()))
+        for (int i = 0; i < this.entryCount(); i++) {
+            Entry E = this.resultEntryAt(i);
+            if (E.hasRPEntry() && pName.equals(E.parserEntry().name()))
                 Is.add(i);
         }
         if (Is.size() == 0)
@@ -618,9 +644,9 @@ abstract public class ParseResult implements Serializable {
     
     /** Returns the text of the the last match */
     String getLastStrMatchByName(String pName) {
-        for (int i = this.getResultEntryCount(); --i >= 0;) {
-            Entry E = this.getResultEntryAt(i);
-            if (E.hasRPEntry() && pName.equals(E.getRPEntry().name()))
+        for (int i = this.entryCount(); --i >= 0;) {
+            Entry E = this.resultEntryAt(i);
+            if (E.hasRPEntry() && pName.equals(E.parserEntry().name()))
                 return this.getTextOf(i);
         }
         return null;
@@ -629,9 +655,9 @@ abstract public class ParseResult implements Serializable {
     /** Returns the last group of continuous match */
     String[] getLastStrMatchesByName(String pName) {
         Vector<String> Ms = new Vector<String>();
-        for (int i = this.getResultEntryCount(); --i >= 0;) {
-            Entry E = this.getResultEntryAt(i);
-            if (E.hasRPEntry() && pName.equals(E.getRPEntry().name()))
+        for (int i = this.entryCount(); --i >= 0;) {
+            Entry E = this.resultEntryAt(i);
+            if (E.hasRPEntry() && pName.equals(E.parserEntry().name()))
                 Ms.add(this.getTextOf(i));
             
             else
@@ -651,9 +677,9 @@ abstract public class ParseResult implements Serializable {
     /** Returns the all the match */
     String[] getAllStrMatchesByName(String pName) {
         Vector<String> Ms = new Vector<String>();
-        for (int i = this.getResultEntryCount(); --i >= 0;) {
-            Entry E = this.getResultEntryAt(i);
-            if (E.hasRPEntry() && pName.equals(E.getRPEntry().name()))
+        for (int i = this.entryCount(); --i >= 0;) {
+            Entry E = this.resultEntryAt(i);
+            if (E.hasRPEntry() && pName.equals(E.parserEntry().name()))
                 Ms.add(this.getTextOf(i));
         }
         
@@ -670,9 +696,9 @@ abstract public class ParseResult implements Serializable {
     public int[][] getAllOfIndexMatchesByName(String pName) {
         Vector<int[]>   AMs = new Vector<int[]>();
         Vector<Integer> Ms  = new Vector<Integer>();
-        for (int i = 0; i < this.getResultEntryCount(); i++) {
-            Entry E = this.getResultEntryAt(i);
-            if (E.hasRPEntry() && pName.equals(E.getRPEntry().name()))
+        for (int i = 0; i < this.entryCount(); i++) {
+            Entry E = this.resultEntryAt(i);
+            if (E.hasRPEntry() && pName.equals(E.parserEntry().name()))
                 Ms.add(i);
             
             else
@@ -702,9 +728,9 @@ abstract public class ParseResult implements Serializable {
     public String[][] getAllOfStrMatchesByName(String pName) {
         Vector<String[]> AMs = new Vector<String[]>();
         Vector<String>   Ms  = new Vector<String>();
-        for (int i = 0; i < this.getResultEntryCount(); i++) {
-            Entry E = this.getResultEntryAt(i);
-            if (E.hasRPEntry() && pName.equals(E.getRPEntry().name()))
+        for (int i = 0; i < this.entryCount(); i++) {
+            Entry E = this.resultEntryAt(i);
+            if (E.hasRPEntry() && pName.equals(E.parserEntry().name()))
                 Ms.add(this.getTextOf(i));
             
             else
@@ -732,9 +758,9 @@ abstract public class ParseResult implements Serializable {
     
     /** Returns the last match */
     public Entry getLastMatchByName(String pName) {
-        for (int i = this.getResultEntryCount(); --i >= 0;) {
-            Entry E = this.getResultEntryAt(i);
-            if (E.hasRPEntry() && pName.equals(E.getRPEntry().name()))
+        for (int i = this.entryCount(); --i >= 0;) {
+            Entry E = this.resultEntryAt(i);
+            if (E.hasRPEntry() && pName.equals(E.parserEntry().name()))
                 return E;
         }
         return null;
@@ -743,9 +769,9 @@ abstract public class ParseResult implements Serializable {
     /** Returns the last group of continuous match */
     public Entry[] getLastMatchesByName(String pName) {
         Vector<Entry> Es = new Vector<Entry>();
-        for (int i = this.getResultEntryCount(); --i >= 0;) {
-            Entry E = this.getResultEntryAt(i);
-            if (E.hasRPEntry() && pName.equals(E.getRPEntry().name()))
+        for (int i = this.entryCount(); --i >= 0;) {
+            Entry E = this.resultEntryAt(i);
+            if (E.hasRPEntry() && pName.equals(E.parserEntry().name()))
                 Es.add(E);
             
             else
@@ -765,9 +791,9 @@ abstract public class ParseResult implements Serializable {
     /** Returns the all the match */
     public Entry[] getAllMatchesByName(String pName) {
         Vector<Entry> Es = new Vector<Entry>();
-        for (int i = this.getResultEntryCount(); --i >= 0;) {
-            Entry E = this.getResultEntryAt(i);
-            if (E.hasRPEntry() && pName.equals(E.getRPEntry().name()))
+        for (int i = this.entryCount(); --i >= 0;) {
+            Entry E = this.resultEntryAt(i);
+            if (E.hasRPEntry() && pName.equals(E.parserEntry().name()))
                 Es.add(E);
         }
         
@@ -784,9 +810,9 @@ abstract public class ParseResult implements Serializable {
     public Entry[][] getAllOfMatchesByName(String pName) {
         Vector<Entry[]> AEs = new Vector<Entry[]>();
         Vector<Entry>   Es  = new Vector<Entry>();
-        for (int i = 0; i < this.getResultEntryCount(); i++) {
-            Entry E = this.getResultEntryAt(i);
-            if (E.hasRPEntry() && pName.equals(E.getRPEntry().name()))
+        for (int i = 0; i < this.entryCount(); i++) {
+            Entry E = this.resultEntryAt(i);
+            if (E.hasRPEntry() && pName.equals(E.parserEntry().name()))
                 Es.add(E);
             
             else
@@ -815,8 +841,8 @@ abstract public class ParseResult implements Serializable {
     /** Returns how deep the parse result is nested */
     public int getDepth() {
         int D = 0;
-        for (int i = this.getResultEntryCount(); --i >= 0;) {
-            ParseResult PR = this.getSubOf(i);
+        for (int i = this.entryCount(); --i >= 0;) {
+            ParseResult PR = this.subResultAt(i);
             if (PR == null)
                 continue;
             int d = PR.getDepth();
@@ -858,9 +884,9 @@ abstract public class ParseResult implements Serializable {
     /** Detect and report all error and warning - returns if there is at least one error or warning */
     final public boolean hasNoError(PTypeProvider TProvider) {
         boolean HaveErrorOrWanrning = false;
-        int     Count               = this.getResultEntryCount();
+        int     Count               = this.entryCount();
         for (int i = 0; i < Count; i++) {
-            Entry E = this.getResultEntryAt(i);
+            Entry E = this.resultEntryAt(i);
             if (E == null)
                 continue;
             
@@ -886,7 +912,7 @@ abstract public class ParseResult implements Serializable {
                     return false;
             }
             
-            ParseResult Sub = this.getSubOf(i);
+            ParseResult Sub = this.subResultAt(i);
             if ((Sub != null) && !Sub.hasNoError(TProvider))
                 return false;
         }
@@ -896,9 +922,9 @@ abstract public class ParseResult implements Serializable {
     /** Detect and report all error and warning - returns if there is at least one error or warning */
     final public boolean ensureNoError(PTypeProvider TProvider, CompilationContext CContext) {
         boolean HaveErrorOrWanrning = false;
-        int     Count               = this.getResultEntryCount();
+        int     Count               = this.entryCount();
         for (int i = 0; i < Count; i++) {
-            Entry E = this.getResultEntryAt(i);
+            Entry E = this.resultEntryAt(i);
             if (E == null)
                 continue;
             
@@ -951,7 +977,7 @@ abstract public class ParseResult implements Serializable {
                 }
             }
             
-            ParseResult Sub = this.getSubOf(i);
+            ParseResult Sub = this.subResultAt(i);
             if ((Sub != null) && !Sub.ensureNoError(TProvider, CContext))
                 return false;
         }
@@ -962,12 +988,12 @@ abstract public class ParseResult implements Serializable {
     
     /** Returns the number of result entry of this result */
     final public int count() {
-        return this.getResultEntryCount();
+        return this.entryCount();
     }
     
     /** Returns the number of result entry at the position */
     final public ParseResult.Entry get(int I) {
-        return this.getResultEntryAt(I);
+        return this.resultEntryAt(I);
     }
     
     // Text value -----------------------------------------------------------------------
@@ -999,7 +1025,7 @@ abstract public class ParseResult implements Serializable {
     
     /** Get text result of the last match */
     final public String nameOf(int I) {
-        ParseResult.Entry PRE = this.getResultEntryAt(I);
+        ParseResult.Entry PRE = this.resultEntryAt(I);
         if (PRE == null)
             return null;
         return PRE.getName();
@@ -1027,13 +1053,13 @@ abstract public class ParseResult implements Serializable {
     
     /** Get sub result of the last match */
     final public ParseResult subOf(int I) {
-        return this.getSubOf(I);
+        return this.subResultAt(I);
     }
     
     /** Get sub result of the last match */
     final public ParseResult subOf(String pEName) {
         Entry E = this.getLastMatchByName(pEName);
-        return ((E == null) || !E.hasSubResult()) ? null : E.getSubResult();
+        return ((E == null) || !E.hasSubResult()) ? null : E.subResult();
     }
     
     /** Get subs result of the last match */
@@ -1053,7 +1079,7 @@ abstract public class ParseResult implements Serializable {
     
     /** Get Type of the last match */
     final public PType typeOf(int I, PTypeProvider TProvider) {
-        ParseResult.Entry PRE = this.getResultEntryAt(I);
+        ParseResult.Entry PRE = this.resultEntryAt(I);
         if (PRE == null)
             return null;
         PType PT = PRE.getType();
@@ -1089,12 +1115,12 @@ abstract public class ParseResult implements Serializable {
     
     /** Get Type name of the last match */
     final public String typeNameOf(int I) {
-        ParseResult.Entry PRE = this.getResultEntryAt(I);
+        ParseResult.Entry PRE = this.resultEntryAt(I);
         if (PRE == null)
             return null;
         PType PT = PRE.getType();
         if (PT != null)
-            return PT.getName();
+            return PT.name();
         return PRE.getTypeName();
     }
     
@@ -1120,7 +1146,7 @@ abstract public class ParseResult implements Serializable {
     
     /** Get Type name of the last match */
     final public String typeParamOf(int I) {
-        ParseResult.Entry PRE = this.getResultEntryAt(I);
+        ParseResult.Entry PRE = this.resultEntryAt(I);
         if (PRE == null)
             return null;
         PType PT = PRE.getType();
@@ -1235,7 +1261,7 @@ abstract public class ParseResult implements Serializable {
     
     /** Get locationCR of the entry at the index */
     final public int[] locationCROf(int I) {
-        ParseResult.Entry PRE = this.getResultEntryAt(I);
+        ParseResult.Entry PRE = this.resultEntryAt(I);
         if (PRE == null)
             return null;
         return this.getLocationAsColRow(I);
@@ -1263,7 +1289,7 @@ abstract public class ParseResult implements Serializable {
     
     /** Get location of the entry at the index */
     final public String locationOf(int I) {
-        ParseResult.Entry PRE = this.getResultEntryAt(I);
+        ParseResult.Entry PRE = this.resultEntryAt(I);
         if (PRE == null)
             return null;
         return this.getLocationAsString(I);
@@ -1291,7 +1317,7 @@ abstract public class ParseResult implements Serializable {
     
     /** Get start position of the entry at the index */
     final public int posOf(int I) {
-        ParseResult.Entry PRE = this.getResultEntryAt(I);
+        ParseResult.Entry PRE = this.resultEntryAt(I);
         if (PRE == null)
             return -1;
         return this.getStartPositionOf(I);
@@ -1463,7 +1489,7 @@ abstract public class ParseResult implements Serializable {
     String toString(int pIndent, int pTab, int pDepth) {
         StringBuffer SB = new StringBuffer();
         SB.append("\n");
-        int    Count = this.getResultEntryCount();
+        int    Count = this.entryCount();
         int    Last  = Count - 1;
         String Tabs  = "";
         for (int i = pIndent; --i >= 0;)
@@ -1484,7 +1510,7 @@ abstract public class ParseResult implements Serializable {
             SB.append(Indents);
             SB.append(" => [");
             
-            String End = "" + this.getEndPositionOf(i);
+            String End = "" + this.endPositionOf(i);
             while (End.length() < 5)
                 End = " " + End;
             SB.append(End);
@@ -1497,15 +1523,15 @@ abstract public class ParseResult implements Serializable {
             else
                 Text = "\"" + Util.escapeText(this.getTextOf(i)) + "\"";
             
-            Entry RPT = this.getResultEntryAt(i);
+            Entry RPT = this.resultEntryAt(i);
             if (RPT == null) {
                 SB.append(Text);
                 continue;
             }    // No Entry
             
             String PName = null;
-            if ((RPT.getRPEntry() != null) && (RPT.getRPEntry().name() != null))
-                PName = RPT.getRPEntry().name();
+            if ((RPT.parserEntry() != null) && (RPT.parserEntry().name() != null))
+                PName = RPT.parserEntry().name();
             else
                 PName = "<NoName>";
             while (PName.length() < 16)
@@ -1515,10 +1541,10 @@ abstract public class ParseResult implements Serializable {
             SB.append(":");
             String TName = null;
             if (RPT.getType() != null)
-                TName = RPT.getType().getName();
+                TName = RPT.getType().name();
             else
                 if (RPT.getTypeRef() != null)
-                    TName = RPT.getTypeRef().getName();
+                    TName = RPT.getTypeRef().name();
                 else
                     TName = "<NoType>";
             while (TName.length() < 16)
@@ -1529,7 +1555,7 @@ abstract public class ParseResult implements Serializable {
             SB.append(Text);
             
             if (RPT.hasSubResult()) {
-                SB.append(RPT.getSubResult().toString(pIndent, pTab + 1, pDepth - 1));
+                SB.append(RPT.subResult().toString(pIndent, pTab + 1, pDepth - 1));
             }
             if (i != Last)
                 SB.append("\n");
@@ -1575,30 +1601,30 @@ abstract public class ParseResult implements Serializable {
         ParseResult First = null;
         
         @Override
-        public int getResultEntryCount() {
-            int         Count = this.entryListSize();
+        public int entryCount() {
+            int         Count = super.entryCount();
             ParseResult F     = this.First;
             while (F instanceof Temp) {
                 Count += ((F.resultEntries == null) ? 0 : F.resultEntries.size());
                 F      = ((Temp) F).First;
             }
-            return F.getResultEntryCount() + Count;
+            return F.entryCount() + Count;
         }
         
         @Override
-        public Entry getResultEntryAt(int pIndex) {
-            if ((pIndex < 0) || pIndex >= this.getResultEntryCount())
+        public Entry resultEntryAt(int pIndex) {
+            if ((pIndex < 0) || pIndex >= this.entryCount())
                 return null;
-            if (pIndex < this.First.getResultEntryCount()) {
+            if (pIndex < this.First.entryCount()) {
                 Temp T = this;
-                while (pIndex < T.First.getResultEntryCount()) {
+                while (pIndex < T.First.entryCount()) {
                     if (!(T.First instanceof Temp))
-                        return T.First.getResultEntryAt(pIndex);
+                        return T.First.resultEntryAt(pIndex);
                     T = (Temp) T.First;
                 }
-                return T.getResultEntryAt(pIndex);
+                return T.resultEntryAt(pIndex);
             }
-            return this.entries().skip(pIndex - this.First.getResultEntryCount()).findFirst().orElse(null);
+            return this.entries().skip(pIndex - this.First.entryCount()).findFirst().orElse(null);
         }
         
         @Override
@@ -1682,33 +1708,37 @@ abstract public class ParseResult implements Serializable {
         
         protected Node(int pStartPosition, ParseResult pParseResult, List<Entry> resultEntries) {
             super(pStartPosition, resultEntries);
-            this.Parent = pParseResult;
-            for (int i = 0; i < this.Parent.getResultEntryCount(); i++) {
-                if (pStartPosition == this.Parent.getEndPositionOf(i)) {
+            this.parent = pParseResult;
+            for (int i = 0; i < this.parent.entryCount(); i++) {
+                if (pStartPosition == this.parent.endPositionOf(i)) {
                     this.Index = i;
                     break;
                 }
             }
         }
         
-        ParseResult Parent = null;
+        ParseResult parent = null;
         int         Index  = 0;
+        
+        void parent(ParseResult parent) {
+            this.parent = parent;
+        }
         
         @Override
         protected ParseResult parent() {
-            return this.Parent;
+            return this.parent;
         }
         
         @Override
         public CharSequence originalText() {
-            return this.Parent.originalText();
+            return this.parent.originalText();
         }
         
         @Override
         ParseResult getDuplicate() {
             // Duplication of Node cannot be optimize the same way with Temp (by avoiding recursive) because Node hold
             //     structure that is important for verification and compilation.
-            Node N = new Node(this.startPosition(), this.Parent.getDuplicate(), this.entryList());
+            Node N = new Node(this.startPosition(), this.parent.getDuplicate(), this.entryList());
             N.Index = this.Index;
             return N;
         }
@@ -1718,12 +1748,12 @@ abstract public class ParseResult implements Serializable {
         @Override
         public HashSet<String> getAllNames() {
             HashSet<String> Ns = super.getAllNames();
-            if (this.Parent != null) {
+            if (this.parent != null) {
                 if (Ns == null)
-                    return this.Parent.getAllNames();
-                HashSet<String> PNs = this.Parent.getAllNames();
+                    return this.parent.getAllNames();
+                HashSet<String> PNs = this.parent.getAllNames();
                 if (PNs != null)
-                    Ns.addAll(this.Parent.getAllNames());
+                    Ns.addAll(this.parent.getAllNames());
             }
             return Ns;
         }
@@ -1731,12 +1761,12 @@ abstract public class ParseResult implements Serializable {
         @Override
         public HashSet<String> getAllNames(String pPrefix) {
             HashSet<String> Ns = super.getAllNames(pPrefix);
-            if (this.Parent != null) {
+            if (this.parent != null) {
                 if (Ns == null)
-                    return this.Parent.getAllNames(pPrefix);
-                HashSet<String> PNs = this.Parent.getAllNames(pPrefix);
+                    return this.parent.getAllNames(pPrefix);
+                HashSet<String> PNs = this.parent.getAllNames(pPrefix);
                 if (PNs != null)
-                    Ns.addAll(this.Parent.getAllNames(pPrefix));
+                    Ns.addAll(this.parent.getAllNames(pPrefix));
             }
             return Ns;
         }
@@ -1747,8 +1777,8 @@ abstract public class ParseResult implements Serializable {
             String N = super.getLastStrMatchByName(pName);
             if (N != null)
                 return N;
-            if (this.Parent != null)
-                return this.Parent.getLastStrMatchByName(pName);
+            if (this.parent != null)
+                return this.parent.getLastStrMatchByName(pName);
             return null;
         }
         
@@ -1817,7 +1847,7 @@ abstract public class ParseResult implements Serializable {
         /** Returns the all the match */
         @Override
         public Entry[][] getAllOfMatchesByName(String pName) {
-            Entry[][] P_Ms = (this.Parent == null) ? null : this.Parent.getAllOfMatchesByName(pName);
+            Entry[][] P_Ms = (this.parent == null) ? null : this.parent.getAllOfMatchesByName(pName);
             Entry[][] S_Ms = super.getAllOfMatchesByName(pName);
             Entry[][] Ms   = new Entry[((S_Ms == null) ? 0 : S_Ms.length) + ((P_Ms == null) ? 0 : P_Ms.length)][];
             if (P_Ms != null)
@@ -1882,24 +1912,24 @@ abstract public class ParseResult implements Serializable {
         }
         
         public String getName() {
-            return this.hasRPEntry() ? this.getRPEntry().name() : null;
+            return this.hasRPEntry() ? this.parserEntry().name() : null;
         }
         
         public PTypeRef getTypeRef() {
-            return this.hasRPEntry() ? this.getRPEntry().getTypeRef() : null;
+            return this.hasRPEntry() ? this.parserEntry().getTypeRef() : null;
         }
         
         public PType getType() {
-            return this.hasRPEntry() ? this.getRPEntry().getType() : null;
+            return this.hasRPEntry() ? this.parserEntry().type() : null;
         }
         
         public String getTypeName() {
             PTypeRef TR = this.getTypeRef();
             if (TR != null)
-                return TR.getName();
+                return TR.name();
             PType T = this.getType();
             if (T != null)
-                return T.getName();
+                return T.name();
             return null;
         }
         
@@ -1914,7 +1944,7 @@ abstract public class ParseResult implements Serializable {
             return false;
         }
         
-        public RPEntry getRPEntry() {
+        public RPEntry parserEntry() {
             return null;
         }
         
@@ -1922,7 +1952,7 @@ abstract public class ParseResult implements Serializable {
             return false;
         }
         
-        public ParseResult getSubResult() {
+        public ParseResult subResult() {
             return null;
         }
         
@@ -1932,9 +1962,9 @@ abstract public class ParseResult implements Serializable {
             SB.append("Entry").append(" { ");
             SB.append("End = ").append(this.EndPosition).append("; ");
             if (this.hasRPEntry())
-                SB.append("RPEntry = ").append(this.getRPEntry()).append("; ");
+                SB.append("RPEntry = ").append(this.parserEntry()).append("; ");
             if (this.hasSubResult())
-                SB.append("Sub = ").append(this.getSubResult());
+                SB.append("Sub = ").append(this.subResult());
             SB.append("}");
             return SB.toString();
         }
@@ -1957,7 +1987,7 @@ abstract public class ParseResult implements Serializable {
         }
         
         @Override
-        public ParseResult getSubResult() {
+        public ParseResult subResult() {
             return this.SubResult;
         }
     }
@@ -1979,7 +2009,7 @@ abstract public class ParseResult implements Serializable {
         }
         
         @Override
-        public RPEntry getRPEntry() {
+        public RPEntry parserEntry() {
             return this.RPEntry;
         }
     }
@@ -2001,7 +2031,7 @@ abstract public class ParseResult implements Serializable {
         }
         
         @Override
-        public ParseResult getSubResult() {
+        public ParseResult subResult() {
             return this.SubResult;
         }
     }

@@ -42,7 +42,7 @@ public class PTTextCI extends PType {
     static public String Name = "textCI";
     
     @Override
-    public String getName() {
+    public String name() {
         return Name;
     }
     

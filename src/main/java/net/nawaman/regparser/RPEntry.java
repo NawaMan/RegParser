@@ -200,7 +200,7 @@ abstract public class RPEntry implements Serializable {
         return null;
     }
     
-    public PType getType() {
+    public PType type() {
         return null;
     }
     
@@ -220,7 +220,7 @@ abstract public class RPEntry implements Serializable {
         String       N  = this.name();
         Checker      C  = this.getChecker();
         PTypeRef     TR = this.getTypeRef();
-        PType        T  = this.getType();
+        PType        T  = this.type();
         Quantifier   Q  = this.getQuantifier();
         
         if (T != null) {
@@ -436,7 +436,7 @@ abstract public class RPEntry implements Serializable {
         PType TheType = null;
         
         @Override
-        public PType getType() {
+        public PType type() {
             return this.TheType;
         }
     }
@@ -522,8 +522,8 @@ abstract public class RPEntry implements Serializable {
         }
         
         @Override
-        public PType getType() {
-            return this.Delegate.getType();
+        public PType type() {
+            return this.Delegate.type();
         }
         
         @Override

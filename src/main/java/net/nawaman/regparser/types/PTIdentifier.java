@@ -39,7 +39,7 @@ public class PTIdentifier extends PType {
     static public String Name = "$Identifier";
     
     @Override
-    public String getName() {
+    public String name() {
         return Name;
     }
     

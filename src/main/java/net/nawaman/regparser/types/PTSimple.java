@@ -48,7 +48,7 @@ public class PTSimple extends PType {
     Object TheChecker;
     
     /**{@inheritDoc}*/ @Override
-    final public String getName() { 
+    final public String name() { 
         return this.TheName;
     }
 

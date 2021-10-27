@@ -60,7 +60,7 @@ public class PTError extends PType {
     
     /**{@inheritDoc}*/
     @Override
-    final public String getName() {
+    final public String name() {
         return this.TheName;
     }
     

@@ -62,7 +62,7 @@ public class PTJavaChecker extends PType {
     static public String Name = "javaChecker";
     
     @Override
-    public String getName() {
+    public String name() {
         return Name;
     }
     

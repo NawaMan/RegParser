@@ -32,7 +32,7 @@ public class PTIdentifierCI extends PTIdentifier {
     static public String Name = "$IdentifierCI";
     
     @Override
-    public String getName() {
+    public String name() {
         return Name;
     }
     

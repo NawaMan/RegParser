@@ -28,7 +28,7 @@ import java.io.Serializable;
 @SuppressWarnings("serial")
 abstract public class PTypeRef implements Serializable {
     
-    abstract public String getName();
+    abstract public String name();
     
     public String getParam() {
         return null;
@@ -49,7 +49,7 @@ abstract public class PTypeRef implements Serializable {
         
         /**{@inheritDoc}*/
         @Override
-        public String getName() {
+        public String name() {
             return this.TypeName;
         }
         
@@ -65,7 +65,7 @@ abstract public class PTypeRef implements Serializable {
     /**{@inheritDoc}*/
     @Override
     public String toString() {
-        return "!" + this.getName()
+        return "!" + this.name()
                 + ((this.getParam() == null) ? "" : ("(\"" + Util.escapeText(this.getParam()) + "\")")) + "!";
     }
     
@@ -79,8 +79,8 @@ abstract public class PTypeRef implements Serializable {
         if (!(O instanceof PTypeRef))
             return false;
         
-        String TN = this.getName();
-        String ON = ((PTypeRef) O).getName();
+        String TN = this.name();
+        String ON = ((PTypeRef) O).name();
         if ((TN != ON) || ((TN != null) && !TN.equals(ON)))
             return false;
         

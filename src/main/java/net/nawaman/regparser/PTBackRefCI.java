@@ -32,7 +32,7 @@ public class PTBackRefCI extends PTBackRef {
     }
     
     @Override
-    public String getName() {
+    public String name() {
         return "$BackRefCI?";
     }
     

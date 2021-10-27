@@ -38,7 +38,7 @@ public class TestType {
         static public final RTByte Instance = new RTByte();
         
         @Override
-        public String getName() {
+        public String name() {
             return "$byte?";
         }
         
@@ -75,7 +75,7 @@ public class TestType {
         @SuppressWarnings("serial")
         var refToByte = new PTypeRef() {
             @Override
-            public String getName() {
+            public String name() {
                 return "$byte?";
             }
         };
@@ -90,7 +90,7 @@ public class TestType {
         @SuppressWarnings("serial")
         var byteType = new PType() {
             @Override
-            public String getName() {
+            public String name() {
                 return "$byte?";
             }
             
@@ -120,7 +120,7 @@ public class TestType {
         @SuppressWarnings("serial")
         var int0To4 = new PType() {
             @Override
-            public String getName() {
+            public String name() {
                 return "$int(0-4)?";
             }
             
@@ -142,7 +142,7 @@ public class TestType {
         @SuppressWarnings("serial")
         var int5To9 = new PType() {
             @Override
-            public String getName() {
+            public String name() {
                 return "$int(5-9)?";
             }
             
@@ -178,7 +178,7 @@ public class TestType {
         @SuppressWarnings("serial")
         var blockType = new PType() {
             @Override
-            public String getName() {
+            public String name() {
                 return "block";
             }
             
@@ -245,7 +245,7 @@ public class TestType {
         var regParser = newRegParser(defaultTypeProvider,
                             RPEntry._new("#X", new PTypeRef.Simple("$byte?")), 
                             new CharSingle('x'),
-                            newRegParser(defaultTypeProvider, new PTypeRef.Simple(PTBackRef.BackRef_Instance.getName(), "#X"))
+                            newRegParser(defaultTypeProvider, new PTypeRef.Simple(PTBackRef.BackRef_Instance.name(), "#X"))
                 );
         validate("(#X:!$byte?!)[x]((!$BackRef?(\"#X\")!))", regParser);
         
@@ -273,7 +273,7 @@ public class TestType {
                         Any, ZeroOrMore_Minimum,
                         newRegParser(typeProvider, "#End",
                                 newRegParser(typeProvider, new WordChecker("</"),
-                                        RPEntry._new("#EndTag", new PTypeRef.Simple(PTBackRef.BackRef_Instance.getName(), "Begin")),
+                                        RPEntry._new("#EndTag", new PTypeRef.Simple(PTBackRef.BackRef_Instance.name(), "Begin")),
                                         new CharSingle('>'))));
         
         validate(
@@ -308,7 +308,7 @@ public class TestType {
         @SuppressWarnings("serial")
         var identifierType = new PType() {
             @Override
-            public String getName() {
+            public String name() {
                 return "Identifier";
             }
             
@@ -325,7 +325,7 @@ public class TestType {
         @SuppressWarnings("serial")
         var stringLiteralType = new PType() {
             @Override
-            public String getName() {
+            public String name() {
                 return "StringValue";
             }
             
@@ -349,7 +349,7 @@ public class TestType {
         @SuppressWarnings("serial")
         var attributeType = new PType() {
             @Override
-            public String getName() {
+            public String name() {
                 return "Attribute";
             }
             
@@ -368,7 +368,7 @@ public class TestType {
         @SuppressWarnings("serial")
         var tagType = new PType() {
             @Override
-            public String getName() {
+            public String name() {
                 return "Tag";
             }
             
@@ -386,7 +386,7 @@ public class TestType {
                                                         newRegParser("#SubBlock", new PTypeRef.Simple("Tag"))), ZeroOrMore_Minimum,
                                                 newRegParser("#End", newRegParser(new WordChecker("</"),
                                                         RPEntry._new("#EndTag",
-                                                                new PTypeRef.Simple(PTBackRefCI.BackRefCI_Instance.getName(),
+                                                                new PTypeRef.Simple(PTBackRefCI.BackRefCI_Instance.name(),
                                                                         "$Begin")),
                                                         new CharSingle('>')))),
                                         newRegParser(new WordChecker("/>"))));

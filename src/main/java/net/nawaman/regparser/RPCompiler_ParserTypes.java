@@ -66,7 +66,7 @@ public class RPCompiler_ParserTypes {
     @SuppressWarnings("serial")
     static public class RPTComment extends PType {
         static public String Name = "Comment";
-        @Override public String getName() { return Name; }
+        @Override public String name() { return Name; }
         Checker Checker = null;
         @Override public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
             if(this.Checker == null) {
@@ -87,14 +87,14 @@ public class RPCompiler_ParserTypes {
     @SuppressWarnings("serial")
     static public class RPTEscape extends PType {
         static public String Name = "Escape";
-        @Override public String getName() { return Name; }
+        @Override public String name() { return Name; }
         Checker Checker = RegParser.newRegParser(new CharSingle('\\'), new CharSet(RPCompiler_ParserTypes.Escapable));
         @Override public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) { return this.Checker; }
         @Override public Object  doCompile(ParseResult pThisResult, int pEntryIndex, String pParam, CompilationContext pContext,
                 PTypeProvider pProvider) {
             
             // Ensure type
-            if(!Name.equals(pThisResult.getTypeNameOfSubOf(pEntryIndex)))
+            if(!Name.equals(pThisResult.typeNameAt(pEntryIndex)))
                 throw new RPCompilationException("Mal-formed RegParser Escape near \""
                         + pThisResult.originalString().substring(pThisResult.startPosition()) + "\".");
             
@@ -105,7 +105,7 @@ public class RPCompiler_ParserTypes {
     @SuppressWarnings("serial")
     static public class RPTEscapeOct extends PType {
         static public String Name = "EscapeOct";
-        @Override public String getName() { return Name; }
+        @Override public String name() { return Name; }
         Checker Checker = RegParser.newRegParser(    // ~\\0[0-3]?[0-7]?[0-7]~
                 new WordChecker("\\0"),
                 new CharRange('0', '3'), Quantifier.ZeroOrOne,
@@ -117,7 +117,7 @@ public class RPCompiler_ParserTypes {
                 PTypeProvider pProvider) {
             
             // Ensure type
-            if(!Name.equals(pThisResult.getTypeNameOfSubOf(pEntryIndex)))
+            if(!Name.equals(pThisResult.typeNameAt(pEntryIndex)))
                 throw new RPCompilationException("Mal-formed RegParser Escape near \""
                         + pThisResult.originalString().substring(pThisResult.startPosition()) + "\".");
             
@@ -130,7 +130,7 @@ public class RPCompiler_ParserTypes {
     @SuppressWarnings("serial")
     static public class RPTEscapeHex extends PType {
         static public String Name = "EscapeHex";
-        @Override public String getName() { return Name; }
+        @Override public String name() { return Name; }
         Checker Checker = RegParser.newRegParser(    // ~\\x[0-9A-Fa-f][0-9A-Fa-f]~
                 new WordChecker("\\x"),
                 PredefinedCharClasses.HexadecimalDigit,
@@ -142,7 +142,7 @@ public class RPCompiler_ParserTypes {
                 PTypeProvider pProvider) {
             
             // Ensure type
-            if(!Name.equals(pThisResult.getTypeNameOfSubOf(pEntryIndex)))
+            if(!Name.equals(pThisResult.typeNameAt(pEntryIndex)))
                 throw new RPCompilationException("Mal-formed RegParser Escape near \""
                         + pThisResult.originalString().substring(pThisResult.startPosition()) + "\".");
             
@@ -154,7 +154,7 @@ public class RPCompiler_ParserTypes {
     @SuppressWarnings("serial")
     static public class RPTEscapeUnicode extends PType {
         static public String Name = "EscapeUnicode";
-        @Override public String getName() { return Name; }
+        @Override public String name() { return Name; }
         Checker Checker = RegParser.newRegParser(    // ~\\u[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f]~
                 new WordChecker("\\u"),
                 PredefinedCharClasses.HexadecimalDigit,
@@ -168,7 +168,7 @@ public class RPCompiler_ParserTypes {
                 PTypeProvider pProvider) {
             
             // Ensure type
-            if(!Name.equals(pThisResult.getTypeNameOfSubOf(pEntryIndex)))
+            if(!Name.equals(pThisResult.typeNameAt(pEntryIndex)))
                 throw new RPCompilationException("Mal-formed RegParser Escape near \""
                         + pThisResult.originalString().substring(pThisResult.startPosition()) + "\".");
             
@@ -390,12 +390,12 @@ public class RPCompiler_ParserTypes {
         if(".".equals(pThisResult.getTextOf(pEntryIndex))) return PredefinedCharClasses.Any;
 
         // Ensure type
-        if(!CharClassName.equals(pThisResult.getNameOfSubOf(pEntryIndex)))
+        if(!CharClassName.equals(pThisResult.nameAt(pEntryIndex)))
             throw new RPCompilationException("Mal-formed RegParser character class near \""
                     + pThisResult.originalString().substring(pThisResult.startPosition()) + "\".");
         
         // CharClass
-        String N = pThisResult.getNameOfSubOf(pEntryIndex, 1).substring(1); // Remove the '$'
+        String N = pThisResult.nameAt(pEntryIndex, 1).substring(1); // Remove the '$'
         if(N.startsWith("J")) N = "Java_" + N.substring(1);
         
         CharChecker CC;
@@ -412,7 +412,7 @@ public class RPCompiler_ParserTypes {
     @SuppressWarnings("serial")
     static public class RPTType extends PType {
         static public String Name = "Type";
-        @Override public String getName() { return Name; }
+        @Override public String name() { return Name; }
         Checker Checker = RegParser.newRegParser(
             new CharSingle('!'),
             new CheckerAlternative(
@@ -439,7 +439,7 @@ public class RPCompiler_ParserTypes {
         @Override public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) { return this.Checker; }
         @Override public Object  doCompile(ParseResult pThisResult, int pEntryIndex, String pParam, CompilationContext pContext,
                 PTypeProvider pProvider) {
-            pThisResult = pThisResult.getResultEntryAt(pEntryIndex).getSubResult();
+            pThisResult = pThisResult.resultEntryAt(pEntryIndex).subResult();
 
             String N = pThisResult.getLastStrMatchByName("#TypeName");
             if(N == null)
@@ -455,7 +455,7 @@ public class RPCompiler_ParserTypes {
             String Param = null;
             ParseResult.Entry PE = pThisResult.getLastMatchByName("#Param");
             if((PE != null) && PE.hasSubResult()) {
-                Param = pThisResult.getLastMatchByName("#Param").getSubResult().getLastStrMatchByName("#ParamValue");
+                Param = pThisResult.getLastMatchByName("#Param").subResult().getLastStrMatchByName("#ParamValue");
                 if(Param != null) Param = Util.unescapeText(Param.substring(1, Param.length() - 1)).toString();
                 
             }
@@ -466,7 +466,7 @@ public class RPCompiler_ParserTypes {
     @SuppressWarnings("serial")
     static public class RPTQuantifier extends PType {
         static public String Name = "Quantifier";
-        @Override public String getName() { return Name; }
+        @Override public String name() { return Name; }
         Checker Checker = RegParser.newRegParser(    // ((?|*|+|{\s[\d]*\s}|{\s[\d]*\s,\s}|{\s,\s[\d]*\s}|{\s[\d]*\s,\s[\d]*\s})(*|+)?)?
                 "#Quantifier", new CheckerAlternative(
                     true,
@@ -520,11 +520,11 @@ public class RPCompiler_ParserTypes {
                 PTypeProvider pProvider) {
 
             // Ensure type
-            if(!Name.equals(pThisResult.getTypeNameOfSubOf(pEntryIndex)))
+            if(!Name.equals(pThisResult.typeNameAt(pEntryIndex)))
                 throw new RPCompilationException("Mal-formed RegParser quatifier near \""
                         + pThisResult.originalString().substring(pThisResult.startPosition()) + "\".");
             
-            pThisResult = pThisResult.getResultEntryAt(pEntryIndex).getSubResult();
+            pThisResult = pThisResult.resultEntryAt(pEntryIndex).subResult();
             
             String Q = pThisResult.getLastStrMatchByName("#Quantifier");
             String G = pThisResult.getLastStrMatchByName("#Greediness");
@@ -549,7 +549,7 @@ public class RPCompiler_ParserTypes {
                     break;
                 }
                 case '{': {
-                    pThisResult = pThisResult.getResultEntryAt(0).getSubResult(); 
+                    pThisResult = pThisResult.resultEntryAt(0).subResult(); 
 
                     String E = pThisResult.getLastStrMatchByName("#Error[]");
                     if(E != null) break;
@@ -611,7 +611,7 @@ public class RPCompiler_ParserTypes {
     @SuppressWarnings("serial")
     static public class RPTRange extends PType {
         static public String Name = "Range";
-        @Override public String getName() { return Name; }
+        @Override public String name() { return Name; }
         Checker TheChecker = null;
         @Override public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
             if(this.TheChecker == null) {
@@ -644,14 +644,14 @@ public class RPCompiler_ParserTypes {
                 PTypeProvider pProvider) {
 
             // Ensure type
-            if(!Name.equals(pThisResult.getTypeNameOfSubOf(pEntryIndex)))
+            if(!Name.equals(pThisResult.typeNameAt(pEntryIndex)))
                 throw new RPCompilationException("Mal-formed RegParser character range near \""
                         + pThisResult.originalString().substring(pThisResult.startPosition()) + "\".");
             
-            pThisResult = pThisResult.getResultEntryAt(pEntryIndex).getSubResult();
+            pThisResult = pThisResult.resultEntryAt(pEntryIndex).subResult();
             
             if(pThisResult.getLastMatchByName("#Start").hasSubResult()) {
-                if((pThisResult.getLastMatchByName("#Start").getSubResult().getAllNames()).contains("#Error[]")) {
+                if((pThisResult.getLastMatchByName("#Start").subResult().getAllNames()).contains("#Error[]")) {
                     throw new RPCompilationException("There is an invalid character near \""
                         + pThisResult.originalString().substring(pThisResult.startPosition()) + "\".");
                 }
@@ -661,7 +661,7 @@ public class RPCompiler_ParserTypes {
             char   SC = S.charAt(0);
             if(S.length() > 1) {
                 // Only possibility is that it is an escape
-                ParseResult PS = pThisResult.getLastMatchByName("#Start").getSubResult();
+                ParseResult PS = pThisResult.getLastMatchByName("#Start").subResult();
                 SC = (Character)(pProvider.getType(RPTEscape.Name).compile(PS, pProvider));
             }
             
@@ -669,7 +669,7 @@ public class RPCompiler_ParserTypes {
             if(E == null) return new CharSingle(SC);
             else {
                 if(pThisResult.getLastMatchByName("#End").hasSubResult()) {
-                    if(pThisResult.getLastMatchByName("#End").getSubResult().getAllNames().contains("#Error[]")) {
+                    if(pThisResult.getLastMatchByName("#End").subResult().getAllNames().contains("#Error[]")) {
                         throw new RPCompilationException("There is an invalid character near \""
                         + pThisResult.originalString().substring(pThisResult.startPosition()) + "\".");
                     }
@@ -678,7 +678,7 @@ public class RPCompiler_ParserTypes {
                 char EC = E.charAt(0);
                 if(E.length() > 1) {
                     // Only possibility is that it is an escape
-                    ParseResult PS = pThisResult.getLastMatchByName("#End").getSubResult();
+                    ParseResult PS = pThisResult.getLastMatchByName("#End").subResult();
                     EC = (Character)(pProvider.getType(RPTEscape.Name).compile(PS, pProvider));
                 }
                 if(SC > EC)
@@ -692,7 +692,7 @@ public class RPCompiler_ParserTypes {
     @SuppressWarnings("serial")
     static public class RPTCharSetItem extends PType {
         static public String Name = "CharSetItem";
-        @Override public String getName() { return Name; }
+        @Override public String name() { return Name; }
         Checker TheChecker = null;
         @Override public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
             if(this.TheChecker == null) {
@@ -740,13 +740,13 @@ public class RPCompiler_ParserTypes {
         }
         @Override public Object doCompile(ParseResult pThisResult, int pEntryIndex, String pParam, CompilationContext pContext,
                 PTypeProvider pProvider) {            
-            pThisResult = pThisResult.getResultEntryAt(pEntryIndex).getSubResult();
+            pThisResult = pThisResult.resultEntryAt(pEntryIndex).subResult();
             
             Vector<CharChecker> CCCs = new Vector<CharChecker>();
             Vector<CharChecker> CCs  = new Vector<CharChecker>();
             boolean IsNot = false;
-            for(int i = 0; i < pThisResult.getResultEntryCount(); i++) {
-                ParseResult.Entry PSE = pThisResult.getResultEntryAt(i);
+            for(int i = 0; i < pThisResult.resultEntrySize(); i++) {
+                ParseResult.Entry PSE = pThisResult.resultEntryAt(i);
                 String PName = PSE.getName();
                 String PText = pThisResult.getTextOf(i);
                 String PType = PSE.getTypeName();
@@ -804,7 +804,7 @@ public class RPCompiler_ParserTypes {
     @SuppressWarnings("serial")
     static public class RPTRegParserItem extends PType {
         static public String Name = "RegParserItem[]";
-        @Override public String getName() { return Name; }
+        @Override public String name() { return Name; }
         Checker TheChecker = null;
         //@Override public boolean isText() { return false; }
         @Override public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
@@ -977,7 +977,7 @@ public class RPCompiler_ParserTypes {
         @Override public Object doCompile(ParseResult pThisResult, int pEntryIndex, String pParam, CompilationContext pContext,
                 PTypeProvider pProvider) {
             
-            ParseResult.Entry PSE = pThisResult.getResultEntryAt(pEntryIndex);
+            ParseResult.Entry PSE = pThisResult.resultEntryAt(pEntryIndex);
 
             boolean HasSub = PSE.hasSubResult();
             
@@ -987,8 +987,8 @@ public class RPCompiler_ParserTypes {
             }
             
             // Go into the sub
-            pThisResult = PSE.getSubResult();
-            PSE         = pThisResult.getResultEntryAt(0);
+            pThisResult = PSE.subResult();
+            PSE         = pThisResult.resultEntryAt(0);
             
             String PName = PSE.getName();
             
@@ -1020,10 +1020,10 @@ public class RPCompiler_ParserTypes {
             
             if("#Group".equals(PName)) {
                 
-                String N = PSE.getSubResult().getLastStrMatchByName("#Name");
+                String N = PSE.subResult().getLastStrMatchByName("#Name");
                 if(N == null) return RPEntry._new((Checker)pProvider.getType(RPTRegParser.Name).compile(pThisResult, 0, null, pContext, pProvider));
                 
-                pThisResult = PSE.getSubResult();
+                pThisResult = PSE.subResult();
                 
                 String GN = pThisResult.getLastStrMatchByName("#Group-Name");
                 String O  = pThisResult.getLastStrMatchByName("#Group-Option"); O = (O == null)?"":O;
@@ -1032,15 +1032,15 @@ public class RPCompiler_ParserTypes {
                 String B = pThisResult.getLastStrMatchByName("#BackRef");
                 if(B != null) {
                     if(pThisResult.getLastStrMatchByName("#BackRefCI") != null)
-                        return RPEntry._new(new PTypeRef.Simple(PTBackRefCI.BackRefCI_Instance.getName(), N+GN+M));
+                        return RPEntry._new(new PTypeRef.Simple(PTBackRefCI.BackRefCI_Instance.name(), N+GN+M));
                     else
-                        return RPEntry._new(new PTypeRef.Simple(PTBackRef.BackRef_Instance.getName(), N+GN+M));
+                        return RPEntry._new(new PTypeRef.Simple(PTBackRef.BackRef_Instance.name(), N+GN+M));
                 }
                 
                 RegParser Second = null;
                 ParseResult.Entry PRE = pThisResult.getLastMatchByName("#Second");
                 if((PRE != null) && PRE.hasSubResult()) {
-                    ParseResult Sub_Second = PRE.getSubResult();
+                    ParseResult Sub_Second = PRE.subResult();
                     
                     int IT = Sub_Second.getLastIndexOfEntryName("#Type");
                     if(IT != -1) {    // TypeRef with Name
@@ -1076,7 +1076,7 @@ public class RPCompiler_ParserTypes {
     @SuppressWarnings("serial")
     static public class RPTRegParser extends PType {
         static public String Name = "RegParser";
-        @Override public String getName() { return Name; }
+        @Override public String name() { return Name; }
         Checker Checker = RegParser.newRegParser(
             new CheckerAlternative(true,
                 RegParser.newRegParser(
@@ -1098,21 +1098,21 @@ public class RPCompiler_ParserTypes {
         @Override public Object  doCompile(ParseResult pThisResult, int pEntryIndex, String pParam, CompilationContext pContext,
                 PTypeProvider pProvider) {
             
-            if((pThisResult.getResultEntryAt(pEntryIndex) == null) ||
-                (pThisResult.getResultEntryAt(pEntryIndex).getSubResult() == null)) {
+            if((pThisResult.resultEntryAt(pEntryIndex) == null) ||
+                (pThisResult.resultEntryAt(pEntryIndex).subResult() == null)) {
                 throw new RPCompilationException("Mal-formed RegParser Type near \""
                             + pThisResult.originalString().substring(pThisResult.getStartPositionOf(0)) + "\".");
             }
-            pThisResult = pThisResult.getResultEntryAt(pEntryIndex).getSubResult();
+            pThisResult = pThisResult.resultEntryAt(pEntryIndex).subResult();
             
             Vector<RegParser> RPPs = new Vector<RegParser>();
             Vector<RPEntry>   RPs  = new Vector<RPEntry>();
             boolean IsNot     = false;
             boolean IsOR      = false;
             boolean IsDefault = false;
-            int Count = pThisResult.getResultEntryCount();
+            int Count = pThisResult.resultEntrySize();
             for(int i = 0; i < Count; i++) {
-                ParseResult.Entry PSE   = pThisResult.getResultEntryAt(i);
+                ParseResult.Entry PSE   = pThisResult.resultEntryAt(i);
                 String            PName = PSE.getName();
 
                 if("#Ignored[]".equals(PName)) continue;
@@ -1180,18 +1180,18 @@ public class RPCompiler_ParserTypes {
                         RPI = (RPEntry)pProvider.getType(RPTRegParserItem.Name).compile(pThisResult, i, null, pContext, pProvider);
                         
                     } else {
-                        ParseResult Sub = PSE.getSubResult();
+                        ParseResult Sub = PSE.subResult();
         
                         RPI = (RPEntry)pProvider.getType(RPTRegParserItem.Name).compile(Sub, 0, null, pContext, pProvider);
     
                         Quantifier Q = Quantifier.One;
-                        if(Sub.getResultEntryCount() == 2) {
+                        if(Sub.resultEntrySize() == 2) {
                             Q = (Quantifier)pProvider.getType(RPTQuantifier.Name).compile(Sub, 1, null, pContext, pProvider); 
                         }
                         if(Q != Quantifier.One) {
                             if(RPI.getChecker() != null) RPI = RPEntry._new(RPI.name(), RPI.getChecker(), Q, RPI.secondStage());
                             if(RPI.getTypeRef() != null) RPI = RPEntry._new(RPI.name(), RPI.getTypeRef(), Q, RPI.secondStage());
-                            if(RPI.getType()    != null) RPI = RPEntry._new(RPI.name(), RPI.getType(),    Q, RPI.secondStage());
+                            if(RPI.type()    != null) RPI = RPEntry._new(RPI.name(), RPI.type(),    Q, RPI.secondStage());
                         }
                         
                     }

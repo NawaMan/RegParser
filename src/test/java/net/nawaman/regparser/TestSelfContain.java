@@ -20,7 +20,7 @@ public class TestSelfContain {
     @SuppressWarnings("serial")
     private PType Int0To24 = new PType() {
         @Override
-        public String getName() {
+        public String name() {
             return "int0To24~";
         }
         
@@ -42,7 +42,7 @@ public class TestSelfContain {
     @SuppressWarnings("serial")
     private PType Int25To50 = new PType() {
         @Override
-        public String getName() {
+        public String name() {
             return "$int25To50~";
         }
         

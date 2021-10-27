@@ -40,7 +40,7 @@ public class PTStrLiteral extends PType {
     static public String Name = "$StringLiteral";
     
     @Override
-    public String getName() {
+    public String name() {
         return Name;
     }
     

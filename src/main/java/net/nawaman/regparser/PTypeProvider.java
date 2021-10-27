@@ -88,7 +88,7 @@ public interface PTypeProvider extends Serializable {
             for (PType T : pTypes) {
                 if (T == null)
                     continue;
-                this.RPTypes.put(T.getName(), T);
+                this.RPTypes.put(T.name(), T);
             }
         }
         
@@ -108,24 +108,24 @@ public interface PTypeProvider extends Serializable {
         protected boolean addRPType(PType pRPT) {
             if (pRPT == null)
                 return false;
-            if ((this.RPTypes != null) && (this.RPTypes.containsKey(pRPT.getName())))
+            if ((this.RPTypes != null) && (this.RPTypes.containsKey(pRPT.name())))
                 return false;
             
             if (this.RPTypes == null)
                 this.RPTypes = new Hashtable<String, PType>();
-            this.RPTypes.put(pRPT.getName(), pRPT);
+            this.RPTypes.put(pRPT.name(), pRPT);
             return true;
         }
         
         protected boolean removeRPType(PType pRPT) {
             if (pRPT == null)
                 return false;
-            if ((this.RPTypes != null) && (this.RPTypes.containsKey(pRPT.getName())))
+            if ((this.RPTypes != null) && (this.RPTypes.containsKey(pRPT.name())))
                 return false;
             
             if (this.RPTypes == null)
                 this.RPTypes = new Hashtable<String, PType>();
-            this.RPTypes.remove(pRPT.getName());
+            this.RPTypes.remove(pRPT.name());
             return true;
         }
         
@@ -213,7 +213,7 @@ public interface PTypeProvider extends Serializable {
                 PType T = Ts[i];
                 if (T == null)
                     continue;
-                String N = T.getName();
+                String N = T.name();
                 
                 if (!isToReplace && ((Simple) pProvider).RPTypes.containsKey(N))
                     ((Simple) pProvider).RPTypes.put(N, T);

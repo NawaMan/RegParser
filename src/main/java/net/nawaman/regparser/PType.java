@@ -33,19 +33,19 @@ abstract public class PType implements Serializable {
     static public final PType[] EmptyTypeArray = new PType[0];
     
     /** Returns the name of the type */
-    abstract public String getName();
+    abstract public String name();
     
     PTypeRef DefaultRef = null;
     
     /** Return the default TypeRef of this type */
     final public PTypeRef getTypeRef() {
         return (this.DefaultRef != null) ? this.DefaultRef
-                : (this.DefaultRef = new PTypeRef.Simple(this.getName(), null));
+                : (this.DefaultRef = new PTypeRef.Simple(this.name(), null));
     }
     
     /** Return the default TypeRef of this type with the parameter */
     final public PTypeRef getTypeRef(String pParam) {
-        return (pParam == null) ? this.getTypeRef() : new PTypeRef.Simple(this.getName(), pParam);
+        return (pParam == null) ? this.getTypeRef() : new PTypeRef.Simple(this.name(), pParam);
     }
     
     /** Returns the checker for parsing the type */
@@ -57,7 +57,7 @@ abstract public class PType implements Serializable {
     final public boolean isText() {
         if ((this.Flags & 0x80) != 0)
             return ((this.Flags & 0x08) != 0);
-        boolean IsText = this.getName().startsWith("$");
+        boolean IsText = this.name().startsWith("$");
         this.Flags = (this.Flags | 0x80) | (IsText ? 0x08 : 0x00);
         return IsText;
     }
@@ -66,7 +66,7 @@ abstract public class PType implements Serializable {
     final public boolean isCollective() {
         if ((this.Flags & 0x40) != 0)
             return ((this.Flags & 0x04) != 0);
-        boolean IsCollective = this.getName().endsWith("[]");
+        boolean IsCollective = this.name().endsWith("[]");
         this.Flags = (this.Flags | 0x40) | (IsCollective ? 0x04 : 0x00);
         return IsCollective;
     }
@@ -78,7 +78,7 @@ abstract public class PType implements Serializable {
     final public boolean hasValidation() {
         if ((this.Flags & 0x20) != 0)
             return ((this.Flags & 0x02) != 0);
-        String  N             = this.getName();
+        String  N             = this.name();
         boolean HasValidation = N.contains("?") || N.contains("~");
         this.Flags = (this.Flags | 0x20) | (HasValidation ? 0x02 : 0x00);
         return HasValidation;
@@ -91,7 +91,7 @@ abstract public class PType implements Serializable {
     final public boolean isSelfContain() {
         if ((this.Flags & 0x10) != 0)
             return ((this.Flags & 0x01) != 0);
-        String  N             = this.getName();
+        String  N             = this.name();
         boolean IsSelfContain = !N.contains("~");
         this.Flags = (this.Flags | 0x10) | (IsSelfContain ? 0x01 : 0x00);
         return IsSelfContain;
@@ -104,7 +104,7 @@ abstract public class PType implements Serializable {
     final public boolean hasFlatAlways() {
         if ((this.Flags & 0x2000) != 0)
             return ((this.Flags & 0x0200) != 0);
-        String  N             = this.getName();
+        String  N             = this.name();
         boolean HasValidation = N.contains("*");
         this.Flags = (this.Flags | 0x2000) | (HasValidation ? 0x0200 : 0x0000);
         return HasValidation;
@@ -117,7 +117,7 @@ abstract public class PType implements Serializable {
     final public boolean isFlatSingle() {
         if ((this.Flags & 0x1000) != 0)
             return ((this.Flags & 0x0100) != 0);
-        String  N             = this.getName();
+        String  N             = this.name();
         boolean IsSelfContain = !N.contains("+");
         this.Flags = (this.Flags | 0x1000) | (IsSelfContain ? 0x0100 : 0x0000);
         return IsSelfContain;
@@ -264,14 +264,14 @@ abstract public class PType implements Serializable {
             RP = RegParser.newRegParser(this);
         else {
             // The provide does not hold this type
-            if (pProvider.getType(this.getName()) == null) {
+            if (pProvider.getType(this.name()) == null) {
                 // Add it in
                 PTypeProvider         NewProvider = new PTypeProvider.Extensible();
                 PTypeProvider.Library NewLibrary  = new PTypeProvider.Library(pProvider, NewProvider);
                 ((PTypeProvider.Extensible) NewProvider).addRPType(this);
                 pProvider = NewLibrary;
             }
-            RP = RegParser.newRegParser(new PTypeRef.Simple(this.getName(), pParam));
+            RP = RegParser.newRegParser(new PTypeRef.Simple(this.name(), pParam));
         }
         ParseResult ThisResult = RP.match(pText, pProvider);
         if (ThisResult == null)
@@ -315,7 +315,7 @@ abstract public class PType implements Serializable {
     
     @Override
     public String toString() {
-        return "!" + this.getName() + "!";
+        return "!" + this.name() + "!";
     }
     
 }
