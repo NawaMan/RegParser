@@ -18,6 +18,8 @@
 
 package net.nawaman.regparser;
 
+import net.nawaman.regparser.result.ParseResult;
+
 /**
  * The provider of a checker use as a strategy for PType (used with PTSimple and PTComposable).
  * 

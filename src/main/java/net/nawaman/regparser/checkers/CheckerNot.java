@@ -22,7 +22,7 @@ import static java.util.Objects.requireNonNull;
 
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.PTypeProvider;
-import net.nawaman.regparser.ParseResult;
+import net.nawaman.regparser.result.ParseResult;
 
 /**
  * Checker for checking the the given checker is not found. 0 will be returned if that is the case.

@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.PTypeProvider;
-import net.nawaman.regparser.ParseResult;
+import net.nawaman.regparser.result.ParseResult;
 
 /**
  * Checker that is associated with Java Pattern Character set.

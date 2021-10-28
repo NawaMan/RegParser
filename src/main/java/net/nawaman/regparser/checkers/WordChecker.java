@@ -22,8 +22,8 @@ import static java.util.Objects.requireNonNull;
 
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.PTypeProvider;
-import net.nawaman.regparser.ParseResult;
 import net.nawaman.regparser.RPCompiler_ParserTypes;
+import net.nawaman.regparser.result.ParseResult;
 
 /**
  * Checker for checking a sequence of character or a word

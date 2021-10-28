@@ -24,9 +24,9 @@ import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.PType;
 import net.nawaman.regparser.PTypeProvider;
 import net.nawaman.regparser.PTypeRef;
-import net.nawaman.regparser.ParseResult;
 import net.nawaman.regparser.RPEntry;
 import net.nawaman.regparser.RegParser;
+import net.nawaman.regparser.result.ParseResult;
 
 /**
  * Checker that separate text into pre-defined groups

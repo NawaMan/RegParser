@@ -25,12 +25,12 @@ import java.util.Hashtable;
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.PType;
 import net.nawaman.regparser.PTypeProvider;
-import net.nawaman.regparser.ParseResult;
 import net.nawaman.regparser.PredefinedCharClasses;
 import net.nawaman.regparser.Quantifier;
 import net.nawaman.regparser.RegParser;
 import net.nawaman.regparser.Util;
 import net.nawaman.regparser.checkers.CharNot;
+import net.nawaman.regparser.result.ParseResult;
 
 /**
  * Parser Type for java checker.

@@ -21,8 +21,8 @@ package net.nawaman.regparser.types;
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.PType;
 import net.nawaman.regparser.PTypeProvider;
-import net.nawaman.regparser.ParseResult;
 import net.nawaman.regparser.RPGetChecker;
+import net.nawaman.regparser.result.ParseResult;
 
 /**
  * A simple type (type without a compiler).

@@ -21,10 +21,10 @@ package net.nawaman.regparser.types;
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.CompilationContext;
 import net.nawaman.regparser.PTypeProvider;
-import net.nawaman.regparser.ParseResult;
 import net.nawaman.regparser.RPCompiler;
 import net.nawaman.regparser.RPGetChecker;
 import net.nawaman.regparser.ResultVerifier;
+import net.nawaman.regparser.result.ParseResult;
 
 /**
  * RegParser that is constructed from difference component.

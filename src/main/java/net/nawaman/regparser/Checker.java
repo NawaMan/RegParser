@@ -20,6 +20,8 @@ package net.nawaman.regparser;
 
 import java.io.Serializable;
 
+import net.nawaman.regparser.result.ParseResult;
+
 /**
  * A basic building block for RegParser.
  * 

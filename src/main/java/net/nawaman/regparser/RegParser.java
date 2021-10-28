@@ -38,6 +38,7 @@ import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParserItem;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTType;
 import net.nawaman.regparser.checkers.CheckerAlternative;
 import net.nawaman.regparser.checkers.CheckerFixeds;
+import net.nawaman.regparser.result.ParseResult;
 import net.nawaman.regparser.types.PTIdentifier;
 import net.nawaman.regparser.types.PTStrLiteral;
 import net.nawaman.regparser.types.PTTextCI;
@@ -1394,7 +1395,7 @@ public class RegParser implements Checker, Serializable {
         if ((pRPType != null) && pRPType.hasValidation() && !pRPType.isSelfContain()) {
             ParseResult PR = pResult.getDuplicate();
             PR.collapse(pProvider);
-            ParseResult Host = (PR instanceof ParseResult.Node) ? ((ParseResult.Node) PR).parent : null;
+            ParseResult Host = (PR instanceof ParseResult.Node) ? ((ParseResult.Node) PR).parent() : null;
             if (!pRPType.validate(Host, PR, pRPTParam, pProvider))
                 return null;
         }

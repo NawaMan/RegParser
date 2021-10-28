@@ -10,6 +10,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 import net.nawaman.regparser.checkers.CheckerAlternative;
+import net.nawaman.regparser.result.ParseResult;
 
 
 public class TestSelfContain {

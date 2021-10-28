@@ -20,6 +20,7 @@ package net.nawaman.regparser;
 
 import net.nawaman.regparser.checkers.CheckerAny;
 import net.nawaman.regparser.checkers.WordChecker;
+import net.nawaman.regparser.result.ParseResult;
 
 /**
  * RegParser Type for Back referencing.
@@ -48,10 +49,10 @@ public class PTBackRef extends PType {
         // Elevate up (in case pHostResult is a node)
         while (W == null) {
             if (pHostResult instanceof ParseResult.Temp)
-                pHostResult = ((ParseResult.Temp) pHostResult).First;
+                pHostResult = ((ParseResult.Temp) pHostResult).first();
             else
                 if (pHostResult instanceof ParseResult.Node)
-                    pHostResult = ((ParseResult.Node) pHostResult).parent;
+                    pHostResult = ((ParseResult.Node) pHostResult).parent();
             if (pHostResult == null)
                 return null;
             else {

@@ -19,7 +19,7 @@
 package net.nawaman.regparser.types;
 
 import net.nawaman.regparser.PTypeProvider;
-import net.nawaman.regparser.ParseResult;
+import net.nawaman.regparser.result.ParseResult;
 
 /**
  * Parser for detecting C-like identifier (for case-insensitive)

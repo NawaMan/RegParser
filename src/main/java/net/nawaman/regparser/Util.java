@@ -44,7 +44,7 @@ import java.util.Arrays;
  */
 public class Util {
     
-    static String[] EMPTY_STRING_ARRAY = new String[0];
+    public static String[] EMPTY_STRING_ARRAY = new String[0];
     
     // Object ----------------------------------------------------------------------------------------------------------
     

@@ -23,6 +23,7 @@ import net.nawaman.regparser.checkers.CharSingle;
 import net.nawaman.regparser.checkers.CharUnion;
 import net.nawaman.regparser.checkers.CheckerAlternative;
 import net.nawaman.regparser.checkers.WordChecker;
+import net.nawaman.regparser.result.ParseResult;
 
 
 public class TestType {

@@ -18,6 +18,7 @@
 
 package net.nawaman.regparser;
 
+import net.nawaman.regparser.result.ParseResult;
 import net.nawaman.regparser.types.PTComposable;
 
 /**

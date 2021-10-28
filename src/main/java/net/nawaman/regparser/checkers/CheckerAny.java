@@ -22,7 +22,7 @@ import java.util.Hashtable;
 
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.PTypeProvider;
-import net.nawaman.regparser.ParseResult;
+import net.nawaman.regparser.result.ParseResult;
 
 /**
  * The checker of any character.

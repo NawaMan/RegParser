@@ -20,7 +20,7 @@ package net.nawaman.regparser.checkers;
 
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.PTypeProvider;
-import net.nawaman.regparser.ParseResult;
+import net.nawaman.regparser.result.ParseResult;
 
 /**
  * Checker that involves a character.

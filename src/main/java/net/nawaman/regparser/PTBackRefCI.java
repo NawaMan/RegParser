@@ -18,6 +18,8 @@
 
 package net.nawaman.regparser;
 
+import net.nawaman.regparser.result.ParseResult;
+
 /**
  * RegParser Type for Back referencing with case-insensitive checking.
  * 

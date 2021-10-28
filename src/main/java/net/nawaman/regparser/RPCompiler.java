@@ -18,6 +18,8 @@
 
 package net.nawaman.regparser;
 
+import net.nawaman.regparser.result.ParseResult;
+
 /**
  * Regular Parser Compiler to be used with PTComposable.
  * 

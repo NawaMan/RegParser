@@ -5,6 +5,8 @@ import static net.nawaman.regparser.TestUtils.validate;
 
 import org.junit.Test;
 
+import net.nawaman.regparser.result.ParseResult;
+
 public class TestJavaChecker {
     
     @SuppressWarnings("serial")

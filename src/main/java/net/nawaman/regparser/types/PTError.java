@@ -22,7 +22,7 @@ import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.CompilationContext;
 import net.nawaman.regparser.PType;
 import net.nawaman.regparser.PTypeProvider;
-import net.nawaman.regparser.ParseResult;
+import net.nawaman.regparser.result.ParseResult;
 
 /**
  * Parser type for detecting error.

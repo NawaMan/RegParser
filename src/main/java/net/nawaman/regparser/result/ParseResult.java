@@ -16,7 +16,7 @@
  * ---------------------------------------------------------------------------------------------------------------------
  */
 
-package net.nawaman.regparser;
+package net.nawaman.regparser.result;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
@@ -30,6 +30,13 @@ import java.util.Vector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import net.nawaman.regparser.CompilationContext;
+import net.nawaman.regparser.PType;
+import net.nawaman.regparser.PTypeProvider;
+import net.nawaman.regparser.PTypeRef;
+import net.nawaman.regparser.RPEntry;
+import net.nawaman.regparser.RegParser;
+import net.nawaman.regparser.Util;
 import net.nawaman.regparser.types.PTError;
 
 /**
@@ -57,7 +64,7 @@ abstract public class ParseResult implements Serializable {
     }
     
     /** Duplicate this result - to be used when verifying */
-    abstract ParseResult getDuplicate();
+    public abstract ParseResult getDuplicate();
     
     
     // Parent --------------------------------------------------------------------------------------
@@ -99,7 +106,7 @@ abstract public class ParseResult implements Serializable {
     }
     
     /** Returns the entry list size -- Used internally and cannot be overridden. */
-    final int resultEntrySize() {
+    public final int resultEntrySize() {
         return (entries == null) ? 0 : entries.size();
     }
     
@@ -443,7 +450,7 @@ abstract public class ParseResult implements Serializable {
     }
     
     /** Returns the text of the the last match */
-    String getLastStrMatchByName(String pName) {
+    public String getLastStrMatchByName(String pName) {
         for (int i = this.entryCount(); --i >= 0;) {
             Entry E = this.entryAt(i);
             if (E.hasRPEntry() && pName.equals(E.parserEntry().name()))
@@ -1144,7 +1151,7 @@ abstract public class ParseResult implements Serializable {
     // Modifying the results -------------------------------------------------------------------------------------------
     
     /** Appends the result with an entry */
-    ParseResult append(Entry entry) {
+    public ParseResult append(Entry entry) {
         if (entry == null) {
             throw new NullPointerException();
         }
@@ -1156,7 +1163,7 @@ abstract public class ParseResult implements Serializable {
     }
     
     /** Reset the entry since the index */
-    void reset(int index) {
+    public void reset(int index) {
         if (entries == null) {
             return;
         }
@@ -1166,7 +1173,7 @@ abstract public class ParseResult implements Serializable {
     }
     
     /** Merge a temporary result with this result */
-    void mergeWith(Temp temp) {
+    public void mergeWith(Temp temp) {
         if ((temp == null) || (temp.entryCount() == 0)) {
             return;
         }
@@ -1190,7 +1197,7 @@ abstract public class ParseResult implements Serializable {
     }
     
     /** Collapse the result so entry with $ and [] will be combine */
-    void collapse(PTypeProvider pProvider) {
+    public void collapse(PTypeProvider pProvider) {
         /* */
         if (this.entries == null)
             return;
@@ -1556,7 +1563,7 @@ abstract public class ParseResult implements Serializable {
     }
     
     /** An internal service for toDetail() */
-    String toString(int pIndent, int pTab) {
+    public String toString(int pIndent, int pTab) {
         return this.toString(pIndent, pTab, this.getDepth() - 1);
     }
     
@@ -1660,20 +1667,24 @@ abstract public class ParseResult implements Serializable {
         }
     }
     
-    static protected class Temp extends ParseResult {
+    static public class Temp extends ParseResult {
         
         static private final long serialVersionUID = 3255656565625655652L;
         
-        protected Temp(ParseResult pFirst) {
+        public Temp(ParseResult pFirst) {
             this(pFirst, null);
         }
         
-        protected Temp(ParseResult pFirst, List<Entry> resultEntries) {
+        public Temp(ParseResult pFirst, List<Entry> resultEntries) {
             super(resultEntries);
             this.First = pFirst;
         }
         
         ParseResult First = null;
+        
+        public ParseResult first() {
+            return First;
+        }
         
         @Override
         public int entryCount() {
@@ -1713,7 +1724,7 @@ abstract public class ParseResult implements Serializable {
         }
         
         @Override
-        ParseResult getDuplicate() {
+        public ParseResult getDuplicate() {
             // This was initially implement using recursive but it was too slow.
             // The optimization is done by going to the root or the first 'First' part that is not a Temp and then all
             //     all entries from then down to the current Temp Result.
@@ -1745,15 +1756,15 @@ abstract public class ParseResult implements Serializable {
     }
     
     /** Root Result */
-    static protected class Root extends Normal {
+    static public class Root extends Normal {
         
         static private final long serialVersionUID = 2543546515135214354L;
         
-        protected Root(int pStartPosition, CharSequence pOrgText) {
+        public Root(int pStartPosition, CharSequence pOrgText) {
             this(pStartPosition, pOrgText, null);
         }
         
-        protected Root(int pStartPosition, CharSequence pOrgText, List<Entry> resultEntries) {
+        public Root(int pStartPosition, CharSequence pOrgText, List<Entry> resultEntries) {
             super(pStartPosition, resultEntries);
             this.OrgText = pOrgText;
         }
@@ -1766,22 +1777,22 @@ abstract public class ParseResult implements Serializable {
         }
         
         @Override
-        ParseResult getDuplicate() {
+        public ParseResult getDuplicate() {
             Root R = new Root(this.startPosition(), this.OrgText, this.entryList());
             return R;
         }
     }
     
     /** Node Result - For sub result*/
-    static protected class Node extends Normal {
+    static public class Node extends Normal {
         
         static private final long serialVersionUID = 2545684654651635454L;
         
-        protected Node(int pStartPosition, ParseResult pParseResult) {
+        public Node(int pStartPosition, ParseResult pParseResult) {
             this(pStartPosition, pParseResult, null);
         }
         
-        protected Node(int pStartPosition, ParseResult pParseResult, List<Entry> resultEntries) {
+        public Node(int pStartPosition, ParseResult pParseResult, List<Entry> resultEntries) {
             super(pStartPosition, resultEntries);
             this.parent = pParseResult;
             for (int i = 0; i < this.parent.entryCount(); i++) {
@@ -1800,7 +1811,7 @@ abstract public class ParseResult implements Serializable {
         }
         
         @Override
-        protected ParseResult parent() {
+        public ParseResult parent() {
             return this.parent;
         }
         
@@ -1810,7 +1821,7 @@ abstract public class ParseResult implements Serializable {
         }
         
         @Override
-        ParseResult getDuplicate() {
+        public ParseResult getDuplicate() {
             // Duplication of Node cannot be optimize the same way with Temp (by avoiding recursive) because Node hold
             //     structure that is important for verification and compilation.
             Node N = new Node(this.startPosition(), this.parent.getDuplicate(), this.entryList());
@@ -1848,7 +1859,7 @@ abstract public class ParseResult implements Serializable {
         
         /**{@inheritDoc}*/
         @Override
-        String getLastStrMatchByName(String pName) {
+        public String getLastStrMatchByName(String pName) {
             String N = super.getLastStrMatchByName(pName);
             if (N != null)
                 return N;
@@ -1939,25 +1950,25 @@ abstract public class ParseResult implements Serializable {
     
     // Child classes -------------------------------------------------------------------------------
     
-    static protected Entry newEntry(int pEndPosition) {
+    static public Entry newEntry(int pEndPosition) {
         return new Entry(pEndPosition);
     }
     
-    static protected Entry newEntry(int pEndPosition, RPEntry pEntry) {
+    static public Entry newEntry(int pEndPosition, RPEntry pEntry) {
         if (pEntry == null)
             return new Entry(pEndPosition);
         else
             return new Entry_WithRPEntry(pEndPosition, pEntry);
     }
     
-    static protected Entry newEntry(int pEndPosition, ParseResult pSubResult) {
+    static public Entry newEntry(int pEndPosition, ParseResult pSubResult) {
         if (pSubResult == null)
             return new Entry(pEndPosition);
         else
             return new Entry_WithSub(pEndPosition, pSubResult);
     }
     
-    static protected Entry newEntry(int pEndPosition, RPEntry pEntry, ParseResult pSubResult) {
+    static public Entry newEntry(int pEndPosition, RPEntry pEntry, ParseResult pSubResult) {
         if (pEntry == null) {
             if (pSubResult == null)
                 return new Entry(pEndPosition);
@@ -1976,7 +1987,7 @@ abstract public class ParseResult implements Serializable {
         
         static private final long serialVersionUID = 3256524452125552551L;
         
-        protected Entry(int pEndPosition) {
+        public Entry(int pEndPosition) {
             this.EndPosition = pEndPosition;
         }
         
@@ -2067,11 +2078,11 @@ abstract public class ParseResult implements Serializable {
         }
     }
     
-    static protected class Entry_WithRPEntry extends Entry {
+    static public class Entry_WithRPEntry extends Entry {
         
         static private final long serialVersionUID = 2254558458854566555L;
         
-        protected Entry_WithRPEntry(int pEndPosition, RPEntry pEntry) {
+        public Entry_WithRPEntry(int pEndPosition, RPEntry pEntry) {
             super(pEndPosition);
             this.RPEntry = pEntry;
         }
