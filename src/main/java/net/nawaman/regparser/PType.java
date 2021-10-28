@@ -308,7 +308,7 @@ abstract public class PType implements Serializable {
     /** Compiles a ParseResult in to an object with a parameter */
     protected Object doCompile(ParseResult pThisResult, int pEntryIndex, String pParam, CompilationContext pContext,
             PTypeProvider pProvider) {
-        return (pThisResult == null) ? null : pThisResult.getTextOf(pEntryIndex);
+        return (pThisResult == null) ? null : pThisResult.textAt(pEntryIndex);
     }
     
     // Object --------------------------------------------------------------------------------------

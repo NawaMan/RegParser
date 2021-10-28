@@ -103,6 +103,23 @@ public class Util {
     }
     
     /** Returns string representation of an object value with customized prefix, suffix and delimiter. */
+    static public String toString(int[] array, String prefix, String suffix, String delimiter) {
+        var buffer = new StringBuffer();
+        buffer.append(prefix);
+        if (array != null) {
+            for (int i = 0; i < Array.getLength(array); i++) {
+                if (i != 0) {
+                    buffer.append(delimiter);
+                }
+                var element = array[i];
+                buffer.append("" + element);
+            }
+        }
+        buffer.append(suffix);
+        return buffer.toString();
+    }
+    
+    /** Returns string representation of an object value with customized prefix, suffix and delimiter. */
     static public <T> String toString(T[] array, String prefix, String suffix, String delimiter) {
         var buffer = new StringBuffer();
         buffer.append(prefix);

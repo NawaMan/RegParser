@@ -346,7 +346,7 @@ public class TestRegParserCompiler1 {
                 + ". . . 00 => [   20] = <NoName>        :<NoType>         = \"\\\\\"\n"
                 + ". . . 01 => [   21] = $WhiteSpace     :<NoType>         = \"s\"\n"
                 + ". . 02 - => [   22] = <NoName>        :<NoType>         = \"]\"", result);
-        validate("[a[g-h]b]&&[d-h]&&[\\s]", result.getSubTextOf(0));
+        validate("[a[g-h]b]&&[d-h]&&[\\s]", result.textAt(0));
     }
     
     @Test
