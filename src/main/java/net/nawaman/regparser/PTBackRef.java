@@ -21,6 +21,9 @@ package net.nawaman.regparser;
 import net.nawaman.regparser.checkers.CheckerAny;
 import net.nawaman.regparser.checkers.WordChecker;
 import net.nawaman.regparser.result.ParseResult;
+import net.nawaman.regparser.result.ParseResultNode;
+import net.nawaman.regparser.result.ParseResultRoot;
+import net.nawaman.regparser.result.ParseResultTemp;
 
 /**
  * RegParser Type for Back referencing.
@@ -48,16 +51,16 @@ public class PTBackRef extends PType {
         
         // Elevate up (in case pHostResult is a node)
         while (W == null) {
-            if (pHostResult instanceof ParseResult.Temp)
-                pHostResult = ((ParseResult.Temp) pHostResult).first();
+            if (pHostResult instanceof ParseResultTemp)
+                pHostResult = ((ParseResultTemp) pHostResult).first();
             else
-                if (pHostResult instanceof ParseResult.Node)
-                    pHostResult = ((ParseResult.Node) pHostResult).parent();
+                if (pHostResult instanceof ParseResultNode)
+                    pHostResult = ((ParseResultNode) pHostResult).parent();
             if (pHostResult == null)
                 return null;
             else {
-                ParseResult.Entry E = pHostResult.getLastMatchByName(pParam);
-                if ((E == null) && (pHostResult instanceof ParseResult.Root))
+                var E = pHostResult.getLastMatchByName(pParam);
+                if ((E == null) && (pHostResult instanceof ParseResultRoot))
                     return null;
                 W = pHostResult.getLastStrMatchByName(pParam);
             }

@@ -26,7 +26,8 @@ public class TestSpeed {
         endTime = System.currentTimeMillis();
         System.out.println("RegExpr:" + (endTime - startTime));
         
-        int loop   = 500000;
+        // TODO - Revert the below comment.
+        int loop   = 5000; //00;
         var random = new Random();
         
         var buffer = new StringBuffer();
@@ -97,7 +98,7 @@ public class TestSpeed {
         
         var ratios = new int[round];
         for (int i = 0; i < round; i++) {
-            ratios[i] = (parserTimes[i]/regexTimes[i]);
+            ratios[i] = (parserTimes[i]/Math.max(1, regexTimes[i]));
         }
         System.out.println("Ratios:" + Arrays.toString(ratios));
         

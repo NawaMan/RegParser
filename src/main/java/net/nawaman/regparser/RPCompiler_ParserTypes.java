@@ -454,7 +454,7 @@ public class RPCompiler_ParserTypes {
             String TName  = ((T == null)?"":T) + N + ((O == null)?"":O) + ((V == null)?"":V) + ((C == null)?"":C);
             
             String Param = null;
-            ParseResult.Entry PE = pThisResult.getLastMatchByName("#Param");
+            var PE = pThisResult.getLastMatchByName("#Param");
             if((PE != null) && PE.hasSubResult()) {
                 Param = pThisResult.getLastMatchByName("#Param").subResult().getLastStrMatchByName("#ParamValue");
                 if(Param != null) Param = Util.unescapeText(Param.substring(1, Param.length() - 1)).toString();
@@ -747,7 +747,7 @@ public class RPCompiler_ParserTypes {
             Vector<CharChecker> CCs  = new Vector<CharChecker>();
             boolean IsNot = false;
             for(int i = 0; i < pThisResult.resultEntrySize(); i++) {
-                ParseResult.Entry PSE = pThisResult.entryAt(i);
+                var PSE = pThisResult.entryAt(i);
                 String PName = PSE.name();
                 String PText = pThisResult.textAt(i);
                 String PType = PSE.typeName();
@@ -978,7 +978,7 @@ public class RPCompiler_ParserTypes {
         @Override public Object doCompile(ParseResult pThisResult, int pEntryIndex, String pParam, CompilationContext pContext,
                 PTypeProvider pProvider) {
             
-            ParseResult.Entry PSE = pThisResult.entryAt(pEntryIndex);
+            var PSE = pThisResult.entryAt(pEntryIndex);
 
             boolean HasSub = PSE.hasSubResult();
             
@@ -1039,7 +1039,7 @@ public class RPCompiler_ParserTypes {
                 }
                 
                 RegParser Second = null;
-                ParseResult.Entry PRE = pThisResult.getLastMatchByName("#Second");
+                var PRE = pThisResult.getLastMatchByName("#Second");
                 if((PRE != null) && PRE.hasSubResult()) {
                     ParseResult Sub_Second = PRE.subResult();
                     
@@ -1113,7 +1113,7 @@ public class RPCompiler_ParserTypes {
             boolean IsDefault = false;
             int Count = pThisResult.resultEntrySize();
             for(int i = 0; i < Count; i++) {
-                ParseResult.Entry PSE   = pThisResult.entryAt(i);
+                var PSE   = pThisResult.entryAt(i);
                 String            PName = PSE.name();
 
                 if("#Ignored[]".equals(PName)) continue;
