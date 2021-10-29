@@ -51,6 +51,19 @@ abstract public class ParseResult implements Serializable {
     
     private static final long serialVersionUID = 4543543556454654354L;
     
+    
+    public static PRRoot newResult(int startPosition, CharSequence originalText) {
+        return new PRRoot(startPosition, originalText);
+    }
+    
+    public static PRTemp newResult(ParseResult first) {
+        return new PRTemp(first);
+    }
+    
+    public static PRNode newResult(int startPosition, ParseResult parseResult) {
+        return new PRNode(startPosition, parseResult);
+    }
+    
     private List<PREntry> entries;
     
     /** Constructor */
@@ -67,7 +80,7 @@ abstract public class ParseResult implements Serializable {
     }
     
     /** Duplicate this result - to be used when verifying */
-    public abstract ParseResult getDuplicate();
+    public abstract ParseResult duplicate();
     
     
     // Parent --------------------------------------------------------------------------------------
@@ -105,11 +118,11 @@ abstract public class ParseResult implements Serializable {
     
     /** Returns the number of the result entry - may be overridden by sub classes. */
     public int entryCount() {
-        return resultEntrySize();
+        return rawEntryCount();
     }
     
     /** Returns the entry list size -- Used internally and cannot be overridden. */
-    public final int resultEntrySize() {
+    public final int rawEntryCount() {
         return (entries == null) ? 0 : entries.size();
     }
     
@@ -390,40 +403,31 @@ abstract public class ParseResult implements Serializable {
         return false;
     }
     
-    /** Returns names of all result entries */
-    public HashSet<String> getAllNames() {
-        HashSet<String> Ns = new HashSet<String>();
-        for (int i = this.entryCount(); --i >= 0;) {
-            PREntry E = this.entryAt(i);
-            if (E.hasParserEntry()) {
-                String N = E.parserEntry().name();
-                if (N == null)
-                    continue;
-                Ns.add(E.parserEntry().name());
-            }
-        }
-        return (Ns.size() == 0) ? null : Ns;
+    public boolean hasName(String name) {
+        return entries()
+                .filter (PREntry::hasParserEntry)
+                .map    (PREntry::parserEntry)
+                .map    (RPEntry::name)
+                .filter (name::equals)
+                .findAny()
+                .isPresent();
     }
     
-    /** Returns names of all result entries that starts with the given prefix */
-    public HashSet<String> getAllNames(String pPrefix) {
-        HashSet<String> Ns = new HashSet<String>();
-        if ((pPrefix == null) || (pPrefix.length() == 0))
-            return Ns;
-        for (int i = this.entryCount(); --i >= 0;) {
-            PREntry E = this.entryAt(i);
-            if (E.hasParserEntry()) {
-                String N = E.parserEntry().name();
-                if (N == null)
-                    continue;
-                Ns.add(E.parserEntry().name());
+    /** Returns names of all result entries */
+    public Stream<String> names() {
+        var names = new HashSet<String>();
+        for (int i = entryCount(); --i >= 0;) {
+            var entry = entryAt(i);
+            if (entry.hasParserEntry()) {
+                var name = entry.parserEntry().name();
+                if (name != null) {
+                    names.add(name);
+                }
             }
         }
-        for (String N : Ns.toArray(Util.EMPTY_STRING_ARRAY)) {
-            if (!N.startsWith(pPrefix))
-                Ns.remove(N);
-        }
-        return (Ns.size() == 0) ? null : Ns;
+        return (names.isEmpty())
+                ? Stream.empty()
+                : names.stream();
     }
     
     /** Returns the index of the last entry that has the same name with the given name */

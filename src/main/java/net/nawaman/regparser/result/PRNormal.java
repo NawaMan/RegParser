@@ -14,18 +14,16 @@ abstract public class PRNormal extends ParseResult {
     
     static private final long serialVersionUID = 4121353565468546546L;
     
-    protected PRNormal(int pStartPosition) {
-        this(pStartPosition, null);
-    }
-    protected PRNormal(int pStartPosition, List<PREntry> resultEntries) {
-        super(resultEntries);
-        this.StartPosition = pStartPosition;
-    }
+    private final int startPosition;
     
-    int StartPosition = 0;
+    PRNormal(int startPosition, List<PREntry> resultEntries) {
+        super(resultEntries);
+        this.startPosition = startPosition;
+    }
     
     @Override
     public int startPosition() {
-        return this.StartPosition;
+        return startPosition;
     }
+    
 }

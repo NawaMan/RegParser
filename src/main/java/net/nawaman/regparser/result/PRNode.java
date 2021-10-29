@@ -1,7 +1,9 @@
 package net.nawaman.regparser.result;
 
-import java.util.HashSet;
+import static java.util.stream.Stream.concat;
+
 import java.util.List;
+import java.util.stream.Stream;
 
 import net.nawaman.regparser.result.entry.PREntry;
 
@@ -11,23 +13,26 @@ public class PRNode extends PRNormal {
     
     static private final long serialVersionUID = 2545684654651635454L;
     
-    public PRNode(int pStartPosition, ParseResult pParseResult) {
-        this(pStartPosition, pParseResult, null);
+    private ParseResult parent;
+    private int         index;
+    
+    PRNode(int startPosition, ParseResult parseResult) {
+        this(startPosition, parseResult, null);
     }
     
-    public PRNode(int pStartPosition, ParseResult pParseResult, List<PREntry> resultEntries) {
-        super(pStartPosition, resultEntries);
-        this.parent = pParseResult;
+    private PRNode(int startPosition, ParseResult parseResult, List<PREntry> resultEntries) {
+        super(startPosition, resultEntries);
+        this.parent = parseResult;
+        
+        int index = 0;
         for (int i = 0; i < this.parent.entryCount(); i++) {
-            if (pStartPosition == this.parent.endPositionAt(i)) {
-                this.Index = i;
+            if (startPosition == this.parent.endPositionAt(i)) {
+                index = i;
                 break;
             }
         }
+        this.index = index;
     }
-    
-    ParseResult parent = null;
-    int         Index  = 0;
     
     void parent(ParseResult parent) {
         this.parent = parent;
@@ -40,44 +45,30 @@ public class PRNode extends PRNormal {
     
     @Override
     public CharSequence originalText() {
-        return this.parent.originalText();
+        return parent.originalText();
     }
     
     @Override
-    public ParseResult getDuplicate() {
-        // Duplication of Node cannot be optimize the same way with Temp (by avoiding recursive) because Node hold
-        //     structure that is important for verification and compilation.
-        PRNode N = new PRNode(this.startPosition(), this.parent.getDuplicate(), this.entryList());
-        N.Index = this.Index;
-        return N;
+    public ParseResult duplicate() {
+        // Duplication of Node cannot be optimize the same way with Temp (by avoiding recursive) 
+        //     because Node hold structure that is important for verification and compilation.
+        int startPosition = startPosition();
+        var duplicate     = parent.duplicate();
+        var entryList     = entryList();
+        
+        var node = new PRNode(startPosition, duplicate, entryList);
+        node.index = index;
+        return node;
     }
     
     // Get Element by name -----------------------------------------------------------------------
     
     @Override
-    public HashSet<String> getAllNames() {
-        HashSet<String> Ns = super.getAllNames();
-        if (this.parent != null) {
-            if (Ns == null)
-                return this.parent.getAllNames();
-            HashSet<String> PNs = this.parent.getAllNames();
-            if (PNs != null)
-                Ns.addAll(this.parent.getAllNames());
-        }
-        return Ns;
-    }
-    
-    @Override
-    public HashSet<String> getAllNames(String pPrefix) {
-        HashSet<String> Ns = super.getAllNames(pPrefix);
-        if (this.parent != null) {
-            if (Ns == null)
-                return this.parent.getAllNames(pPrefix);
-            HashSet<String> PNs = this.parent.getAllNames(pPrefix);
-            if (PNs != null)
-                Ns.addAll(this.parent.getAllNames(pPrefix));
-        }
-        return Ns;
+    public Stream<String> names() {
+        var names = super.names();
+        return (parent == null)
+                ? names
+                : concat(names, parent.names());
     }
     
     /**{@inheritDoc}*/

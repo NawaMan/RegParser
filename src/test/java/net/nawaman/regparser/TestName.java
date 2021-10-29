@@ -45,7 +45,7 @@ public class TestName {
         
         var result = parser.parse("Var[55] = 70;");
         
-        validate("[#Name, #Value, #Index]", result.getAllNames());
+        validate("[#Name, #Value, #Index]", result.names().toArray());
         
         validate("Var", result.textOf("#Name"));
         validate("5",   result.textOf("#Index"));
@@ -53,7 +53,7 @@ public class TestName {
         
         result = parser.parse("Var[55];");
         
-        validate("[#Name, #Index]", result.getAllNames());
+        validate("[#Name, #Index]", result.names().toArray());
         
         validate("Var", result.textOf("#Name"));
         validate("5",   result.textOf("#Index"));
@@ -95,7 +95,7 @@ public class TestName {
                 + "08 => [   17] = <NoName>        :<NoType>         = \" };\"",
                 result);
         
-        validate("[#Value]",            result.getAllNames());
+        validate("[#Value]",            result.names().toArray());
         validate("[5,7,454,5]",         Util.toString(result.textsOf("#Value")));
         validate("[[5],[7],[454],[5]]", Util.toString(result.getAllOfStrMatchesByName("#Value")));
     }

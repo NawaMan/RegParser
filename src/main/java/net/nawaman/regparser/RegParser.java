@@ -18,6 +18,7 @@
 
 package net.nawaman.regparser;
 
+import static net.nawaman.regparser.result.ParseResult.newResult;
 import static net.nawaman.regparser.result.entry.PREntry.newEntry;
 
 import java.io.PrintStream;
@@ -41,7 +42,6 @@ import net.nawaman.regparser.RPCompiler_ParserTypes.RPTType;
 import net.nawaman.regparser.checkers.CheckerAlternative;
 import net.nawaman.regparser.checkers.CheckerFixeds;
 import net.nawaman.regparser.result.PRNode;
-import net.nawaman.regparser.result.PRRoot;
 import net.nawaman.regparser.result.PRTemp;
 import net.nawaman.regparser.result.ParseResult;
 import net.nawaman.regparser.result.entry.PREntry;
@@ -738,8 +738,10 @@ public class RegParser implements Checker, Serializable {
             
             CheckerAlternative CA = (CheckerAlternative) FP;
             for (int c = CA.checkers.length; --c >= 0;) {
-                ParseResult TryResult = IsFPAsNode ? new PRNode(pOffset, pResult)
-                        : new PRTemp(pResult);
+                var TryResult 
+                        = IsFPAsNode
+                        ? newResult(pOffset, pResult)
+                        : newResult(pResult);
                 if (this.parseEach_P(pText, pOffset, pIndex, null, null, null, CA.checkers[c], TryResult, pProvider,
                         pTabs) == null)
                     continue;
@@ -754,8 +756,10 @@ public class RegParser implements Checker, Serializable {
                 if (!CA.hasDefault())
                     return null;
                 
-                ParseResult TryResult = IsFPAsNode ? new PRNode(pOffset, pResult)
-                        : new PRTemp(pResult);
+                var TryResult
+                        = IsFPAsNode
+                        ? newResult(pOffset, pResult)
+                        : newResult(pResult);
                 if (this.parseEach_P(pText, pOffset, pIndex, null, null, null, CA.defaultChecker(), TryResult, pProvider,
                         pTabs) == null)
                     return null;
@@ -778,7 +782,7 @@ public class RegParser implements Checker, Serializable {
                 if (pOffset >= pText.length())
                     return null; //pResult;
                     
-                int REC      = pResult.resultEntrySize();
+                int REC      = pResult.rawEntryCount();
                 int LengthFP = FP.startLengthOf(pText, pOffset, pProvider, pResult);
                 if (LengthFP == -1) {
                     // Recover what may have been added in the fail attempt
@@ -795,7 +799,7 @@ public class RegParser implements Checker, Serializable {
             } else
                 if (IsFPRegParser) {    // RegParser
                     if (IsFPName) {
-                        ParseResult TryResult = new PRNode(pOffset, pResult);
+                        ParseResult TryResult = newResult(pOffset, pResult);
                         if ((((RegParser) FP).parse(pText, pOffset, 0, 0, TryResult, pProvider, null, null,
                                 pTabs + 1)) == null)
                             return null;
@@ -812,7 +816,7 @@ public class RegParser implements Checker, Serializable {
                         return pResult;
                         
                     } else {
-                        int REC = pResult.resultEntrySize();
+                        int REC = pResult.rawEntryCount();
                         if ((((RegParser) FP).parse(pText, pOffset, 0, 0, pResult, pProvider, null, null,
                                 pTabs)) == null) {
                             // Recover what may have been added in the fail attempt
@@ -861,7 +865,7 @@ public class RegParser implements Checker, Serializable {
                         
                         if (FP instanceof RegParser) {
                             // The type contain a RegParser
-                            ParseResult TryResult = new PRNode(pOffset, pResult);
+                            ParseResult TryResult = newResult(pOffset, pResult);
                             TryResult = ((RegParser) FP).parse(pText, pOffset, 0, 0, TryResult, pProvider,
                                     ((FT != null) && FT.isSelfContain()) ? null : FT,
                                     ((FT != null) && FT.isSelfContain()) ? null : Param, pTabs + 1);
@@ -879,8 +883,10 @@ public class RegParser implements Checker, Serializable {
                                 
                                 CheckerAlternative CA = (CheckerAlternative) FP;
                                 for (int c = CA.checkers.length; --c >= 0;) {
-                                    ParseResult TryResult = IsFPAsNode ? new PRNode(pOffset, pResult)
-                                            : new PRTemp(pResult);
+                                    var TryResult
+                                            = IsFPAsNode
+                                            ? newResult(pOffset, pResult)
+                                            : newResult(pResult);
                                     if (this.parseEach_P(pText, pOffset, pIndex, null, null, null, CA.checkers[c],
                                             TryResult, pProvider, pTabs + 1) == null)
                                         continue;
@@ -895,8 +901,10 @@ public class RegParser implements Checker, Serializable {
                                     if (!CA.hasDefault())
                                         return null;
                                     
-                                    ParseResult TryResult = IsFPAsNode ? new PRNode(pOffset, pResult)
-                                            : new PRTemp(pResult);
+                                    var TryResult
+                                            = IsFPAsNode
+                                            ? newResult(pOffset, pResult)
+                                            : newResult(pResult);
                                     if (this.parseEach_P(pText, pOffset, pIndex, null, null, null, CA.defaultChecker(),
                                             TryResult, pProvider, pTabs + 1) == null)
                                         return null;
@@ -912,7 +920,7 @@ public class RegParser implements Checker, Serializable {
                                     // Check if there enough space for it
                                     if (pText.length() >= (pOffset + CG.neededLength())) {
                                         EndPosition = pOffset;
-                                        ThisResult  = new PRNode(pOffset, pResult);
+                                        ThisResult  = newResult(pOffset, pResult);
                                         for (int i = 0; i < CG.entryCount(); i++) {
                                             int l = CG.entry(i).length();
                                             if (l != -1)
@@ -924,7 +932,7 @@ public class RegParser implements Checker, Serializable {
                                     }
                                 } else {
                                     // The type contain a checker
-                                    int REC      = pResult.resultEntrySize();
+                                    int REC      = pResult.rawEntryCount();
                                     int LengthFP = FP.startLengthOf(pText, pOffset, pProvider, pResult);
                                     if (LengthFP == -1) {
                                         // Recover what may have been added in the fail attempt
@@ -933,13 +941,13 @@ public class RegParser implements Checker, Serializable {
                                     }
                                     
                                     EndPosition = pOffset + LengthFP;
-                                    ThisResult  = new PRNode(pOffset, pResult);
+                                    ThisResult  = newResult(pOffset, pResult);
                                     ThisResult.append(newEntry(pOffset + LengthFP, this.Entries[pIndex]));
                                     
                                 }
                             
                         if ((FT != null) && FT.hasValidation() && FT.isSelfContain()) {
-                            ParseResult PR = ThisResult.getDuplicate();
+                            ParseResult PR = ThisResult.duplicate();
                             PR.collapse(pProvider);
                             // In case of type, do validation
                             if (!FT.validate(pResult, PR, Param, pProvider))
@@ -991,7 +999,7 @@ public class RegParser implements Checker, Serializable {
         
         // If the entry has a name, ask it to parse with a new parse result 
         if (pResult == null)
-            pResult = new PRRoot(pOffset, pText);
+            pResult = ParseResult.newResult(pOffset, pText);
         if (pText == null)
             return pResult;
         
@@ -1113,7 +1121,7 @@ public class RegParser implements Checker, Serializable {
             if (FPQ.isPossessive()) {
                 
                 if (FPQ.isOne_Possessive()) {    // Match one
-                    int REC = pResult.resultEntrySize();
+                    int REC = pResult.rawEntryCount();
                     if (this.parseEach_P(pText, pOffset, pIndex, pResult, pProvider, pTabs) == null) {
                         // Recover what may have been added in the fail attempt
                         pResult.reset(REC);
@@ -1127,7 +1135,7 @@ public class RegParser implements Checker, Serializable {
                     
                 } else
                     if (FPQ.isZero()) {        // Match Zero
-                        int REC = pResult.resultEntrySize();
+                        int REC = pResult.rawEntryCount();
                         if (this.parseEach_P(pText, pOffset, pIndex, pResult, pProvider, pTabs) != null) {
                             // Recover what may have been added in the fail attempt
                             pResult.reset(REC);
@@ -1174,20 +1182,20 @@ public class RegParser implements Checker, Serializable {
                             }
                         }
                         
-                        int REC = pResult.resultEntrySize();
+                        int REC = pResult.rawEntryCount();
                         
                         // Check if it reaches the maximum
                         if ((FPQ.hasNoUpperBound()) || (pTimes < FPQ.upperBound())) {    // Not yet
-                            int FREC = pResult.resultEntrySize();
-                            if (FREC != pResult.resultEntrySize()) {
-                                int one = pResult.resultEntrySize();
-                                int two = pResult.resultEntrySize();
+                            int FREC = pResult.rawEntryCount();
+                            if (FREC != pResult.rawEntryCount()) {
+                                int one = pResult.rawEntryCount();
+                                int two = pResult.rawEntryCount();
                                 System.out.println("Wrong! one=" + one + ", two: " + two);
                             }
                             // Try the first part
                             if (this.parseEach_P(pText, pOffset, pIndex, pResult, pProvider, pTabs) != null) {    // Match
                                 // Only the one that advances the parsing
-                                if ((FREC != pResult.resultEntrySize()) && (pOffset != pResult.endPosition())) {
+                                if ((FREC != pResult.rawEntryCount()) && (pOffset != pResult.endPosition())) {
                                     pTimes++;
                                     continue;
                                 }
@@ -1233,7 +1241,7 @@ public class RegParser implements Checker, Serializable {
                             for (int c = CA.checkers.length; --c >= 0;) {
                                 Checker C = CA.checkers[c];
                                 // Try the first part
-                                PRTemp TryResult = new PRTemp(pResult);
+                                PRTemp TryResult = newResult(pResult);
                                 if (this.parseEach_P(pText, pOffset, pIndex, null, null, null, C, TryResult, pProvider,
                                         pTabs) != null) {
                                     // Match
@@ -1261,7 +1269,7 @@ public class RegParser implements Checker, Serializable {
                             }
                             
                             if (CA.hasDefault()) {
-                                int REC = pResult.resultEntrySize();
+                                int REC = pResult.rawEntryCount();
                                 if (this.parseEach_P(pText, pOffset, pIndex, null, null, null, CA.defaultChecker(), pResult,
                                         pProvider, pTabs) != null) {
                                     // Found the match.
@@ -1272,7 +1280,7 @@ public class RegParser implements Checker, Serializable {
                             }
                             
                         } else {
-                            int REC = pResult.resultEntrySize();
+                            int REC = pResult.rawEntryCount();
                             // Try the first part
                             if (this.parseEach_P(pText, pOffset, pIndex, pResult, pProvider, pTabs) != null) {
                                 // Try the first part again. If match, return 
@@ -1302,7 +1310,7 @@ public class RegParser implements Checker, Serializable {
                         // Check if it has reach the minimum
                         if (pTimes >= FPQ.lowerBound()) {
                             // Try the last part
-                            int REC = pResult.resultEntrySize();
+                            int REC = pResult.rawEntryCount();
                             // Parse the last part. If match, return
                             if (this.parse(pText, pOffset, pIndex + 1, 0, pResult, pProvider, pRPType, pRPTParam,
                                     pTabs) != null) {
@@ -1336,7 +1344,7 @@ public class RegParser implements Checker, Serializable {
                             CheckerAlternative CA = (CheckerAlternative) FP;
                             for (int c = CA.checkers.length; --c >= 0;) {
                                 // Try the first part
-                                PRTemp TryResult = new PRTemp(pResult);
+                                var TryResult = newResult(pResult);
                                 if (this.parseEach_P(pText, pOffset, pIndex, null, null, null, CA.checkers[c],
                                         TryResult, pProvider, pTabs) != null) {
                                     // Match
@@ -1364,7 +1372,7 @@ public class RegParser implements Checker, Serializable {
                             }
                             
                             if (CA.hasDefault()) {
-                                int REC = pResult.resultEntrySize();
+                                int REC = pResult.rawEntryCount();
                                 if (this.parseEach_P(pText, pOffset, pIndex, null, null, null, CA.defaultChecker(), pResult,
                                         pProvider, pTabs) != null) {
                                     // Found the match.
@@ -1378,7 +1386,7 @@ public class RegParser implements Checker, Serializable {
                             return null;
                             
                         } else {
-                            int REC = pResult.resultEntrySize();
+                            int REC = pResult.rawEntryCount();
                             // Try the first part
                             if (this.parseEach_P(pText, pOffset, pIndex, pResult, pProvider, pTabs) != null) {
                                 pTimes++;
@@ -1397,7 +1405,7 @@ public class RegParser implements Checker, Serializable {
         
         // Validate the value here
         if ((pRPType != null) && pRPType.hasValidation() && !pRPType.isSelfContain()) {
-            ParseResult PR = pResult.getDuplicate();
+            ParseResult PR = pResult.duplicate();
             PR.collapse(pProvider);
             ParseResult Host = (PR instanceof PRNode) ? ((PRNode) PR).parent() : null;
             if (!pRPType.validate(Host, PR, pRPTParam, pProvider))
@@ -1475,7 +1483,7 @@ public class RegParser implements Checker, Serializable {
             return PR.endPosition() - pOffset;
         }
         
-        int REC = pResult.resultEntrySize();
+        int REC = pResult.rawEntryCount();
         if ((this.parse(S, pOffset, 0, 0, pResult, pProvider, null, null, 0)) == null) {
             // Recover what may have been added in the fail attempt
             pResult.reset(REC);

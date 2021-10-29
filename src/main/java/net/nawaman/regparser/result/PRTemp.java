@@ -1,96 +1,111 @@
 package net.nawaman.regparser.result;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
-import java.util.stream.Collectors;
 
 import net.nawaman.regparser.result.entry.PREntry;
 
+/**
+ * Temporary parse result.
+ * 
+ * @author nawa
+ */
 public class PRTemp extends ParseResult {
     
     static private final long serialVersionUID = 3255656565625655652L;
     
-    public PRTemp(ParseResult pFirst) {
-        this(pFirst, null);
+    private final ParseResult first;
+    
+    PRTemp(ParseResult first) {
+        this(first, null);
     }
     
-    public PRTemp(ParseResult pFirst, List<PREntry> resultEntries) {
-        super(resultEntries);
-        this.First = pFirst;
+    private PRTemp(ParseResult first, List<PREntry> resultEntries) {
+        super(null);
+        this.first = first;
     }
-    
-    ParseResult First = null;
     
     public ParseResult first() {
-        return First;
+        return first;
     }
     
     @Override
     public int entryCount() {
-        int         Count = super.entryCount();
-        ParseResult F     = this.First;
-        while (F instanceof PRTemp) {
-            Count += F.resultEntrySize();
-            F      = ((PRTemp) F).First;
+        int count = super.entryCount();
+        var first = this.first;
+        while (first instanceof PRTemp) {
+            count += first.rawEntryCount();
+            first =  ((PRTemp) first).first;
         }
-        return F.entryCount() + Count;
+        return first.entryCount() + count;
     }
     
     @Override
-    public PREntry entryAt(int pIndex) {
-        if ((pIndex < 0) || pIndex >= this.entryCount())
+    public PREntry entryAt(int index) {
+        if ((index < 0) || index >= entryCount()) {
             return null;
-        if (pIndex < this.First.entryCount()) {
-            PRTemp T = this;
-            while (pIndex < T.First.entryCount()) {
-                if (!(T.First instanceof PRTemp))
-                    return T.First.entryAt(pIndex);
-                T = (PRTemp) T.First;
-            }
-            return T.entryAt(pIndex);
         }
-        return this.entries().skip(pIndex - this.First.entryCount()).findFirst().orElse(null);
+        if (index < first.entryCount()) {
+            var temp = this;
+            while (index < temp.first.entryCount()) {
+                if (!(temp.first instanceof PRTemp)) {
+                    return temp.first.entryAt(index);
+                }
+                
+                temp = (PRTemp)temp.first;
+            }
+            return temp.entryAt(index);
+        }
+        return entries()
+                .skip(index - first.entryCount())
+                .findFirst()
+                .orElse(null);
     }
     
     @Override
     public int startPosition() {
-        return this.First.startPosition();
+        return first.startPosition();
     }
     
     @Override
     public CharSequence originalText() {
-        return this.First.originalText();
+        return first.originalText();
     }
     
     @Override
-    public ParseResult getDuplicate() {
+    public ParseResult duplicate() {
         // This was initially implement using recursive but it was too slow.
         // The optimization is done by going to the root or the first 'First' part that is not a Temp and then all
         //     all entries from then down to the current Temp Result.
-        if (!(this.First instanceof PRTemp)) {
-            var resultEntries = this.entries().collect(Collectors.toList());
-            PRTemp T = new PRTemp(this.First.getDuplicate(), resultEntries);
-            return T;
-        } else {
-            Vector<PRTemp> Firsts = new Vector<PRTemp>();
-            Firsts.add(this);
-            PRTemp F = (PRTemp) this.First;
-            Firsts.add(F);
-            while (F.First instanceof PRTemp) {
-                F = (PRTemp) F.First;
-                Firsts.add(F);
-            }
-            
-            var resultEntries = new ArrayList<PREntry>();
-            for (int i = Firsts.size(); --i >= 0;) {
-                if (Firsts.get(i).entries().count() == 0) {
-                    continue;
-                }
-                resultEntries.addAll(Firsts.get(i).entryList());
-            }
-            PRTemp T = new PRTemp(F.First.getDuplicate(), resultEntries);
-            return T;
+        if (!(first instanceof PRTemp)) {
+            var resultEntries  = entries().collect(toList());
+            var duplicateFirst = first.duplicate();
+            return new PRTemp(duplicateFirst, resultEntries);
         }
+        
+        var firsts = new ArrayList<PRTemp>();
+        firsts.add(this);
+        
+        var first = (PRTemp) this.first;
+        firsts.add(first);
+        
+        while (first.first instanceof PRTemp) {
+            first = (PRTemp)first.first;
+            firsts.add(first);
+        }
+        
+        var resultEntries = new ArrayList<PREntry>();
+        for (int i = firsts.size(); --i >= 0;) {
+            var firstEntry = firsts.get(i);
+            if (firstEntry.entryCount() != 0) {
+                var entryList = firstEntry.entryList();
+                resultEntries.addAll(entryList);
+            }
+        }
+        var duplicate = first.first.duplicate();
+        return new PRTemp(duplicate, resultEntries);
     }
+    
 }

@@ -652,7 +652,7 @@ public class RPCompiler_ParserTypes {
             pThisResult = pThisResult.entryAt(pEntryIndex).subResult();
             
             if(pThisResult.getLastMatchByName("#Start").hasSubResult()) {
-                if((pThisResult.getLastMatchByName("#Start").subResult().getAllNames()).contains("#Error[]")) {
+                if(pThisResult.getLastMatchByName("#Start").subResult().hasName("#Error[]")) {
                     throw new RPCompilationException("There is an invalid character near \""
                         + pThisResult.originalString().substring(pThisResult.startPosition()) + "\".");
                 }
@@ -670,7 +670,7 @@ public class RPCompiler_ParserTypes {
             if(E == null) return new CharSingle(SC);
             else {
                 if(pThisResult.getLastMatchByName("#End").hasSubResult()) {
-                    if(pThisResult.getLastMatchByName("#End").subResult().getAllNames().contains("#Error[]")) {
+                    if(pThisResult.getLastMatchByName("#End").subResult().hasName("#Error[]")) {
                         throw new RPCompilationException("There is an invalid character near \""
                         + pThisResult.originalString().substring(pThisResult.startPosition()) + "\".");
                     }
@@ -746,7 +746,7 @@ public class RPCompiler_ParserTypes {
             Vector<CharChecker> CCCs = new Vector<CharChecker>();
             Vector<CharChecker> CCs  = new Vector<CharChecker>();
             boolean IsNot = false;
-            for(int i = 0; i < pThisResult.resultEntrySize(); i++) {
+            for(int i = 0; i < pThisResult.rawEntryCount(); i++) {
                 var PSE = pThisResult.entryAt(i);
                 String PName = PSE.name();
                 String PText = pThisResult.textAt(i);
@@ -1111,7 +1111,7 @@ public class RPCompiler_ParserTypes {
             boolean IsNot     = false;
             boolean IsOR      = false;
             boolean IsDefault = false;
-            int Count = pThisResult.resultEntrySize();
+            int Count = pThisResult.rawEntryCount();
             for(int i = 0; i < Count; i++) {
                 var PSE   = pThisResult.entryAt(i);
                 String            PName = PSE.name();
@@ -1186,7 +1186,7 @@ public class RPCompiler_ParserTypes {
                         RPI = (RPEntry)pProvider.getType(RPTRegParserItem.Name).compile(Sub, 0, null, pContext, pProvider);
     
                         Quantifier Q = Quantifier.One;
-                        if(Sub.resultEntrySize() == 2) {
+                        if(Sub.rawEntryCount() == 2) {
                             Q = (Quantifier)pProvider.getType(RPTQuantifier.Name).compile(Sub, 1, null, pContext, pProvider); 
                         }
                         if(Q != Quantifier.One) {
