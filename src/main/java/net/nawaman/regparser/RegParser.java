@@ -40,12 +40,11 @@ import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParserItem;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTType;
 import net.nawaman.regparser.checkers.CheckerAlternative;
 import net.nawaman.regparser.checkers.CheckerFixeds;
-import net.nawaman.regparser.result.ParseResult;
 import net.nawaman.regparser.result.PRNode;
 import net.nawaman.regparser.result.PRRoot;
 import net.nawaman.regparser.result.PRTemp;
+import net.nawaman.regparser.result.ParseResult;
 import net.nawaman.regparser.result.entry.PREntry;
-import net.nawaman.regparser.result.entry.PREntryWithParserEntry;
 import net.nawaman.regparser.types.PTIdentifier;
 import net.nawaman.regparser.types.PTStrLiteral;
 import net.nawaman.regparser.types.PTTextCI;
@@ -1137,7 +1136,7 @@ public class RegParser implements Checker, Serializable {
                         // Append an empty entry when found zero (if named or typed)
                         if ((this.Entries[pIndex].name() != null) || (this.Entries[pIndex].type() != null)
                                 || (this.Entries[pIndex].typeRef() != null))
-                            pResult.append(new PREntryWithParserEntry(pOffset, this.Entries[pIndex]));
+                            pResult.append(PREntry.newEntry(pOffset, this.Entries[pIndex]));
                         
                         // To the next entry, so change the entry index and restart the repeat
                         pIndex++;
@@ -1157,12 +1156,12 @@ public class RegParser implements Checker, Serializable {
                                     if (UB != -1) {    // With limit
                                         if (pOffset + UB <= TextLength) { // Can it contain the maximum
                                             // Take the minimum
-                                            pResult.append(new PREntry(pOffset + UB));
+                                            pResult.append(newEntry(pOffset + UB));
                                         } else {    // Take what it can
-                                            pResult.append(new PREntry(TextLength));
+                                            pResult.append(newEntry(TextLength));
                                         }
                                     } else {    // Is no limit - Match till the end
-                                        pResult.append(new PREntry(TextLength));
+                                        pResult.append(newEntry(TextLength));
                                     }
                                     // To the next entry, so change the entry index and restart the repeat
                                     pIndex++;

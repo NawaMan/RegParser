@@ -8,20 +8,20 @@ public class PREntryWithParserEntryAndSub extends PREntryWithParserEntry {
     
     static private final long serialVersionUID = 2548545452415545545L;
     
-    public PREntryWithParserEntryAndSub(int pEndPosition, RPEntry pEntry, ParseResult pSubResult) {
-        super(pEndPosition, pEntry);
-        this.SubResult = pSubResult;
-    }
+    private final ParseResult subResult;
     
-    ParseResult SubResult;
+    PREntryWithParserEntryAndSub(int endPosition, RPEntry entry, ParseResult subResult) {
+        super(endPosition, entry);
+        this.subResult = subResult;
+    }
     
     @Override
     public boolean hasSubResult() {
-        return (this.SubResult != null);
+        return (subResult != null);
     }
     
     @Override
     public ParseResult subResult() {
-        return this.SubResult;
+        return subResult;
     }
 }

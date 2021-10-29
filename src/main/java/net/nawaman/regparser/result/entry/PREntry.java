@@ -46,11 +46,11 @@ public class PREntry implements Serializable {
     
     //== Constructor ===================================================================================================
     
-    public PREntry(int endPosition) {
+    private final int endPosition;
+    
+    PREntry(int endPosition) {
         this.endPosition = endPosition;
     }
-    
-    private final int endPosition;
     
     public int endPosition() {
         return endPosition;

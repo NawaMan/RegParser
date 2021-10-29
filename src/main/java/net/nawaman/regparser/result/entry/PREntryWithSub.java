@@ -7,20 +7,21 @@ public class PREntryWithSub extends PREntry {
     
     static private final long serialVersionUID = 3256954552565455451L;
     
-    public PREntryWithSub(int pEndPosition, ParseResult pSubResult) {
-        super(pEndPosition);
-        this.SubResult = pSubResult;
-    }
+    private final ParseResult subResult;
     
-    ParseResult SubResult;
+    PREntryWithSub(int endPosition, ParseResult subResult) {
+        super(endPosition);
+        this.subResult = subResult;
+    }
     
     @Override
     public boolean hasSubResult() {
-        return (this.SubResult != null);
+        return (subResult != null);
     }
     
     @Override
     public ParseResult subResult() {
-        return this.SubResult;
+        return subResult;
     }
+    
 }

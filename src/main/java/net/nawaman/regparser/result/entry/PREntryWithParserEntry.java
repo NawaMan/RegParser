@@ -7,20 +7,20 @@ public class PREntryWithParserEntry extends PREntry {
     
     static private final long serialVersionUID = 2254558458854566555L;
     
-    public PREntryWithParserEntry(int pEndPosition, RPEntry pEntry) {
-        super(pEndPosition);
-        this.RPEntry = pEntry;
-    }
+    private final RPEntry entry;
     
-    RPEntry RPEntry;
+    PREntryWithParserEntry(int endPosition, RPEntry entry) {
+        super(endPosition);
+        this.entry = entry;
+    }
     
     @Override
     public boolean hasParserEntry() {
-        return (this.RPEntry != null);
+        return (this.entry != null);
     }
     
     @Override
     public RPEntry parserEntry() {
-        return this.RPEntry;
+        return this.entry;
     }
 }
