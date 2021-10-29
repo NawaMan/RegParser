@@ -16,11 +16,12 @@ public class PREntryWithParserEntry extends PREntry {
     
     @Override
     public boolean hasParserEntry() {
-        return (this.entry != null);
+        return (entry != null);
     }
     
     @Override
     public RPEntry parserEntry() {
-        return this.entry;
+        return entry;
     }
+    
 }

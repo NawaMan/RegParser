@@ -24,4 +24,5 @@ public class PREntryWithParserEntryAndSub extends PREntryWithParserEntry {
     public ParseResult subResult() {
         return subResult;
     }
+    
 }
