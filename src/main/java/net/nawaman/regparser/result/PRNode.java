@@ -3,19 +3,19 @@ package net.nawaman.regparser.result;
 import java.util.HashSet;
 import java.util.List;
 
-import net.nawaman.regparser.result.entry.ParseResultEntry;
+import net.nawaman.regparser.result.entry.PREntry;
 
 
 /** Node Result - For sub result*/
-public class ParseResultNode extends ParseResultNormal {
+public class PRNode extends PRNormal {
     
     static private final long serialVersionUID = 2545684654651635454L;
     
-    public ParseResultNode(int pStartPosition, ParseResult pParseResult) {
+    public PRNode(int pStartPosition, ParseResult pParseResult) {
         this(pStartPosition, pParseResult, null);
     }
     
-    public ParseResultNode(int pStartPosition, ParseResult pParseResult, List<ParseResultEntry> resultEntries) {
+    public PRNode(int pStartPosition, ParseResult pParseResult, List<PREntry> resultEntries) {
         super(pStartPosition, resultEntries);
         this.parent = pParseResult;
         for (int i = 0; i < this.parent.entryCount(); i++) {
@@ -47,7 +47,7 @@ public class ParseResultNode extends ParseResultNormal {
     public ParseResult getDuplicate() {
         // Duplication of Node cannot be optimize the same way with Temp (by avoiding recursive) because Node hold
         //     structure that is important for verification and compilation.
-        ParseResultNode N = new ParseResultNode(this.startPosition(), this.parent.getDuplicate(), this.entryList());
+        PRNode N = new PRNode(this.startPosition(), this.parent.getDuplicate(), this.entryList());
         N.Index = this.Index;
         return N;
     }
@@ -126,8 +126,8 @@ public class ParseResultNode extends ParseResultNormal {
     
     /** Returns the last match */
     @Override
-    public ParseResultEntry getLastMatchByName(String pName) {
-        ParseResultEntry E = super.getLastMatchByName(pName);
+    public PREntry getLastMatchByName(String pName) {
+        PREntry E = super.getLastMatchByName(pName);
         if (E != null)
             return E;
         return null;
@@ -135,9 +135,9 @@ public class ParseResultNode extends ParseResultNormal {
     
     /** Returns the last group of continuous match */
     @Override
-    public ParseResultEntry[] getLastMatchesByName(String pName) {
-        ParseResultEntry[] S_Ms = super.getLastMatchesByName(pName);
-        ParseResultEntry[] Ms   = new ParseResultEntry[((S_Ms == null) ? 0 : S_Ms.length)];
+    public PREntry[] getLastMatchesByName(String pName) {
+        PREntry[] S_Ms = super.getLastMatchesByName(pName);
+        PREntry[] Ms   = new PREntry[((S_Ms == null) ? 0 : S_Ms.length)];
         if (S_Ms != null)
             System.arraycopy(S_Ms, 0, Ms, Ms.length - S_Ms.length, S_Ms.length);
         return Ms;
@@ -145,9 +145,9 @@ public class ParseResultNode extends ParseResultNormal {
     
     /** Returns the all the match */
     @Override
-    public ParseResultEntry[] getAllMatchesByName(String pName) {
-        ParseResultEntry[] S_Ms = super.getAllMatchesByName(pName);
-        ParseResultEntry[] Ms   = new ParseResultEntry[((S_Ms == null) ? 0 : S_Ms.length)];
+    public PREntry[] getAllMatchesByName(String pName) {
+        PREntry[] S_Ms = super.getAllMatchesByName(pName);
+        PREntry[] Ms   = new PREntry[((S_Ms == null) ? 0 : S_Ms.length)];
         if (S_Ms != null)
             System.arraycopy(S_Ms, 0, Ms, Ms.length - S_Ms.length, S_Ms.length);
         return Ms;
@@ -155,10 +155,10 @@ public class ParseResultNode extends ParseResultNormal {
     
     /** Returns the all the match */
     @Override
-    public ParseResultEntry[][] getAllOfMatchesByName(String pName) {
-        ParseResultEntry[][] P_Ms = (this.parent == null) ? null : this.parent.getAllOfMatchesByName(pName);
-        ParseResultEntry[][] S_Ms = super.getAllOfMatchesByName(pName);
-        ParseResultEntry[][] Ms   = new ParseResultEntry[((S_Ms == null) ? 0 : S_Ms.length) + ((P_Ms == null) ? 0 : P_Ms.length)][];
+    public PREntry[][] getAllOfMatchesByName(String pName) {
+        PREntry[][] P_Ms = (this.parent == null) ? null : this.parent.getAllOfMatchesByName(pName);
+        PREntry[][] S_Ms = super.getAllOfMatchesByName(pName);
+        PREntry[][] Ms   = new PREntry[((S_Ms == null) ? 0 : S_Ms.length) + ((P_Ms == null) ? 0 : P_Ms.length)][];
         if (P_Ms != null)
             for (int i = P_Ms.length; --i >= 0;)
                 Ms[i] = P_Ms[i].clone();

@@ -2,7 +2,7 @@ package net.nawaman.regparser.result;
 
 import java.util.List;
 
-import net.nawaman.regparser.result.entry.ParseResultEntry;
+import net.nawaman.regparser.result.entry.PREntry;
 
 
 /**
@@ -10,14 +10,14 @@ import net.nawaman.regparser.result.entry.ParseResultEntry;
  * 
  * @author nawa
  */
-abstract public class ParseResultNormal extends ParseResult {
+abstract public class PRNormal extends ParseResult {
     
     static private final long serialVersionUID = 4121353565468546546L;
     
-    protected ParseResultNormal(int pStartPosition) {
+    protected PRNormal(int pStartPosition) {
         this(pStartPosition, null);
     }
-    protected ParseResultNormal(int pStartPosition, List<ParseResultEntry> resultEntries) {
+    protected PRNormal(int pStartPosition, List<PREntry> resultEntries) {
         super(resultEntries);
         this.StartPosition = pStartPosition;
     }

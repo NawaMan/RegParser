@@ -4,11 +4,11 @@ import net.nawaman.regparser.RPEntry;
 import net.nawaman.regparser.result.ParseResult;
 
 
-public class ParseResultEntryWithParserEntryAndSub extends ParseResultEntryWithParserEntry {
+public class PREntryWithParserEntryAndSub extends PREntryWithParserEntry {
     
     static private final long serialVersionUID = 2548545452415545545L;
     
-    public ParseResultEntryWithParserEntryAndSub(int pEndPosition, RPEntry pEntry, ParseResult pSubResult) {
+    public PREntryWithParserEntryAndSub(int pEndPosition, RPEntry pEntry, ParseResult pSubResult) {
         super(pEndPosition, pEntry);
         this.SubResult = pSubResult;
     }
