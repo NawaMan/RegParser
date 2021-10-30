@@ -73,46 +73,15 @@ public class PRNode extends PRNormal {
     
     /**{@inheritDoc}*/
     @Override
-    public String getLastStrMatchByName(String pName) {
-        String N = super.getLastStrMatchByName(pName);
-        if (N != null)
-            return N;
-        if (this.parent != null)
-            return this.parent.getLastStrMatchByName(pName);
-        return null;
-    }
-    
-    /**{@inheritDoc}*/
-    @Override
-    String[] getLastStrMatchesByName(String pName) {
-        String[] S_Ms = super.getLastStrMatchesByName(pName);
-        String[] Ms   = new String[((S_Ms == null) ? 0 : S_Ms.length)];
-        if (S_Ms != null)
-            System.arraycopy(S_Ms, 0, Ms, Ms.length - S_Ms.length, S_Ms.length);
-        return Ms;
-    }
-    
-    /**{@inheritDoc}*/
-    @Override
-    String[] getAllStrMatchesByName(String pName) {
-        String[] S_Ms = super.getAllStrMatchesByName(pName);
-        String[] Ms   = new String[((S_Ms == null) ? 0 : S_Ms.length)];
-        if (S_Ms != null)
-            System.arraycopy(S_Ms, 0, Ms, Ms.length - S_Ms.length, S_Ms.length);
-        return Ms;
-    }
-    
-    /** Returns the all the match */
-    @Override
-    public String[][] getAllOfStrMatchesByName(String pName) {
-        String[][] S_Ms = super.getAllOfStrMatchesByName(pName);
-        String[][] Ms   = new String[((S_Ms == null) ? 0 : S_Ms.length)][];
-        if (S_Ms != null) {
-            int O = 0;
-            for (int i = S_Ms.length; --i >= 0;)
-                Ms[O + i] = S_Ms[i].clone();
+    public String lastStringFor(String name) {
+        var string = super.lastStringFor(name);
+        if (string != null) {
+            return string;
         }
-        return Ms;
+        if (parent != null) {
+            return parent.lastStringFor(name);
+        }
+        return null;
     }
     
     /** Returns the last match */

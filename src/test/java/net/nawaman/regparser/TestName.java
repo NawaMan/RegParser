@@ -1,5 +1,6 @@
 package net.nawaman.regparser;
 
+import static net.nawaman.regparser.Greediness.Possessive;
 import static net.nawaman.regparser.PredefinedCharClasses.Alphabet;
 import static net.nawaman.regparser.PredefinedCharClasses.AlphabetAndDigit;
 import static net.nawaman.regparser.PredefinedCharClasses.Blank;
@@ -97,7 +98,49 @@ public class TestName {
         
         validate("[#Value]",            result.names().toArray());
         validate("[5,7,454,5]",         Util.toString(result.textsOf("#Value")));
-        validate("[[5],[7],[454],[5]]", Util.toString(result.getAllOfStrMatchesByName("#Value")));
+        validate("[[5],[7],[454],[5]]", Util.toString(result.stringMatchesOf("#Value")));
+    }
+    
+    @Test
+    public void test3() {
+        var oneOrTwo = new Quantifier(1, 2, Possessive);
+        var parser 
+                = newRegParser(
+                    new CharSingle('{'), 
+                    Blank, ZeroOrMore,
+                    RPEntry._new("#Value", newRegParser(Digit, oneOrTwo)),
+                    Blank, ZeroOrMore,
+                    RPEntry._new(
+                        newRegParser(
+                            new CharSingle(','), 
+                            Blank, ZeroOrMore,
+                            RPEntry._new("#Value", newRegParser(Digit, oneOrTwo), OneOrMore)
+                        ), ZeroOrMore
+                    ),
+                    Blank,               ZeroOrMore,
+                    new CharSingle(','), ZeroOrOne,
+                    Blank,               ZeroOrMore,
+                    new CharSingle('}'),
+                    Blank,               ZeroOrMore,
+                    new CharSingle(';'));
+        
+        var result = parser.parse("{ 5, 7, 456, 5 };");
+        validate("\n"
+                + "00 => [    2] = <NoName>        :<NoType>         = \"{ \"\n"
+                + "01 => [    3] = #Value          :<NoType>         = \"5\"\n"
+                + "02 => [    5] = <NoName>        :<NoType>         = \", \"\n"
+                + "03 => [    6] = #Value          :<NoType>         = \"7\"\n"
+                + "04 => [    8] = <NoName>        :<NoType>         = \", \"\n"
+                + "05 => [   10] = #Value          :<NoType>         = \"45\"\n"
+                + "06 => [   11] = #Value          :<NoType>         = \"6\"\n"
+                + "07 => [   13] = <NoName>        :<NoType>         = \", \"\n"
+                + "08 => [   14] = #Value          :<NoType>         = \"5\"\n"
+                + "09 => [   17] = <NoName>        :<NoType>         = \" };\"",
+                result);
+        
+        validate("[#Value]",              result.names().toArray());
+        validate("[5,7,45,6,5]",          Util.toString(result.textsOf("#Value")));
+        validate("[[5],[7],[45, 6],[5]]", Util.toString(result.stringMatchesOf("#Value")));
     }
     
 }

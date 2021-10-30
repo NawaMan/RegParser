@@ -457,53 +457,18 @@ abstract public class ParseResult implements Serializable {
     }
     
     /** Returns the text of the the last match */
-    public String getLastStrMatchByName(String pName) {
-        for (int i = this.entryCount(); --i >= 0;) {
-            PREntry E = this.entryAt(i);
-            if (E.hasParserEntry() && pName.equals(E.parserEntry().name()))
-                return this.textAt(i);
+    public String lastStringFor(String name) {
+        for (int i = entries.size(); --i >= 0;) {
+            var entry = entryAt(i);
+            if (!entry.hasParserEntry()) {
+                continue;
+            }
+            var parseEntry = entry.parserEntry();
+            if (name.equals(parseEntry.name())) {
+                return textAt(i);
+            }
         }
         return null;
-    }
-    
-    /** Returns the last group of continuous match */
-    String[] getLastStrMatchesByName(String pName) {
-        Vector<String> Ms = new Vector<String>();
-        for (int i = this.entryCount(); --i >= 0;) {
-            PREntry E = this.entryAt(i);
-            if (E.hasParserEntry() && pName.equals(E.parserEntry().name()))
-                Ms.add(this.textAt(i));
-            
-            else
-                if (Ms.size() > 0)
-                    break;
-        }
-        
-        if (Ms.size() == 0)
-            return null;
-        
-        String[] MSs = new String[Ms.size()];
-        for (int i = MSs.length; --i >= 0;)
-            MSs[i] = Ms.get(MSs.length - i - 1);
-        return MSs;
-    }
-    
-    /** Returns the all the match */
-    String[] getAllStrMatchesByName(String pName) {
-        Vector<String> Ms = new Vector<String>();
-        for (int i = this.entryCount(); --i >= 0;) {
-            PREntry E = this.entryAt(i);
-            if (E.hasParserEntry() && pName.equals(E.parserEntry().name()))
-                Ms.add(this.textAt(i));
-        }
-        
-        if (Ms.size() == 0)
-            return null;
-        
-        String[] MSs = new String[Ms.size()];
-        for (int i = MSs.length; --i >= 0;)
-            MSs[i] = Ms.get(MSs.length - i - 1);
-        return MSs;
     }
     
     /** Returns the all the match */
@@ -539,35 +504,34 @@ abstract public class ParseResult implements Serializable {
     }
     
     /** Returns the all the match */
-    public String[][] getAllOfStrMatchesByName(String pName) {
-        Vector<String[]> AMs = new Vector<String[]>();
-        Vector<String>   Ms  = new Vector<String>();
-        for (int i = 0; i < this.entryCount(); i++) {
-            PREntry E = this.entryAt(i);
-            if (E.hasParserEntry() && pName.equals(E.parserEntry().name()))
-                Ms.add(this.textAt(i));
-            
-            else
-                if (Ms.size() > 0) {
-                    if (Ms.size() == 0)
-                        continue;
-                    
-                    String[] MSs = new String[Ms.size()];
-                    for (int m = MSs.length; --m >= 0;)
-                        MSs[m] = Ms.get(MSs.length - m - 1);
-                    AMs.add(MSs);
-                    
-                    Ms.clear();
-                }
+    public String[][] stringMatchesOf(String name) {
+        var arrayMatches = new ArrayList<String[]>();
+        var matchers     = new ArrayList<String>();
+        var orgText      = originalText();
+        var prevEntry    = (PREntry)null;
+        for (var entry : entries) {
+            if (entry.hasParserEntry() && name.equals(entry.parserEntry().name())) {
+                int start = (prevEntry == null) ? 0 : prevEntry.endPosition();
+                int end   = entry.endPosition();
+                var text  = orgText.subSequence(start, end).toString();
+                matchers.add(text);
+            } else if (matchers.size() > 0) {
+                var matchStrings = matchers.toArray(String[]::new);
+                arrayMatches.add(matchStrings);
+                matchers.clear();
+            }
+            prevEntry = entry;
         }
         
-        if (AMs.size() == 0)
+        if (arrayMatches.size() == 0) {
             return null;
+        }
         
-        String[][] AMSs = new String[AMs.size()][];
-        for (int i = AMSs.length; --i >= 0;)
-            AMSs[i] = AMs.get(i);
-        return AMSs;
+        var arrayMatchStrings = new String[arrayMatches.size()][];
+        for (int i = arrayMatchStrings.length; --i >= 0;) {
+            arrayMatchStrings[i] = arrayMatches.get(i);
+        }
+        return arrayMatchStrings;
     }
     
     /** Returns the last match */
