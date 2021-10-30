@@ -1,11 +1,9 @@
 package net.nawaman.regparser.result;
 
-import static java.util.stream.Stream.concat;
-
 import java.util.List;
-import java.util.stream.Stream;
 
 import net.nawaman.regparser.result.entry.PREntry;
+import net.nawaman.regparser.utils.IStream;
 
 
 /** Node Result - For sub result*/
@@ -64,11 +62,9 @@ public class PRNode extends PRNormal {
     // Get Element by name -----------------------------------------------------------------------
     
     @Override
-    public Stream<String> names() {
+    public IStream<String> names() {
         var names = super.names();
-        return (parent == null)
-                ? names
-                : concat(names, parent.names());
+        return names.concatWith((parent == null) ? null : parent.names());
     }
     
     /**{@inheritDoc}*/
@@ -81,15 +77,6 @@ public class PRNode extends PRNormal {
         if (parent != null) {
             return parent.lastStringFor(name);
         }
-        return null;
-    }
-    
-    /** Returns the last match */
-    @Override
-    public PREntry getLastMatchByName(String pName) {
-        PREntry E = super.getLastMatchByName(pName);
-        if (E != null)
-            return E;
         return null;
     }
     

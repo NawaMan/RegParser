@@ -41,6 +41,7 @@ import net.nawaman.regparser.result.entry.PREntry;
 import net.nawaman.regparser.result.entry.PREntryWithParserEntryAndSub;
 import net.nawaman.regparser.result.entry.PREntryWithSub;
 import net.nawaman.regparser.types.PTError;
+import net.nawaman.regparser.utils.IStream;
 
 /**
  * The result of the parsing
@@ -414,7 +415,7 @@ abstract public class ParseResult implements Serializable {
     }
     
     /** Returns names of all result entries */
-    public Stream<String> names() {
+    public IStream<String> names() {
         var names = new HashSet<String>();
         for (int i = entryCount(); --i >= 0;) {
             var entry = entryAt(i);
@@ -425,9 +426,7 @@ abstract public class ParseResult implements Serializable {
                 }
             }
         }
-        return (names.isEmpty())
-                ? Stream.empty()
-                : names.stream();
+        return IStream.forStream(names.stream());
     }
     
     /** Returns the index of the last entry that has the same name with the given name */
@@ -535,11 +534,16 @@ abstract public class ParseResult implements Serializable {
     }
     
     /** Returns the last match */
-    public PREntry getLastMatchByName(String pName) {
-        for (int i = this.entryCount(); --i >= 0;) {
-            PREntry E = this.entryAt(i);
-            if (E.hasParserEntry() && pName.equals(E.parserEntry().name()))
-                return E;
+    public PREntry lastMatchFor(String name) {
+        for (int i = entries.size(); --i >= 0;) {
+            var resultEntry = entries.get(i);
+            var parserEntry = resultEntry.parserEntry();
+            if (parserEntry != null) {
+                var entryName = parserEntry.name();
+                if (name.equals(entryName)) {
+                    return resultEntry;
+                }
+            }
         }
         return null;
     }
@@ -836,7 +840,7 @@ abstract public class ParseResult implements Serializable {
     
     /** Get sub result of the last match */
     final public ParseResult subOf(String pEName) {
-        PREntry E = this.getLastMatchByName(pEName);
+        PREntry E = this.lastMatchFor(pEName);
         return ((E == null) || !E.hasSubResult()) ? null : E.subResult();
     }
     

@@ -454,9 +454,9 @@ public class RPCompiler_ParserTypes {
             String TName  = ((T == null)?"":T) + N + ((O == null)?"":O) + ((V == null)?"":V) + ((C == null)?"":C);
             
             String Param = null;
-            var PE = pThisResult.getLastMatchByName("#Param");
+            var PE = pThisResult.lastMatchFor("#Param");
             if((PE != null) && PE.hasSubResult()) {
-                Param = pThisResult.getLastMatchByName("#Param").subResult().lastStringFor("#ParamValue");
+                Param = pThisResult.lastMatchFor("#Param").subResult().lastStringFor("#ParamValue");
                 if(Param != null) Param = Util.unescapeText(Param.substring(1, Param.length() - 1)).toString();
                 
             }
@@ -651,8 +651,8 @@ public class RPCompiler_ParserTypes {
             
             pThisResult = pThisResult.entryAt(pEntryIndex).subResult();
             
-            if(pThisResult.getLastMatchByName("#Start").hasSubResult()) {
-                if(pThisResult.getLastMatchByName("#Start").subResult().hasName("#Error[]")) {
+            if(pThisResult.lastMatchFor("#Start").hasSubResult()) {
+                if(pThisResult.lastMatchFor("#Start").subResult().hasName("#Error[]")) {
                     throw new RPCompilationException("There is an invalid character near \""
                         + pThisResult.originalString().substring(pThisResult.startPosition()) + "\".");
                 }
@@ -662,15 +662,15 @@ public class RPCompiler_ParserTypes {
             char   SC = S.charAt(0);
             if(S.length() > 1) {
                 // Only possibility is that it is an escape
-                ParseResult PS = pThisResult.getLastMatchByName("#Start").subResult();
+                ParseResult PS = pThisResult.lastMatchFor("#Start").subResult();
                 SC = (Character)(pProvider.getType(RPTEscape.Name).compile(PS, pProvider));
             }
             
             String E = pThisResult.lastStringFor("#End");
             if(E == null) return new CharSingle(SC);
             else {
-                if(pThisResult.getLastMatchByName("#End").hasSubResult()) {
-                    if(pThisResult.getLastMatchByName("#End").subResult().hasName("#Error[]")) {
+                if(pThisResult.lastMatchFor("#End").hasSubResult()) {
+                    if(pThisResult.lastMatchFor("#End").subResult().hasName("#Error[]")) {
                         throw new RPCompilationException("There is an invalid character near \""
                         + pThisResult.originalString().substring(pThisResult.startPosition()) + "\".");
                     }
@@ -679,7 +679,7 @@ public class RPCompiler_ParserTypes {
                 char EC = E.charAt(0);
                 if(E.length() > 1) {
                     // Only possibility is that it is an escape
-                    ParseResult PS = pThisResult.getLastMatchByName("#End").subResult();
+                    ParseResult PS = pThisResult.lastMatchFor("#End").subResult();
                     EC = (Character)(pProvider.getType(RPTEscape.Name).compile(PS, pProvider));
                 }
                 if(SC > EC)
@@ -1039,7 +1039,7 @@ public class RPCompiler_ParserTypes {
                 }
                 
                 RegParser Second = null;
-                var PRE = pThisResult.getLastMatchByName("#Second");
+                var PRE = pThisResult.lastMatchFor("#Second");
                 if((PRE != null) && PRE.hasSubResult()) {
                     ParseResult Sub_Second = PRE.subResult();
                     
