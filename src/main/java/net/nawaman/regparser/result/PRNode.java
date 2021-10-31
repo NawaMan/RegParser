@@ -80,26 +80,6 @@ public class PRNode extends PRNormal {
         return null;
     }
     
-    /** Returns the last group of continuous match */
-    @Override
-    public PREntry[] getLastMatchesByName(String pName) {
-        PREntry[] S_Ms = super.getLastMatchesByName(pName);
-        PREntry[] Ms   = new PREntry[((S_Ms == null) ? 0 : S_Ms.length)];
-        if (S_Ms != null)
-            System.arraycopy(S_Ms, 0, Ms, Ms.length - S_Ms.length, S_Ms.length);
-        return Ms;
-    }
-    
-    /** Returns the all the match */
-    @Override
-    public PREntry[] getAllMatchesByName(String pName) {
-        PREntry[] S_Ms = super.getAllMatchesByName(pName);
-        PREntry[] Ms   = new PREntry[((S_Ms == null) ? 0 : S_Ms.length)];
-        if (S_Ms != null)
-            System.arraycopy(S_Ms, 0, Ms, Ms.length - S_Ms.length, S_Ms.length);
-        return Ms;
-    }
-    
     /** Returns the all the match */
     @Override
     public PREntry[][] getAllOfMatchesByName(String pName) {

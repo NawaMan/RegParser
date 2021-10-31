@@ -503,7 +503,7 @@ abstract public class ParseResult implements Serializable {
     }
     
     /** Returns the all the match */
-    public String[][] stringMatchesOf(String name) {
+    public String[][] stringMatchesFor(String name) {
         var arrayMatches = new ArrayList<String[]>();
         var matchers     = new ArrayList<String>();
         var orgText      = originalText();
@@ -571,27 +571,29 @@ abstract public class ParseResult implements Serializable {
     }
     
     /** Returns the all the match */
-    public PREntry[] getAllMatchesByName(String pName) {
-        Vector<PREntry> Es = new Vector<PREntry>();
-        for (int i = this.entryCount(); --i >= 0;) {
-            PREntry E = this.entryAt(i);
-            if (E.hasParserEntry() && pName.equals(E.parserEntry().name()))
-                Es.add(E);
+    public PREntry[] entriesFor(String name) {
+        var resultEntries = new ArrayList<PREntry>();
+        for (var resultEntry : entries) {
+            var parserEntry = resultEntry.parserEntry();
+            if (parserEntry != null) {
+                var entryName = parserEntry.name();
+                if (name.equals(entryName)) {
+                    resultEntries.add(resultEntry);
+                }
+            }
         }
         
-        if (Es.size() == 0)
+        if (resultEntries.size() == 0) {
             return null;
+        }
         
-        PREntry[] ESs = new PREntry[Es.size()];
-        for (int i = ESs.length; --i >= 0;)
-            ESs[i] = Es.get(ESs.length - i - 1);
-        return ESs;
+        return resultEntries.toArray(PREntry[]::new);
     }
     
     /** Returns the all the match */
     public PREntry[][] getAllOfMatchesByName(String pName) {
-        Vector<PREntry[]> AEs = new Vector<PREntry[]>();
-        Vector<PREntry>   Es  = new Vector<PREntry>();
+        var AEs = new Vector<PREntry[]>();
+        var Es  = new Vector<PREntry>();
         for (int i = 0; i < this.entryCount(); i++) {
             PREntry E = this.entryAt(i);
             if (E.hasParserEntry() && pName.equals(E.parserEntry().name()))
@@ -791,7 +793,7 @@ abstract public class ParseResult implements Serializable {
     }
     
     /** Get texts result of the last match */
-    final public String[] textsOf(String pEName) {
+    final public String[] textsFor(String pEName) {
         int[] Is = this.getAllIndexOfEntryName(pEName);
         if (Is == null)
             return null;

@@ -70,7 +70,7 @@ public class TestUsages {
         validate("v",
                 result.textOf("$Name"));
         validate("[1, 1, 2, 3, 5, 8]",
-                result.textsOf("$Values"));
+                result.textsFor("$Values"));
     }
     
 }

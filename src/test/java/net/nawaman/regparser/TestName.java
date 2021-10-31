@@ -97,8 +97,8 @@ public class TestName {
                 result);
         
         validate("[#Value]",            result.names().toArray());
-        validate("[5,7,454,5]",         Util.toString(result.textsOf("#Value")));
-        validate("[[5],[7],[454],[5]]", Util.toString(result.stringMatchesOf("#Value")));
+        validate("[5,7,454,5]",         Util.toString(result.textsFor("#Value")));
+        validate("[[5],[7],[454],[5]]", Util.toString(result.stringMatchesFor("#Value")));
     }
     
     @Test
@@ -139,8 +139,16 @@ public class TestName {
                 result);
         
         validate("[#Value]",              result.names().toArray());
-        validate("[5,7,45,6,5]",          Util.toString(result.textsOf("#Value")));
-        validate("[[5],[7],[45, 6],[5]]", Util.toString(result.stringMatchesOf("#Value")));
+        validate("[5,7,45,6,5]",          Util.toString(result.textsFor("#Value")));
+        validate("[[5],[7],[45, 6],[5]]", Util.toString(result.stringMatchesFor("#Value")));
+        
+        validate("["
+                + "Entry { End = 3; RPEntry = (#Value:~[0-9]{1,2}~); },"
+                + "Entry { End = 6; RPEntry = (#Value:~[0-9]{1,2}~)+; },"
+                + "Entry { End = 10; RPEntry = (#Value:~[0-9]{1,2}~)+; },"
+                + "Entry { End = 11; RPEntry = (#Value:~[0-9]{1,2}~)+; },"
+                + "Entry { End = 14; RPEntry = (#Value:~[0-9]{1,2}~)+; }"
+                + "]", Util.toString(result.entriesFor("#Value")));
     }
     
 }

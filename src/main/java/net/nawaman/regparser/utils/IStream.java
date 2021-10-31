@@ -37,6 +37,11 @@ public interface IStream<T> extends ExtensibleStream<T> {
         public Stream<DATA> stream() {
             return original;
         };
+        
+        @Override
+        public String toString() {
+            return toList().toString();
+        }
     }
     
     public default List<T> toList() {
