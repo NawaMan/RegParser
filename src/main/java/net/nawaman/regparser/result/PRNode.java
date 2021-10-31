@@ -80,20 +80,4 @@ public class PRNode extends PRNormal {
         return null;
     }
     
-    /** Returns the all the match */
-    @Override
-    public PREntry[][] getAllOfMatchesByName(String pName) {
-        PREntry[][] P_Ms = (this.parent == null) ? null : this.parent.getAllOfMatchesByName(pName);
-        PREntry[][] S_Ms = super.getAllOfMatchesByName(pName);
-        PREntry[][] Ms   = new PREntry[((S_Ms == null) ? 0 : S_Ms.length) + ((P_Ms == null) ? 0 : P_Ms.length)][];
-        if (P_Ms != null)
-            for (int i = P_Ms.length; --i >= 0;)
-                Ms[i] = P_Ms[i].clone();
-        if (S_Ms != null) {
-            int O = (P_Ms != null) ? P_Ms.length : 0;
-            for (int i = S_Ms.length; --i >= 0;)
-                Ms[O + i] = S_Ms[i].clone();
-        }
-        return Ms;
-    }
 }

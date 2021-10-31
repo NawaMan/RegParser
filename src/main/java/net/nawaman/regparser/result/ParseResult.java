@@ -139,10 +139,10 @@ abstract public class ParseResult implements Serializable {
     
     /** Get the match text */
     public String text() {
-        var orgText = this.originalText();
+        var orgText = originalText();
         // Ensure proper range
-        int start = this.startPosition();
-        int end   = this.endPosition();
+        int start = startPosition();
+        int end   = endPosition();
         if ((orgText == null) || (start > orgText.length()) || (start < 0)) {
             return null;
         }
@@ -191,6 +191,8 @@ abstract public class ParseResult implements Serializable {
     }
     
     /**
+     * FOR INTERNAL USE ONLY
+     * 
      * Get the nested sub result up to but not the last index.
      * 
      * Example:
@@ -380,47 +382,64 @@ abstract public class ParseResult implements Serializable {
     
     /** Checks if the result has entries with name */
     boolean hasNames() {
-        for (int i = this.entryCount(); --i >= 0;) {
-            PREntry E = this.entryAt(i);
-            if (E.hasParserEntry() && (E.parserEntry().name() != null))
+        for (var entry : entries) {
+            var parserEntry = entry.parserEntry();
+            if ((parserEntry != null) && (parserEntry.name() != null)) {
                 return true;
-            if (E.hasSubResult() && E.subResult().hasNames())
+            }
+            var subResult = entry.subResult();
+            if ((subResult != null) && subResult.hasNames()) {
                 return true;
+            }
         }
         return false;
     }
     
     /** Checks if the result has entries with name */
     boolean hasTypes() {
-        for (int i = this.entryCount(); --i >= 0;) {
-            PREntry E = this.entryAt(i);
-            if (E.hasParserEntry()) {
-                if ((E.parserEntry().type() != null) || (E.parserEntry().typeRef() != null))
+        for (var entry : entries) {
+            var parserEntry = entry.parserEntry();
+            if (parserEntry != null) {
+                if ((parserEntry.type()    != null)
+                 || (parserEntry.typeRef() != null)) {
                     return true;
+                }
             }
-            if (E.hasSubResult() && E.subResult().hasNames())
+            var subResult = entry.subResult();
+            if ((subResult != null) && subResult.hasNames()) {
                 return true;
+            }
         }
         return false;
     }
     
     public boolean hasName(String name) {
-        return entries()
-                .filter (PREntry::hasParserEntry)
-                .map    (PREntry::parserEntry)
-                .map    (RPEntry::name)
-                .filter (name::equals)
-                .findAny()
-                .isPresent();
+        if (name == null) {
+            return false;
+        }
+        for (var entry : entries) {
+            var parserEntry = entry.parserEntry();
+            if (parserEntry != null) {
+                var entryName = parserEntry.name();
+                if (name.equals(entryName)) {
+                    return true;
+                }
+            }
+            var subResult = entry.subResult();
+            if ((subResult != null) && subResult.hasName(name)) {
+                return true;
+            }
+        }
+        return false;
     }
     
     /** Returns names of all result entries */
     public IStream<String> names() {
         var names = new HashSet<String>();
-        for (int i = entryCount(); --i >= 0;) {
-            var entry = entryAt(i);
-            if (entry.hasParserEntry()) {
-                var name = entry.parserEntry().name();
+        for (var entry : entries) {
+            var parserEntry = entry.parserEntry();
+            if (parserEntry != null) {
+                var name = parserEntry.name();
                 if (name != null) {
                     names.add(name);
                 }
@@ -430,11 +449,16 @@ abstract public class ParseResult implements Serializable {
     }
     
     /** Returns the index of the last entry that has the same name with the given name */
-    public int getLastIndexOfEntryName(String pName) {
-        for (int i = this.entryCount(); --i >= 0;) {
-            PREntry E = this.entryAt(i);
-            if (E.hasParserEntry() && pName.equals(E.parserEntry().name()))
-                return i;
+    public int lastIndexFor(String name) {
+        for (int i = entries.size(); --i >= 0;) {
+            var entry = entries.get(i);
+            var parserEntry = entry.parserEntry();
+            if (parserEntry != null) {
+                var entryName = parserEntry.name();
+                if (name.equals(entryName)) {
+                    return i;
+                }
+            }
         }
         return -1;
     }
@@ -623,17 +647,18 @@ abstract public class ParseResult implements Serializable {
     }
     
     /** Returns how deep the parse result is nested */
-    public int getDepth() {
-        int D = 0;
+    public int depth() {
+        int depth = 0;
         for (int i = this.entryCount(); --i >= 0;) {
             ParseResult PR = this.subResultAt(i);
-            if (PR == null)
-                continue;
-            int d = PR.getDepth();
-            if (D < d)
-                D = d;
+            if (PR != null) {
+                int d = PR.depth();
+                if (depth < d) {
+                    depth = d;
+                }
+            }
         }
-        return D + 1;
+        return depth + 1;
     }
     
     // Easy to use utilities methods ------------------------------------------------------------------------
@@ -789,7 +814,7 @@ abstract public class ParseResult implements Serializable {
     
     /** Get text result of the last match */
     final public String textOf(String pEName) {
-        return this.textAt(this.getLastIndexOfEntryName(pEName));
+        return this.textAt(this.lastIndexFor(pEName));
     }
     
     /** Get texts result of the last match */
@@ -817,7 +842,7 @@ abstract public class ParseResult implements Serializable {
     
     /** Get text result of the last match */
     final public String nameOf(String pEName) {
-        return this.nameOf(this.getLastIndexOfEntryName(pEName));
+        return this.nameOf(this.lastIndexFor(pEName));
     }
     
     /** Get texts result of the last match */
@@ -879,7 +904,7 @@ abstract public class ParseResult implements Serializable {
     
     /** Get Type of the last match */
     final public PType typeOf(String pEName, PTypeProvider TProvider) {
-        return this.typeOf(this.getLastIndexOfEntryName(pEName), TProvider);
+        return this.typeOf(this.lastIndexFor(pEName), TProvider);
     }
     
     /** Get subs result of the last match */
@@ -910,7 +935,7 @@ abstract public class ParseResult implements Serializable {
     
     /** Get Type name of the last match */
     final public String typeNameOf(String pEName) {
-        return this.typeNameOf(this.getLastIndexOfEntryName(pEName));
+        return this.typeNameOf(this.lastIndexFor(pEName));
     }
     
     /** Get subs result of the last match */
@@ -941,7 +966,7 @@ abstract public class ParseResult implements Serializable {
     
     /** Get Type name of the last match */
     final public String typeParamOf(String pEName) {
-        return this.typeParamOf(this.getLastIndexOfEntryName(pEName));
+        return this.typeParamOf(this.lastIndexFor(pEName));
     }
     
     /** Get subs result of the last match */
@@ -978,7 +1003,7 @@ abstract public class ParseResult implements Serializable {
     
     /** Get compile value of the last match */
     final public Object valueOf(String pEName, PTypeProvider TProvider, CompilationContext CContext) {
-        return this.valueOf(this.getLastIndexOfEntryName(pEName), TProvider, CContext);
+        return this.valueOf(this.lastIndexFor(pEName), TProvider, CContext);
     }
     
     /** Get subs result of the last match */
@@ -1025,7 +1050,7 @@ abstract public class ParseResult implements Serializable {
     
     /** Get compile value as text of the last match */
     final public String valueAsTextOf(String pEName, PTypeProvider TProvider, CompilationContext CContext) {
-        return this.valueAsTextOf(this.getLastIndexOfEntryName(pEName), TProvider, CContext);
+        return this.valueAsTextOf(this.lastIndexFor(pEName), TProvider, CContext);
     }
     
     /** Get compile value as text of the all match */
@@ -1053,7 +1078,7 @@ abstract public class ParseResult implements Serializable {
     
     /** Get locationRC of the last entry named pEName */
     final public int[] locationCROf(String pEName) {
-        return this.locationCROf(this.getLastIndexOfEntryName(pEName));
+        return this.locationCROf(this.lastIndexFor(pEName));
     }
     
     /** Get locationRC of the all entries named pEName */
@@ -1081,7 +1106,7 @@ abstract public class ParseResult implements Serializable {
     
     /** Get location of the last entry named pEName */
     final public String locationOf(String pEName) {
-        return this.locationOf(this.getLastIndexOfEntryName(pEName));
+        return this.locationOf(this.lastIndexFor(pEName));
     }
     
     /** Get location of the all entries named pEName */
@@ -1109,7 +1134,7 @@ abstract public class ParseResult implements Serializable {
     
     /** Get start position of the last entry named pEName */
     final public int posOf(String pEName) {
-        return this.posOf(this.getLastIndexOfEntryName(pEName));
+        return this.posOf(this.lastIndexFor(pEName));
     }
     
     /** Get start positions of the all entries named pEName */
@@ -1394,7 +1419,7 @@ abstract public class ParseResult implements Serializable {
     public boolean flatLastEntryOf(String pName) {
         if (pName == null)
             return false;
-        int I = this.getLastIndexOfEntryName(pName);
+        int I = this.lastIndexFor(pName);
         if (I < 0)
             return false;
         return this.flatEntry(I);
@@ -1428,7 +1453,7 @@ abstract public class ParseResult implements Serializable {
     
     /** An internal service for toDetail() */
     public String toString(int pIndent, int pTab) {
-        return this.toString(pIndent, pTab, this.getDepth() - 1);
+        return this.toString(pIndent, pTab, this.depth() - 1);
     }
     
     /** An internal service for toDetail() */

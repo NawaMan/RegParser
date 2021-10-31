@@ -149,6 +149,13 @@ public class TestName {
                 + "Entry { End = 11; RPEntry = (#Value:~[0-9]{1,2}~)+; },"
                 + "Entry { End = 14; RPEntry = (#Value:~[0-9]{1,2}~)+; }"
                 + "]", Util.toString(result.entriesFor("#Value")));
+        
+        validate("["
+                + "[Entry { End = 14; RPEntry = (#Value:~[0-9]{1,2}~)+; }],"
+                + "[Entry { End = 11; RPEntry = (#Value:~[0-9]{1,2}~)+; }, Entry { End = 10; RPEntry = (#Value:~[0-9]{1,2}~)+; }],"
+                + "[Entry { End = 6; RPEntry = (#Value:~[0-9]{1,2}~)+; }],"
+                + "[Entry { End = 3; RPEntry = (#Value:~[0-9]{1,2}~); }]"
+                + "]", Util.toString(result.getAllOfMatchesByName("#Value")));
     }
     
 }
