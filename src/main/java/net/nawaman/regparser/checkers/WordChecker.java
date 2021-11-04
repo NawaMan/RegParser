@@ -32,7 +32,7 @@ import net.nawaman.regparser.result.ParseResult;
  */
 public class WordChecker implements Checker {
     
-    private static final long serialVersionUID = 2437987587867902188L;
+    private static final long serialVersionUID = -6856120712978724955L;
     
     static public final WordChecker EmptyWord = new WordChecker();
     
@@ -42,8 +42,9 @@ public class WordChecker implements Checker {
     
     public WordChecker(String word) {
         this.word = requireNonNull(word);
-        if (word.length() == 0)
+        if (word.length() == 0) {
             throw new IllegalArgumentException();
+        }
     }
     
     private final String word;

@@ -31,8 +31,9 @@ import net.nawaman.regparser.result.ParseResult;
  * 
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  **/
-@SuppressWarnings("serial")
 public class PTComposable extends PTSimple {
+    
+    private static final long serialVersionUID = 8825339043204700404L;
     
     protected PTComposable(String pTheName) {
         super(pTheName);

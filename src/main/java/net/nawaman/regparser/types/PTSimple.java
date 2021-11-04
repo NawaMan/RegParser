@@ -29,8 +29,9 @@ import net.nawaman.regparser.result.ParseResult;
  * 
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  **/
-@SuppressWarnings("serial")
 public class PTSimple extends PType {
+    
+    private static final long serialVersionUID = 5886175272511843777L;
     
     protected PTSimple(String pTheName) {
         this.TheName    = pTheName;

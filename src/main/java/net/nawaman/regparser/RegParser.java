@@ -573,8 +573,9 @@ public class RegParser implements Checker, Serializable {
     }
     
     /** TypeProvider with Default Type */
-    @SuppressWarnings("serial")
     static public class WithDefaultTypeProvider extends RegParser {
+        
+        private static final long serialVersionUID = -7904907723214116873L;
         
         static public RegParser attachDefaultTypeProvider(RegParser pRegParser, PTypeProvider pTProvider) {
             if ((pRegParser == null) || (pTProvider == null))

@@ -99,8 +99,8 @@ public class TestSelfContain {
                 + "23 => [   38] = #ValueHigh      :$int25To50~      = \"44\"",
                 PR);
         
-        validate("[02, 15, 5, 5, 7, 6, 5, 21, 12, 5, 21, 7, 6, 5, 6, 23]", PR.textsFor("#ValueLow"));
-        validate("[40, 46, 45, 43, 35, 35, 43, 44]",                       PR.textsFor("#ValueHigh"));
+        validate("[02, 15, 5, 5, 7, 6, 5, 21, 12, 5, 21, 7, 6, 5, 6, 23]", PR.textsOf("#ValueLow"));
+        validate("[40, 46, 45, 43, 35, 35, 43, 44]",                       PR.textsOf("#ValueHigh"));
     }
     
 }

@@ -25,8 +25,9 @@ import java.io.Serializable;
  *
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-@SuppressWarnings("serial")
 abstract public class PTypeRef implements Serializable {
+    
+    private static final long serialVersionUID = -2335767886881850411L;
     
     abstract public String name();
     
@@ -35,6 +36,9 @@ abstract public class PTypeRef implements Serializable {
     }
     
     static public class Simple extends PTypeRef {
+        
+        private static final long serialVersionUID = -1749338159178519582L;
+        
         public Simple(String pTypeName) {
             this.TypeName = pTypeName;
         }

@@ -46,6 +46,82 @@ public class Util {
     
     public static String[] EMPTY_STRING_ARRAY = new String[0];
     
+    private static final String[] indentArray = new String[32];
+    private static final String[] tabArray    = new String[32];
+    private static final String[] dashArray   = new String[32];
+    private static final String[] zeroArray   = new String[32];
+    private static final String[] spaceArray  = new String[32];
+    
+    public static String repeat(int count, String text, String[] cache) {
+        if (count == 0) {
+            return "";
+        }
+        
+        if (count > cache.length) {
+            return repeat(cache.length, text, cache) + repeat(count - cache.length, text, cache);
+        }
+        
+        var cacheText = cache[count];
+        if (cacheText != null) {
+            return cacheText;
+        }
+        
+        cacheText  = "";
+        for (int i = count; --i >= 0;) {
+            cacheText += text;
+        }
+        cache[count] = cacheText;
+        return cacheText;
+    }
+    
+    public static String indents(int tab) {
+        return repeat(tab, "  ", indentArray);
+    }
+    
+    public static String tabs(int tab) {
+        return repeat(tab, ". ", tabArray);
+    }
+    
+    public static String dashes(int dash) {
+        return repeat(dash, " -", dashArray);
+    }
+    
+    public static String zeros(int count) {
+        return repeat(count, "0", zeroArray);
+    }
+    
+    public static String spaces(int count) {
+        return repeat(count, " ", spaceArray);
+    }
+    
+    public static int textWidth(int maxValue) {
+        if (maxValue < 10) {
+            return 1;
+        }
+        if (maxValue < 100) {
+            return 2;
+        }
+        if (maxValue < 1000) {
+            return 3;
+        }
+        if (maxValue < 10000) {
+            return 4;
+        }
+        if (maxValue < 100000) {
+            return 5;
+        }
+        if (maxValue < 1000000) {
+            return 6;
+        }
+        if (maxValue < 10000000) {
+            return 7;
+        }
+        if (maxValue < 100000000) {
+            return 8;
+        }
+        return 9;
+    }
+    
     // Object ----------------------------------------------------------------------------------------------------------
     
     /** Returns string representation of an object value. */

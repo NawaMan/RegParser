@@ -97,7 +97,7 @@ public class TestName {
                 result);
         
         validate("[#Value]",            result.names().toArray());
-        validate("[5,7,454,5]",         Util.toString(result.textsFor("#Value")));
+        validate("[5,7,454,5]",         Util.toString(result.textsOf("#Value")));
         validate("[[5],[7],[454],[5]]", Util.toString(result.stringMatchesFor("#Value")));
     }
     
@@ -139,7 +139,7 @@ public class TestName {
                 result);
         
         validate("[#Value]",              result.names().toArray());
-        validate("[5,7,45,6,5]",          Util.toString(result.textsFor("#Value")));
+        validate("[5,7,45,6,5]",          Util.toString(result.textsOf("#Value")));
         validate("[[5],[7],[45, 6],[5]]", Util.toString(result.stringMatchesFor("#Value")));
         
         validate("["

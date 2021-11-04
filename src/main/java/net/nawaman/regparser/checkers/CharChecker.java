@@ -30,8 +30,9 @@ import net.nawaman.regparser.result.ParseResult;
  * 
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-@SuppressWarnings("serial")
 abstract public class CharChecker implements Checker {
+    
+    private static final long serialVersionUID = -1609350988393990158L;
     
     /** Returns the empty array of CharCheckers */
     public static final CharChecker[] EMPTY_CHAR_CHECKER_ARRAY = new CharChecker[0];

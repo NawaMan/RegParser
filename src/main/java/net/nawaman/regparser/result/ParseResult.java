@@ -20,6 +20,12 @@ package net.nawaman.regparser.result;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
+import static net.nawaman.regparser.Util.dashes;
+import static net.nawaman.regparser.Util.indents;
+import static net.nawaman.regparser.Util.spaces;
+import static net.nawaman.regparser.Util.tabs;
+import static net.nawaman.regparser.Util.textWidth;
+import static net.nawaman.regparser.Util.zeros;
 import static net.nawaman.regparser.result.entry.PREntry.newEntry;
 
 import java.io.Serializable;
@@ -64,6 +70,34 @@ abstract public class ParseResult implements Serializable {
     public static PRNode newResult(int startPosition, ParseResult parseResult) {
         return new PRNode(startPosition, parseResult);
     }
+    
+    public static String nameOf(RPEntry entry) {
+        return nameOf(entry, null);
+    }
+    public static String nameOf(RPEntry entry, String defaultValue) {
+        return ((entry != null) && (entry.name() != null))
+                ? entry.name()
+                : defaultValue;
+    }
+    
+    public static String typeNameOf(PREntry entry) {
+        return typeNameOf(entry, null);
+    }
+    public static String typeNameOf(PREntry entry, String defaultValue) {
+        if (entry != null) {
+            var type = entry.type();
+            if (type != null) {
+                return type.name();
+            }
+            
+            var typeRef = entry.typeRef();
+            if (typeRef != null) {
+                return typeRef.name();
+            }
+        }
+        return defaultValue;
+    }
+    
     
     private List<PREntry> entries;
     
@@ -809,7 +843,7 @@ abstract public class ParseResult implements Serializable {
     }
     
     /** Get texts result of the last match */
-    final public String[] textsFor(String pEName) {
+    final public String[] textsOf(String pEName) {
         int[] Is = this.allIndexesFor(pEName);
         if (Is == null)
             return null;
@@ -1016,7 +1050,7 @@ abstract public class ParseResult implements Serializable {
     final public String valueAsTextOf(int I, PTypeProvider TProvider, CompilationContext CContext) {
         PType PT = this.typeOf(I, TProvider);
         if (PT == null) {
-            String TName = this.typeNameOf(I);
+            String TName = this.typeNameOf(I); 
             if (TName == null) {
                 // The entry has no type, so compile each sub and concatenate them
                 ParseResult Sub = this.subOf(I);
@@ -1448,81 +1482,49 @@ abstract public class ParseResult implements Serializable {
     }
     
     /** An internal service for toDetail() */
-    String toString(int pIndent, int pTab, int pDepth) {
-        StringBuffer SB = new StringBuffer();
-        SB.append("\n");
-        int    Count = this.entryCount();
-        int    Last  = Count - 1;
-        String Tabs  = "";
-        for (int i = pIndent; --i >= 0;)
-            Tabs += "  ";
-        for (int i = pTab; --i >= 0;)
-            Tabs += ". ";
+    String toString(int indent, int tab, int depth) {
+        int count   = entries.size();
+        int last    = count - 1;
+        var tabs    = indents(indent) + tabs(tab);
+        var width   = Math.max(2, textWidth(count));
+        var buffer  = new StringBuffer();
+        var orgText = originalText();
         
-        for (int i = 0; i < Count; i++) {
-            SB.append(Tabs);
-            String Index = "" + i;
-            while (Index.length() < 2)
-                Index = "0" + Index;
-            SB.append(Index);
+        int startPosition = startPosition();
+        
+        buffer.append("\n");
+        for (int i = 0; i < count; i++) {
+            var entry = entries.get(i);
+            int endPosition = entry.endPosition();
             
-            String Indents = "";
-            for (int j = pDepth; --j >= 0;)
-                Indents += " -";
-            SB.append(Indents);
-            SB.append(" => [");
-            
-            String End = "" + this.endPositionAt(i);
-            while (End.length() < 5)
-                End = " " + End;
-            SB.append(End);
-            SB.append("] = ");
-            
-            String Text = null;
-            // Get the text
-            if (this.textAt(i) == null)
-                Text = "null ";
-            else
-                Text = "\"" + Util.escapeText(this.textAt(i)) + "\"";
-            
-            PREntry RPT = this.entryAt(i);
-            if (RPT == null) {
-                SB.append(Text);
-                continue;
-            }    // No Entry
-            
-            String PName = null;
-            if ((RPT.parserEntry() != null) && (RPT.parserEntry().name() != null))
-                PName = RPT.parserEntry().name();
-            else
-                PName = "<NoName>";
-            while (PName.length() < 16)
-                PName = PName + " ";
-            SB.append(PName);
-            
-            SB.append(":");
-            String TName = null;
-            if (RPT.type() != null)
-                TName = RPT.type().name();
-            else
-                if (RPT.typeRef() != null)
-                    TName = RPT.typeRef().name();
-                else
-                    TName = "<NoType>";
-            while (TName.length() < 16)
-                TName = TName + " ";
-            SB.append(TName);
-            
-            SB.append(" = ");
-            SB.append(Text);
-            
-            if (RPT.hasSubResult()) {
-                SB.append(RPT.subResult().toString(pIndent, pTab + 1, pDepth - 1));
+            try {
+                var parserEntry = entry.parserEntry();
+                var entryName   = nameOf(parserEntry, "<NoName>");
+                var typeName    = typeNameOf(entry, "<NoType>");
+                var subResult   = entry.subResult();
+                var text        = orgText.subSequence(startPosition, endPosition);
+                text = (text == null) ? "null" : "\"" + Util.escapeText(this.textAt(i)) + "\"";
+                
+                buffer.append(tabs);
+                buffer.append(zeros(width - textWidth(i)) + i);
+                buffer.append(dashes(depth));
+                
+                buffer.append(" => [").append(spaces(5 - textWidth(endPosition)) + endPosition);
+                buffer.append("] = ") .append(entryName + spaces(16 - entryName.length()));
+                buffer.append(":")    .append(typeName  + spaces(16 - typeName.length()));
+                buffer.append(" = ")  .append(text);
+                
+                if (subResult != null) {
+                    buffer.append(subResult.toString(indent, tab + 1, depth - 1));
+                }
+                if (i != last) {
+                    buffer.append("\n");
+                }
+            } finally {
+                startPosition = endPosition;
             }
-            if (i != Last)
-                SB.append("\n");
         }
-        return SB.toString();
+        return buffer.toString();
     }
     
 }
