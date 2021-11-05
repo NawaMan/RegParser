@@ -188,7 +188,8 @@ abstract public class ParseResult implements Serializable {
             return "";
         }
         // Normal Return
-        return orgText.subSequence(start, end).toString();
+        var sequence = orgText.subSequence(start, end);
+        return sequence.toString();
     }
     
     /** Returns the start position of the match */
@@ -448,7 +449,7 @@ abstract public class ParseResult implements Serializable {
     }
     
     public final boolean hasName(String name) {
-        if (name == null) {
+        if ((name == null) || name.isBlank()) {
             return false;
         }
         for (var entry : entries) {
@@ -470,7 +471,8 @@ abstract public class ParseResult implements Serializable {
     /** Returns names of all result entries */
     public IStream<String> names() {
         var names = new HashSet<String>();
-        for (var entry : entries) {
+        entries()
+        .forEach(entry -> {
             var parserEntry = entry.parserEntry();
             if (parserEntry != null) {
                 var name = parserEntry.name();
@@ -478,12 +480,12 @@ abstract public class ParseResult implements Serializable {
                     names.add(name);
                 }
             }
-        }
+        });
         return IStream.forStream(names.stream());
     }
     
     /** Returns the index of the last entry that has the same name with the given name */
-    public final int lastIndexFor(String name) {
+    public final int lastIndexOf(String name) {
         for (int i = entries.size(); --i >= 0;) {
             var entry = entries.get(i);
             var parserEntry = entry.parserEntry();
@@ -498,7 +500,7 @@ abstract public class ParseResult implements Serializable {
     }
     
     /** Returns the all indexes of the result entries that has the same name with the given name */
-    public final int[] allIndexesFor(String name) {
+    public final int[] indexesOf(String name) {
         var indexes = new ArrayList<Integer>();
         for (int i = 0; i < entries.size(); i++) {
             var entry       = entries.get(i);
@@ -515,9 +517,42 @@ abstract public class ParseResult implements Serializable {
                 .mapToInt(Integer::intValue)
                 .toArray();
     }
+    /** Returns the all the match */
+    public final int[][] allIndexesOf(String name) {
+        var allMatches = new ArrayList<int[]>();
+        var matches    = new ArrayList<Integer>();
+        for (int i = 0; i < this.entryCount(); i++) {
+            var entry       = this.entryAt(i);
+            var parserEntry = entry.parserEntry();
+            if ((parserEntry != null) && name.equals(parserEntry.name())) {
+                matches.add(i);
+            } else if (matches.size() > 0) {
+                if (matches.size() == 0) {
+                    continue;
+                }
+                
+                var eachMatches = new int[matches.size()];
+                for (int m = eachMatches.length; --m >= 0;) {
+                    eachMatches[m] = matches.get(m);
+                }
+                allMatches.add(eachMatches);
+                
+                matches.clear();
+            }
+        }
+        
+        if (allMatches.size() == 0)
+            return null;
+        
+        var allMatcheArray = new int[allMatches.size()][];
+        for (int i = allMatcheArray.length; --i >= 0;) {
+            allMatcheArray[i] = allMatches.get(i);
+        }
+        return allMatcheArray;
+    }
     
     /** Returns the text of the the last match */
-    public String lastStringFor(String name) {
+    public String lastStringOf(String name) {
         for (int i = entries.size(); --i >= 0;) {
             var entry = entryAt(i);
             if (!entry.hasParserEntry()) {
@@ -529,38 +564,6 @@ abstract public class ParseResult implements Serializable {
             }
         }
         return null;
-    }
-    
-    /** Returns the all the match */
-    public final int[][] getAllOfIndexMatchesByName(String pName) {
-        Vector<int[]>   AMs = new Vector<int[]>();
-        Vector<Integer> Ms  = new Vector<Integer>();
-        for (int i = 0; i < this.entryCount(); i++) {
-            PREntry E = this.entryAt(i);
-            if (E.hasParserEntry() && pName.equals(E.parserEntry().name()))
-                Ms.add(i);
-            
-            else
-                if (Ms.size() > 0) {
-                    if (Ms.size() == 0)
-                        continue;
-                    
-                    int[] MSs = new int[Ms.size()];
-                    for (int m = MSs.length; --m >= 0;)
-                        MSs[m] = Ms.get(MSs.length - m - 1);
-                    AMs.add(MSs);
-                    
-                    Ms.clear();
-                }
-        }
-        
-        if (AMs.size() == 0)
-            return null;
-        
-        int[][] AMSs = new int[AMs.size()][];
-        for (int i = AMSs.length; --i >= 0;)
-            AMSs[i] = AMs.get(AMSs.length - i - 1);
-        return AMSs;
     }
     
     /** Returns the all the match */
@@ -839,12 +842,12 @@ abstract public class ParseResult implements Serializable {
     
     /** Get text result of the last match */
     public final String textOf(String pEName) {
-        return this.textAt(this.lastIndexFor(pEName));
+        return this.textAt(this.lastIndexOf(pEName));
     }
     
     /** Get texts result of the last match */
     public final String[] textsOf(String pEName) {
-        int[] Is = this.allIndexesFor(pEName);
+        int[] Is = this.indexesOf(pEName);
         if (Is == null)
             return null;
         if (Is.length == 0)
@@ -867,12 +870,12 @@ abstract public class ParseResult implements Serializable {
     
     /** Get text result of the last match */
     public final String nameOf(String pEName) {
-        return this.nameOf(this.lastIndexFor(pEName));
+        return this.nameOf(this.lastIndexOf(pEName));
     }
     
     /** Get texts result of the last match */
     public final String[] namesOf(String pEName) {
-        int[] Is = this.allIndexesFor(pEName);
+        int[] Is = this.indexesOf(pEName);
         if (Is == null)
             return null;
         if (Is.length == 0)
@@ -898,7 +901,7 @@ abstract public class ParseResult implements Serializable {
     
     /** Get subs result of the last match */
     public final ParseResult[] subsOf(String pEName) {
-        int[] Is = this.allIndexesFor(pEName);
+        int[] Is = this.indexesOf(pEName);
         if (Is == null)
             return null;
         if (Is.length == 0)
@@ -929,12 +932,12 @@ abstract public class ParseResult implements Serializable {
     
     /** Get Type of the last match */
     public final PType typeOf(String pEName, PTypeProvider TProvider) {
-        return this.typeOf(this.lastIndexFor(pEName), TProvider);
+        return this.typeOf(this.lastIndexOf(pEName), TProvider);
     }
     
     /** Get subs result of the last match */
     public final PType[] typesOf(String pEName, PTypeProvider TProvider) {
-        int[] Is = this.allIndexesFor(pEName);
+        int[] Is = this.indexesOf(pEName);
         if (Is == null)
             return null;
         if (Is.length == 0)
@@ -960,12 +963,12 @@ abstract public class ParseResult implements Serializable {
     
     /** Get Type name of the last match */
     public final String typeNameOf(String pEName) {
-        return this.typeNameOf(this.lastIndexFor(pEName));
+        return this.typeNameOf(this.lastIndexOf(pEName));
     }
     
     /** Get subs result of the last match */
     public final String[] typeNamesOf(String pEName) {
-        int[] Is = this.allIndexesFor(pEName);
+        int[] Is = this.indexesOf(pEName);
         if (Is == null)
             return null;
         if (Is.length == 0)
@@ -991,12 +994,12 @@ abstract public class ParseResult implements Serializable {
     
     /** Get Type name of the last match */
     public final String typeParamOf(String pEName) {
-        return this.typeParamOf(this.lastIndexFor(pEName));
+        return this.typeParamOf(this.lastIndexOf(pEName));
     }
     
     /** Get subs result of the last match */
     public final String[] typeParamsOf(String pEName) {
-        int[] Is = this.allIndexesFor(pEName);
+        int[] Is = this.indexesOf(pEName);
         if (Is == null)
             return null;
         if (Is.length == 0)
@@ -1028,12 +1031,12 @@ abstract public class ParseResult implements Serializable {
     
     /** Get compile value of the last match */
     public final Object valueOf(String pEName, PTypeProvider TProvider, CompilationContext CContext) {
-        return this.valueOf(this.lastIndexFor(pEName), TProvider, CContext);
+        return this.valueOf(this.lastIndexOf(pEName), TProvider, CContext);
     }
     
     /** Get subs result of the last match */
     public final Object[] valuesOf(String pEName, PTypeProvider TProvider, CompilationContext CContext) {
-        int[] Is = this.allIndexesFor(pEName);
+        int[] Is = this.indexesOf(pEName);
         if (Is == null)
             return null;
         if (Is.length == 0)
@@ -1075,12 +1078,12 @@ abstract public class ParseResult implements Serializable {
     
     /** Get compile value as text of the last match */
     public final String valueAsTextOf(String pEName, PTypeProvider TProvider, CompilationContext CContext) {
-        return this.valueAsTextOf(this.lastIndexFor(pEName), TProvider, CContext);
+        return this.valueAsTextOf(this.lastIndexOf(pEName), TProvider, CContext);
     }
     
     /** Get compile value as text of the all match */
     public final String[] valueAsTextsOf(String pEName, PTypeProvider TProvider, CompilationContext CContext) {
-        int[] Is = this.allIndexesFor(pEName);
+        int[] Is = this.indexesOf(pEName);
         if (Is == null)
             return null;
         if (Is.length == 0)
@@ -1103,12 +1106,12 @@ abstract public class ParseResult implements Serializable {
     
     /** Get locationRC of the last entry named pEName */
     public final int[] locationCROf(String pEName) {
-        return this.locationCROf(this.lastIndexFor(pEName));
+        return this.locationCROf(this.lastIndexOf(pEName));
     }
     
     /** Get locationRC of the all entries named pEName */
     public final int[][] locationCRsOf(String pEName) {
-        int[] Is = this.allIndexesFor(pEName);
+        int[] Is = this.indexesOf(pEName);
         if (Is == null)
             return null;
         if (Is.length == 0)
@@ -1131,12 +1134,12 @@ abstract public class ParseResult implements Serializable {
     
     /** Get location of the last entry named pEName */
     public final String locationOf(String pEName) {
-        return this.locationOf(this.lastIndexFor(pEName));
+        return this.locationOf(this.lastIndexOf(pEName));
     }
     
     /** Get location of the all entries named pEName */
     public final String[] locationsOf(String pEName) {
-        int[] Is = this.allIndexesFor(pEName);
+        int[] Is = this.indexesOf(pEName);
         if (Is == null)
             return null;
         if (Is.length == 0)
@@ -1159,12 +1162,12 @@ abstract public class ParseResult implements Serializable {
     
     /** Get start position of the last entry named pEName */
     public final int posOf(String pEName) {
-        return this.posOf(this.lastIndexFor(pEName));
+        return this.posOf(this.lastIndexOf(pEName));
     }
     
     /** Get start positions of the all entries named pEName */
     public final int[] possOf(String pEName) {
-        int[] Is = this.allIndexesFor(pEName);
+        int[] Is = this.indexesOf(pEName);
         if (Is == null)
             return null;
         if (Is.length == 0)
@@ -1436,7 +1439,7 @@ abstract public class ParseResult implements Serializable {
     public final void flatEntry(String pName) {
         if (pName == null)
             return;
-        int[] Is = this.allIndexesFor(pName);
+        int[] Is = this.indexesOf(pName);
         this.flatEntry(Is);
     }
     
@@ -1444,7 +1447,7 @@ abstract public class ParseResult implements Serializable {
     public final boolean flatLastEntryOf(String pName) {
         if (pName == null)
             return false;
-        int I = this.lastIndexFor(pName);
+        int I = this.lastIndexOf(pName);
         if (I < 0)
             return false;
         return this.flatEntry(I);

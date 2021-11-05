@@ -211,7 +211,13 @@ public class Util {
                     buffer.append("null");
                 } else {
                     if (element.getClass().isArray()) {
-                        buffer.append(Arrays.toString((Object[])element));
+                        if (element instanceof int[]) {
+                            buffer.append(Arrays.toString((int[])element));
+                        } else if (element instanceof int[][]) {
+                            buffer.append(Arrays.toString((int[][])element));
+                        } else {
+                            buffer.append(Arrays.toString((Object[])element));
+                        }
                     } else {
                         buffer.append(element.toString());
                     }

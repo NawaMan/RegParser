@@ -43,7 +43,7 @@ public class PTBackRefCI extends PTBackRef {
             PTypeProvider pProvider) {
         if (pHostResult == null)
             return false;
-        String W = pHostResult.lastStringFor(pParam);
+        String W = pHostResult.lastStringOf(pParam);
         String T = pThisResult.text().toLowerCase();
         if (W == T)
             return true;

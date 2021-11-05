@@ -156,6 +156,8 @@ public class TestName {
                 + "[Entry { End = 6; RPEntry = (#Value:~[0-9]{1,2}~)+; }],"
                 + "[Entry { End = 3; RPEntry = (#Value:~[0-9]{1,2}~); }]"
                 + "]", Util.toString(result.getAllOfMatchesByName("#Value")));
+        
+        validate("[[1],[3],[5, 6],[8]]", Util.toString(result.allIndexesOf("#Value")));
     }
     
 }
