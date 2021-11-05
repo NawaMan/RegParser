@@ -52,29 +52,29 @@ public class PREntry implements Serializable {
         this.endPosition = endPosition;
     }
     
-    public int endPosition() {
+    public final int endPosition() {
         return endPosition;
     }
     
-    public String name() {
+    public final String name() {
         return hasParserEntry()
                 ? parserEntry().name()
                 : null;
     }
     
-    public PTypeRef typeRef() {
+    public final PTypeRef typeRef() {
         return hasParserEntry()
                 ? parserEntry().typeRef()
                 : null;
     }
     
-    public PType type() {
+    public final PType type() {
         return hasParserEntry()
                 ? parserEntry().type()
                 : null;
     }
     
-    public String typeName() {
+    public final String typeName() {
         var typeRef = typeRef();
         if (typeRef != null) {
             return typeRef.name();
@@ -84,7 +84,7 @@ public class PREntry implements Serializable {
         return (type != null) ? type.name() : null;
     }
     
-    public String parameter() {
+    public final String parameter() {
         var typeRef = typeRef();
         return (typeRef != null)
                 ? typeRef.parameter()
@@ -108,7 +108,7 @@ public class PREntry implements Serializable {
     }
     
     @Override
-    public String toString() {
+    public final String toString() {
         var buffer = new StringBuffer();
         buffer.append("Entry").append(" { ");
         buffer.append("End = ").append(endPosition).append("; ");
