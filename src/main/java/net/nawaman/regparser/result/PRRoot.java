@@ -5,7 +5,7 @@ import java.util.List;
 import net.nawaman.regparser.result.entry.PREntry;
 
 /** Root Result */
-public class PRRoot extends PRNormal {
+public final class PRRoot extends PRNormal {
     
     static private final long serialVersionUID = 2543546515135214354L;
     
@@ -21,12 +21,12 @@ public class PRRoot extends PRNormal {
     }
     
     @Override
-    public CharSequence originalText() {
+    public final CharSequence originalText() {
         return originalText;
     }
     
     @Override
-    public ParseResult duplicate() {
+    public final ParseResult duplicate() {
         int startPosition = startPosition();
         var entryList     = entryList();
         return new PRRoot(startPosition, originalText, entryList);

@@ -22,7 +22,7 @@ abstract public class PRNormal extends ParseResult {
     }
     
     @Override
-    public int startPosition() {
+    public final int startPosition() {
         return startPosition;
     }
     

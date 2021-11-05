@@ -27,7 +27,7 @@ public class TestSpeed {
         System.out.println("RegExpr:" + (endTime - startTime));
         
         // TODO - Revert the below comment.
-        int loop   = 50000; //0;
+        int loop   = 100000; //0;
         var random = new Random();
         
         var buffer = new StringBuffer();

@@ -7,24 +7,25 @@ import net.nawaman.regparser.utils.IStream;
 
 
 /** Node Result - For sub result*/
-public class PRNode extends PRNormal {
+public final class PRNode extends PRNormal {
     
     static private final long serialVersionUID = 2545684654651635454L;
     
     private ParseResult parent;
     private int         index;
     
-    PRNode(int startPosition, ParseResult parseResult) {
-        this(startPosition, parseResult, null);
+    PRNode(int startPosition, ParseResult parentResult) {
+        this(startPosition, parentResult, null);
     }
     
-    private PRNode(int startPosition, ParseResult parseResult, List<PREntry> resultEntries) {
+    private PRNode(int startPosition, ParseResult parentResult, List<PREntry> resultEntries) {
         super(startPosition, resultEntries);
-        this.parent = parseResult;
+        this.parent = parentResult;
         
         int index = 0;
-        for (int i = 0; i < this.parent.entryCount(); i++) {
-            if (startPosition == this.parent.endPositionAt(i)) {
+        int entryCount = parentResult.entryCount();
+        for (int i = 0; i < entryCount; i++) {
+            if (startPosition == parentResult.endPositionAt(i)) {
                 index = i;
                 break;
             }
@@ -32,22 +33,22 @@ public class PRNode extends PRNormal {
         this.index = index;
     }
     
-    void parent(ParseResult parent) {
+    final void parent(ParseResult parent) {
         this.parent = parent;
     }
     
     @Override
-    public ParseResult parent() {
+    public final ParseResult parent() {
         return this.parent;
     }
     
     @Override
-    public CharSequence originalText() {
+    public final CharSequence originalText() {
         return parent.originalText();
     }
     
     @Override
-    public ParseResult duplicate() {
+    public final ParseResult duplicate() {
         // Duplication of Node cannot be optimize the same way with Temp (by avoiding recursive) 
         //     because Node hold structure that is important for verification and compilation.
         int startPosition = startPosition();
@@ -62,14 +63,14 @@ public class PRNode extends PRNormal {
     // Get Element by name -----------------------------------------------------------------------
     
     @Override
-    public IStream<String> names() {
+    public final IStream<String> names() {
         var names = super.names();
         return names.concatWith((parent == null) ? null : parent.names());
     }
     
     /**{@inheritDoc}*/
     @Override
-    public String lastStringFor(String name) {
+    public final String lastStringFor(String name) {
         var string = super.lastStringFor(name);
         if (string != null) {
             return string;
