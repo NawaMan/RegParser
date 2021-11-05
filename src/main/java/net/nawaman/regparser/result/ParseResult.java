@@ -567,7 +567,7 @@ abstract public class ParseResult implements Serializable {
     }
     
     /** Returns the all the match */
-    public final String[][] stringMatchesFor(String name) {
+    public final String[][] allStringsOf(String name) {
         var arrayMatches = new ArrayList<String[]>();
         var matchers     = new ArrayList<String>();
         var orgText      = originalText();
