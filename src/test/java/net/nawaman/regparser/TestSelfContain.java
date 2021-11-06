@@ -34,7 +34,7 @@ public class TestSelfContain {
         
         @Override
         public boolean doValidate(ParseResult hostResult, ParseResult thisResult, String param, PTypeProvider typeProvider) {
-            var text  = thisResult.text();
+            var text  = thisResult.text().toString();
             int value = Integer.parseInt(text);
             return (value >= 0) && (value <= 24);
         }
@@ -56,7 +56,7 @@ public class TestSelfContain {
         
         @Override
         public boolean doValidate(ParseResult hostResult, ParseResult thisResult, String param, PTypeProvider typeProvider) {
-            var text  = thisResult.text();
+            var text  = thisResult.text().toString();
             int value = Integer.parseInt(text);
             return (value >= 25) && (value <= 50);
         }

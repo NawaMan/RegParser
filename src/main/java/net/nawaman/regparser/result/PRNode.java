@@ -43,8 +43,8 @@ public final class PRNode extends PRNormal {
     }
     
     @Override
-    public final CharSequence originalText() {
-        return parent.originalText();
+    public final CharSequence originalCharSequence() {
+        return parent.originalCharSequence();
     }
     
     @Override

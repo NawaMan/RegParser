@@ -70,6 +70,8 @@ abstract public class ParseResult implements Serializable {
         return new PRNode(startPosition, parseResult);
     }
     
+    // == Static utility ==
+    
     public static String nameOf(RPEntry entry) {
         return nameOf(entry, null);
     }
@@ -97,6 +99,7 @@ abstract public class ParseResult implements Serializable {
         return defaultValue;
     }
     
+    //== Instance ==
     
     private List<PREntry> entries;
     
@@ -132,7 +135,6 @@ abstract public class ParseResult implements Serializable {
         return result;
     }
     
-    
     // Entries ---------------------------------------------------------------------------------------------------------
     
     /** @return  the entries as a streams. */
@@ -159,47 +161,6 @@ abstract public class ParseResult implements Serializable {
     public final int rawEntryCount() {
         return (entries == null) ? 0 : entries.size();
     }
-    
-    // Text ----------------------------------------------------------------------------------------
-    
-    /** Get the original text as a CharSequence */
-    public abstract CharSequence originalText();
-    
-    /** Get the original text as a string */
-    public final String originalString() {
-        return this.originalText().toString();
-    }
-    
-    /** Get the match text */
-    public final String text() {
-        var orgText = originalText();
-        // Ensure proper range
-        int start = startPosition();
-        int end   = endPosition();
-        if ((orgText == null) || (start > orgText.length()) || (start < 0)) {
-            return null;
-        }
-        if ((end > orgText.length()) || (end < 0)) {
-            return null;
-        }
-        // Quick Return
-        if (start == end) {
-            return "";
-        }
-        // Normal Return
-        var sequence = orgText.subSequence(start, end);
-        return sequence.toString();
-    }
-    
-    /** Returns the start position of the match */
-    abstract public int startPosition();
-    
-    /** Returns the end position that this parse result match */
-    public final int endPosition() {
-        int lastIndex = entryCount() - 1;
-        return endPositionAt(lastIndex);
-    }
-    
     /** Returns a result entry at the index. or null if the index of out of bound. */
     public PREntry entryAt(int index) {
         if ((index < 0) || index >= entryCount()) {
@@ -222,6 +183,145 @@ abstract public class ParseResult implements Serializable {
                         firstIndex, secondIndex, Util.toString(restIndexes, "", "", ", "), exception.getMessage());
             throw new RuntimeException(errMsg, exception);
         }
+    }
+    
+    // Text ----------------------------------------------------------------------------------------
+    
+    /** Get the original text as a CharSequence */
+    public abstract CharSequence originalCharSequence();
+    
+    /** Get the original text as a string */
+    public final String originalText() {
+        return this.originalCharSequence().toString();
+    }
+    
+    /** Get the match text */
+    public final String text() {
+        var orgText = originalCharSequence();
+        // Ensure proper range
+        int start = startPosition();
+        int end   = endPosition();
+        if ((orgText == null) || (start > orgText.length()) || (start < 0)) {
+            return null;
+        }
+        if ((end > orgText.length()) || (end < 0)) {
+            return null;
+        }
+        // Quick Return
+        if (start == end) {
+            return "";
+        }
+        // Normal Return
+        var sequence = orgText.subSequence(start, end);
+        return sequence.toString();
+    }
+    
+    /** Returns the text of an entry at the index */
+    public final String textOf(int index) {
+        var text = originalCharSequence();
+        if (text == null) {
+            return null;
+        }
+        int start = startPositionAt(index);
+        int end   = endPositionAt(index);
+        if ((start < 0) || (end < 0) || (start > text.length()) || (end > text.length())) {
+            return null;
+        }
+        if (start == end) {
+            return "";
+        }
+        return text.subSequence(start, end).toString();
+    }
+    
+    /** Returns the start position of a sub entry at the index */
+    public final String textOf(int firstIndex, int secondIndex, int... restIndexes) {
+        try {
+            var result    = nestedSubResultABOVE(firstIndex, secondIndex, restIndexes);
+            int lastIndex = ((restIndexes == null) || (restIndexes.length == 0))
+                          ? secondIndex
+                          : restIndexes[restIndexes.length - 1];
+            return result.textOf(lastIndex);
+        } catch (ArrayIndexOutOfBoundsException exception) {
+            var errMsg = format(
+                        "Error getting a result entry at [%d, %d, %s]: %s",
+                        firstIndex, secondIndex, Util.toString(restIndexes, "", "", ", "), exception.getMessage());
+            throw new RuntimeException(errMsg, exception);
+        }
+    }
+    
+    /** Get text result of the last match */
+    public final String textOf(String name) {
+        int lastIndex = lastIndexOf(name);
+        return this.textOf(lastIndex);
+    }
+    
+    /** Get texts result of the last match */
+    public final String[] textsOf(String name) {
+        int[] indexes = indexesOf(name);
+        if (indexes == null) {
+            return null;
+        }
+        if (indexes.length == 0) {
+            return new String[0];
+        }
+        var texts = new String[indexes.length];
+        for (int i = texts.length; --i >= 0;) {
+            texts[i] = this.textOf(indexes[i]);
+        }
+        return texts;
+    }
+    
+    // Entry Name -----------------------------------------------------------------------
+    
+    /** Get text result of the last match */
+    public final String nameOf(int I) {
+        var PRE = this.entryAt(I);
+        if (PRE == null)
+            return null;
+        return PRE.name();
+    }
+    
+    /** Get text result of the last match */
+    public final String nameOf(String pEName) {
+        return this.nameOf(this.lastIndexOf(pEName));
+    }
+    
+    /** Returns the name of the sub entry at the indexes */
+    public final String nameAt(int index) {
+        var entry = entryAt(index);
+        return (entry == null) ? null : entry.name();
+    }
+    
+    /** Returns the name of the sub entry at the indexes */
+    public final String nameAt(int firstIndex, int secondIndex, int... restIndexes) {
+        var entry = entryAt(firstIndex, secondIndex, restIndexes);
+        return (entry == null) ? null : entry.name();
+    }
+    
+    /** Get texts result of the last match */
+    public final String[] namesOf(String pEName) {
+        int[] Is = this.indexesOf(pEName);
+        if (Is == null)
+            return null;
+        if (Is.length == 0)
+            return new String[0];
+        String[] PRENs = new String[Is.length];
+        for (int i = PRENs.length; --i >= 0;)
+            PRENs[i] = this.nameOf(Is[i]);
+        return PRENs;
+    }
+    
+    
+    
+    
+    
+    /** Returns the start position of the match */
+    abstract public int startPosition();
+    
+    /** Returns the end position that this parse result match */
+    public final int endPosition() {
+        int lastIndex = entryCount() - 1;
+        return endPositionAt(lastIndex);
     }
     
     /**
@@ -269,27 +369,15 @@ abstract public class ParseResult implements Serializable {
     }
     
     /** Returns the sub result at the index. or null if the index of out of bound. */
-    public final ParseResult subResultAt(int index) {
+    public final ParseResult subResultOf(int index) {
         var entry = entryAt(index);
         return (entry == null) ? null : entry.subResult();
     }
     
     /** Returns the nested sub result at the indexes. or null if the index of out of bound. */
-    public final ParseResult subResultAt(int firstIndex, int secondIndex, int... restIndexes) {
+    public final ParseResult subResultOf(int firstIndex, int secondIndex, int... restIndexes) {
         var entry = entryAt(firstIndex, secondIndex, restIndexes);
         return (entry == null) ? null : entry.subResult();
-    }
-    
-    /** Returns the name of the sub entry at the indexes */
-    public final String nameAt(int index) {
-        var entry = entryAt(index);
-        return (entry == null) ? null : entry.name();
-    }
-    
-    /** Returns the name of the sub entry at the indexes */
-    public final String nameAt(int firstIndex, int secondIndex, int... restIndexes) {
-        var entry = entryAt(firstIndex, secondIndex, restIndexes);
-        return (entry == null) ? null : entry.name();
     }
     
     /** Returns the type name of the sub entry at the indexes */
@@ -371,39 +459,6 @@ abstract public class ParseResult implements Serializable {
                           ? secondIndex
                           : restIndexes[restIndexes.length - 1];
             return result.endPositionAt(lastIndex);
-        } catch (ArrayIndexOutOfBoundsException exception) {
-            var errMsg = format(
-                        "Error getting a result entry at [%d, %d, %s]: %s",
-                        firstIndex, secondIndex, Util.toString(restIndexes, "", "", ", "), exception.getMessage());
-            throw new RuntimeException(errMsg, exception);
-        }
-    }
-    
-    /** Returns the text of an entry at the index */
-    public final String textAt(int index) {
-        var text = originalText();
-        if (text == null) {
-            return null;
-        }
-        int start = startPositionAt(index);
-        int end   = endPositionAt(index);
-        if ((start < 0) || (end < 0) || (start > text.length()) || (end > text.length())) {
-            return null;
-        }
-        if (start == end) {
-            return "";
-        }
-        return text.subSequence(start, end).toString();
-    }
-    
-    /** Returns the start position of a sub entry at the index */
-    public final String textAt(int firstIndex, int secondIndex, int... restIndexes) {
-        try {
-            var result    = nestedSubResultABOVE(firstIndex, secondIndex, restIndexes);
-            int lastIndex = ((restIndexes == null) || (restIndexes.length == 0))
-                          ? secondIndex
-                          : restIndexes[restIndexes.length - 1];
-            return result.textAt(lastIndex);
         } catch (ArrayIndexOutOfBoundsException exception) {
             var errMsg = format(
                         "Error getting a result entry at [%d, %d, %s]: %s",
@@ -559,7 +614,7 @@ abstract public class ParseResult implements Serializable {
             }
             var parseEntry = entry.parserEntry();
             if (name.equals(parseEntry.name())) {
-                return textAt(i);
+                return textOf(i);
             }
         }
         return null;
@@ -569,7 +624,7 @@ abstract public class ParseResult implements Serializable {
     public final String[][] allStringsOf(String name) {
         var arrayMatches = new ArrayList<String[]>();
         var matchers     = new ArrayList<String>();
-        var orgText      = originalText();
+        var orgText      = originalCharSequence();
         var prevEntry    = (PREntry)null;
         for (var entry : entries) {
             if (entry.hasParserEntry() && name.equals(entry.parserEntry().name())) {
@@ -694,7 +749,7 @@ abstract public class ParseResult implements Serializable {
     public final int depth() {
         int depth = 0;
         for (int i = this.entryCount(); --i >= 0;) {
-            var subResult = this.subResultAt(i);
+            var subResult = this.subResultOf(i);
             if (subResult != null) {
                 int d = subResult.depth();
                 if (depth < d) {
@@ -769,7 +824,7 @@ abstract public class ParseResult implements Serializable {
                 }
             }
             
-            var subResult = this.subResultAt(i);
+            var subResult = this.subResultOf(i);
             if ((subResult != null) && !subResult.hasNoError(typeProvider)) {
                 return false;
             }
@@ -838,7 +893,7 @@ abstract public class ParseResult implements Serializable {
                 }
             }
             
-            var subResult = this.subResultAt(i);
+            var subResult = this.subResultOf(i);
             if ((subResult != null) && !subResult.ensureNoError(typeProvider, compilationContext)) {
                 return false;
             }
@@ -846,64 +901,11 @@ abstract public class ParseResult implements Serializable {
         return !haveErrorOrWanrning;
     }
     
-    // Text value -----------------------------------------------------------------------
-    
-    /** Get text result of the last match */
-    public final String textOf(int i) {
-        return this.textAt(i);
-    }
-    
-    /** Get text result of the last match */
-    public final String textOf(String name) {
-        return this.textAt(this.lastIndexOf(name));
-    }
-    
-    /** Get texts result of the last match */
-    public final String[] textsOf(String name) {
-        int[] Is = this.indexesOf(name);
-        if (Is == null)
-            return null;
-        if (Is.length == 0)
-            return new String[0];
-        String[] PRENs = new String[Is.length];
-        for (int i = PRENs.length; --i >= 0;)
-            PRENs[i] = this.textAt(Is[i]);
-        return PRENs;
-    }
-    
-    // Entry Name -----------------------------------------------------------------------
-    
-    /** Get text result of the last match */
-    public final String nameOf(int I) {
-        var PRE = this.entryAt(I);
-        if (PRE == null)
-            return null;
-        return PRE.name();
-    }
-    
-    /** Get text result of the last match */
-    public final String nameOf(String pEName) {
-        return this.nameOf(this.lastIndexOf(pEName));
-    }
-    
-    /** Get texts result of the last match */
-    public final String[] namesOf(String pEName) {
-        int[] Is = this.indexesOf(pEName);
-        if (Is == null)
-            return null;
-        if (Is.length == 0)
-            return new String[0];
-        String[] PRENs = new String[Is.length];
-        for (int i = PRENs.length; --i >= 0;)
-            PRENs[i] = this.nameOf(Is[i]);
-        return PRENs;
-    }
-    
     // Entry SubEntry -------------------------------------------------------------------
     
     /** Get sub result of the last match */
     public final ParseResult subOf(int I) {
-        return this.subResultAt(I);
+        return this.subResultOf(I);
     }
     
     /** Get sub result of the last match */
@@ -1403,7 +1405,7 @@ abstract public class ParseResult implements Serializable {
         PREntry Entry = this.entryAt(pEntryIndex);
         if ((Entry == null) || Entry.hasSubResult())
             return false;
-        String      Text = this.originalString().substring(0, this.endPositionAt(pEntryIndex));
+        String      Text = this.originalText().substring(0, this.endPositionAt(pEntryIndex));
         ParseResult PR   = pParser.parse(Text, this.startPositionAt(pEntryIndex), pProvider);
         if (PR == null)
             return false;
@@ -1473,7 +1475,7 @@ abstract public class ParseResult implements Serializable {
         int Pos = this.startPositionAt(pEntryIndex);
         if (Pos == -1)
             return null;
-        return Helper.getLocationAsColRow(this.originalText(), Pos);
+        return Helper.getLocationAsColRow(this.originalCharSequence(), Pos);
     }
     
     /** Returns the string representation of the starting of the entry index */
@@ -1481,7 +1483,7 @@ abstract public class ParseResult implements Serializable {
         int Pos = this.startPositionAt(pEntryIndex);
         if (Pos == -1)
             return null;
-        return Helper.getLocationAsString(this.originalText(), Pos);
+        return Helper.getLocationAsString(this.originalCharSequence(), Pos);
     }
     
     // Object ------------------------------------------------------------------------------------
@@ -1504,7 +1506,7 @@ abstract public class ParseResult implements Serializable {
         var tabs    = indents(indent) + tabs(tab);
         var width   = Math.max(2, textWidth(count));
         var buffer  = new StringBuffer();
-        var orgText = originalText();
+        var orgText = originalCharSequence();
         
         int startPosition = startPosition();
         
@@ -1519,7 +1521,7 @@ abstract public class ParseResult implements Serializable {
                 var typeName    = typeNameOf(entry, "<NoType>");
                 var subResult   = entry.subResult();
                 var text        = orgText.subSequence(startPosition, endPosition);
-                text = (text == null) ? "null" : "\"" + Util.escapeText(this.textAt(i)) + "\"";
+                text = (text == null) ? "null" : "\"" + Util.escapeText(this.textOf(i)) + "\"";
                 
                 buffer.append(tabs);
                 buffer.append(zeros(width - textWidth(i)) + i);

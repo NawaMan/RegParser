@@ -68,8 +68,8 @@ public final class PRTemp extends ParseResult {
     }
     
     @Override
-    public final CharSequence originalText() {
-        return first.originalText();
+    public final CharSequence originalCharSequence() {
+        return first.originalCharSequence();
     }
     
     @Override

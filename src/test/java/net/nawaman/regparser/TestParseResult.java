@@ -82,7 +82,7 @@ public class TestParseResult {
                 + "00 => [   10] = $BeforeDot      :<NoType>         = \"15\"\n"
                 + "01 => [   11] = <NoName>        :<NoType>         = \".\"\n"
                 + "02 => [   12] = $AfterDot       :<NoType>         = \"0\"",
-                result.subResultAt(3, 0));
+                result.subResultOf(3, 0));
         validate("\n"
                 + "00 - - => [    4] = <NoName>        :<NoType>         = \"var \"\n"
                 + "01 - - => [    5] = $VarName        :<NoType>         = \"I\"\n"
@@ -95,7 +95,7 @@ public class TestParseResult {
                 + ". 01 - => [   13] = $Operator       :<NoType>         = \"*\"\n"
                 + ". 02 - => [   14] = $Operand        :<NoType>         = \"5\"\n"
                 + "04 - - => [   15] = <NoName>        :<NoType>         = \";\"",
-                result.subResultAt(3, 0).root());
+                result.subResultOf(3, 0).root());
     }
     
     @Test

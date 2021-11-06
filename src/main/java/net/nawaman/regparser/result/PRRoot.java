@@ -17,11 +17,11 @@ public final class PRRoot extends PRNormal {
     
     private PRRoot(int startPosition, CharSequence originalText, List<PREntry> resultEntries) {
         super(startPosition, resultEntries);
-        this.originalText = originalText;
+        this.originalText = (originalText != null) ? originalText : "";
     }
     
     @Override
-    public final CharSequence originalText() {
+    public final CharSequence originalCharSequence() {
         return originalText;
     }
     
