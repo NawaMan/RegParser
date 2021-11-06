@@ -713,145 +713,154 @@ abstract public class ParseResult implements Serializable {
     
     // Message ------------------------------------------------------------------------------------
     
-    static public final String WarningPrefix    = "$WARNING_";
-    static public final String ErrorPrefix      = "$ERROR_";
-    static public final String FatalErrorPrefix = "$FATAL_ERROR_";
+    static public final String WARNING_PREFIX     = "$WARNING_";
+    static public final String ERROR_PREFIX       = "$ERROR_";
+    static public final String FATAL_ERROR_PREFIX = "$FATAL_ERROR_";
     
     public final String message(String name) {
-        StringBuffer SB = new StringBuffer();
+        var buffer = new StringBuffer();
         for (int i = 0; i < name.length(); i++) {
-            char C = name.charAt(i);
-            if (C == '_') {
+            char ch = name.charAt(i);
+            if (ch == '_') {
                 if (name.startsWith("___")) {
-                    SB.append("_");
+                    buffer.append("_");
                     i += 2;
                 } else
-                    SB.append(" ");
+                    buffer.append(" ");
             } else
-                SB.append(C);
+                buffer.append(ch);
         }
-        String S = SB.toString();
-        return S.endsWith("[]") ? S.substring(0, S.length() - 2) : S;
+        var string = buffer.toString();
+        return string.endsWith("[]") ? string.substring(0, string.length() - 2) : string;
     }
     
     /** Detect and report all error and warning - returns if there is at least one error or warning */
-    public final boolean hasNoError(PTypeProvider TProvider) {
-        boolean HaveErrorOrWanrning = false;
-        int     Count               = this.entryCount();
-        for (int i = 0; i < Count; i++) {
-            PREntry E = this.entryAt(i);
-            if (E == null)
+    public final boolean hasNoError(PTypeProvider typeProvider) {
+        boolean haveErrorOrWanrning = false;
+        int     entryCount          = this.entryCount();
+        for (int i = 0; i < entryCount; i++) {
+            var entry = this.entryAt(i);
+            if (entry == null)
                 continue;
             
-            PType Type = E.type();
-            if (Type == null) {
-                String TName = E.typeName();
-                if (TName != null) {
-                    Type = (TProvider == null) ? null : TProvider.getType(TName);
-                    if (Type == null) {
-                        Type = PTypeProvider.Extensible.getDefault().getType(TName);
-                        if (Type == null)
-                            throw new RuntimeException("Unknown type `" + TName + "`.");
+            var type = entry.type();
+            if (type == null) {
+                var typeName = entry.typeName();
+                if (typeName != null) {
+                    type = (typeProvider == null) ? null : typeProvider.getType(typeName);
+                    if (type == null) {
+                        type = PTypeProvider.Extensible.getDefault().getType(typeName);
+                        if (type == null) {
+                            throw new RuntimeException("Unknown type `" + typeName + "`.");
+                        }
                     }
                 }
             }
             // Found an error type, so there is error
-            if (Type instanceof PTError)
+            if (type instanceof PTError)
                 return false;
             
-            String Name = E.name();
-            if (Name != null) {
-                if (Name.startsWith(WarningPrefix) || Name.startsWith(ErrorPrefix) || Name.startsWith(FatalErrorPrefix))
+            var name = entry.name();
+            if (name != null) {
+                if (name.startsWith(WARNING_PREFIX)
+                 || name.startsWith(ERROR_PREFIX)
+                 || name.startsWith(FATAL_ERROR_PREFIX)) {
                     return false;
+                }
             }
             
-            ParseResult Sub = this.subResultAt(i);
-            if ((Sub != null) && !Sub.hasNoError(TProvider))
+            var subResult = this.subResultAt(i);
+            if ((subResult != null) && !subResult.hasNoError(typeProvider)) {
                 return false;
+            }
         }
-        return !HaveErrorOrWanrning;
+        return !haveErrorOrWanrning;
     }
     
     /** Detect and report all error and warning - returns if there is at least one error or warning */
-    public final boolean ensureNoError(PTypeProvider TProvider, CompilationContext CContext) {
-        boolean HaveErrorOrWanrning = false;
-        int     Count               = this.entryCount();
-        for (int i = 0; i < Count; i++) {
-            PREntry E = this.entryAt(i);
-            if (E == null)
+    public final boolean ensureNoError(PTypeProvider typeProvider, CompilationContext compilationContext) {
+        boolean haveErrorOrWanrning = false;
+        int     entryCount          = this.entryCount();
+        for (int i = 0; i < entryCount; i++) {
+            var entry = this.entryAt(i);
+            if (entry == null) {
                 continue;
+            }
             
-            PType Type = E.type();
-            if (Type == null) {
-                String TName = E.typeName();
-                if (TName != null) {
-                    Type = (TProvider == null) ? null : TProvider.getType(TName);
-                    if (Type == null) {
-                        Type = PTypeProvider.Extensible.getDefault().getType(TName);
-                        if (Type == null)
-                            throw new RuntimeException("Unknown type `" + TName + "`.");
+            var type = entry.type();
+            if (type == null) {
+                var typeName = entry.typeName();
+                if (typeName != null) {
+                    type = (typeProvider == null) ? null : typeProvider.getType(typeName);
+                    if (type == null) {
+                        type = PTypeProvider.Extensible.getDefault().getType(typeName);
+                        if (type == null) {
+                            throw new RuntimeException("Unknown type `" + typeName + "`.");
+                        }
                     }
                 }
             }
-            if (Type instanceof PTError) {
+            if (type instanceof PTError) {
                 // The type is an error type - let it solve it own business
-                Type.compile(this, i, E.parameter(), CContext, TProvider);
-                HaveErrorOrWanrning = true;
+                type.compile(this, i, entry.parameter(), compilationContext, typeProvider);
+                haveErrorOrWanrning = true;
                 continue;
             }
             
-            String Name = E.name();
-            if (Name != null) {
-                boolean IsW = false;
-                boolean IsE = false;
-                boolean IsF = false;
-                if ((IsW = Name.startsWith(WarningPrefix)) || (IsE = Name.startsWith(ErrorPrefix))
-                        || (IsF = Name.startsWith(FatalErrorPrefix))) {
-                    HaveErrorOrWanrning = true;
+            var name = entry.name();
+            if (name != null) {
+                boolean isWarning    = false;
+                boolean isError      = false;
+                boolean isFatalError = false;
+                if ((isWarning    = name.startsWith(WARNING_PREFIX))
+                 || (isError      = name.startsWith(ERROR_PREFIX))
+                 || (isFatalError = name.startsWith(FATAL_ERROR_PREFIX))) {
+                    haveErrorOrWanrning = true;
                     
-                    int Kind_Length = 0;
-                    if (IsW)
-                        Kind_Length = WarningPrefix.length();
+                    int kindLength = 0;
+                    if (isWarning)
+                        kindLength = WARNING_PREFIX.length();
                     else
-                        if (IsE)
-                            Kind_Length = ErrorPrefix.length();
+                        if (isError)
+                            kindLength = ERROR_PREFIX.length();
                         else
-                            if (IsF)
-                                Kind_Length = FatalErrorPrefix.length();
+                            if (isFatalError)
+                                kindLength = FATAL_ERROR_PREFIX.length();
                             
-                    String Msg = null;
-                    Msg = (TProvider == null) ? null : TProvider.getErrorMessage(Name.substring(1));
+                    var msg = (typeProvider == null) ? null : typeProvider.getErrorMessage(name.substring(1));
                     // NOTE: 1 is to eliminate $ prefix >-----------------------------------^
-                    Msg = (Msg != null) ? Msg : this.message(Name.substring(Kind_Length, Name.length()));
-                    CContext.reportError(Msg, null, this.startPositionAt(i));
-                    if (IsF)
-                        throw new RuntimeException("FATAL ERROR! The compilation cannot be continued: " + Msg);
+                    msg = (msg != null) ? msg : this.message(name.substring(kindLength, name.length()));
+                    compilationContext.reportError(msg, null, this.startPositionAt(i));
+                    if (isFatalError) {
+                        throw new RuntimeException("FATAL ERROR! The compilation cannot be continued: " + msg);
+                    }
                     
                 }
             }
             
-            ParseResult Sub = this.subResultAt(i);
-            if ((Sub != null) && !Sub.ensureNoError(TProvider, CContext))
+            var subResult = this.subResultAt(i);
+            if ((subResult != null) && !subResult.ensureNoError(typeProvider, compilationContext)) {
                 return false;
+            }
         }
-        return !HaveErrorOrWanrning;
+        return !haveErrorOrWanrning;
     }
     
     // Text value -----------------------------------------------------------------------
     
     /** Get text result of the last match */
-    public final String textOf(int I) {
-        return this.textAt(I);
+    public final String textOf(int i) {
+        return this.textAt(i);
     }
     
     /** Get text result of the last match */
-    public final String textOf(String pEName) {
-        return this.textAt(this.lastIndexOf(pEName));
+    public final String textOf(String name) {
+        return this.textAt(this.lastIndexOf(name));
     }
     
     /** Get texts result of the last match */
-    public final String[] textsOf(String pEName) {
-        int[] Is = this.indexesOf(pEName);
+    public final String[] textsOf(String name) {
+        int[] Is = this.indexesOf(name);
         if (Is == null)
             return null;
         if (Is.length == 0)
