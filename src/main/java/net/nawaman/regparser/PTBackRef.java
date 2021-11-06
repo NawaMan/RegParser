@@ -59,7 +59,7 @@ public class PTBackRef extends PType {
             if (pHostResult == null)
                 return null;
             else {
-                var E = pHostResult.lastMatchFor(pParam);
+                var E = pHostResult.lastEntryOf(pParam);
                 if ((E == null) && (pHostResult instanceof PRRoot))
                     return null;
                 W = pHostResult.lastStringOf(pParam);

@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Vector;
 import java.util.stream.Stream;
 
 import net.nawaman.regparser.CompilationContext;
@@ -598,7 +597,7 @@ abstract public class ParseResult implements Serializable {
     }
     
     /** Returns the last match */
-    public final PREntry lastMatchFor(String name) {
+    public final PREntry lastEntryOf(String name) {
         for (int i = entries.size(); --i >= 0;) {
             var resultEntry = entries.get(i);
             var parserEntry = resultEntry.parserEntry();
@@ -613,29 +612,30 @@ abstract public class ParseResult implements Serializable {
     }
     
     /** Returns the last group of continuous match */
-    public final PREntry[] getLastMatchesByName(String pName) {
-        Vector<PREntry> Es = new Vector<PREntry>();
-        for (int i = this.entryCount(); --i >= 0;) {
-            PREntry E = this.entryAt(i);
-            if (E.hasParserEntry() && pName.equals(E.parserEntry().name()))
-                Es.add(E);
-            
-            else
-                if (Es.size() > 0)
-                    break;
+    public final PREntry[] lastEntriesOf(String name) {
+        var entries = new ArrayList<PREntry>();
+        for (int i = this.entries.size(); --i >= 0;) {
+            var resultEntry = this.entries.get(i);
+            var parserEntry = resultEntry.parserEntry();
+            if ((parserEntry != null) && name.equals(parserEntry.name())) {
+                entries.add(resultEntry);
+            } else if (entries.size() > 0) {
+                break;
+            }
         }
         
-        if (Es.size() == 0)
+        if (entries.size() == 0)
             return null;
         
-        PREntry[] ESs = new PREntry[Es.size()];
-        for (int i = ESs.length; --i >= 0;)
-            ESs[i] = Es.get(ESs.length - i - 1);
-        return ESs;
+        var lastEntries = new PREntry[entries.size()];
+        for (int i = lastEntries.length; --i >= 0;) {
+            lastEntries[i] = entries.get(lastEntries.length - i - 1);
+        }
+        return lastEntries;
     }
     
     /** Returns the all the match */
-    public final PREntry[] entriesFor(String name) {
+    public final PREntry[] entriesOf(String name) {
         var resultEntries = new ArrayList<PREntry>();
         for (var resultEntry : entries) {
             var parserEntry = resultEntry.parserEntry();
@@ -655,44 +655,48 @@ abstract public class ParseResult implements Serializable {
     }
     
     /** Returns the all the match */
-    public final PREntry[][] getAllOfMatchesByName(String pName) {
-        var AEs = new Vector<PREntry[]>();
-        var Es  = new Vector<PREntry>();
+    public final PREntry[][] allEntriesOf(String name) {
+        var entryArray = new ArrayList<PREntry[]>();
+        var entryList  = new ArrayList<PREntry>();
         for (int i = 0; i < this.entryCount(); i++) {
-            PREntry E = this.entryAt(i);
-            if (E.hasParserEntry() && pName.equals(E.parserEntry().name()))
-                Es.add(E);
+            var resultEntry = this.entryAt(i);
+            var parserEntry = resultEntry.parserEntry();
+            if ((parserEntry != null) && name.equals(parserEntry.name())) {
+                entryList.add(resultEntry);
+            }
             
             else
-                if (Es.size() > 0) {
-                    if (Es.size() == 0)
+                if (entryList.size() > 0) {
+                    if (entryList.size() == 0)
                         continue;
                     
-                    PREntry[] ESs = new PREntry[Es.size()];
-                    for (int e = ESs.length; --e >= 0;)
-                        ESs[e] = Es.get(ESs.length - e - 1);
-                    AEs.add(ESs);
-                    
-                    Es.clear();
+                    var allEntries = new PREntry[entryList.size()];
+                    for (int e = allEntries.length; --e >= 0;) {
+                        allEntries[e] = entryList.get(e);
+                    }
+                    entryArray.add(allEntries);
+                    entryList.clear();
                 }
         }
         
-        if (AEs.size() == 0)
+        if (entryArray.size() == 0) {
             return null;
+        }
         
-        PREntry[][] AESs = new PREntry[AEs.size()][];
-        for (int i = AESs.length; --i >= 0;)
-            AESs[i] = AEs.get(AESs.length - i - 1);
-        return AESs;
+        var allEntries = new PREntry[entryArray.size()][];
+        for (int i = allEntries.length; --i >= 0;) {
+            allEntries[i] = entryArray.get(i);
+        }
+        return allEntries;
     }
     
     /** Returns how deep the parse result is nested */
     public final int depth() {
         int depth = 0;
         for (int i = this.entryCount(); --i >= 0;) {
-            ParseResult PR = this.subResultAt(i);
-            if (PR != null) {
-                int d = PR.depth();
+            var subResult = this.subResultAt(i);
+            if (subResult != null) {
+                int d = subResult.depth();
                 if (depth < d) {
                     depth = d;
                 }
@@ -713,12 +717,12 @@ abstract public class ParseResult implements Serializable {
     static public final String ErrorPrefix      = "$ERROR_";
     static public final String FatalErrorPrefix = "$FATAL_ERROR_";
     
-    public final String getMessage(String pName) {
+    public final String message(String name) {
         StringBuffer SB = new StringBuffer();
-        for (int i = 0; i < pName.length(); i++) {
-            char C = pName.charAt(i);
+        for (int i = 0; i < name.length(); i++) {
+            char C = name.charAt(i);
             if (C == '_') {
-                if (pName.startsWith("___")) {
+                if (name.startsWith("___")) {
                     SB.append("_");
                     i += 2;
                 } else
@@ -818,7 +822,7 @@ abstract public class ParseResult implements Serializable {
                     String Msg = null;
                     Msg = (TProvider == null) ? null : TProvider.getErrorMessage(Name.substring(1));
                     // NOTE: 1 is to eliminate $ prefix >-----------------------------------^
-                    Msg = (Msg != null) ? Msg : this.getMessage(Name.substring(Kind_Length, Name.length()));
+                    Msg = (Msg != null) ? Msg : this.message(Name.substring(Kind_Length, Name.length()));
                     CContext.reportError(Msg, null, this.startPositionAt(i));
                     if (IsF)
                         throw new RuntimeException("FATAL ERROR! The compilation cannot be continued: " + Msg);
@@ -895,7 +899,7 @@ abstract public class ParseResult implements Serializable {
     
     /** Get sub result of the last match */
     public final ParseResult subOf(String pEName) {
-        PREntry E = this.lastMatchFor(pEName);
+        PREntry E = this.lastEntryOf(pEName);
         return ((E == null) || !E.hasSubResult()) ? null : E.subResult();
     }
     
