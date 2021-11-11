@@ -389,14 +389,14 @@ public class RPCompiler_ParserTypes {
     static public CharChecker getCharClass(ParseResult pThisResult, int pEntryIndex) {
         // Any
         if(".".equals(pThisResult.textOf(pEntryIndex))) return PredefinedCharClasses.Any;
-
+        
         // Ensure type
-        if(!CharClassName.equals(pThisResult.nameAt(pEntryIndex)))
+        if(!CharClassName.equals(pThisResult.nameOf(pEntryIndex)))
             throw new RPCompilationException("Mal-formed RegParser character class near \""
                     + pThisResult.originalText().substring(pThisResult.startPosition()) + "\".");
         
         // CharClass
-        String N = pThisResult.nameAt(pEntryIndex, 1).substring(1); // Remove the '$'
+        String N = pThisResult.nameOf(pEntryIndex, 1).substring(1); // Remove the '$'
         if(N.startsWith("J")) N = "Java_" + N.substring(1);
         
         CharChecker CC;

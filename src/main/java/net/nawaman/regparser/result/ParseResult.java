@@ -119,6 +119,13 @@ abstract public class ParseResult implements Serializable {
     /** Duplicate this result - to be used when verifying */
     public abstract ParseResult duplicate();
     
+    /** Get the original text as a CharSequence */
+    public abstract CharSequence originalCharSequence();
+    
+    /** Get the original text as a string */
+    public final String originalText() {
+        return this.originalCharSequence().toString();
+    }
     
     // Parent --------------------------------------------------------------------------------------
     
@@ -135,7 +142,22 @@ abstract public class ParseResult implements Serializable {
         return result;
     }
     
-    // Entries ---------------------------------------------------------------------------------------------------------
+    /** Returns how deep the parse result is nested */
+    public final int depth() {
+        int depth = 0;
+        for (int i = this.entryCount(); --i >= 0;) {
+            var subResult = this.subResultOf(i);
+            if (subResult != null) {
+                int d = subResult.depth();
+                if (depth < d) {
+                    depth = d;
+                }
+            }
+        }
+        return depth + 1;
+    }
+    
+    //-- Entries -------------------------------------------------------------------------------------------------------
     
     /** @return  the entries as a streams. */
     public final Stream<PREntry> entries() {
@@ -183,472 +205,6 @@ abstract public class ParseResult implements Serializable {
                         firstIndex, secondIndex, Util.toString(restIndexes, "", "", ", "), exception.getMessage());
             throw new RuntimeException(errMsg, exception);
         }
-    }
-    
-    // Text ----------------------------------------------------------------------------------------
-    
-    /** Get the original text as a CharSequence */
-    public abstract CharSequence originalCharSequence();
-    
-    /** Get the original text as a string */
-    public final String originalText() {
-        return this.originalCharSequence().toString();
-    }
-    
-    /** Get the match text */
-    public final String text() {
-        var orgText = originalCharSequence();
-        // Ensure proper range
-        int start = startPosition();
-        int end   = endPosition();
-        if ((orgText == null) || (start > orgText.length()) || (start < 0)) {
-            return null;
-        }
-        if ((end > orgText.length()) || (end < 0)) {
-            return null;
-        }
-        // Quick Return
-        if (start == end) {
-            return "";
-        }
-        // Normal Return
-        var sequence = orgText.subSequence(start, end);
-        return sequence.toString();
-    }
-    
-    /** Returns the text of an entry at the index */
-    public final String textOf(int index) {
-        var text = originalCharSequence();
-        if (text == null) {
-            return null;
-        }
-        int start = startPositionAt(index);
-        int end   = endPositionAt(index);
-        if ((start < 0) || (end < 0) || (start > text.length()) || (end > text.length())) {
-            return null;
-        }
-        if (start == end) {
-            return "";
-        }
-        return text.subSequence(start, end).toString();
-    }
-    
-    /** Returns the start position of a sub entry at the index */
-    public final String textOf(int firstIndex, int secondIndex, int... restIndexes) {
-        try {
-            var result    = nestedSubResultABOVE(firstIndex, secondIndex, restIndexes);
-            int lastIndex = ((restIndexes == null) || (restIndexes.length == 0))
-                          ? secondIndex
-                          : restIndexes[restIndexes.length - 1];
-            return result.textOf(lastIndex);
-        } catch (ArrayIndexOutOfBoundsException exception) {
-            var errMsg = format(
-                        "Error getting a result entry at [%d, %d, %s]: %s",
-                        firstIndex, secondIndex, Util.toString(restIndexes, "", "", ", "), exception.getMessage());
-            throw new RuntimeException(errMsg, exception);
-        }
-    }
-    
-    /** Get text result of the last match */
-    public final String textOf(String name) {
-        int lastIndex = lastIndexOf(name);
-        return this.textOf(lastIndex);
-    }
-    
-    /** Get texts result of the last match */
-    public final String[] textsOf(String name) {
-        int[] indexes = indexesOf(name);
-        if (indexes == null) {
-            return null;
-        }
-        if (indexes.length == 0) {
-            return new String[0];
-        }
-        var texts = new String[indexes.length];
-        for (int i = texts.length; --i >= 0;) {
-            texts[i] = this.textOf(indexes[i]);
-        }
-        return texts;
-    }
-    
-    // Entry Name -----------------------------------------------------------------------
-    
-    /** Get text result of the last match */
-    public final String nameOf(int I) {
-        var PRE = this.entryAt(I);
-        if (PRE == null)
-            return null;
-        return PRE.name();
-    }
-    
-    /** Get text result of the last match */
-    public final String nameOf(String pEName) {
-        return this.nameOf(this.lastIndexOf(pEName));
-    }
-    
-    /** Returns the name of the sub entry at the indexes */
-    public final String nameAt(int index) {
-        var entry = entryAt(index);
-        return (entry == null) ? null : entry.name();
-    }
-    
-    /** Returns the name of the sub entry at the indexes */
-    public final String nameAt(int firstIndex, int secondIndex, int... restIndexes) {
-        var entry = entryAt(firstIndex, secondIndex, restIndexes);
-        return (entry == null) ? null : entry.name();
-    }
-    
-    /** Get texts result of the last match */
-    public final String[] namesOf(String pEName) {
-        int[] Is = this.indexesOf(pEName);
-        if (Is == null)
-            return null;
-        if (Is.length == 0)
-            return new String[0];
-        String[] PRENs = new String[Is.length];
-        for (int i = PRENs.length; --i >= 0;)
-            PRENs[i] = this.nameOf(Is[i]);
-        return PRENs;
-    }
-    
-    
-    
-    
-    
-    /** Returns the start position of the match */
-    abstract public int startPosition();
-    
-    /** Returns the end position that this parse result match */
-    public final int endPosition() {
-        int lastIndex = entryCount() - 1;
-        return endPositionAt(lastIndex);
-    }
-    
-    /**
-     * FOR INTERNAL USE ONLY
-     * 
-     * Get the nested sub result up to but not the last index.
-     * 
-     * Example:
-     *   nestedSubResultABOVE(3, 2)    returns the entry #3 of this result
-     *   nestedSubResultABOVE(3, 2, 4) returns the entry #2 of the entry #3 of this result
-     * 
-     * This method is useful to get some property of a nested result.
-     * Some of property such as name, of a entry can only be obtained from its parent.
-     * 
-     * @param firstIndex   the first index.
-     * @param secondIndex  the second index.
-     * @param restIndexes  the rest of the indexes.
-     * @return             the nested sub result before the last given index.
-     */
-    protected final ParseResult nestedSubResultABOVE(int firstIndex, int secondIndex, int... restIndexes) {
-        try {
-            var result = this;
-            var entry  = result.entryAt(firstIndex);
-            
-            result = entry.subResult();
-            if ((restIndexes == null) || (restIndexes.length == 0)) {
-                return result;
-            }
-            
-            entry  = result.entryAt(secondIndex);
-            result = entry.subResult();
-            for (int i = 0; i < (restIndexes.length - 1); i++) {
-                int index = restIndexes[i];
-                result = result
-                        .entryAt(index)
-                        .subResult();
-            }
-            return result;
-        } catch (ArrayIndexOutOfBoundsException exception) {
-            var errMsg = format(
-                        "Error getting a result entry at [%d, %d, %s]: %s",
-                        firstIndex, secondIndex, Util.toString(restIndexes, "", "", ", "), exception.getMessage());
-            throw new RuntimeException(errMsg, exception);
-        }
-    }
-    
-    /** Returns the sub result at the index. or null if the index of out of bound. */
-    public final ParseResult subResultOf(int index) {
-        var entry = entryAt(index);
-        return (entry == null) ? null : entry.subResult();
-    }
-    
-    /** Returns the nested sub result at the indexes. or null if the index of out of bound. */
-    public final ParseResult subResultOf(int firstIndex, int secondIndex, int... restIndexes) {
-        var entry = entryAt(firstIndex, secondIndex, restIndexes);
-        return (entry == null) ? null : entry.subResult();
-    }
-    
-    /** Returns the type name of the sub entry at the indexes */
-    public final String typeNameAt(int index) {
-        var entry = entryAt(index);
-        return (entry == null) ? null : entry.typeName();
-    }
-    
-    /** Returns the type name of the sub entry at the indexes */
-    public final String typeNameAt(int firstIndex, int secondIndex, int... restIndexes) {
-        var entry = entryAt(firstIndex, secondIndex, restIndexes);
-        return (entry == null) ? null : entry.typeName();
-    }
-    
-    /** Returns the type reference parameters of the sub entry at the index */
-    public final String parameterAt(int index) {
-        var entry = entryAt(index);
-        return (entry == null) ? null : entry.parameter();
-    }
-    
-    /** Returns the type reference parameters of the sub entry at the index */
-    public final String parameterAt(int firstIndex, int secondIndex, int... restIndexes) {
-        var entry = entryAt(firstIndex, secondIndex, restIndexes);
-        return (entry == null) ? null : entry.parameter();
-    }
-    
-    /** Returns the start position of an entry at the index */
-    public final int startPositionAt(int index) {
-        if (index == 0) {
-            return startPosition();
-        }
-        if (index < 0) {
-            return -1;
-        }
-        if (index >= entryCount()) {
-            return -1;
-        }
-        int previousIndex = index - 1;
-        var previousEntry = entryAt(previousIndex);
-        return (previousEntry == null) ? -1 : previousEntry.endPosition();
-    }
-    
-    /** Returns the start position of sub entry at the indexes */
-    public final int startPositionAt(int firstIndex, int secondIndex, int... restIndexes) {
-        try {
-            var result    = nestedSubResultABOVE(firstIndex, secondIndex, restIndexes);
-            int lastIndex = ((restIndexes == null) || (restIndexes.length == 0))
-                          ? secondIndex
-                          : restIndexes[restIndexes.length - 1];
-            return result.startPositionAt(lastIndex);
-        } catch (ArrayIndexOutOfBoundsException exception) {
-            var errMsg = format(
-                        "Error getting a result entry at [%d, %d, %s]: %s",
-                        firstIndex, secondIndex, Util.toString(restIndexes, "", "", ", "), exception.getMessage());
-            throw new RuntimeException(errMsg, exception);
-        }
-    }
-    
-    /** Returns the end position of an entry at the index */
-    public final int endPositionAt(int index) {
-        if (index == -1) {
-            return startPosition();
-        }
-        if (index < 0) {
-            return -1;
-        }
-        if (index >= entryCount()) {
-            return -1;
-        }
-        var entry = entryAt(index);
-        return entry.endPosition();
-    }
-    
-    /** Returns the end position of sub entry at the indexes */
-    public final int endPositionAt(int firstIndex, int secondIndex, int... restIndexes) {
-        try {
-            var result    = nestedSubResultABOVE(firstIndex, secondIndex, restIndexes);
-            int lastIndex = ((restIndexes == null) || (restIndexes.length == 0))
-                          ? secondIndex
-                          : restIndexes[restIndexes.length - 1];
-            return result.endPositionAt(lastIndex);
-        } catch (ArrayIndexOutOfBoundsException exception) {
-            var errMsg = format(
-                        "Error getting a result entry at [%d, %d, %s]: %s",
-                        firstIndex, secondIndex, Util.toString(restIndexes, "", "", ", "), exception.getMessage());
-            throw new RuntimeException(errMsg, exception);
-        }
-    }
-    
-    // Get Element by name -----------------------------------------------------------------------
-    
-    /** Checks if the result has entries with name */
-    final boolean hasNames() {
-        for (var entry : entries) {
-            var parserEntry = entry.parserEntry();
-            if ((parserEntry != null) && (parserEntry.name() != null)) {
-                return true;
-            }
-            var subResult = entry.subResult();
-            if ((subResult != null) && subResult.hasNames()) {
-                return true;
-            }
-        }
-        return false;
-    }
-    
-    /** Checks if the result has entries with name */
-    final boolean hasTypes() {
-        for (var entry : entries) {
-            var parserEntry = entry.parserEntry();
-            if (parserEntry != null) {
-                if ((parserEntry.type()    != null)
-                 || (parserEntry.typeRef() != null)) {
-                    return true;
-                }
-            }
-            var subResult = entry.subResult();
-            if ((subResult != null) && subResult.hasNames()) {
-                return true;
-            }
-        }
-        return false;
-    }
-    
-    public final boolean hasName(String name) {
-        if ((name == null) || name.isBlank()) {
-            return false;
-        }
-        for (var entry : entries) {
-            var parserEntry = entry.parserEntry();
-            if (parserEntry != null) {
-                var entryName = parserEntry.name();
-                if (name.equals(entryName)) {
-                    return true;
-                }
-            }
-            var subResult = entry.subResult();
-            if ((subResult != null) && subResult.hasName(name)) {
-                return true;
-            }
-        }
-        return false;
-    }
-    
-    /** Returns names of all result entries */
-    public IStream<String> names() {
-        var names = new HashSet<String>();
-        entries()
-        .forEach(entry -> {
-            var parserEntry = entry.parserEntry();
-            if (parserEntry != null) {
-                var name = parserEntry.name();
-                if (name != null) {
-                    names.add(name);
-                }
-            }
-        });
-        return IStream.forStream(names.stream());
-    }
-    
-    /** Returns the index of the last entry that has the same name with the given name */
-    public final int lastIndexOf(String name) {
-        for (int i = entries.size(); --i >= 0;) {
-            var entry = entries.get(i);
-            var parserEntry = entry.parserEntry();
-            if (parserEntry != null) {
-                var entryName = parserEntry.name();
-                if (name.equals(entryName)) {
-                    return i;
-                }
-            }
-        }
-        return -1;
-    }
-    
-    /** Returns the all indexes of the result entries that has the same name with the given name */
-    public final int[] indexesOf(String name) {
-        var indexes = new ArrayList<Integer>();
-        for (int i = 0; i < entries.size(); i++) {
-            var entry       = entries.get(i);
-            var parserEntry = entry.parserEntry();
-            if ((parserEntry != null) && name.equals(parserEntry.name())) {
-                indexes.add(i);
-            }
-        }
-        if (indexes.size() == 0)
-            return null;
-        
-        return indexes
-                .stream()
-                .mapToInt(Integer::intValue)
-                .toArray();
-    }
-    /** Returns the all the match */
-    public final int[][] allIndexesOf(String name) {
-        var allMatches = new ArrayList<int[]>();
-        var matches    = new ArrayList<Integer>();
-        for (int i = 0; i < this.entryCount(); i++) {
-            var entry       = this.entryAt(i);
-            var parserEntry = entry.parserEntry();
-            if ((parserEntry != null) && name.equals(parserEntry.name())) {
-                matches.add(i);
-            } else if (matches.size() > 0) {
-                if (matches.size() == 0) {
-                    continue;
-                }
-                
-                var eachMatches = new int[matches.size()];
-                for (int m = eachMatches.length; --m >= 0;) {
-                    eachMatches[m] = matches.get(m);
-                }
-                allMatches.add(eachMatches);
-                
-                matches.clear();
-            }
-        }
-        
-        if (allMatches.size() == 0)
-            return null;
-        
-        var allMatcheArray = new int[allMatches.size()][];
-        for (int i = allMatcheArray.length; --i >= 0;) {
-            allMatcheArray[i] = allMatches.get(i);
-        }
-        return allMatcheArray;
-    }
-    
-    /** Returns the text of the the last match */
-    public String lastStringOf(String name) {
-        for (int i = entries.size(); --i >= 0;) {
-            var entry = entryAt(i);
-            if (!entry.hasParserEntry()) {
-                continue;
-            }
-            var parseEntry = entry.parserEntry();
-            if (name.equals(parseEntry.name())) {
-                return textOf(i);
-            }
-        }
-        return null;
-    }
-    
-    /** Returns the all the match */
-    public final String[][] allStringsOf(String name) {
-        var arrayMatches = new ArrayList<String[]>();
-        var matchers     = new ArrayList<String>();
-        var orgText      = originalCharSequence();
-        var prevEntry    = (PREntry)null;
-        for (var entry : entries) {
-            if (entry.hasParserEntry() && name.equals(entry.parserEntry().name())) {
-                int start = (prevEntry == null) ? 0 : prevEntry.endPosition();
-                int end   = entry.endPosition();
-                var text  = orgText.subSequence(start, end).toString();
-                matchers.add(text);
-            } else if (matchers.size() > 0) {
-                var matchStrings = matchers.toArray(String[]::new);
-                arrayMatches.add(matchStrings);
-                matchers.clear();
-            }
-            prevEntry = entry;
-        }
-        
-        if (arrayMatches.size() == 0) {
-            return null;
-        }
-        
-        var arrayMatchStrings = new String[arrayMatches.size()][];
-        for (int i = arrayMatchStrings.length; --i >= 0;) {
-            arrayMatchStrings[i] = arrayMatches.get(i);
-        }
-        return arrayMatchStrings;
     }
     
     /** Returns the last match */
@@ -745,28 +301,773 @@ abstract public class ParseResult implements Serializable {
         return allEntries;
     }
     
-    /** Returns how deep the parse result is nested */
-    public final int depth() {
-        int depth = 0;
-        for (int i = this.entryCount(); --i >= 0;) {
-            var subResult = this.subResultOf(i);
-            if (subResult != null) {
-                int d = subResult.depth();
-                if (depth < d) {
-                    depth = d;
+    /**
+     * FOR INTERNAL USE ONLY
+     * 
+     * Get the nested sub result up to but not the last index.
+     * 
+     * Example:
+     *   nestedSubResultABOVE(3, 2)    returns the entry #3 of this result
+     *   nestedSubResultABOVE(3, 2, 4) returns the entry #2 of the entry #3 of this result
+     * 
+     * This method is useful to get some property of a nested result.
+     * Some of property such as name, of a entry can only be obtained from its parent.
+     * 
+     * @param firstIndex   the first index.
+     * @param secondIndex  the second index.
+     * @param restIndexes  the rest of the indexes.
+     * @return             the nested sub result before the last given index.
+     */
+    protected final ParseResult nestedSubResultABOVE(int firstIndex, int secondIndex, int... restIndexes) {
+        try {
+            var result = this;
+            var entry  = result.entryAt(firstIndex);
+            
+            result = entry.subResult();
+            if ((restIndexes == null) || (restIndexes.length == 0)) {
+                return result;
+            }
+            
+            entry  = result.entryAt(secondIndex);
+            result = entry.subResult();
+            for (int i = 0; i < (restIndexes.length - 1); i++) {
+                int index = restIndexes[i];
+                result = result
+                        .entryAt(index)
+                        .subResult();
+            }
+            return result;
+        } catch (ArrayIndexOutOfBoundsException exception) {
+            var errMsg = format(
+                        "Error getting a result entry at [%d, %d, %s]: %s",
+                        firstIndex, secondIndex, Util.toString(restIndexes, "", "", ", "), exception.getMessage());
+            throw new RuntimeException(errMsg, exception);
+        }
+    }
+    
+    //-- Text ----------------------------------------------------------------------------------------------------------
+    
+    /** Get the match text */
+    public final String text() {
+        var orgText = originalCharSequence();
+        // Ensure proper range
+        int start = startPosition();
+        int end   = endPosition();
+        if ((orgText == null) || (start > orgText.length()) || (start < 0)) {
+            return null;
+        }
+        if ((end > orgText.length()) || (end < 0)) {
+            return null;
+        }
+        // Quick Return
+        if (start == end) {
+            return "";
+        }
+        // Normal Return
+        var sequence = orgText.subSequence(start, end);
+        return sequence.toString();
+    }
+    
+    /** Returns the text of an entry at the index */
+    public final String textOf(int index) {
+        var text = originalCharSequence();
+        if (text == null) {
+            return null;
+        }
+        int start = startPositionAt(index);
+        int end   = endPositionAt(index);
+        if ((start < 0) || (end < 0) || (start > text.length()) || (end > text.length())) {
+            return null;
+        }
+        if (start == end) {
+            return "";
+        }
+        return text.subSequence(start, end).toString();
+    }
+    
+    /** Returns the start position of a sub entry at the index */
+    public final String textOf(int firstIndex, int secondIndex, int... restIndexes) {
+        try {
+            var result    = nestedSubResultABOVE(firstIndex, secondIndex, restIndexes);
+            int lastIndex = ((restIndexes == null) || (restIndexes.length == 0))
+                          ? secondIndex
+                          : restIndexes[restIndexes.length - 1];
+            return result.textOf(lastIndex);
+        } catch (ArrayIndexOutOfBoundsException exception) {
+            var errMsg = format(
+                        "Error getting a result entry at [%d, %d, %s]: %s",
+                        firstIndex, secondIndex, Util.toString(restIndexes, "", "", ", "), exception.getMessage());
+            throw new RuntimeException(errMsg, exception);
+        }
+    }
+    
+    /** Get text result of the last match */
+    public final String textOf(String name) {
+        int lastIndex = lastIndexOf(name);
+        return this.textOf(lastIndex);
+    }
+    
+    /** Get texts result of the last match */
+    public final String[] textsOf(String name) {
+        int[] indexes = indexesOf(name);
+        if (indexes == null) {
+            return null;
+        }
+        if (indexes.length == 0) {
+            return new String[0];
+        }
+        var texts = new String[indexes.length];
+        for (int i = texts.length; --i >= 0;) {
+            texts[i] = this.textOf(indexes[i]);
+        }
+        return texts;
+    }
+    
+    /** Returns the text of the the last match */
+    public String lastStringOf(String name) {
+        for (int i = entries.size(); --i >= 0;) {
+            var entry = entryAt(i);
+            if (!entry.hasParserEntry()) {
+                continue;
+            }
+            var parseEntry = entry.parserEntry();
+            if (name.equals(parseEntry.name())) {
+                return textOf(i);
+            }
+        }
+        return null;
+    }
+    
+    /** Returns the all the match */
+    public final String[][] allStringsOf(String name) {
+        var arrayMatches = new ArrayList<String[]>();
+        var matchers     = new ArrayList<String>();
+        var orgText      = originalCharSequence();
+        var prevEntry    = (PREntry)null;
+        for (var entry : entries) {
+            if (entry.hasParserEntry() && name.equals(entry.parserEntry().name())) {
+                int start = (prevEntry == null) ? 0 : prevEntry.endPosition();
+                int end   = entry.endPosition();
+                var text  = orgText.subSequence(start, end).toString();
+                matchers.add(text);
+            } else if (matchers.size() > 0) {
+                var matchStrings = matchers.toArray(String[]::new);
+                arrayMatches.add(matchStrings);
+                matchers.clear();
+            }
+            prevEntry = entry;
+        }
+        
+        if (arrayMatches.size() == 0) {
+            return null;
+        }
+        
+        var arrayMatchStrings = new String[arrayMatches.size()][];
+        for (int i = arrayMatchStrings.length; --i >= 0;) {
+            arrayMatchStrings[i] = arrayMatches.get(i);
+        }
+        return arrayMatchStrings;
+    }
+    
+    //-- Entry Name ----------------------------------------------------------------------------------------------------
+    
+    /** Returns the name of the sub entry at the indexes */
+    public final String nameOf(int index) {
+        var entry = entryAt(index);
+        return (entry == null) ? null : entry.name();
+    }
+    
+    /** Get text result of the last match */
+    public final String nameOf(String pEName) {
+        return this.nameOf(this.lastIndexOf(pEName));
+    }
+    
+    /** Returns the name of the sub entry at the indexes */
+    public final String nameOf(int firstIndex, int secondIndex, int... restIndexes) {
+        var entry = entryAt(firstIndex, secondIndex, restIndexes);
+        return (entry == null) ? null : entry.name();
+    }
+    
+    /** Get texts result of the last match */
+    public final String[] namesOf(String name) {
+        int[] indexes = this.indexesOf(name);
+        if (indexes == null) {
+            return null;
+        }
+        if (indexes.length == 0) {
+            return new String[0];
+        }
+            
+        var names = new String[indexes.length];
+        for (int i = names.length; --i >= 0;) {
+            names[i] = this.nameOf(indexes[i]);
+        }
+        return names;
+    }
+    /** Checks if the result has entries with name */
+    final boolean hasNames() {
+        for (var entry : entries) {
+            var parserEntry = entry.parserEntry();
+            if ((parserEntry != null) && (parserEntry.name() != null)) {
+                return true;
+            }
+            var subResult = entry.subResult();
+            if ((subResult != null) && subResult.hasNames()) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public final boolean hasName(String name) {
+        if ((name == null) || name.isBlank()) {
+            return false;
+        }
+        for (var entry : entries) {
+            var parserEntry = entry.parserEntry();
+            if (parserEntry != null) {
+                var entryName = parserEntry.name();
+                if (name.equals(entryName)) {
+                    return true;
+                }
+            }
+            var subResult = entry.subResult();
+            if ((subResult != null) && subResult.hasName(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /** Returns names of all result entries */
+    public IStream<String> names() {
+        var names = new HashSet<String>();
+        entries()
+        .forEach(entry -> {
+            var parserEntry = entry.parserEntry();
+            if (parserEntry != null) {
+                var name = parserEntry.name();
+                if (name != null) {
+                    names.add(name);
+                }
+            }
+        });
+        return IStream.forStream(names.stream());
+    }
+    
+    //-- SubResult -----------------------------------------------------------------------------------------------------
+    
+    /** Returns the sub result at the index. or null if the index of out of bound. */
+    public final ParseResult subResultOf(int index) {
+        var entry = entryAt(index);
+        return (entry == null) ? null : entry.subResult();
+    }
+    
+    /** Returns the nested sub result at the indexes. or null if the index of out of bound. */
+    public final ParseResult subResultOf(int firstIndex, int secondIndex, int... restIndexes) {
+        var entry = entryAt(firstIndex, secondIndex, restIndexes);
+        return (entry == null) ? null : entry.subResult();
+    }
+    
+    /** Get sub result of the last match */
+    public final ParseResult subOf(int I) {
+        return this.subResultOf(I);
+    }
+    
+    /** Get sub result of the last match */
+    public final ParseResult subOf(String pEName) {
+        PREntry E = this.lastEntryOf(pEName);
+        return ((E == null) || !E.hasSubResult()) ? null : E.subResult();
+    }
+    
+    /** Get subs result of the last match */
+    public final ParseResult[] subsOf(String pEName) {
+        int[] Is = this.indexesOf(pEName);
+        if (Is == null)
+            return null;
+        if (Is.length == 0)
+            return new ParseResult[0];
+        ParseResult[] PRs = new ParseResult[Is.length];
+        for (int i = PRs.length; --i >= 0;)
+            PRs[i] = this.subOf(Is[i]);
+        return PRs;
+    }
+    
+    //-- Type Name -----------------------------------------------------------------------------------------------------
+    
+    /** Returns the type name of the sub entry at the indexes */
+    public final String typeNameAt(int index) {
+        var entry = entryAt(index);
+        return (entry == null) ? null : entry.typeName();
+    }
+    
+    /** Returns the type name of the sub entry at the indexes */
+    public final String typeNameAt(int firstIndex, int secondIndex, int... restIndexes) {
+        var entry = entryAt(firstIndex, secondIndex, restIndexes);
+        return (entry == null) ? null : entry.typeName();
+    }
+    
+    /** Get Type name of the last match */
+    public final String typeNameOf(int I) {
+        var PRE = this.entryAt(I);
+        if (PRE == null)
+            return null;
+        PType PT = PRE.type();
+        if (PT != null)
+            return PT.name();
+        return PRE.typeName();
+    }
+    
+    /** Get Type name of the last match */
+    public final String typeNameOf(String pEName) {
+        return this.typeNameOf(this.lastIndexOf(pEName));
+    }
+    
+    /** Get subs result of the last match */
+    public final String[] typeNamesOf(String pEName) {
+        int[] Is = this.indexesOf(pEName);
+        if (Is == null)
+            return null;
+        if (Is.length == 0)
+            return new String[0];
+        String[] PTNs = new String[Is.length];
+        for (int i = PTNs.length; --i >= 0;)
+            PTNs[i] = this.typeNameOf(Is[i]);
+        return PTNs;
+    }
+    
+    //-- Type ----------------------------------------------------------------------------------------------------------
+    
+    /** Checks if the result has entries with name */
+    final boolean hasTypes() {
+        for (var entry : entries) {
+            var parserEntry = entry.parserEntry();
+            if (parserEntry != null) {
+                if ((parserEntry.type()    != null)
+                 || (parserEntry.typeRef() != null)) {
+                    return true;
+                }
+            }
+            var subResult = entry.subResult();
+            if ((subResult != null) && subResult.hasNames()) {
+                return true;
+            }
+        }
+        return false;
+    }
+    /** Get Type of the last match */
+    public final PType typeOf(int I, PTypeProvider TProvider) {
+        var PRE = this.entryAt(I);
+        if (PRE == null)
+            return null;
+        PType PT = PRE.type();
+        if (PT != null)
+            return PT;
+        String TName = PRE.typeName();
+        if (TName == null)
+            return null;
+        if (TProvider == null)
+            return null;
+        return TProvider.getType(TName);
+    }
+    
+    /** Get Type of the last match */
+    public final PType typeOf(String pEName, PTypeProvider TProvider) {
+        return this.typeOf(this.lastIndexOf(pEName), TProvider);
+    }
+    
+    /** Get subs result of the last match */
+    public final PType[] typesOf(String pEName, PTypeProvider TProvider) {
+        int[] Is = this.indexesOf(pEName);
+        if (Is == null)
+            return null;
+        if (Is.length == 0)
+            return new PType[0];
+        PType[] PTs = new PType[Is.length];
+        for (int i = PTs.length; --i >= 0;)
+            PTs[i] = this.typeOf(Is[i], TProvider);
+        return PTs;
+    }
+    
+    //-- Parameter -----------------------------------------------------------------------------------------------------
+    
+    /** Returns the type reference parameters of the sub entry at the index */
+    public final String parameterAt(int index) {
+        var entry = entryAt(index);
+        return (entry == null) ? null : entry.parameter();
+    }
+    
+    /** Returns the type reference parameters of the sub entry at the index */
+    public final String parameterAt(int firstIndex, int secondIndex, int... restIndexes) {
+        var entry = entryAt(firstIndex, secondIndex, restIndexes);
+        return (entry == null) ? null : entry.parameter();
+    }
+    
+    /** Get Type name of the last match */
+    public final String typeParamOf(int I) {
+        var PRE = this.entryAt(I);
+        if (PRE == null)
+            return null;
+        PType PT = PRE.type();
+        if (PT != null)
+            return null;
+        return PRE.parameter();
+    }
+    
+    /** Get Type name of the last match */
+    public final String typeParamOf(String pEName) {
+        return this.typeParamOf(this.lastIndexOf(pEName));
+    }
+    
+    /** Get subs result of the last match */
+    public final String[] typeParamsOf(String pEName) {
+        int[] Is = this.indexesOf(pEName);
+        if (Is == null)
+            return null;
+        if (Is.length == 0)
+            return new String[0];
+        String[] PTNs = new String[Is.length];
+        for (int i = PTNs.length; --i >= 0;)
+            PTNs[i] = this.typeParamOf(Is[i]);
+        return PTNs;
+    }
+    
+    //-- Index ---------------------------------------------------------------------------------------------------------
+    
+    /** Returns the index of the last entry that has the same name with the given name */
+    public final int lastIndexOf(String name) {
+        for (int i = entries.size(); --i >= 0;) {
+            var entry = entries.get(i);
+            var parserEntry = entry.parserEntry();
+            if (parserEntry != null) {
+                var entryName = parserEntry.name();
+                if (name.equals(entryName)) {
+                    return i;
                 }
             }
         }
-        return depth + 1;
+        return -1;
     }
     
-    // Easy to use utilities methods ------------------------------------------------------------------------
+    /** Returns the all indexes of the result entries that has the same name with the given name */
+    public final int[] indexesOf(String name) {
+        var indexes = new ArrayList<Integer>();
+        for (int i = 0; i < entries.size(); i++) {
+            var entry       = entries.get(i);
+            var parserEntry = entry.parserEntry();
+            if ((parserEntry != null) && name.equals(parserEntry.name())) {
+                indexes.add(i);
+            }
+        }
+        if (indexes.size() == 0)
+            return null;
+        
+        return indexes
+                .stream()
+                .mapToInt(Integer::intValue)
+                .toArray();
+    }
+    /** Returns the all the match */
+    public final int[][] allIndexesOf(String name) {
+        var allMatches = new ArrayList<int[]>();
+        var matches    = new ArrayList<Integer>();
+        for (int i = 0; i < this.entryCount(); i++) {
+            var entry       = this.entryAt(i);
+            var parserEntry = entry.parserEntry();
+            if ((parserEntry != null) && name.equals(parserEntry.name())) {
+                matches.add(i);
+            } else if (matches.size() > 0) {
+                if (matches.size() == 0) {
+                    continue;
+                }
+                
+                var eachMatches = new int[matches.size()];
+                for (int m = eachMatches.length; --m >= 0;) {
+                    eachMatches[m] = matches.get(m);
+                }
+                allMatches.add(eachMatches);
+                
+                matches.clear();
+            }
+        }
+        
+        if (allMatches.size() == 0)
+            return null;
+        
+        var allMatcheArray = new int[allMatches.size()][];
+        for (int i = allMatcheArray.length; --i >= 0;) {
+            allMatcheArray[i] = allMatches.get(i);
+        }
+        return allMatcheArray;
+    }
+    
+    //-- Start Position ------------------------------------------------------------------------------------------------
+    
+    /** Returns the start position of the match */
+    abstract public int startPosition();
+    
+    /** Returns the start position of an entry at the index */
+    public final int startPositionAt(int index) {
+        if (index == 0) {
+            return startPosition();
+        }
+        if (index < 0) {
+            return -1;
+        }
+        if (index >= entryCount()) {
+            return -1;
+        }
+        int previousIndex = index - 1;
+        var previousEntry = entryAt(previousIndex);
+        return (previousEntry == null) ? -1 : previousEntry.endPosition();
+    }
+    
+    /** Returns the start position of sub entry at the indexes */
+    public final int startPositionAt(int firstIndex, int secondIndex, int... restIndexes) {
+        try {
+            var result    = nestedSubResultABOVE(firstIndex, secondIndex, restIndexes);
+            int lastIndex = ((restIndexes == null) || (restIndexes.length == 0))
+                          ? secondIndex
+                          : restIndexes[restIndexes.length - 1];
+            return result.startPositionAt(lastIndex);
+        } catch (ArrayIndexOutOfBoundsException exception) {
+            var errMsg = format(
+                        "Error getting a result entry at [%d, %d, %s]: %s",
+                        firstIndex, secondIndex, Util.toString(restIndexes, "", "", ", "), exception.getMessage());
+            throw new RuntimeException(errMsg, exception);
+        }
+    }
+    
+    //-- End Position --------------------------------------------------------------------------------------------------
+    
+    /** Returns the end position that this parse result match */
+    public final int endPosition() {
+        int lastIndex = entryCount() - 1;
+        return endPositionAt(lastIndex);
+    }
+    
+    /** Returns the end position of an entry at the index */
+    public final int endPositionAt(int index) {
+        if (index == -1) {
+            return startPosition();
+        }
+        if (index < 0) {
+            return -1;
+        }
+        if (index >= entryCount()) {
+            return -1;
+        }
+        var entry = entryAt(index);
+        return entry.endPosition();
+    }
+    
+    /** Returns the end position of sub entry at the indexes */
+    public final int endPositionAt(int firstIndex, int secondIndex, int... restIndexes) {
+        try {
+            var result    = nestedSubResultABOVE(firstIndex, secondIndex, restIndexes);
+            int lastIndex = ((restIndexes == null) || (restIndexes.length == 0))
+                          ? secondIndex
+                          : restIndexes[restIndexes.length - 1];
+            return result.endPositionAt(lastIndex);
+        } catch (ArrayIndexOutOfBoundsException exception) {
+            var errMsg = format(
+                        "Error getting a result entry at [%d, %d, %s]: %s",
+                        firstIndex, secondIndex, Util.toString(restIndexes, "", "", ", "), exception.getMessage());
+            throw new RuntimeException(errMsg, exception);
+        }
+    }
+    
+    //-- Entry Position ------------------------------------------------------------------------------------------------
+    
+    /** Get start position of the entry at the index */
+    public final int posOf(int I) {
+        var PRE = this.entryAt(I);
+        if (PRE == null)
+            return -1;
+        return this.startPositionAt(I);
+    }
+    
+    /** Get start position of the last entry named pEName */
+    public final int posOf(String pEName) {
+        return this.posOf(this.lastIndexOf(pEName));
+    }
+    
+    /** Get start positions of the all entries named pEName */
+    public final int[] possOf(String pEName) {
+        int[] Is = this.indexesOf(pEName);
+        if (Is == null)
+            return null;
+        if (Is.length == 0)
+            return new int[0];
+        int[] Ls = new int[Is.length];
+        for (int i = Ls.length; --i >= 0;)
+            Ls[i] = this.posOf(Is[i]);
+        return Ls;
+    }
+    
+    // Entry Location in Col,Row --------------------------------------------------------
+    
+    /** Get locationCR of the entry at the index */
+    public final int[] locationCROf(int I) {
+        var PRE = this.entryAt(I);
+        if (PRE == null)
+            return null;
+        return this.getLocationAsColRow(I);
+    }
+    
+    /** Get locationRC of the last entry named pEName */
+    public final int[] locationCROf(String pEName) {
+        return this.locationCROf(this.lastIndexOf(pEName));
+    }
+    
+    /** Get locationRC of the all entries named pEName */
+    public final int[][] locationCRsOf(String pEName) {
+        int[] Is = this.indexesOf(pEName);
+        if (Is == null)
+            return null;
+        if (Is.length == 0)
+            return new int[0][];
+        int[][] LRCs = new int[Is.length][];
+        for (int i = LRCs.length; --i >= 0;)
+            LRCs[i] = this.locationCROf(Is[i]);
+        return LRCs;
+    }
+    
+    //-- Entry Location with Cursor pointer ----------------------------------------------------------------------------
+    
+    /** Get location of the entry at the index */
+    public final String locationOf(int I) {
+        var PRE = this.entryAt(I);
+        if (PRE == null)
+            return null;
+        return this.getLocationAsString(I);
+    }
+    
+    /** Get location of the last entry named pEName */
+    public final String locationOf(String pEName) {
+        return this.locationOf(this.lastIndexOf(pEName));
+    }
+    
+    /** Get location of the all entries named pEName */
+    public final String[] locationsOf(String pEName) {
+        int[] Is = this.indexesOf(pEName);
+        if (Is == null)
+            return null;
+        if (Is.length == 0)
+            return new String[0];
+        String[] Ls = new String[Is.length];
+        for (int i = Ls.length; --i >= 0;)
+            Ls[i] = this.locationOf(Is[i]);
+        return Ls;
+    }
+    
+    /** Get Row (line number starts from 0) and Column of the index number */
+    public final int[] getLocationAsColRow(int pEntryIndex) {
+        int Pos = this.startPositionAt(pEntryIndex);
+        if (Pos == -1)
+            return null;
+        return Helper.getLocationAsColRow(this.originalCharSequence(), Pos);
+    }
+    
+    /** Returns the string representation of the starting of the entry index */
+    public final String getLocationAsString(int pEntryIndex) {
+        int Pos = this.startPositionAt(pEntryIndex);
+        if (Pos == -1)
+            return null;
+        return Helper.getLocationAsString(this.originalCharSequence(), Pos);
+    }
+    
+    //-- Compiled value ------------------------------------------------------------------------------------------------
+    
+    /** Get compile value of the last match */
+    public final Object valueOf(int I, PTypeProvider TProvider, CompilationContext CContext) {
+        PType PT = this.typeOf(I, TProvider);
+        if (PT == null) {
+            String TName = this.typeNameOf(I);
+            if (TName == null) {
+                // The entry has no type, so just return the text value of it
+                return this.textOf(I);
+            }
+            PT = TProvider.getType(TName);
+            if (PT == null)
+                throw new RuntimeException("Unknown type `" + TName + "`.");
+        }
+        String Param = this.typeParamOf(I);
+        return PT.compile(this, I, Param, CContext, TProvider);
+    }
+    
+    /** Get compile value of the last match */
+    public final Object valueOf(String pEName, PTypeProvider TProvider, CompilationContext CContext) {
+        return this.valueOf(this.lastIndexOf(pEName), TProvider, CContext);
+    }
+    
+    /** Get subs result of the last match */
+    public final Object[] valuesOf(String pEName, PTypeProvider TProvider, CompilationContext CContext) {
+        int[] Is = this.indexesOf(pEName);
+        if (Is == null)
+            return null;
+        if (Is.length == 0)
+            return new String[0];
+        Object[] Vs = new Object[Is.length];
+        for (int i = 0; i < Vs.length; i++)
+            Vs[i] = this.valueOf(Is[i], TProvider, CContext);
+        return Vs;
+    }
+    
+    //-- Compiled value as Text ----------------------------------------------------------------------------------------
+    
+    /** Get compile value as text of the last match */
+    public final String valueAsTextOf(int I, PTypeProvider TProvider, CompilationContext CContext) {
+        PType PT = this.typeOf(I, TProvider);
+        if (PT == null) {
+            String TName = this.typeNameOf(I); 
+            if (TName == null) {
+                // The entry has no type, so compile each sub and concatenate them
+                ParseResult Sub = this.subOf(I);
+                int         SCount;
+                if ((Sub == null) || ((SCount = Sub.entryCount()) == 0))
+                    return this.textOf(I);
+                
+                // Compile each sub of the sub entry and concatenate them
+                StringBuilder SB = new StringBuilder();
+                for (int i = 0; i < SCount; i++)
+                    SB.append(Sub.valueAsTextOf(i, TProvider, CContext));
+                return SB.toString();
+            }
+            PT = TProvider.getType(TName);
+            if (PT == null)
+                throw new RuntimeException("Unknown type `" + TName + "`.");
+        }
+        String Param  = this.typeParamOf(I);
+        Object Result = PT.compile(this, I, Param, CContext, TProvider);
+        return (Result == null) ? "" : Result.toString();
+    }
+    
+    /** Get compile value as text of the last match */
+    public final String valueAsTextOf(String pEName, PTypeProvider TProvider, CompilationContext CContext) {
+        return this.valueAsTextOf(this.lastIndexOf(pEName), TProvider, CContext);
+    }
+    
+    /** Get compile value as text of the all match */
+    public final String[] valueAsTextsOf(String pEName, PTypeProvider TProvider, CompilationContext CContext) {
+        int[] Is = this.indexesOf(pEName);
+        if (Is == null)
+            return null;
+        if (Is.length == 0)
+            return new String[0];
+        String[] Vs = new String[Is.length];
+        for (int i = 0; i < Vs.length; i++)
+            Vs[i] = this.valueAsTextOf(Is[i], TProvider, CContext);
+        return Vs;
+    }
+    
+    //-- Easy to use utilities methods ---------------------------------------------------------------------------------
     // These method allow a short method name but with the assumption that the accessing name 
     //     refers to the last match only.
     // Some of these method are multiple access counterpart (added for completion) and the name
     //     access refers to all match
     
-    // Message ------------------------------------------------------------------------------------
+    //-- Message -------------------------------------------------------------------------------------------------------
     
     static public final String WARNING_PREFIX     = "$WARNING_";
     static public final String ERROR_PREFIX       = "$ERROR_";
@@ -901,299 +1202,7 @@ abstract public class ParseResult implements Serializable {
         return !haveErrorOrWanrning;
     }
     
-    // Entry SubEntry -------------------------------------------------------------------
-    
-    /** Get sub result of the last match */
-    public final ParseResult subOf(int I) {
-        return this.subResultOf(I);
-    }
-    
-    /** Get sub result of the last match */
-    public final ParseResult subOf(String pEName) {
-        PREntry E = this.lastEntryOf(pEName);
-        return ((E == null) || !E.hasSubResult()) ? null : E.subResult();
-    }
-    
-    /** Get subs result of the last match */
-    public final ParseResult[] subsOf(String pEName) {
-        int[] Is = this.indexesOf(pEName);
-        if (Is == null)
-            return null;
-        if (Is.length == 0)
-            return new ParseResult[0];
-        ParseResult[] PRs = new ParseResult[Is.length];
-        for (int i = PRs.length; --i >= 0;)
-            PRs[i] = this.subOf(Is[i]);
-        return PRs;
-    }
-    
-    // Entry Type -----------------------------------------------------------------------
-    
-    /** Get Type of the last match */
-    public final PType typeOf(int I, PTypeProvider TProvider) {
-        var PRE = this.entryAt(I);
-        if (PRE == null)
-            return null;
-        PType PT = PRE.type();
-        if (PT != null)
-            return PT;
-        String TName = PRE.typeName();
-        if (TName == null)
-            return null;
-        if (TProvider == null)
-            return null;
-        return TProvider.getType(TName);
-    }
-    
-    /** Get Type of the last match */
-    public final PType typeOf(String pEName, PTypeProvider TProvider) {
-        return this.typeOf(this.lastIndexOf(pEName), TProvider);
-    }
-    
-    /** Get subs result of the last match */
-    public final PType[] typesOf(String pEName, PTypeProvider TProvider) {
-        int[] Is = this.indexesOf(pEName);
-        if (Is == null)
-            return null;
-        if (Is.length == 0)
-            return new PType[0];
-        PType[] PTs = new PType[Is.length];
-        for (int i = PTs.length; --i >= 0;)
-            PTs[i] = this.typeOf(Is[i], TProvider);
-        return PTs;
-    }
-    
-    // Entry Type's Name ----------------------------------------------------------------
-    
-    /** Get Type name of the last match */
-    public final String typeNameOf(int I) {
-        var PRE = this.entryAt(I);
-        if (PRE == null)
-            return null;
-        PType PT = PRE.type();
-        if (PT != null)
-            return PT.name();
-        return PRE.typeName();
-    }
-    
-    /** Get Type name of the last match */
-    public final String typeNameOf(String pEName) {
-        return this.typeNameOf(this.lastIndexOf(pEName));
-    }
-    
-    /** Get subs result of the last match */
-    public final String[] typeNamesOf(String pEName) {
-        int[] Is = this.indexesOf(pEName);
-        if (Is == null)
-            return null;
-        if (Is.length == 0)
-            return new String[0];
-        String[] PTNs = new String[Is.length];
-        for (int i = PTNs.length; --i >= 0;)
-            PTNs[i] = this.typeNameOf(Is[i]);
-        return PTNs;
-    }
-    
-    // Entry Type-reference Parameter ---------------------------------------------------
-    
-    /** Get Type name of the last match */
-    public final String typeParamOf(int I) {
-        var PRE = this.entryAt(I);
-        if (PRE == null)
-            return null;
-        PType PT = PRE.type();
-        if (PT != null)
-            return null;
-        return PRE.parameter();
-    }
-    
-    /** Get Type name of the last match */
-    public final String typeParamOf(String pEName) {
-        return this.typeParamOf(this.lastIndexOf(pEName));
-    }
-    
-    /** Get subs result of the last match */
-    public final String[] typeParamsOf(String pEName) {
-        int[] Is = this.indexesOf(pEName);
-        if (Is == null)
-            return null;
-        if (Is.length == 0)
-            return new String[0];
-        String[] PTNs = new String[Is.length];
-        for (int i = PTNs.length; --i >= 0;)
-            PTNs[i] = this.typeParamOf(Is[i]);
-        return PTNs;
-    }
-    
-    // Compiled value -------------------------------------------------------------------
-    
-    /** Get compile value of the last match */
-    public final Object valueOf(int I, PTypeProvider TProvider, CompilationContext CContext) {
-        PType PT = this.typeOf(I, TProvider);
-        if (PT == null) {
-            String TName = this.typeNameOf(I);
-            if (TName == null) {
-                // The entry has no type, so just return the text value of it
-                return this.textOf(I);
-            }
-            PT = TProvider.getType(TName);
-            if (PT == null)
-                throw new RuntimeException("Unknown type `" + TName + "`.");
-        }
-        String Param = this.typeParamOf(I);
-        return PT.compile(this, I, Param, CContext, TProvider);
-    }
-    
-    /** Get compile value of the last match */
-    public final Object valueOf(String pEName, PTypeProvider TProvider, CompilationContext CContext) {
-        return this.valueOf(this.lastIndexOf(pEName), TProvider, CContext);
-    }
-    
-    /** Get subs result of the last match */
-    public final Object[] valuesOf(String pEName, PTypeProvider TProvider, CompilationContext CContext) {
-        int[] Is = this.indexesOf(pEName);
-        if (Is == null)
-            return null;
-        if (Is.length == 0)
-            return new String[0];
-        Object[] Vs = new Object[Is.length];
-        for (int i = 0; i < Vs.length; i++)
-            Vs[i] = this.valueOf(Is[i], TProvider, CContext);
-        return Vs;
-    }
-    
-    // Compiled value as Text -----------------------------------------------------------
-    
-    /** Get compile value as text of the last match */
-    public final String valueAsTextOf(int I, PTypeProvider TProvider, CompilationContext CContext) {
-        PType PT = this.typeOf(I, TProvider);
-        if (PT == null) {
-            String TName = this.typeNameOf(I); 
-            if (TName == null) {
-                // The entry has no type, so compile each sub and concatenate them
-                ParseResult Sub = this.subOf(I);
-                int         SCount;
-                if ((Sub == null) || ((SCount = Sub.entryCount()) == 0))
-                    return this.textOf(I);
-                
-                // Compile each sub of the sub entry and concatenate them
-                StringBuilder SB = new StringBuilder();
-                for (int i = 0; i < SCount; i++)
-                    SB.append(Sub.valueAsTextOf(i, TProvider, CContext));
-                return SB.toString();
-            }
-            PT = TProvider.getType(TName);
-            if (PT == null)
-                throw new RuntimeException("Unknown type `" + TName + "`.");
-        }
-        String Param  = this.typeParamOf(I);
-        Object Result = PT.compile(this, I, Param, CContext, TProvider);
-        return (Result == null) ? "" : Result.toString();
-    }
-    
-    /** Get compile value as text of the last match */
-    public final String valueAsTextOf(String pEName, PTypeProvider TProvider, CompilationContext CContext) {
-        return this.valueAsTextOf(this.lastIndexOf(pEName), TProvider, CContext);
-    }
-    
-    /** Get compile value as text of the all match */
-    public final String[] valueAsTextsOf(String pEName, PTypeProvider TProvider, CompilationContext CContext) {
-        int[] Is = this.indexesOf(pEName);
-        if (Is == null)
-            return null;
-        if (Is.length == 0)
-            return new String[0];
-        String[] Vs = new String[Is.length];
-        for (int i = 0; i < Vs.length; i++)
-            Vs[i] = this.valueAsTextOf(Is[i], TProvider, CContext);
-        return Vs;
-    }
-    
-    // Entry Location in Col,Row --------------------------------------------------------
-    
-    /** Get locationCR of the entry at the index */
-    public final int[] locationCROf(int I) {
-        var PRE = this.entryAt(I);
-        if (PRE == null)
-            return null;
-        return this.getLocationAsColRow(I);
-    }
-    
-    /** Get locationRC of the last entry named pEName */
-    public final int[] locationCROf(String pEName) {
-        return this.locationCROf(this.lastIndexOf(pEName));
-    }
-    
-    /** Get locationRC of the all entries named pEName */
-    public final int[][] locationCRsOf(String pEName) {
-        int[] Is = this.indexesOf(pEName);
-        if (Is == null)
-            return null;
-        if (Is.length == 0)
-            return new int[0][];
-        int[][] LRCs = new int[Is.length][];
-        for (int i = LRCs.length; --i >= 0;)
-            LRCs[i] = this.locationCROf(Is[i]);
-        return LRCs;
-    }
-    
-    // Entry Location with Cursor pointer -----------------------------------------------
-    
-    /** Get location of the entry at the index */
-    public final String locationOf(int I) {
-        var PRE = this.entryAt(I);
-        if (PRE == null)
-            return null;
-        return this.getLocationAsString(I);
-    }
-    
-    /** Get location of the last entry named pEName */
-    public final String locationOf(String pEName) {
-        return this.locationOf(this.lastIndexOf(pEName));
-    }
-    
-    /** Get location of the all entries named pEName */
-    public final String[] locationsOf(String pEName) {
-        int[] Is = this.indexesOf(pEName);
-        if (Is == null)
-            return null;
-        if (Is.length == 0)
-            return new String[0];
-        String[] Ls = new String[Is.length];
-        for (int i = Ls.length; --i >= 0;)
-            Ls[i] = this.locationOf(Is[i]);
-        return Ls;
-    }
-    
-    // Entry Position -------------------------------------------------------------------
-    
-    /** Get start position of the entry at the index */
-    public final int posOf(int I) {
-        var PRE = this.entryAt(I);
-        if (PRE == null)
-            return -1;
-        return this.startPositionAt(I);
-    }
-    
-    /** Get start position of the last entry named pEName */
-    public final int posOf(String pEName) {
-        return this.posOf(this.lastIndexOf(pEName));
-    }
-    
-    /** Get start positions of the all entries named pEName */
-    public final int[] possOf(String pEName) {
-        int[] Is = this.indexesOf(pEName);
-        if (Is == null)
-            return null;
-        if (Is.length == 0)
-            return new int[0];
-        int[] Ls = new int[Is.length];
-        for (int i = Ls.length; --i >= 0;)
-            Ls[i] = this.posOf(Is[i]);
-        return Ls;
-    }
-    
-    // Modifying the results -------------------------------------------------------------------------------------------
+    //-- Modifying the results -----------------------------------------------------------------------------------------
     
     /** Appends the result with an entry */
     public final ParseResult append(PREntry entry) {
@@ -1391,7 +1400,7 @@ abstract public class ParseResult implements Serializable {
         }
     }
     
-    // Second Stage related ---------------------------------------------------------------------------------------------
+    //-- Second Stage related ------------------------------------------------------------------------------------------
     
     /** Parse the result entry - Only when the entry has no sub */
     public final boolean parseEntry(int pEntryIndex, RegParser pParser) {
@@ -1422,7 +1431,7 @@ abstract public class ParseResult implements Serializable {
         return true;
     }
     
-    // Flat entry -----------------------------------------------------------------------
+    //-- Flat entry ----------------------------------------------------------------------------------------------------
     
     /** Appends entry of the sub (entry of the node) to the current parse result and erase the entry */
     public final boolean flatEntry(int pEntryIndex) {
@@ -1468,25 +1477,7 @@ abstract public class ParseResult implements Serializable {
         return this.flatEntry(I);
     }
     
-    // Utilities ---------------------------------------------------------------------------------------------------
-    
-    /** Get Row (line number starts from 0) and Column of the index number */
-    public final int[] getLocationAsColRow(int pEntryIndex) {
-        int Pos = this.startPositionAt(pEntryIndex);
-        if (Pos == -1)
-            return null;
-        return Helper.getLocationAsColRow(this.originalCharSequence(), Pos);
-    }
-    
-    /** Returns the string representation of the starting of the entry index */
-    public final String getLocationAsString(int pEntryIndex) {
-        int Pos = this.startPositionAt(pEntryIndex);
-        if (Pos == -1)
-            return null;
-        return Helper.getLocationAsString(this.originalCharSequence(), Pos);
-    }
-    
-    // Object ------------------------------------------------------------------------------------
+    //-- Object --------------------------------------------------------------------------------------------------------
     
     /** Returns the detail string representation of the parse result */
     @Override
