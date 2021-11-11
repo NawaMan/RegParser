@@ -95,7 +95,7 @@ public class RPCompiler_ParserTypes {
                 PTypeProvider pProvider) {
             
             // Ensure type
-            if(!Name.equals(pThisResult.typeNameAt(pEntryIndex)))
+            if(!Name.equals(pThisResult.typeNameOf(pEntryIndex)))
                 throw new RPCompilationException("Mal-formed RegParser Escape near \""
                         + pThisResult.originalText().substring(pThisResult.startPosition()) + "\".");
             
@@ -118,7 +118,7 @@ public class RPCompiler_ParserTypes {
                 PTypeProvider pProvider) {
             
             // Ensure type
-            if(!Name.equals(pThisResult.typeNameAt(pEntryIndex)))
+            if(!Name.equals(pThisResult.typeNameOf(pEntryIndex)))
                 throw new RPCompilationException("Mal-formed RegParser Escape near \""
                         + pThisResult.originalText().substring(pThisResult.startPosition()) + "\".");
             
@@ -143,7 +143,7 @@ public class RPCompiler_ParserTypes {
                 PTypeProvider pProvider) {
             
             // Ensure type
-            if(!Name.equals(pThisResult.typeNameAt(pEntryIndex)))
+            if(!Name.equals(pThisResult.typeNameOf(pEntryIndex)))
                 throw new RPCompilationException("Mal-formed RegParser Escape near \""
                         + pThisResult.originalText().substring(pThisResult.startPosition()) + "\".");
             
@@ -169,7 +169,7 @@ public class RPCompiler_ParserTypes {
                 PTypeProvider pProvider) {
             
             // Ensure type
-            if(!Name.equals(pThisResult.typeNameAt(pEntryIndex)))
+            if(!Name.equals(pThisResult.typeNameOf(pEntryIndex)))
                 throw new RPCompilationException("Mal-formed RegParser Escape near \""
                         + pThisResult.originalText().substring(pThisResult.startPosition()) + "\".");
             
@@ -521,7 +521,7 @@ public class RPCompiler_ParserTypes {
                 PTypeProvider pProvider) {
 
             // Ensure type
-            if(!Name.equals(pThisResult.typeNameAt(pEntryIndex)))
+            if(!Name.equals(pThisResult.typeNameOf(pEntryIndex)))
                 throw new RPCompilationException("Mal-formed RegParser quatifier near \""
                         + pThisResult.originalText().substring(pThisResult.startPosition()) + "\".");
             
@@ -645,7 +645,7 @@ public class RPCompiler_ParserTypes {
                 PTypeProvider pProvider) {
 
             // Ensure type
-            if(!Name.equals(pThisResult.typeNameAt(pEntryIndex)))
+            if(!Name.equals(pThisResult.typeNameOf(pEntryIndex)))
                 throw new RPCompilationException("Mal-formed RegParser character range near \""
                         + pThisResult.originalText().substring(pThisResult.startPosition()) + "\".");
             

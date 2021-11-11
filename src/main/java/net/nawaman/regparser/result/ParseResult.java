@@ -570,18 +570,13 @@ abstract public class ParseResult implements Serializable {
     }
     
     /** Get sub result of the last match */
-    public final ParseResult subOf(int I) {
-        return this.subResultOf(I);
-    }
-    
-    /** Get sub result of the last match */
-    public final ParseResult subOf(String pEName) {
+    public final ParseResult subResultOf(String pEName) {
         PREntry E = this.lastEntryOf(pEName);
         return ((E == null) || !E.hasSubResult()) ? null : E.subResult();
     }
     
     /** Get subs result of the last match */
-    public final ParseResult[] subsOf(String pEName) {
+    public final ParseResult[] subResultsOf(String pEName) {
         int[] Is = this.indexesOf(pEName);
         if (Is == null)
             return null;
@@ -589,20 +584,14 @@ abstract public class ParseResult implements Serializable {
             return new ParseResult[0];
         ParseResult[] PRs = new ParseResult[Is.length];
         for (int i = PRs.length; --i >= 0;)
-            PRs[i] = this.subOf(Is[i]);
+            PRs[i] = this.subResultOf(Is[i]);
         return PRs;
     }
     
     //-- Type Name -----------------------------------------------------------------------------------------------------
     
     /** Returns the type name of the sub entry at the indexes */
-    public final String typeNameAt(int index) {
-        var entry = entryAt(index);
-        return (entry == null) ? null : entry.typeName();
-    }
-    
-    /** Returns the type name of the sub entry at the indexes */
-    public final String typeNameAt(int firstIndex, int secondIndex, int... restIndexes) {
+    public final String typeNameOf(int firstIndex, int secondIndex, int... restIndexes) {
         var entry = entryAt(firstIndex, secondIndex, restIndexes);
         return (entry == null) ? null : entry.typeName();
     }
@@ -1023,7 +1012,7 @@ abstract public class ParseResult implements Serializable {
             String TName = this.typeNameOf(I); 
             if (TName == null) {
                 // The entry has no type, so compile each sub and concatenate them
-                ParseResult Sub = this.subOf(I);
+                ParseResult Sub = this.subResultOf(I);
                 int         SCount;
                 if ((Sub == null) || ((SCount = Sub.entryCount()) == 0))
                     return this.textOf(I);
