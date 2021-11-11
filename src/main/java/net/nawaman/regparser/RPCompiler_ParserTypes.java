@@ -1043,17 +1043,17 @@ public class RPCompiler_ParserTypes {
                 if((PRE != null) && PRE.hasSubResult()) {
                     ParseResult Sub_Second = PRE.subResult();
                     
-                    int IT = Sub_Second.lastIndexOf("#Type");
+                    int IT = Sub_Second.indexOf("#Type");
                     if(IT != -1) {    // TypeRef with Name
                         Second = RegParser.newRegParser((PTypeRef)pProvider.getType(RPTType .Name).compile(Sub_Second, IT, null, pContext, pProvider));
                     } else {
-                        int IE = Sub_Second.lastIndexOf("#GroupRegParser");
+                        int IE = Sub_Second.indexOf("#GroupRegParser");
                         // Named Group
                         Second = RegParser.newRegParser((Checker)pProvider.getType(RPTRegParser.Name).compile(Sub_Second, IE, null, pContext, pProvider));
                     }
                 }
                 
-                int IT = pThisResult.lastIndexOf("#Type");
+                int IT = pThisResult.indexOf("#Type");
                 if(IT != -1) {    // TypeRef with Name
                     return RPEntry._new(
                             N+GN+O+M,
@@ -1062,7 +1062,7 @@ public class RPCompiler_ParserTypes {
                             Second);
                 }
                 
-                int IE = pThisResult.lastIndexOf("#GroupRegParser");
+                int IE = pThisResult.indexOf("#GroupRegParser");
                 // Named Group
                 return RPEntry._new(
                         N+GN+O+M,

@@ -403,7 +403,7 @@ abstract public class ParseResult implements Serializable {
     
     /** Get text result of the last match */
     public final String textOf(String name) {
-        int lastIndex = lastIndexOf(name);
+        int lastIndex = indexOf(name);
         return this.textOf(lastIndex);
     }
     
@@ -479,7 +479,7 @@ abstract public class ParseResult implements Serializable {
     
     /** Get text result of the last match */
     public final String nameOf(String pEName) {
-        return this.nameOf(this.lastIndexOf(pEName));
+        return this.nameOf(this.indexOf(pEName));
     }
     
     /** Returns the name of the sub entry at the indexes */
@@ -609,7 +609,7 @@ abstract public class ParseResult implements Serializable {
     
     /** Get Type name of the last match */
     public final String typeNameOf(String pEName) {
-        return this.typeNameOf(this.lastIndexOf(pEName));
+        return this.typeNameOf(this.indexOf(pEName));
     }
     
     /** Get subs result of the last match */
@@ -662,7 +662,7 @@ abstract public class ParseResult implements Serializable {
     
     /** Get Type of the last match */
     public final PType typeOf(String pEName, PTypeProvider TProvider) {
-        return this.typeOf(this.lastIndexOf(pEName), TProvider);
+        return this.typeOf(this.indexOf(pEName), TProvider);
     }
     
     /** Get subs result of the last match */
@@ -681,35 +681,24 @@ abstract public class ParseResult implements Serializable {
     //-- Parameter -----------------------------------------------------------------------------------------------------
     
     /** Returns the type reference parameters of the sub entry at the index */
-    public final String parameterAt(int index) {
+    public final String parameterOf(int index) {
         var entry = entryAt(index);
         return (entry == null) ? null : entry.parameter();
     }
     
     /** Returns the type reference parameters of the sub entry at the index */
-    public final String parameterAt(int firstIndex, int secondIndex, int... restIndexes) {
+    public final String parameterOf(int firstIndex, int secondIndex, int... restIndexes) {
         var entry = entryAt(firstIndex, secondIndex, restIndexes);
         return (entry == null) ? null : entry.parameter();
     }
     
     /** Get Type name of the last match */
-    public final String typeParamOf(int I) {
-        var PRE = this.entryAt(I);
-        if (PRE == null)
-            return null;
-        PType PT = PRE.type();
-        if (PT != null)
-            return null;
-        return PRE.parameter();
-    }
-    
-    /** Get Type name of the last match */
-    public final String typeParamOf(String pEName) {
-        return this.typeParamOf(this.lastIndexOf(pEName));
+    public final String parameterOf(String pEName) {
+        return this.parameterOf(this.indexOf(pEName));
     }
     
     /** Get subs result of the last match */
-    public final String[] typeParamsOf(String pEName) {
+    public final String[] parametersOf(String pEName) {
         int[] Is = this.indexesOf(pEName);
         if (Is == null)
             return null;
@@ -717,14 +706,14 @@ abstract public class ParseResult implements Serializable {
             return new String[0];
         String[] PTNs = new String[Is.length];
         for (int i = PTNs.length; --i >= 0;)
-            PTNs[i] = this.typeParamOf(Is[i]);
+            PTNs[i] = this.parameterOf(Is[i]);
         return PTNs;
     }
     
     //-- Index ---------------------------------------------------------------------------------------------------------
     
     /** Returns the index of the last entry that has the same name with the given name */
-    public final int lastIndexOf(String name) {
+    public final int indexOf(String name) {
         for (int i = entries.size(); --i >= 0;) {
             var entry = entries.get(i);
             var parserEntry = entry.parserEntry();
@@ -878,7 +867,7 @@ abstract public class ParseResult implements Serializable {
     
     /** Get start position of the last entry named pEName */
     public final int posOf(String pEName) {
-        return this.posOf(this.lastIndexOf(pEName));
+        return this.posOf(this.indexOf(pEName));
     }
     
     /** Get start positions of the all entries named pEName */
@@ -906,7 +895,7 @@ abstract public class ParseResult implements Serializable {
     
     /** Get locationRC of the last entry named pEName */
     public final int[] locationCROf(String pEName) {
-        return this.locationCROf(this.lastIndexOf(pEName));
+        return this.locationCROf(this.indexOf(pEName));
     }
     
     /** Get locationRC of the all entries named pEName */
@@ -934,7 +923,7 @@ abstract public class ParseResult implements Serializable {
     
     /** Get location of the last entry named pEName */
     public final String locationOf(String pEName) {
-        return this.locationOf(this.lastIndexOf(pEName));
+        return this.locationOf(this.indexOf(pEName));
     }
     
     /** Get location of the all entries named pEName */
@@ -981,13 +970,13 @@ abstract public class ParseResult implements Serializable {
             if (PT == null)
                 throw new RuntimeException("Unknown type `" + TName + "`.");
         }
-        String Param = this.typeParamOf(I);
+        String Param = this.parameterOf(I);
         return PT.compile(this, I, Param, CContext, TProvider);
     }
     
     /** Get compile value of the last match */
     public final Object valueOf(String pEName, PTypeProvider TProvider, CompilationContext CContext) {
-        return this.valueOf(this.lastIndexOf(pEName), TProvider, CContext);
+        return this.valueOf(this.indexOf(pEName), TProvider, CContext);
     }
     
     /** Get subs result of the last match */
@@ -1027,14 +1016,14 @@ abstract public class ParseResult implements Serializable {
             if (PT == null)
                 throw new RuntimeException("Unknown type `" + TName + "`.");
         }
-        String Param  = this.typeParamOf(I);
+        String Param  = this.parameterOf(I);
         Object Result = PT.compile(this, I, Param, CContext, TProvider);
         return (Result == null) ? "" : Result.toString();
     }
     
     /** Get compile value as text of the last match */
     public final String valueAsTextOf(String pEName, PTypeProvider TProvider, CompilationContext CContext) {
-        return this.valueAsTextOf(this.lastIndexOf(pEName), TProvider, CContext);
+        return this.valueAsTextOf(this.indexOf(pEName), TProvider, CContext);
     }
     
     /** Get compile value as text of the all match */
@@ -1460,7 +1449,7 @@ abstract public class ParseResult implements Serializable {
     public final boolean flatLastEntryOf(String pName) {
         if (pName == null)
             return false;
-        int I = this.lastIndexOf(pName);
+        int I = this.indexOf(pName);
         if (I < 0)
             return false;
         return this.flatEntry(I);
