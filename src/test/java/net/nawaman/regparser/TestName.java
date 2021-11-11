@@ -98,7 +98,7 @@ public class TestName {
         
         validate("[#Value]",            result.names().toArray());
         validate("[5,7,454,5]",         Util.toString(result.textsOf("#Value")));
-        validate("[[5],[7],[454],[5]]", Util.toString(result.allTextsOf("#Value")));
+        validate("[[5],[7],[454],[5]]", Util.toString(result.allStringsOf("#Value")));
     }
     
     @Test
@@ -140,7 +140,7 @@ public class TestName {
         
         validate("[#Value]",              result.names().toArray());
         validate("[5,7,45,6,5]",          Util.toString(result.textsOf("#Value")));
-        validate("[[5],[7],[45, 6],[5]]", Util.toString(result.allTextsOf("#Value")));
+        validate("[[5],[7],[45, 6],[5]]", Util.toString(result.allStringsOf("#Value")));
         
         validate("["
                 + "Entry { End = 3; RPEntry = (#Value:~[0-9]{1,2}~); },"

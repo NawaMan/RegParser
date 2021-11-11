@@ -401,7 +401,13 @@ abstract public class ParseResult implements Serializable {
         }
     }
     
-    /** Get texts result of the last matches */
+    /** Get text result of the last match */
+    public final String textOf(String name) {
+        int lastIndex = lastIndexOf(name);
+        return this.textOf(lastIndex);
+    }
+    
+    /** Get texts result of the last match */
     public final String[] textsOf(String name) {
         int[] indexes = indexesOf(name);
         if (indexes == null) {
@@ -418,7 +424,7 @@ abstract public class ParseResult implements Serializable {
     }
     
     /** Returns the text of the the last match */
-    public String textOf(String name) {
+    public String lastStringOf(String name) {
         for (int i = entries.size(); --i >= 0;) {
             var entry = entryAt(i);
             if (!entry.hasParserEntry()) {
@@ -433,7 +439,7 @@ abstract public class ParseResult implements Serializable {
     }
     
     /** Returns the all the match */
-    public final String[][] allTextsOf(String name) {
+    public final String[][] allStringsOf(String name) {
         var arrayMatches = new ArrayList<String[]>();
         var matchers     = new ArrayList<String>();
         var orgText      = originalCharSequence();
