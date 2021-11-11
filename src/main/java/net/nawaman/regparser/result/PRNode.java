@@ -70,13 +70,13 @@ public final class PRNode extends PRNormal {
     
     /**{@inheritDoc}*/
     @Override
-    public final String lastStringOf(String name) {
-        var string = super.lastStringOf(name);
+    public final String textOf(String name) {
+        var string = super.textOf(name);
         if (string != null) {
             return string;
         }
         if (parent != null) {
-            return parent.lastStringOf(name);
+            return parent.textOf(name);
         }
         return null;
     }

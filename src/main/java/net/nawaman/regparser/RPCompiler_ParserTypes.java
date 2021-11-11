@@ -442,21 +442,21 @@ public class RPCompiler_ParserTypes {
                 PTypeProvider pProvider) {
             pThisResult = pThisResult.entryAt(pEntryIndex).subResult();
 
-            String N = pThisResult.lastStringOf("#TypeName");
+            String N = pThisResult.textOf("#TypeName");
             if(N == null)
                 throw new RPCompilationException("Mal-formed RegParser Type near \""
                         + pThisResult.originalText().substring(pThisResult.startPosition()) + "\".");
             
-            String T = pThisResult.lastStringOf("#AsText");
-            String O = pThisResult.lastStringOf("#TypeOption");
-            String V = pThisResult.lastStringOf("#Validate");
-            String C = pThisResult.lastStringOf("#Collective");
+            String T = pThisResult.textOf("#AsText");
+            String O = pThisResult.textOf("#TypeOption");
+            String V = pThisResult.textOf("#Validate");
+            String C = pThisResult.textOf("#Collective");
             String TName  = ((T == null)?"":T) + N + ((O == null)?"":O) + ((V == null)?"":V) + ((C == null)?"":C);
             
             String Param = null;
             var PE = pThisResult.lastEntryOf("#Param");
             if((PE != null) && PE.hasSubResult()) {
-                Param = pThisResult.lastEntryOf("#Param").subResult().lastStringOf("#ParamValue");
+                Param = pThisResult.lastEntryOf("#Param").subResult().textOf("#ParamValue");
                 if(Param != null) Param = Util.unescapeText(Param.substring(1, Param.length() - 1)).toString();
                 
             }
@@ -527,8 +527,8 @@ public class RPCompiler_ParserTypes {
             
             pThisResult = pThisResult.entryAt(pEntryIndex).subResult();
             
-            String Q = pThisResult.lastStringOf("#Quantifier");
-            String G = pThisResult.lastStringOf("#Greediness");
+            String Q = pThisResult.textOf("#Quantifier");
+            String G = pThisResult.textOf("#Greediness");
             
             switch(Q.charAt(0)) {
                 case '?': {
@@ -552,14 +552,14 @@ public class RPCompiler_ParserTypes {
                 case '{': {
                     pThisResult = pThisResult.entryAt(0).subResult(); 
 
-                    String E = pThisResult.lastStringOf("#Error[]");
+                    String E = pThisResult.textOf("#Error[]");
                     if(E != null) break;
                     
-                    String BS = pThisResult.lastStringOf("#BothBound");
+                    String BS = pThisResult.textOf("#BothBound");
                     int B = -1;
                     if(BS == null) {
-                        String US = pThisResult.lastStringOf("#UpperBound");
-                        String LS = pThisResult.lastStringOf("#LowerBound");
+                        String US = pThisResult.textOf("#UpperBound");
+                        String LS = pThisResult.textOf("#LowerBound");
                         int U = (US == null)?-1:Integer.parseInt(US);
                         int L = (LS == null)? 0:Integer.parseInt(LS);
                         if((U != -1) && (U < L))
@@ -658,7 +658,7 @@ public class RPCompiler_ParserTypes {
                 }
             }
             
-            String S  = pThisResult.lastStringOf("#Start");
+            String S  = pThisResult.textOf("#Start");
             char   SC = S.charAt(0);
             if(S.length() > 1) {
                 // Only possibility is that it is an escape
@@ -666,7 +666,7 @@ public class RPCompiler_ParserTypes {
                 SC = (Character)(pProvider.getType(RPTEscape.Name).compile(PS, pProvider));
             }
             
-            String E = pThisResult.lastStringOf("#End");
+            String E = pThisResult.textOf("#End");
             if(E == null) return new CharSingle(SC);
             else {
                 if(pThisResult.lastEntryOf("#End").hasSubResult()) {
@@ -1021,18 +1021,18 @@ public class RPCompiler_ParserTypes {
             
             if("#Group".equals(PName)) {
                 
-                String N = PSE.subResult().lastStringOf("#Name");
+                String N = PSE.subResult().textOf("#Name");
                 if(N == null) return RPEntry._new((Checker)pProvider.getType(RPTRegParser.Name).compile(pThisResult, 0, null, pContext, pProvider));
                 
                 pThisResult = PSE.subResult();
                 
-                String GN = pThisResult.lastStringOf("#Group-Name");
-                String O  = pThisResult.lastStringOf("#Group-Option"); O = (O == null)?"":O;
-                String M  = pThisResult.lastStringOf("#Multiple");     M = (M == null)?"":M;
+                String GN = pThisResult.textOf("#Group-Name");
+                String O  = pThisResult.textOf("#Group-Option"); O = (O == null)?"":O;
+                String M  = pThisResult.textOf("#Multiple");     M = (M == null)?"":M;
                 
-                String B = pThisResult.lastStringOf("#BackRef");
+                String B = pThisResult.textOf("#BackRef");
                 if(B != null) {
-                    if(pThisResult.lastStringOf("#BackRefCI") != null)
+                    if(pThisResult.textOf("#BackRefCI") != null)
                         return RPEntry._new(new PTypeRef.Simple(PTBackRefCI.BackRefCI_Instance.name(), N+GN+M));
                     else
                         return RPEntry._new(new PTypeRef.Simple(PTBackRef.BackRef_Instance.name(), N+GN+M));
