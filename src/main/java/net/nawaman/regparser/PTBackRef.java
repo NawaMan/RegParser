@@ -47,7 +47,7 @@ public class PTBackRef extends PType {
     String getLastMatchByName(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
         if (pHostResult == null)
             return null;
-        String W = pHostResult.lastStringOf(pParam);
+        String W = pHostResult.textOf(pParam);
         
         // Elevate up (in case pHostResult is a node)
         while (W == null) {
@@ -62,7 +62,7 @@ public class PTBackRef extends PType {
                 var E = pHostResult.lastEntryOf(pParam);
                 if ((E == null) && (pHostResult instanceof PRRoot))
                     return null;
-                W = pHostResult.lastStringOf(pParam);
+                W = pHostResult.textOf(pParam);
             }
         }
         return W;
