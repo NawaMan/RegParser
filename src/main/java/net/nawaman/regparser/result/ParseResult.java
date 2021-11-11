@@ -815,6 +815,23 @@ abstract public class ParseResult implements Serializable {
             throw new RuntimeException(errMsg, exception);
         }
     }
+    /** Get start position of the last entry named pEName */
+    public final int startPositionOf(String pEName) {
+        return this.startPositionOf(this.indexOf(pEName));
+    }
+    
+    /** Get start positions of the all entries named pEName */
+    public final int[] startPositionsOf(String pEName) {
+        int[] Is = this.indexesOf(pEName);
+        if (Is == null)
+            return null;
+        if (Is.length == 0)
+            return new int[0];
+        int[] Ls = new int[Is.length];
+        for (int i = Ls.length; --i >= 0;)
+            Ls[i] = this.startPositionOf(Is[i]);
+        return Ls;
+    }
     
     //-- End Position --------------------------------------------------------------------------------------------------
     
@@ -853,34 +870,6 @@ abstract public class ParseResult implements Serializable {
                         firstIndex, secondIndex, Util.toString(restIndexes, "", "", ", "), exception.getMessage());
             throw new RuntimeException(errMsg, exception);
         }
-    }
-    
-    //-- Entry Position ------------------------------------------------------------------------------------------------
-    
-    /** Get start position of the entry at the index */
-    public final int posOf(int I) {
-        var PRE = this.entryAt(I);
-        if (PRE == null)
-            return -1;
-        return this.startPositionOf(I);
-    }
-    
-    /** Get start position of the last entry named pEName */
-    public final int posOf(String pEName) {
-        return this.posOf(this.indexOf(pEName));
-    }
-    
-    /** Get start positions of the all entries named pEName */
-    public final int[] possOf(String pEName) {
-        int[] Is = this.indexesOf(pEName);
-        if (Is == null)
-            return null;
-        if (Is.length == 0)
-            return new int[0];
-        int[] Ls = new int[Is.length];
-        for (int i = Ls.length; --i >= 0;)
-            Ls[i] = this.posOf(Is[i]);
-        return Ls;
     }
     
     // Entry Location in Col,Row --------------------------------------------------------
