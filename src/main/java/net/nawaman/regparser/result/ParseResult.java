@@ -402,18 +402,9 @@ abstract public class ParseResult implements Serializable {
     }
     
     /** Get text result of the last match */
-    public String textOf(String name) {
-        for (int i = entries.size(); --i >= 0;) {
-            var entry = entryAt(i);
-            if (!entry.hasParserEntry()) {
-                continue;
-            }
-            var parseEntry = entry.parserEntry();
-            if (name.equals(parseEntry.name())) {
-                return textOf(i);
-            }
-        }
-        return null;
+    public final String textOf(String name) {
+        int lastIndex = lastIndexOf(name);
+        return this.textOf(lastIndex);
     }
     
     /** Get texts result of the last match */
@@ -432,8 +423,23 @@ abstract public class ParseResult implements Serializable {
         return texts;
     }
     
+    /** Returns the text of the the last match */
+    public String lastStringOf(String name) {
+        for (int i = entries.size(); --i >= 0;) {
+            var entry = entryAt(i);
+            if (!entry.hasParserEntry()) {
+                continue;
+            }
+            var parseEntry = entry.parserEntry();
+            if (name.equals(parseEntry.name())) {
+                return textOf(i);
+            }
+        }
+        return null;
+    }
+    
     /** Returns the all the match */
-    public final String[][] allTextsOf(String name) {
+    public final String[][] allStringsOf(String name) {
         var arrayMatches = new ArrayList<String[]>();
         var matchers     = new ArrayList<String>();
         var orgText      = originalCharSequence();
