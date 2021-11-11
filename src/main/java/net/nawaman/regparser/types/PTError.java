@@ -82,7 +82,7 @@ public class PTError extends PType {
             PTypeProvider pProvider) {
         
         String ErrMsg = String.format("%s%s\n", this.ErrMessage, (pParam == null) ? "" : String.format(" (%s)", pParam),
-                pCContext.getLocationAsString(pThisResult.startPositionAt(pEntryIndex)));
+                pCContext.getLocationAsString(pThisResult.startPositionOf(pEntryIndex)));
         
         if (pCContext != null)
             pCContext.reportError(ErrMsg, null);

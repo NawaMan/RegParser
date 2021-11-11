@@ -25,7 +25,7 @@ public final class PRNode extends PRNormal {
         int index = 0;
         int entryCount = parentResult.entryCount();
         for (int i = 0; i < entryCount; i++) {
-            if (startPosition == parentResult.endPositionAt(i)) {
+            if (startPosition == parentResult.endPositionOf(i)) {
                 index = i;
                 break;
             }

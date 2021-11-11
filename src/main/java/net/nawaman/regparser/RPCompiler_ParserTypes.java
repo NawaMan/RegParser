@@ -1102,7 +1102,7 @@ public class RPCompiler_ParserTypes {
             if((pThisResult.entryAt(pEntryIndex) == null) ||
                 (pThisResult.entryAt(pEntryIndex).subResult() == null)) {
                 throw new RPCompilationException("Mal-formed RegParser Type near \""
-                            + pThisResult.originalText().substring(pThisResult.startPositionAt(0)) + "\".");
+                            + pThisResult.originalText().substring(pThisResult.startPositionOf(0)) + "\".");
             }
             pThisResult = pThisResult.entryAt(pEntryIndex).subResult();
             
@@ -1122,7 +1122,7 @@ public class RPCompiler_ParserTypes {
                 if("#Error[]".equals(PName)) {
                     System.out.println(pThisResult.toString());
                     throw new RPCompilationException("Mal-formed RegParser Type near \""
-                            + pThisResult.originalText().substring(pThisResult.startPositionAt(i)) + "\".");
+                            + pThisResult.originalText().substring(pThisResult.startPositionOf(i)) + "\".");
                 }
                 
                 boolean HasSub = PSE.hasSubResult();

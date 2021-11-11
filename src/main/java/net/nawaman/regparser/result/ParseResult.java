@@ -374,8 +374,8 @@ abstract public class ParseResult implements Serializable {
         if (text == null) {
             return null;
         }
-        int start = startPositionAt(index);
-        int end   = endPositionAt(index);
+        int start = startPositionOf(index);
+        int end   = endPositionOf(index);
         if ((start < 0) || (end < 0) || (start > text.length()) || (end > text.length())) {
             return null;
         }
@@ -785,7 +785,7 @@ abstract public class ParseResult implements Serializable {
     abstract public int startPosition();
     
     /** Returns the start position of an entry at the index */
-    public final int startPositionAt(int index) {
+    public final int startPositionOf(int index) {
         if (index == 0) {
             return startPosition();
         }
@@ -801,13 +801,13 @@ abstract public class ParseResult implements Serializable {
     }
     
     /** Returns the start position of sub entry at the indexes */
-    public final int startPositionAt(int firstIndex, int secondIndex, int... restIndexes) {
+    public final int startPositionOf(int firstIndex, int secondIndex, int... restIndexes) {
         try {
             var result    = nestedSubResultABOVE(firstIndex, secondIndex, restIndexes);
             int lastIndex = ((restIndexes == null) || (restIndexes.length == 0))
                           ? secondIndex
                           : restIndexes[restIndexes.length - 1];
-            return result.startPositionAt(lastIndex);
+            return result.startPositionOf(lastIndex);
         } catch (ArrayIndexOutOfBoundsException exception) {
             var errMsg = format(
                         "Error getting a result entry at [%d, %d, %s]: %s",
@@ -821,11 +821,11 @@ abstract public class ParseResult implements Serializable {
     /** Returns the end position that this parse result match */
     public final int endPosition() {
         int lastIndex = entryCount() - 1;
-        return endPositionAt(lastIndex);
+        return endPositionOf(lastIndex);
     }
     
     /** Returns the end position of an entry at the index */
-    public final int endPositionAt(int index) {
+    public final int endPositionOf(int index) {
         if (index == -1) {
             return startPosition();
         }
@@ -840,13 +840,13 @@ abstract public class ParseResult implements Serializable {
     }
     
     /** Returns the end position of sub entry at the indexes */
-    public final int endPositionAt(int firstIndex, int secondIndex, int... restIndexes) {
+    public final int endPositionOf(int firstIndex, int secondIndex, int... restIndexes) {
         try {
             var result    = nestedSubResultABOVE(firstIndex, secondIndex, restIndexes);
             int lastIndex = ((restIndexes == null) || (restIndexes.length == 0))
                           ? secondIndex
                           : restIndexes[restIndexes.length - 1];
-            return result.endPositionAt(lastIndex);
+            return result.endPositionOf(lastIndex);
         } catch (ArrayIndexOutOfBoundsException exception) {
             var errMsg = format(
                         "Error getting a result entry at [%d, %d, %s]: %s",
@@ -862,7 +862,7 @@ abstract public class ParseResult implements Serializable {
         var PRE = this.entryAt(I);
         if (PRE == null)
             return -1;
-        return this.startPositionAt(I);
+        return this.startPositionOf(I);
     }
     
     /** Get start position of the last entry named pEName */
@@ -941,7 +941,7 @@ abstract public class ParseResult implements Serializable {
     
     /** Get Row (line number starts from 0) and Column of the index number */
     public final int[] getLocationAsColRow(int pEntryIndex) {
-        int Pos = this.startPositionAt(pEntryIndex);
+        int Pos = this.startPositionOf(pEntryIndex);
         if (Pos == -1)
             return null;
         return Helper.getLocationAsColRow(this.originalCharSequence(), Pos);
@@ -949,7 +949,7 @@ abstract public class ParseResult implements Serializable {
     
     /** Returns the string representation of the starting of the entry index */
     public final String getLocationAsString(int pEntryIndex) {
-        int Pos = this.startPositionAt(pEntryIndex);
+        int Pos = this.startPositionOf(pEntryIndex);
         if (Pos == -1)
             return null;
         return Helper.getLocationAsString(this.originalCharSequence(), Pos);
@@ -1164,7 +1164,7 @@ abstract public class ParseResult implements Serializable {
                     var msg = (typeProvider == null) ? null : typeProvider.getErrorMessage(name.substring(1));
                     // NOTE: 1 is to eliminate $ prefix >-----------------------------------^
                     msg = (msg != null) ? msg : this.message(name.substring(kindLength, name.length()));
-                    compilationContext.reportError(msg, null, this.startPositionAt(i));
+                    compilationContext.reportError(msg, null, this.startPositionOf(i));
                     if (isFatalError) {
                         throw new RuntimeException("FATAL ERROR! The compilation cannot be continued: " + msg);
                     }
@@ -1392,8 +1392,8 @@ abstract public class ParseResult implements Serializable {
         PREntry Entry = this.entryAt(pEntryIndex);
         if ((Entry == null) || Entry.hasSubResult())
             return false;
-        String      Text = this.originalText().substring(0, this.endPositionAt(pEntryIndex));
-        ParseResult PR   = pParser.parse(Text, this.startPositionAt(pEntryIndex), pProvider);
+        String      Text = this.originalText().substring(0, this.endPositionOf(pEntryIndex));
+        ParseResult PR   = pParser.parse(Text, this.startPositionOf(pEntryIndex), pProvider);
         if (PR == null)
             return false;
         
