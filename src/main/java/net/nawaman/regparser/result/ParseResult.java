@@ -15,7 +15,6 @@
  * more details.
  * ---------------------------------------------------------------------------------------------------------------------
  */
-
 package net.nawaman.regparser.result;
 
 import static java.lang.String.format;
@@ -344,6 +343,12 @@ abstract public class ParseResult implements Serializable {
             throw new RuntimeException(errMsg, exception);
         }
     }
+    
+    //-- Easy to use utilities methods ---------------------------------------------------------------------------------
+    // These methods allow a short method name but with the assumption that the accessing name 
+    //     refers to the last match only.
+    // Some of these method are multiple access counterpart (added for completion) and the name
+    //     access refers to all match
     
     //-- Text ----------------------------------------------------------------------------------------------------------
     
@@ -875,28 +880,35 @@ abstract public class ParseResult implements Serializable {
     // Entry Location in Col,Row --------------------------------------------------------
     
     /** Get locationCR of the entry at the index */
-    public final int[] locationCROf(int I) {
+    public final Coordinate coordinateOf(int I) {
         var PRE = this.entryAt(I);
         if (PRE == null)
             return null;
-        return this.getLocationAsColRow(I);
+        int Pos = this.startPositionOf(I);
+        if (Pos == -1) {
+            return null;
+        }
+        return Coordinate.of(this.originalCharSequence(), Pos);
     }
     
     /** Get locationRC of the last entry named pEName */
-    public final int[] locationCROf(String pEName) {
-        return this.locationCROf(this.indexOf(pEName));
+    public final Coordinate coordinateOf(String pEName) {
+        return this.coordinateOf(this.indexOf(pEName));
     }
     
     /** Get locationRC of the all entries named pEName */
-    public final int[][] locationCRsOf(String pEName) {
+    public final Coordinate[] coordinatesOf(String pEName) {
         int[] Is = this.indexesOf(pEName);
-        if (Is == null)
+        if (Is == null) {
             return null;
-        if (Is.length == 0)
-            return new int[0][];
-        int[][] LRCs = new int[Is.length][];
-        for (int i = LRCs.length; --i >= 0;)
-            LRCs[i] = this.locationCROf(Is[i]);
+        }
+        if (Is.length == 0) {
+            return new Coordinate[0];
+        }
+        var LRCs = new Coordinate[Is.length];
+        for (int i = LRCs.length; --i >= 0;) {
+            LRCs[i] = coordinateOf(Is[i]);
+        }
         return LRCs;
     }
     
@@ -907,7 +919,11 @@ abstract public class ParseResult implements Serializable {
         var PRE = this.entryAt(I);
         if (PRE == null)
             return null;
-        return this.getLocationAsString(I);
+        int Pos = this.startPositionOf(I);
+        if (Pos == -1) {
+            return null;
+        }
+        return Location.of(this.originalCharSequence(), Pos);
     }
     
     /** Get location of the last entry named pEName */
@@ -926,22 +942,6 @@ abstract public class ParseResult implements Serializable {
         for (int i = Ls.length; --i >= 0;)
             Ls[i] = this.locationOf(Is[i]);
         return Ls;
-    }
-    
-    /** Get Row (line number starts from 0) and Column of the index number */
-    public final int[] getLocationAsColRow(int pEntryIndex) {
-        int Pos = this.startPositionOf(pEntryIndex);
-        if (Pos == -1)
-            return null;
-        return Helper.getLocationAsColRow(this.originalCharSequence(), Pos);
-    }
-    
-    /** Returns the string representation of the starting of the entry index */
-    public final String getLocationAsString(int pEntryIndex) {
-        int Pos = this.startPositionOf(pEntryIndex);
-        if (Pos == -1)
-            return null;
-        return Helper.getLocationAsString(this.originalCharSequence(), Pos);
     }
     
     //-- Compiled value ------------------------------------------------------------------------------------------------
@@ -1027,12 +1027,6 @@ abstract public class ParseResult implements Serializable {
             Vs[i] = this.valueAsTextOf(Is[i], TProvider, CContext);
         return Vs;
     }
-    
-    //-- Easy to use utilities methods ---------------------------------------------------------------------------------
-    // These method allow a short method name but with the assumption that the accessing name 
-    //     refers to the last match only.
-    // Some of these method are multiple access counterpart (added for completion) and the name
-    //     access refers to all match
     
     //-- Message -------------------------------------------------------------------------------------------------------
     
