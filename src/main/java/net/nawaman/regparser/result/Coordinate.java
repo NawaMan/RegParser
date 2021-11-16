@@ -63,36 +63,35 @@ public class Coordinate {
 			return Coordinate.START;
 		}
 		
-		int prevLine   = 0;
-		int lineCount  = 0;
+		int prevLine   = -1;
+		int lineCount  =  0;
 		int textLength = sourceText.length();
+		int lastIndex  = textLength - 1;
 		
+		// New line is when '\n' is found or '\r' was found and the current is not '\n'.
 		for (int i = 0; i < textLength; i++) {
-			if (sourceText.charAt(i) == '\r') {
-				if ((textLength > i) && (sourceText.charAt(i + 1) == '\n')) {
-					i++;
-				}
-			} else if (sourceText.charAt(i) == '\n') {
+			char ch = sourceText.charAt(i);
+			boolean isNewLine = false;
+			if (ch == '\r') {
+				isNewLine = ((i < lastIndex) && (sourceText.charAt(i + 1) != '\n'));
+			} else if (ch == '\n') {
+				isNewLine = true;
+			}
+			
+			if (isNewLine) {
 				if (offset <= i) {
-					// Found it
-					if (prevLine != 0) {
-						prevLine++;
-					}
+					prevLine++;
 					return new Coordinate(offset - prevLine, lineCount);
 					
-				} else {
-					prevLine = i;
 				}
+				
+				prevLine = i;
 				lineCount++;
-			} else {
-				continue;
 			}
 		}
 		
 		// Not found yet, so it is the last line
-		if (prevLine != 0) {
-			prevLine++;
-		}
+		prevLine++;
 		return new Coordinate(offset - prevLine, lineCount);
 	}
 	
@@ -135,7 +134,8 @@ public class Coordinate {
 			return false;
 		}
 		var other = (Coordinate)obj;
-		return col == other.col && row == other.row;
+		return col == other.col
+		    && row == other.row;
 	}
 	
 	@Override
