@@ -113,6 +113,10 @@ public class Coordinate {
 		return row;
 	}
 	
+	public String toRowCol() {
+		return "(" + row + "," + col + ")";
+	}
+	
 	public int[] toArray() {
 		return new int[] {col, row};
 	}

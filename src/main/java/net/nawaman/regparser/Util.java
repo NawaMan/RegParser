@@ -52,6 +52,73 @@ public class Util {
     private static final String[] zeroArray   = new String[32];
     private static final String[] spaceArray  = new String[32];
     
+	/**
+	 * Check text of it ends with the suffix.
+	 * 
+	 * @param  text    the text.
+	 * @param  suffix  the suffix character.
+	 * @return         {@code true} if the last character of the text is the suffixCharacter.
+	 */
+	public static boolean endsWith(CharSequence text, char suffixCharacter) {
+		if (text == null)
+			return false;
+		
+		if (text.length() == 0)
+			return false;
+		
+		int lastIndex = text.length() - 1;
+		char lastChar = text.charAt(lastIndex);
+		return suffixCharacter == lastChar;
+	}
+	
+	public static int indexOf(CharSequence text, CharSequence needle, int startOffset) {
+		int textLength   = text.length();
+		int needleLength = needle.length();
+		if (startOffset + needleLength > textLength) {
+			return -1;
+		}
+		
+		startOffset = Math.max(0, startOffset);
+		
+		outter: for (int i = startOffset; i < text.length(); i++) {
+			for (int idx = 0; idx < needleLength; idx++) {
+				char textChar   = text.charAt(i + idx);
+				char needleChar = needle.charAt(idx);
+				if (textChar != needleChar) {
+					continue outter;
+				}
+			}
+			return i;
+		}
+		return -1;
+	}
+	
+	public static int lastIndexOf(CharSequence text, CharSequence needle, int endOffset) {
+		int textLength   = text.length();
+		int needleLength = needle.length();
+		if (needleLength > textLength) {
+			return -1;
+		}
+		
+		if (endOffset < 0) {
+			return -1;
+		}
+		
+		endOffset = Math.min(endOffset, textLength - needleLength) + 1;
+		
+		outter: for (int i = endOffset; i --> 0; ) {
+			for (int idx = 0; idx < needleLength; idx++) {
+				char textChar   = text.charAt(i + idx);
+				char needleChar = needle.charAt(idx);
+				if (textChar != needleChar) {
+					continue outter;
+				}
+			}
+			return i;
+		}
+		return -1;
+	}
+    
     public static String repeat(int count, String text, String[] cache) {
         if (count == 0) {
             return "";
@@ -258,6 +325,18 @@ public class Util {
             stringBuffer.append(c);
         }
         return stringBuffer;
+    }
+    
+    static public String escapeChar(char c) {
+        if (c == '\t') return "\\t";
+        if (c == '\n') return "\\n";
+        if (c == '\r') return "\\r";
+        if (c == '\f') return "\\f";
+        if (c == '\b') return"\\b";
+        if (c == '\'') return"\\\'";
+        if (c == '\"') return"\\\"";
+        if (c == '\\') return"\\\\";
+        return String.valueOf(c);
     }
     
     /**

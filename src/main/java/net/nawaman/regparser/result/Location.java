@@ -17,6 +17,10 @@
  */
 package net.nawaman.regparser.result;
 
+import static net.nawaman.regparser.Util.endsWith;
+import static net.nawaman.regparser.Util.lastIndexOf;
+import static net.nawaman.regparser.Util.indexOf;
+
 import java.util.Objects;
 
 public class Location {
@@ -28,68 +32,94 @@ public class Location {
 	
 	/** Returns the string representation of the source text at the offset */
 	public static String locationOf(CharSequence sourceText, int offset) {
+		return locationOf(sourceText, offset, false);
+	}
+	
+	/** Returns the string representation of the source text at the offset */
+	public static String detailLocationOf(CharSequence sourceText, int offset) {
+		return locationOf(sourceText, offset, true);
+	}
+	
+	/** Returns the string representation of the source text at the offset */
+	public static String locationOf(CharSequence sourceText, int offset, boolean fullDefail) {
 		if (sourceText == null) {
 			return null;
 		}
-		if ((offset < 0) || (offset > sourceText.length())) {
-			return null;
+		
+		int length = sourceText.length();
+		
+		StringBuffer buffer;
+		
+		if (fullDefail) {
+			buffer = new StringBuffer();
+			
+			char ch = ((offset < 0) || (offset >= length)) ? '✖' : sourceText.charAt(offset);
+			buffer.append(ch);
+			buffer.append(" : ");
+			
+			// Print (Row, Col)
+			var position = Coordinate.of(sourceText, offset);
+			buffer.append("(").append(position.row()).append(",").append(position.col()).append(")\n");
+			buffer.append("\n");
+			
+			if ((offset < 0) || (offset > length)) {
+				return buffer.toString();
+			}
+		} else {
+			if ((offset < 0) || (offset > length)) {
+				return null;
+			}
+			
+			buffer = new StringBuffer();
 		}
 		
 		boolean isShift = false;
-		if ((offset == sourceText.length()) || (sourceText.charAt(offset) == '\n')) {
+		if ((offset == length) || (sourceText.charAt(offset) == '\n')) {
 			// Shift to avoid point at NewLine
 			isShift = true;
 			offset--;
 		}
 		
-		var originalText  = sourceText.toString();
-		int thisLineBegin = originalText.lastIndexOf("\n", offset);
-		int thisLineEnd   = originalText.indexOf("\n", offset);
+		int thisLineBegin = lastIndexOf(sourceText, "\n", offset);
+		int thisLineEnd   = indexOf(sourceText, "\n", offset);
 		if (thisLineEnd == -1) {
-			thisLineEnd = originalText.length();
+			thisLineEnd = length;
 		}
 		
 		int thisLineStart = (thisLineBegin + 1 <= thisLineEnd) ? (thisLineBegin + 1) : thisLineEnd;
-		var thisLine = originalText.substring(thisLineStart, thisLineEnd);
+		var thisLine = sourceText.subSequence(thisLineStart, thisLineEnd);
 		thisLineBegin++;
 		
-		var buffer = new StringBuffer();
-		
-		// Print (Row, Col)
-		var position = Coordinate.of(sourceText, offset);
-		if (position != null) {
-			buffer.append("(").append(position.row()).append(",").append(position.col()).append(")\n");
-		}
-		
 		if (thisLineBegin > 1) {
-			int PrevLineBegin = originalText.lastIndexOf("\n", thisLineBegin - 2);
+			int PrevLineBegin = lastIndexOf(sourceText, "\n", thisLineBegin - 2);
 			if (PrevLineBegin == -1) {
 				PrevLineBegin = 0;
 			}
 			
-			var prevLine = originalText.substring(PrevLineBegin, thisLineBegin - 1);
-			buffer.append("\n");
+			var prevLine = sourceText.subSequence(PrevLineBegin, thisLineBegin - 1);
+//			buffer.append("\n");
 			buffer.append("\t-|");
 			for (int i = 0; i < prevLine.length(); i++) {
 				if (prevLine.charAt(i) == '\t') {
-					buffer.append("    ");
+					buffer.append('\t');
 				} else if (prevLine.charAt(i) == '\n') {
 					continue;
 				} else {
 					buffer.append(prevLine.charAt(i));
 				}
 			}
+			buffer.append("\n");
 		}
 		
-		buffer.append("\n");
+//		buffer.append("\n");
 		buffer.append("\t-|");
-		buffer.append((thisLine.endsWith("\n")) ? thisLine.substring(0, thisLine.length() - 1) : thisLine);
+		buffer.append((endsWith(thisLine, '\n')) ? thisLine.subSequence(0, thisLine.length() - 1) : thisLine);
 		
 		offset -= thisLineBegin;
 		buffer.append("\n");
 		buffer.append("\t-|");
 		for (int i = 0; i < offset; i++) {
-			buffer.append((thisLine.charAt(i) != '\t') ? " ": "    ");
+			buffer.append((thisLine.charAt(i) != '\t') ? ' ': '\t');
 		}
 		if (isShift) {
 			buffer.append(' ');
