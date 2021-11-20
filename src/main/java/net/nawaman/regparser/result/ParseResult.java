@@ -429,10 +429,11 @@ abstract public class ParseResult implements Serializable {
 		if (indexes == null)
 			return null;
 		
-		if (indexes.length == 0)
+		int length = indexes.length;
+		if (length == 0)
 			return new String[0];
 		
-		var texts = new String[indexes.length];
+		var texts = new String[length];
 		for (int i = texts.length; --i >= 0;) {
 			texts[i] = textOf(indexes[i]);
 		}
@@ -515,10 +516,11 @@ abstract public class ParseResult implements Serializable {
 		if (indexes == null)
 			return null;
 		
-		if (indexes.length == 0)
+		int length = indexes.length;
+		if (length == 0)
 			return new String[0];
 		
-		var names = new String[indexes.length];
+		var names = new String[length];
 		for (int i = names.length; --i >= 0;)
 			names[i] = nameOf(indexes[i]);
 		
@@ -612,10 +614,11 @@ abstract public class ParseResult implements Serializable {
 		if (indexes == null)
 			return null;
 		
-		if (indexes.length == 0)
+		int length = indexes.length;
+		if (length == 0)
 			return new ParseResult[0];
 		
-		var PRs = new ParseResult[indexes.length];
+		var PRs = new ParseResult[length];
 		for (int i = PRs.length; --i >= 0;) {
 			int index = indexes[i];
 			PRs[i] = subResultOf(index);
@@ -657,10 +660,11 @@ abstract public class ParseResult implements Serializable {
 		if (indexes == null)
 			return null;
 		
-		if (indexes.length == 0)
+		int length = indexes.length;
+		if (length == 0)
 			return new String[0];
 		
-		var typeNames = new String[indexes.length];
+		var typeNames = new String[length];
 		for (int i = typeNames.length; --i >= 0;) {
 			int index = indexes[i];
 			typeNames[i] = typeNameOf(index);
@@ -719,10 +723,11 @@ abstract public class ParseResult implements Serializable {
 		if (indexes == null)
 			return null;
 		
-		if (indexes.length == 0)
+		int length = indexes.length;
+		if (length == 0)
 			return new PType[0];
 		
-		var types = new PType[indexes.length];
+		var types = new PType[length];
 		for (int i = types.length; --i >= 0; ) {
 			int index = indexes[i];
 			types[i] = typeOf(index, typeProvider);
@@ -760,10 +765,11 @@ abstract public class ParseResult implements Serializable {
 		if (indexes == null)
 			return null;
 		
-		if (indexes.length == 0)
+		int length = indexes.length;
+		if (length == 0)
 			return new String[0];
 		
-		var parameters = new String[indexes.length];
+		var parameters = new String[length];
 		for (int i = parameters.length; --i >= 0;) {
 			int index = indexes[i];
 			parameters[i] = parameterOf(index);
@@ -895,10 +901,11 @@ abstract public class ParseResult implements Serializable {
 		if (indexes == null)
 			return null;
 		
-		if (indexes.length == 0)
+		int length = indexes.length;
+		if (length == 0)
 			return new int[0];
 		
-		var starts = new int[indexes.length];
+		var starts = new int[length];
 		for (int i = starts.length; --i >= 0;) {
 			int index = indexes[i];
 			starts[i] = startPositionOf(index);
@@ -976,10 +983,11 @@ abstract public class ParseResult implements Serializable {
 		if (indexes == null)
 			return null;
 		
-		if (indexes.length == 0)
+		int length = indexes.length;
+		if (length == 0)
 			return new Coordinate[0];
 		
-		var coordinates = new Coordinate[indexes.length];
+		var coordinates = new Coordinate[length];
 		for (int i = coordinates.length; --i >= 0;) {
 			int index = indexes[i];
 			coordinates[i] = coordinateOf(index);
@@ -1015,10 +1023,11 @@ abstract public class ParseResult implements Serializable {
 		if (indexes == null)
 			return null;
 		
-		if (indexes.length == 0)
+		int length = indexes.length;
+		if (length == 0)
 			return new String[0];
 		
-		var locations = new String[indexes.length];
+		var locations = new String[length];
 		for (int i = locations.length; --i >= 0; ) {
 			int index = indexes[i];
 			locations[i] = locationOf(index);
@@ -1058,10 +1067,11 @@ abstract public class ParseResult implements Serializable {
 		if (indexes == null)
 			return null;
 		
-		if (indexes.length == 0)
+		int length = indexes.length;
+		if (length == 0)
 			return new String[0];
 		
-		var values = new Object[indexes.length];
+		var values = new Object[length];
 		for (int i = 0; i < values.length; i++) {
 			int index = indexes[i];
 			values[i] = valueOf(index, typeProvider, compilationContext);
@@ -1072,48 +1082,61 @@ abstract public class ParseResult implements Serializable {
 	//-- Compiled value as Text ----------------------------------------------------------------------------------------
 	
 	/** Get compile value as text of the last match */
-	public final String valueAsTextOf(int I, PTypeProvider TProvider, CompilationContext CContext) {
-		PType PT = this.typeOf(I, TProvider);
-		if (PT == null) {
-			String TName = this.typeNameOf(I);
-			if (TName == null) {
+	public final String valueAsTextOf(int index, PTypeProvider typeProvider, CompilationContext compilationContext) {
+		var type = typeOf(index, typeProvider);
+		if (type == null) {
+			var typeName = typeNameOf(index);
+			if (typeName == null) {
 				// The entry has no type, so compile each sub and concatenate them
-				ParseResult Sub = this.subResultOf(I);
-				int         SCount;
-				if ((Sub == null) || ((SCount = Sub.entryCount()) == 0))
-					return this.textOf(I);
+				var subResult = subResultOf(index);
+				int subResultCount;
+				if ((subResult == null)
+				 || ((subResultCount = subResult.entryCount()) == 0))
+					return textOf(index);
 				
 				// Compile each sub of the sub entry and concatenate them
-				StringBuilder SB = new StringBuilder();
-				for (int i = 0; i < SCount; i++)
-					SB.append(Sub.valueAsTextOf(i, TProvider, CContext));
-				return SB.toString();
+				var buffer = new StringBuilder();
+				for (int i = 0; i < subResultCount; i++) {
+					var value = subResult.valueAsTextOf(i, typeProvider, compilationContext);
+					buffer.append(value);
+				}
+				return buffer.toString();
 			}
-			PT = TProvider.getType(TName);
-			if (PT == null)
-				throw new RuntimeException("Unknown type `" + TName + "`.");
+			
+			type = typeProvider.getType(typeName);
+			if (type == null)
+				throw new RuntimeException(format("Unknown type `%s`.", typeName));
 		}
-		String Param  = this.parameterOf(I);
-		Object Result = PT.compile(this, I, Param, CContext, TProvider);
-		return (Result == null) ? "" : Result.toString();
+		
+		var parameter = parameterOf(index);
+		var value     = type.compile(this, index, parameter, compilationContext, typeProvider);
+		return (value == null)
+		        ? ""
+		        : value.toString();
 	}
 	
 	/** Get compile value as text of the last match */
-	public final String valueAsTextOf(String pEName, PTypeProvider TProvider, CompilationContext CContext) {
-		return this.valueAsTextOf(this.indexOf(pEName), TProvider, CContext);
+	public final String valueAsTextOf(String name, PTypeProvider typeProvider, CompilationContext compilationContext) {
+		int index = indexOf(name);
+		return valueAsTextOf(index, typeProvider, compilationContext);
 	}
 	
 	/** Get compile value as text of the all match */
-	public final String[] valueAsTextsOf(String pEName, PTypeProvider TProvider, CompilationContext CContext) {
-		int[] Is = this.indexesOf(pEName);
-		if (Is == null)
+	public final String[] valueAsTextsOf(String name, PTypeProvider typeProvider, CompilationContext compilationContext) {
+		var indexes = indexesOf(name);
+		if (indexes == null)
 			return null;
-		if (Is.length == 0)
+		
+		int length = indexes.length;
+		if (length == 0)
 			return new String[0];
-		String[] Vs = new String[Is.length];
-		for (int i = 0; i < Vs.length; i++)
-			Vs[i] = this.valueAsTextOf(Is[i], TProvider, CContext);
-		return Vs;
+		
+		var valueAsText = new String[length];
+		for (int i = 0; i < valueAsText.length; i++) {
+			int index = indexes[i];
+			valueAsText[i] = valueAsTextOf(index, typeProvider, compilationContext);
+		}
+		return valueAsText;
 	}
 	
 	//-- Message -------------------------------------------------------------------------------------------------------
@@ -1124,27 +1147,33 @@ abstract public class ParseResult implements Serializable {
 	
 	public final String message(String name) {
 		var buffer = new StringBuffer();
-		for (int i = 0; i < name.length(); i++) {
+		int length = name.length();
+		for (int i = 0; i < length; i++) {
 			char ch = name.charAt(i);
 			if (ch == '_') {
 				if (name.startsWith("___")) {
 					buffer.append("_");
 					i += 2;
-				} else
+				} else {
 					buffer.append(" ");
-			} else
+				}
+			} else {
 				buffer.append(ch);
+			}
 		}
+		
 		var string = buffer.toString();
-		return string.endsWith("[]") ? string.substring(0, string.length() - 2) : string;
+		return string.endsWith("[]")
+		        ? string.substring(0, string.length() - 2)
+		        : string;
 	}
 	
 	/** Detect and report all error and warning - returns if there is at least one error or warning */
 	public final boolean hasNoError(PTypeProvider typeProvider) {
 		boolean haveErrorOrWanrning = false;
-		int     entryCount          = this.entryCount();
+		int     entryCount          = entryCount();
 		for (int i = 0; i < entryCount; i++) {
-			var entry = this.entryAt(i);
+			var entry = entryAt(i);
 			if (entry == null)
 				continue;
 			
@@ -1152,12 +1181,13 @@ abstract public class ParseResult implements Serializable {
 			if (type == null) {
 				var typeName = entry.typeName();
 				if (typeName != null) {
-					type = (typeProvider == null) ? null : typeProvider.getType(typeName);
+					type = (typeProvider == null)
+					     ? null
+					     : typeProvider.getType(typeName);
 					if (type == null) {
 						type = PTypeProvider.Extensible.getDefault().getType(typeName);
-						if (type == null) {
-							throw new RuntimeException("Unknown type `" + typeName + "`.");
-						}
+						if (type == null)
+							throw new RuntimeException(format("Unknown type `%s`.", typeName));
 					}
 				}
 			}
@@ -1167,16 +1197,16 @@ abstract public class ParseResult implements Serializable {
 			
 			var name = entry.name();
 			if (name != null) {
-				if (name.startsWith(WARNING_PREFIX) || name.startsWith(ERROR_PREFIX)
-				        || name.startsWith(FATAL_ERROR_PREFIX)) {
+				if (name.startsWith(WARNING_PREFIX)
+				 || name.startsWith(ERROR_PREFIX)
+				 || name.startsWith(FATAL_ERROR_PREFIX))
 					return false;
-				}
 			}
 			
-			var subResult = this.subResultOf(i);
-			if ((subResult != null) && !subResult.hasNoError(typeProvider)) {
+			var subResult = subResultOf(i);
+			if ((subResult != null)
+			 && !subResult.hasNoError(typeProvider))
 				return false;
-			}
 		}
 		return !haveErrorOrWanrning;
 	}
@@ -1184,29 +1214,30 @@ abstract public class ParseResult implements Serializable {
 	/** Detect and report all error and warning - returns if there is at least one error or warning */
 	public final boolean ensureNoError(PTypeProvider typeProvider, CompilationContext compilationContext) {
 		boolean haveErrorOrWanrning = false;
-		int     entryCount          = this.entryCount();
+		int     entryCount          = entryCount();
 		for (int i = 0; i < entryCount; i++) {
-			var entry = this.entryAt(i);
-			if (entry == null) {
+			var entry = entryAt(i);
+			if (entry == null)
 				continue;
-			}
 			
 			var type = entry.type();
 			if (type == null) {
 				var typeName = entry.typeName();
 				if (typeName != null) {
-					type = (typeProvider == null) ? null : typeProvider.getType(typeName);
+					type = (typeProvider == null)
+					     ? null
+					     : typeProvider.getType(typeName);
 					if (type == null) {
 						type = PTypeProvider.Extensible.getDefault().getType(typeName);
-						if (type == null) {
-							throw new RuntimeException("Unknown type `" + typeName + "`.");
-						}
+						if (type == null)
+							throw new RuntimeException(format("Unknown type `%s`.", typeName));
 					}
 				}
 			}
 			if (type instanceof PTError) {
 				// The type is an error type - let it solve it own business
-				type.compile(this, i, entry.parameter(), compilationContext, typeProvider);
+				var parameter = entry.parameter();
+				type.compile(this, i, parameter, compilationContext, typeProvider);
 				haveErrorOrWanrning = true;
 				continue;
 			}
@@ -1216,35 +1247,38 @@ abstract public class ParseResult implements Serializable {
 				boolean isWarning    = false;
 				boolean isError      = false;
 				boolean isFatalError = false;
-				if ((isWarning = name.startsWith(WARNING_PREFIX)) || (isError = name.startsWith(ERROR_PREFIX))
-				        || (isFatalError = name.startsWith(FATAL_ERROR_PREFIX))) {
+				if ((isWarning    = name.startsWith(WARNING_PREFIX))
+				 || (isError      = name.startsWith(ERROR_PREFIX))
+				 || (isFatalError = name.startsWith(FATAL_ERROR_PREFIX))) {
 					haveErrorOrWanrning = true;
 					
 					int kindLength = 0;
-					if (isWarning)
+					if (isWarning) {
 						kindLength = WARNING_PREFIX.length();
-					else
-						if (isError)
-							kindLength = ERROR_PREFIX.length();
-						else
-							if (isFatalError)
-								kindLength = FATAL_ERROR_PREFIX.length();
-							
-					var msg = (typeProvider == null) ? null : typeProvider.getErrorMessage(name.substring(1));
-					// NOTE: 1 is to eliminate $ prefix >-----------------------------------^
-					msg = (msg != null) ? msg : this.message(name.substring(kindLength, name.length()));
-					compilationContext.reportError(msg, null, this.startPositionOf(i));
-					if (isFatalError) {
-						throw new RuntimeException("FATAL ERROR! The compilation cannot be continued: " + msg);
+					} else if (isError) {
+						kindLength = ERROR_PREFIX.length();
+					} else if (isFatalError) {
+						kindLength = FATAL_ERROR_PREFIX.length();
 					}
 					
+					var msg = (typeProvider == null)
+					        ? null
+					        : typeProvider.getErrorMessage(name.substring(1));
+					// NOTE: 1 is to eliminate $ prefix >-----------------------------------^
+					msg = (msg != null)
+					    ? msg
+					    : this.message(name.substring(kindLength, name.length()));
+					int startPosition = startPositionOf(i);
+					compilationContext.reportError(msg, null, startPosition);
+					if (isFatalError)
+						throw new RuntimeException(format("FATAL ERROR! The compilation cannot be continued: %s", msg));
 				}
 			}
 			
-			var subResult = this.subResultOf(i);
-			if ((subResult != null) && !subResult.ensureNoError(typeProvider, compilationContext)) {
+			var subResult = subResultOf(i);
+			if ((subResult != null)
+			 && !subResult.ensureNoError(typeProvider, compilationContext))
 				return false;
-			}
 		}
 		return !haveErrorOrWanrning;
 	}
@@ -1253,9 +1287,9 @@ abstract public class ParseResult implements Serializable {
 	
 	/** Appends the result with an entry */
 	public final ParseResult append(PREntry entry) {
-		if (entry == null) {
+		if (entry == null)
 			throw new NullPointerException();
-		}
+		
 		if (entries == null) {
 			entries = new ArrayList<>();
 		}
@@ -1265,21 +1299,21 @@ abstract public class ParseResult implements Serializable {
 	
 	/** Reset the entry since the index */
 	public final void reset(int index) {
-		if (entries == null) {
+		if (entries == null)
 			return;
-		}
+		
 		for (int i = entries.size(); --i >= index;) {
 			entries.remove(i);
 		}
 	}
 	
 	/** Merge a temporary result with this result */
-	public final void mergeWith(PRTemp temp) {
-		if ((temp == null) || (temp.entryCount() == 0)) {
+	public final void mergeWith(PRTemp tempResult) {
+		if ((tempResult == null)
+		 || (tempResult.entryCount() == 0))
 			return;
-		}
 		
-		var tempEntries = temp.entries().collect(toList());
+		var tempEntries = tempResult.entries().collect(toList());
 		if (entries == null) {
 			entries = new ArrayList<>();
 		}
@@ -1298,147 +1332,181 @@ abstract public class ParseResult implements Serializable {
 	}
 	
 	/** Collapse the result so entry with $ and [] will be combine */
-	public final void collapse(PTypeProvider pProvider) {
-		/* */
+	public final void collapse(PTypeProvider typeProvider) {
 		if (this.entries == null)
 			return;
+		
 		if (this.entries.size() == 0)
 			return;
 		
-		PREntry LatestPRP       = this.entries.get(this.entries.size() - 1);
-		boolean IsLPRPHasNoName = (LatestPRP.name() == null) && (LatestPRP.type() == null)
-		        && (LatestPRP.typeRef() == null);
+		int     entrySize          = entries.size();
+		var     lastEntry          = entries.get(entrySize - 1);
+		boolean lastEntryHasNoName = (lastEntry.name()    == null)
+		                          && (lastEntry.type()    == null)
+		                          && (lastEntry.typeRef() == null);
 		
 		// Basic collapse of the no name and no type
-		for (int i = (this.entries.size() - 1); --i >= 0;) {
-			PREntry ThisPRP = this.entries.get(i);
-			
-			boolean IsThisPRPNoName = ((ThisPRP.name() == null) && (ThisPRP.type() == null)
-			        && (ThisPRP.typeRef() == null));
+		for (int i = (entries.size() - 1); --i >= 0;) {
+			var     entry          = entries.get(i);
+			boolean entryHasNoName = ((entry.name()    == null)
+			                       && (entry.type()    == null)
+			                       && (entry.typeRef() == null));
 			// If both has no name, collapse
-			if (IsThisPRPNoName && IsLPRPHasNoName)
-				this.entries.remove(i);
+			if (entryHasNoName && lastEntryHasNoName) {
+				entries.remove(i);
+			}
 			
-			IsLPRPHasNoName = IsThisPRPNoName;
-			LatestPRP       = ThisPRP;
+			lastEntryHasNoName = entryHasNoName;
+			lastEntry          = entry;
 		}
 		
 		// Collapse sub entry that does not have name or type
 		// Remove the entry without sub/type then replace it with the one with out a sub
-		for (int i = this.entries.size(); --i >= 0;) {
-			var ThisPRP = this.entries.get(i);
+		for (int i = entries.size(); --i >= 0;) {
+			var thisEntry = entries.get(i);
 			
-			if (ThisPRP.hasSubResult() && !ThisPRP.subResult().hasNames() && !ThisPRP.subResult().hasTypes()) {
-				if (ThisPRP instanceof PREntryWithSub) {
-					this.entries.remove(i);
-					this.entries.add(i, newEntry(ThisPRP.endPosition()));
+			if (thisEntry.hasSubResult()
+			&& !thisEntry.subResult().hasNames()
+			&& !thisEntry.subResult().hasTypes()) {
+				int thisEndPosition = thisEntry.endPosition();
+				if (thisEntry instanceof PREntryWithSub) {
+					entries.remove(i);
+					
+					var newEntry = newEntry(thisEndPosition);
+					entries.add(i, newEntry);
 				} else
-					if (ThisPRP instanceof PREntryWithParserEntryAndSub) {
-						this.entries.remove(i);
-						this.entries.add(i, PREntry.newEntry(ThisPRP.endPosition(), ThisPRP.parserEntry()));
+					if (thisEntry instanceof PREntryWithParserEntryAndSub) {
+						entries.remove(i);
+						
+						var thisParseEntry = thisEntry.parserEntry();
+						var newEntry       = newEntry(thisEndPosition, thisParseEntry);
+						entries.add(i, newEntry);
 					}
 			}
 			
-			if (!ThisPRP.hasSubResult())
+			if (!thisEntry.hasSubResult())
 				continue;
-			ThisPRP.subResult().collapse(pProvider);
+			
+			thisEntry
+				.subResult()
+				.collapse(typeProvider);
 		}
 		
 		// Collapse entry that its sub does not contain any named or typed entry
-		for (int i = this.entries.size(); --i >= 0;) {
-			var ThisPRP = this.entries.get(i);
-			if (!ThisPRP.hasSubResult())
+		for (int i = entries.size(); --i >= 0;) {
+			var thisEntry = entries.get(i);
+			if (!thisEntry.hasSubResult())
 				continue;
-			if (ThisPRP.subResult().hasNames())
+			
+			if (thisEntry.subResult().hasNames())
 				continue;
-			if (ThisPRP.subResult().hasTypes())
+			
+			if (thisEntry.subResult().hasTypes())
 				continue;
-			this.entries.remove(i);
-			this.entries.add(i, newEntry(ThisPRP.endPosition(), ThisPRP.parserEntry()));
+			
+			entries.remove(i);
+			
+			int thisEndPosition = thisEntry.endPosition();
+			var thisParseEntry  = thisEntry.parserEntry();
+			var newEntry        = newEntry(thisEndPosition, thisParseEntry);
+			entries.add(i, newEntry);
 		}
 		
 		// Collapse the same type and same name that end with '[]'
-		LatestPRP = this.entries.get(this.entries.size() - 1);
-		PType    LatestType = LatestPRP.type();
-		PTypeRef LatestTRef = LatestPRP.typeRef();
-		String   LatestName = LatestPRP.name();
+		lastEntry = entries.get(entries.size() - 1);
+		PType    LatestType = lastEntry.type();
+		PTypeRef LatestTRef = lastEntry.typeRef();
+		String   LatestName = lastEntry.name();
 		
-		for (int i = (this.entries.size() - 1); --i >= 0;) {
-			var ThisPRP  = this.entries.get(i);
-			var ThisType = ThisPRP.type();
-			var ThisTRef = ThisPRP.typeRef();
-			var ThisName = ThisPRP.name();
+		for (int i = (entries.size() - 1); --i >= 0;) {
+			var thisEntry   = entries.get(i);
+			var thisType    = thisEntry.type();
+			var thisTypeRef = thisEntry.typeRef();
+			var thisName    = thisEntry.name();
 			
-			if (!LatestPRP.hasSubResult() && !ThisPRP.hasSubResult() && Objects.equals(LatestType, ThisType)
-			        && Objects.equals(LatestTRef, ThisTRef) && Objects.equals(LatestName, ThisName)
-			        && (((ThisName != null) && ThisName.endsWith("[]"))
-			                || ((ThisType != null) && ThisType.name().endsWith("[]"))
-			                || ((ThisTRef != null) && ThisTRef.name().endsWith("[]")))) {
-				this.entries.remove(i);
+			if (!lastEntry.hasSubResult()
+			 && !thisEntry.hasSubResult()
+			 && Objects.equals(LatestType, thisType)
+			 && Objects.equals(LatestTRef, thisTypeRef)
+			 && Objects.equals(LatestName, thisName)
+			 && (((thisName    != null) && thisName          .endsWith("[]"))
+			  || ((thisType    != null) && thisType   .name().endsWith("[]"))
+			  || ((thisTypeRef != null) && thisTypeRef.name().endsWith("[]")))) {
+				entries.remove(i);
 			}
-			LatestPRP  = ThisPRP;
-			LatestType = ThisType;
-			LatestTRef = ThisTRef;
-			LatestName = ThisName;
+			lastEntry  = thisEntry;
+			LatestType = thisType;
+			LatestTRef = thisTypeRef;
+			LatestName = thisName;
 		}
 		
 		// Process Second Stage Entry
-		for (int i = this.entries.size(); --i >= 0;) {
-			var ThisPRP = this.entries.get(i);
-			
-			RPEntry RPEntry = ThisPRP.parserEntry();
-			if (RPEntry == null)
+		for (int i = entries.size(); --i >= 0;) {
+			var thisEntry   = entries.get(i);
+			var parserEntry = thisEntry.parserEntry();
+			if (parserEntry == null)
 				continue;
 			
-			RegParser RP = RPEntry.secondStage();
-			if (RP == null)
+			var secondStage = parserEntry.secondStage();
+			if (secondStage == null)
 				continue;
 			
-			this.parseEntry(i, RP, pProvider);
+			parseEntry(i, secondStage, typeProvider);
 		}
 		
 		if (RegParser.DebugMode) {
 			RegParser.DebugPrintStream.println("Before Flating:------------------------------------------------------");
-			RegParser.DebugPrintStream.println(this.toString());
+			RegParser.DebugPrintStream.println(toString());
 		}
 		
 		// Collapse auto skip name that end with '*'
-		for (int i = 0; i < this.entries.size(); i++) {
-			var ThisPRP = this.entries.get(i);
-			if (!ThisPRP.hasSubResult())
+		for (int i = 0; i < entries.size(); i++) {
+			var entry = entries.get(i);
+			if (!entry.hasSubResult())
 				continue;
-			String N = ThisPRP.name();
-			String T = ThisPRP.typeName();
-			if (((N == null) || !N.contains("*")) && ((T == null) || !T.contains("*")))
+			
+			var name = entry.name();
+			var type = entry.typeName();
+			if (((name == null) || !name.contains("*"))
+			 && ((type == null) || !type.contains("*")))
 				continue;
-			if (RegParser.DebugMode)
+			
+			if (RegParser.DebugMode) {
 				RegParser.DebugPrintStream
-				        .printf("Flating '%s':'%s' START:----------------------------------------------\n", N, T);
-			this.flatEntry(i);
-			if (RegParser.DebugMode)
+				        .printf("Flating '%s':'%s' START:----------------------------------------------\n", name, type);
+			}
+			flatEntry(i);
+			if (RegParser.DebugMode) {
 				RegParser.DebugPrintStream
-				        .printf("Flating '%s':'%s' END:------------------------------------------------\n", N, T);
+				        .printf("Flating '%s':'%s' END:------------------------------------------------\n", name, type);
+			}
 			i--;
 		}
 		
 		// Collapse auto skip name that end with '+', has sub and only one entry
-		for (int i = 0; i < this.entries.size(); i++) {
-			var ThisPRP = this.entries.get(i);
-			if (!ThisPRP.hasSubResult())
+		for (int i = 0; i < entries.size(); i++) {
+			var entry = entries.get(i);
+			if (!entry.hasSubResult())
 				continue;
-			if (ThisPRP.subResult().entryCount() != 1)
+			
+			if (entry.subResult().entryCount() != 1)
 				continue;
-			String N = ThisPRP.name();
-			String T = ThisPRP.typeName();
-			if (((N == null) || !N.contains("+")) && ((T == null) || !T.contains("+")))
+
+			var name = entry.name();
+			var type = entry.typeName();
+			if (((name == null) || !name.contains("+"))
+			 && ((type == null) || !type.contains("+")))
 				continue;
-			if (RegParser.DebugMode)
+			
+			if (RegParser.DebugMode) {
 				RegParser.DebugPrintStream
-				        .printf("Flating '%s':'%s' START:----------------------------------------------\n", N, T);
-			this.flatEntry(i);
-			if (RegParser.DebugMode)
+				        .printf("Flating '%s':'%s' START:----------------------------------------------\n", name, type);
+			}
+			flatEntry(i);
+			if (RegParser.DebugMode) {
 				RegParser.DebugPrintStream
-				        .printf("Flating '%s':'%s' END:------------------------------------------------\n", N, T);
+				        .printf("Flating '%s':'%s' END:------------------------------------------------\n", name, type);
+			}
 			i--;
 		}
 		
@@ -1450,30 +1518,38 @@ abstract public class ParseResult implements Serializable {
 	//-- Second Stage related ------------------------------------------------------------------------------------------
 	
 	/** Parse the result entry - Only when the entry has no sub */
-	public final boolean parseEntry(int pEntryIndex, RegParser pParser) {
-		return parseEntry(pEntryIndex, pParser, null);
+	public final boolean parseEntry(int index, RegParser parser) {
+		return parseEntry(index, parser, null);
 	}
 	
 	/** Parse the result entry - Only when the entry has no sub */
-	public final boolean parseEntry(int pEntryIndex, RegParser pParser, PTypeProvider pProvider) {
-		if (pParser == null)
-			return false;
-		PREntry Entry = this.entryAt(pEntryIndex);
-		if ((Entry == null) || Entry.hasSubResult())
-			return false;
-		String      Text = this.originalText().substring(0, this.endPositionOf(pEntryIndex));
-		ParseResult PR   = pParser.parse(Text, this.startPositionOf(pEntryIndex), pProvider);
-		if (PR == null)
+	public final boolean parseEntry(int index, RegParser parser, PTypeProvider typeProvider) {
+		if (parser == null)
 			return false;
 		
-		if (PR.entryCount() == 0)
+		var Entry = entryAt(index);
+		if ((Entry == null)
+		  || Entry.hasSubResult())
+			return false;
+		
+		int endPosition   = endPositionOf(index);
+		int startPosition = startPositionOf(index);
+		var text          = originalText().substring(0, endPosition);
+		var result        = parser.parse(text, startPosition, typeProvider);
+		if (result == null)
+			return false;
+		
+		if (result.entryCount() == 0)
 			return true;
-		if (PR.endPosition() == Text.length()) {
+		
+		if (result.endPosition() == text.length()) {
 			// If the end position is equal, there is no need to keep the old one.
-			this.entries.remove(pEntryIndex);
+			entries.remove(index);
 		}
-		for (int i = PR.entryCount(); --i >= 0;)
-			this.entries.add(pEntryIndex, PR.entries.get(i));
+		for (int i = result.entryCount(); --i >= 0;) {
+			var resultEntry = result.entries.get(i);
+			entries.add(index, resultEntry);
+		}
 		
 		return true;
 	}
@@ -1481,47 +1557,56 @@ abstract public class ParseResult implements Serializable {
 	//-- Flat entry ----------------------------------------------------------------------------------------------------
 	
 	/** Appends entry of the sub (entry of the node) to the current parse result and erase the entry */
-	public final boolean flatEntry(int pEntryIndex) {
-		PREntry Entry = this.entryAt(pEntryIndex);
-		if ((Entry == null) || !Entry.hasSubResult())
+	public final boolean flatEntry(int index) {
+		var entry = entryAt(index);
+		if ((entry == null)
+		 || !entry.hasSubResult())
 			return false;
-		ParseResult PR = Entry.subResult();
+		
+		var subResult = entry.subResult();
 		
 		// Remove the main one
-		this.entries.remove(pEntryIndex);
+		entries.remove(index);
 		
 		// Replace with the sub of the main one
-		for (int i = PR.entryCount(); --i >= 0;) {
-			this.entries.add(pEntryIndex, PR.entries.get(i));
+		for (int i = subResult.entryCount(); --i >= 0;) {
+			var subEntry = subResult.entries.get(i);
+			entries.add(index, subEntry);
 		}
 		
 		return true;
 	}
 	
 	/** Parse the result entry - Only when the entry has no sub */
-	public final void flatEntry(int[] pEntryIndexes) {
-		if (pEntryIndexes == null)
+	public final void flatEntry(int[] indexes) {
+		if (indexes == null)
 			return;
-		for (int i = pEntryIndexes.length; --i >= 0;)
-			this.flatEntry(pEntryIndexes[i]);
+		
+		for (int i = indexes.length; --i >= 0;) {
+			int index = indexes[i];
+			flatEntry(index);
+		}
 	}
 	
 	/** Parse the result entry - Only when the entry has no sub */
-	public final void flatEntry(String pName) {
-		if (pName == null)
+	public final void flatEntry(String name) {
+		if (name == null)
 			return;
-		int[] Is = this.indexesOf(pName);
-		this.flatEntry(Is);
+		
+		var indexes = indexesOf(name);
+		this.flatEntry(indexes);
 	}
 	
 	/** Parse the result entry - Only when the entry has no sub */
-	public final boolean flatLastEntryOf(String pName) {
-		if (pName == null)
+	public final boolean flatLastEntryOf(String name) {
+		if (name == null)
 			return false;
-		int I = this.indexOf(pName);
-		if (I < 0)
+		
+		int index = indexOf(name);
+		if (index < 0)
 			return false;
-		return this.flatEntry(I);
+		
+		return flatEntry(index);
 	}
 	
 	//-- Object --------------------------------------------------------------------------------------------------------
@@ -1529,12 +1614,12 @@ abstract public class ParseResult implements Serializable {
 	/** Returns the detail string representation of the parse result */
 	@Override
 	public final String toString() {
-		return this.toString(0, 0);
+		return toString(0, 0);
 	}
 	
 	/** An internal service for toDetail() */
 	public final String toString(int pIndent, int pTab) {
-		return this.toString(pIndent, pTab, this.depth() - 1);
+		return toString(pIndent, pTab, this.depth() - 1);
 	}
 	
 	/** An internal service for toDetail() */
