@@ -56,7 +56,7 @@ public final class PRNode extends PRNormal {
 	
 	@Override
 	public final ParseResult parent() {
-		return this.parent;
+		return parent;
 	}
 	
 	@Override
