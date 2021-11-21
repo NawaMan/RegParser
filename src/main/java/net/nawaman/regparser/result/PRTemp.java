@@ -20,7 +20,7 @@ package net.nawaman.regparser.result;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.nawaman.regparser.result.entry.PREntry;
+import net.nawaman.regparser.result.entry.ParseResultEntry;
 
 /**
  * Temporary parse result.
@@ -37,7 +37,7 @@ public final class PRTemp extends ParseResult {
 		this(first, null);
 	}
 	
-	private PRTemp(ParseResult first, List<PREntry> resultEntries) {
+	private PRTemp(ParseResult first, List<ParseResultEntry> resultEntries) {
 		super(null);
 		this.first = first;
 	}
@@ -58,22 +58,25 @@ public final class PRTemp extends ParseResult {
 	}
 	
 	@Override
-	public final PREntry entryAt(int index) {
-		if ((index < 0) || index >= entryCount()) {
+	public final ParseResultEntry entryAt(int index) {
+		if ((index < 0)
+		  || index >= entryCount())
 			return null;
-		}
+		
 		if (index < first.entryCount()) {
 			var result = this;
 			while (index < result.first.entryCount()) {
-				if (!(result.first instanceof PRTemp)) {
+				if (!(result.first instanceof PRTemp))
 					return result.first.entryAt(index);
-				}
 				
 				result = (PRTemp)result.first;
 			}
 			return result.entryAt(index);
 		}
-		return entries().skip(index - first.entryCount()).findFirst().orElse(null);
+		return entries()
+		        .skip(index - first.entryCount())
+		        .findFirst()
+		        .orElse(null);
 	}
 	
 	@Override
@@ -108,7 +111,7 @@ public final class PRTemp extends ParseResult {
 			firsts.add(first);
 		}
 		
-		var resultEntries = new ArrayList<PREntry>();
+		var resultEntries = new ArrayList<ParseResultEntry>();
 		for (int i = firsts.size(); --i >= 0;) {
 			var firstEntry = firsts.get(i);
 			if (firstEntry.entryCount() != 0) {

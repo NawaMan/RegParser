@@ -19,7 +19,7 @@ package net.nawaman.regparser.result;
 
 import java.util.List;
 
-import net.nawaman.regparser.result.entry.PREntry;
+import net.nawaman.regparser.result.entry.ParseResultEntry;
 
 
 /**
@@ -33,7 +33,7 @@ abstract public class PRNormal extends ParseResult {
 	
 	private final int startPosition;
 	
-	PRNormal(int startPosition, List<PREntry> resultEntries) {
+	PRNormal(int startPosition, List<ParseResultEntry> resultEntries) {
 		super(resultEntries);
 		this.startPosition = startPosition;
 	}

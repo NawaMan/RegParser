@@ -19,7 +19,7 @@ package net.nawaman.regparser.result;
 
 import java.util.List;
 
-import net.nawaman.regparser.result.entry.PREntry;
+import net.nawaman.regparser.result.entry.ParseResultEntry;
 
 /** Root Result */
 public final class PRRoot extends PRNormal {
@@ -32,9 +32,11 @@ public final class PRRoot extends PRNormal {
 		this(startPosition, originalText, null);
 	}
 	
-	private PRRoot(int startPosition, CharSequence originalText, List<PREntry> resultEntries) {
+	private PRRoot(int startPosition, CharSequence originalText, List<ParseResultEntry> resultEntries) {
 		super(startPosition, resultEntries);
-		this.originalText = (originalText != null) ? originalText : "";
+		this.originalText = (originalText != null)
+		                  ? originalText
+		                  : "";
 	}
 	
 	@Override

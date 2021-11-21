@@ -19,7 +19,7 @@ package net.nawaman.regparser.result;
 
 import java.util.List;
 
-import net.nawaman.regparser.result.entry.PREntry;
+import net.nawaman.regparser.result.entry.ParseResultEntry;
 import net.nawaman.regparser.utils.IStream;
 
 
@@ -35,7 +35,7 @@ public final class PRNode extends PRNormal {
 		this(startPosition, parentResult, null);
 	}
 	
-	private PRNode(int startPosition, ParseResult parentResult, List<PREntry> resultEntries) {
+	private PRNode(int startPosition, ParseResult parentResult, List<ParseResultEntry> resultEntries) {
 		super(startPosition, resultEntries);
 		this.parent = parentResult;
 		
