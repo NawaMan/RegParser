@@ -984,7 +984,7 @@ public class RPCompiler_ParserTypes {
             
             if(!HasSub) {    // A word
                 String Text = pThisResult.textOf(pEntryIndex);
-                return RPEntry._new((Text.length() == 0)?new CharSingle(Text.charAt(0)):new WordChecker(Text));
+                return RPEntry.newParserEntry((Text.length() == 0)?new CharSingle(Text.charAt(0)):new WordChecker(Text));
             }
             
             // Go into the sub
@@ -993,26 +993,26 @@ public class RPCompiler_ParserTypes {
             
             String PName = PSE.name();
             
-            if("#Any".equals(PName))        return RPEntry._new(PredefinedCharClasses.Any);
-            if(CharClassName.equals(PName)) return RPEntry._new(getCharClass(pThisResult, 0));
+            if("#Any".equals(PName))        return RPEntry.newParserEntry(PredefinedCharClasses.Any);
+            if(CharClassName.equals(PName)) return RPEntry.newParserEntry(getCharClass(pThisResult, 0));
             
             String PType = PSE.typeName();
             if(RPTEscape.Name.equals(PType))
-                return RPEntry._new(new CharSingle((Character)pProvider.getType(RPTEscape.Name       ).compile(pThisResult, 0, null, pContext, pProvider)));
+                return RPEntry.newParserEntry(new CharSingle((Character)pProvider.getType(RPTEscape.Name       ).compile(pThisResult, 0, null, pContext, pProvider)));
             if(RPTEscapeOct.Name.equals(PType))
-                return RPEntry._new(new CharSingle((Character)pProvider.getType(RPTEscapeOct.Name    ).compile(pThisResult, 0, null, pContext, pProvider)));
+                return RPEntry.newParserEntry(new CharSingle((Character)pProvider.getType(RPTEscapeOct.Name    ).compile(pThisResult, 0, null, pContext, pProvider)));
             if(RPTEscapeHex.Name.equals(PType))
-                return RPEntry._new(new CharSingle((Character)pProvider.getType(RPTEscapeHex.Name    ).compile(pThisResult, 0, null, pContext, pProvider)));
+                return RPEntry.newParserEntry(new CharSingle((Character)pProvider.getType(RPTEscapeHex.Name    ).compile(pThisResult, 0, null, pContext, pProvider)));
             if(RPTEscapeUnicode.Name.equals(PType))
-                return RPEntry._new(new CharSingle((Character)pProvider.getType(RPTEscapeUnicode.Name).compile(pThisResult, 0, null, pContext, pProvider)));
+                return RPEntry.newParserEntry(new CharSingle((Character)pProvider.getType(RPTEscapeUnicode.Name).compile(pThisResult, 0, null, pContext, pProvider)));
             
             if(RPTCharSetItem.Name.equals(PType))
-                return RPEntry._new((Checker)pProvider.getType(RPTCharSetItem.Name  ).compile(pThisResult, 0, null, pContext, pProvider));
+                return RPEntry.newParserEntry((Checker)pProvider.getType(RPTCharSetItem.Name  ).compile(pThisResult, 0, null, pContext, pProvider));
             
             if("$TextCI".equals(PName)) {
                 String Text = pThisResult.textOf(0);
                 // Return as Word if its lower case and upper case is the same
-                if(Text.toUpperCase().equals(Text.toLowerCase())) return RPEntry._new(new WordChecker(Text));
+                if(Text.toUpperCase().equals(Text.toLowerCase())) return RPEntry.newParserEntry(new WordChecker(Text));
                 return RPEntry._new(new PTypeRef.Simple(PTTextCI.Name, Text.substring(1, Text.length() - 1)));
             }
             
@@ -1022,7 +1022,7 @@ public class RPCompiler_ParserTypes {
             if("#Group".equals(PName)) {
                 
                 String N = PSE.subResult().lastStringOf("#Name");
-                if(N == null) return RPEntry._new((Checker)pProvider.getType(RPTRegParser.Name).compile(pThisResult, 0, null, pContext, pProvider));
+                if(N == null) return RPEntry.newParserEntry((Checker)pProvider.getType(RPTRegParser.Name).compile(pThisResult, 0, null, pContext, pProvider));
                 
                 pThisResult = PSE.subResult();
                 
@@ -1159,14 +1159,14 @@ public class RPCompiler_ParserTypes {
                     } else if(PText.equals(")")) {
                     
                     } else {    // A Word
-                        RPs.add(RPEntry._new(new WordChecker(pThisResult.textOf(i))));
+                        RPs.add(RPEntry.newParserEntry(new WordChecker(pThisResult.textOf(i))));
                         
                     }
                 } else {
 
                     RPEntry RPI = null;
                     if(RPTRegParser.Name.equals(PSE.typeName())) {
-                        RPI = RPEntry._new((Checker)this.compile(pThisResult, i, null, pContext, pProvider));
+                        RPI = RPEntry.newParserEntry((Checker)this.compile(pThisResult, i, null, pContext, pProvider));
                         
                         if(RPI.getChecker() instanceof RegParser) {
                             var parserEntries = ((RegParser)(RPI.getChecker())).entries();

@@ -39,11 +39,19 @@ abstract public class RPEntry implements Serializable {
     
     // Factory -------------------------------------------------------------------------------------
     
-    static public RPEntry _new(Checker pChecker) {
+    static public RPEntry newParserEntry(Checker pChecker) {
         return new Direct(pChecker);
     }
     
-    static public RPEntry _new(Checker pChecker, Quantifier pQuantifier) {
+    static public RPEntry newEntry(Checker pChecker) {
+        return new Direct(pChecker);
+    }
+    
+    static public RPEntry newParserEntry(Checker pChecker, Quantifier pQuantifier) {
+    	return newEntry(pChecker, pQuantifier);
+    }
+    
+    static public RPEntry newEntry(Checker pChecker, Quantifier pQuantifier) {
         if (pQuantifier == null)
             return new Direct(pChecker);
         else
