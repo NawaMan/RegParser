@@ -8,7 +8,9 @@ import net.nawaman.regparser.RPEntry;
 import net.nawaman.regparser.result.ParseResult;
 
 
-/** The entry of the parse result */
+/**
+ * Parse result entry.
+ */
 public class ParseResultEntry implements Serializable {
 	
 	static private final long serialVersionUID = 3256524452125552551L;
@@ -28,18 +30,18 @@ public class ParseResultEntry implements Serializable {
 	static public ParseResultEntry newEntry(int endPosition, ParseResult subResult) {
 		return (subResult == null)
 		        ? new ParseResultEntry       (endPosition)
-		        : new ParseResultEntryWithSub(endPosition, subResult);
+		        : new ParseResultEntryWithSubResult(endPosition, subResult);
 	}
 	
 	static public ParseResultEntry newEntry(int endPosition, RPEntry entry, ParseResult subResult) {
 		if (entry == null) {
 			return (subResult == null)
 			        ? new ParseResultEntry       (endPosition)
-			        : new ParseResultEntryWithSub(endPosition, subResult);
+			        : new ParseResultEntryWithSubResult(endPosition, subResult);
 		} else {
 			return (subResult == null)
 			        ? new ParseResultEntryWithParserEntry      (endPosition, entry)
-			        : new ParseResultEntryWithParserEntryAndSub(endPosition, entry, subResult);
+			        : new ParseResultEntryWithParserEntryAndSubResult(endPosition, entry, subResult);
 		}
 	}
 	

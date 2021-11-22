@@ -2,7 +2,9 @@ package net.nawaman.regparser.result.entry;
 
 import net.nawaman.regparser.RPEntry;
 
-
+/**
+ * Parse result entry with parser entry.
+ */
 public class ParseResultEntryWithParserEntry extends ParseResultEntry {
 	
 	static private final long serialVersionUID = 2254558458854566555L;

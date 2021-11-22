@@ -1,17 +1,18 @@
 package net.nawaman.regparser.result.entry;
 
-import net.nawaman.regparser.RPEntry;
 import net.nawaman.regparser.result.ParseResult;
 
-
-public class ParseResultEntryWithParserEntryAndSub extends ParseResultEntryWithParserEntry {
+/**
+ * Parse result entry with sub result.
+ */
+public class ParseResultEntryWithSubResult extends ParseResultEntry {
 	
-	static private final long serialVersionUID = 2548545452415545545L;
+	static private final long serialVersionUID = 3256954552565455451L;
 	
 	private final ParseResult subResult;
 	
-	ParseResultEntryWithParserEntryAndSub(int endPosition, RPEntry entry, ParseResult subResult) {
-		super(endPosition, entry);
+	ParseResultEntryWithSubResult(int endPosition, ParseResult subResult) {
+		super(endPosition);
 		this.subResult = subResult;
 	}
 	

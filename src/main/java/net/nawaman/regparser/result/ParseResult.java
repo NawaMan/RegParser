@@ -42,8 +42,8 @@ import net.nawaman.regparser.RPEntry;
 import net.nawaman.regparser.RegParser;
 import net.nawaman.regparser.Util;
 import net.nawaman.regparser.result.entry.ParseResultEntry;
-import net.nawaman.regparser.result.entry.ParseResultEntryWithParserEntryAndSub;
-import net.nawaman.regparser.result.entry.ParseResultEntryWithSub;
+import net.nawaman.regparser.result.entry.ParseResultEntryWithParserEntryAndSubResult;
+import net.nawaman.regparser.result.entry.ParseResultEntryWithSubResult;
 import net.nawaman.regparser.types.PTError;
 import net.nawaman.regparser.utils.IStream;
 
@@ -1374,13 +1374,13 @@ abstract public class ParseResult implements Serializable {
 			&& !thisEntry.subResult().hasNames()
 			&& !thisEntry.subResult().hasTypes()) {
 				int thisEndPosition = thisEntry.endPosition();
-				if (thisEntry instanceof ParseResultEntryWithSub) {
+				if (thisEntry instanceof ParseResultEntryWithSubResult) {
 					entries.remove(i);
 					
 					var newEntry = newEntry(thisEndPosition);
 					entries.add(i, newEntry);
 				} else
-					if (thisEntry instanceof ParseResultEntryWithParserEntryAndSub) {
+					if (thisEntry instanceof ParseResultEntryWithParserEntryAndSubResult) {
 						entries.remove(i);
 						
 						var thisParseEntry = thisEntry.parserEntry();
