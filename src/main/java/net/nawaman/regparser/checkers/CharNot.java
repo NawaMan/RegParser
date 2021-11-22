@@ -28,52 +28,53 @@ import net.nawaman.regparser.Checker;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class CharNot extends CharChecker {
-    
-    private static final long serialVersionUID = 5313543126135165121L;
-    
-    /** Construct a character range */
-    public CharNot(CharChecker charChecker) {
-        requireNonNull(charChecker);
-        this.charChecker = (charChecker instanceof CharNot) 
-                         ? ((CharNot) charChecker).charChecker
-                         : charChecker;
-    }
-    
-    private final CharChecker charChecker;
-    
-    /** Checks of the char c is in this char checker */
-    @Override
-    public boolean inSet(char c) {
-        return !charChecker.inSet(c);
-    }
-    
-    @Override
-    public boolean equals(Object O) {
-        if (O == this) {
-            return true;
-        }
-        if (!(O instanceof CharNot)) {
-            return false;
-        }
-        return this.charChecker.equals(((CharNot) O).charChecker);
-    }
-    
-    @Override
-    public int hashCode() {
-        return "CharNot".hashCode() + this.charChecker.hashCode();
-    }
-    
-    @Override
-    public String toString() {
-        return "[^" + this.charChecker.toString() + "]";
-    }
-    
-    /** Return the optimized version of this Checker */
-    @Override
-    public Checker optimize() {
-        if (this.charChecker instanceof CharNot) {
-            return ((CharNot) this.charChecker).charChecker;
-        }
-        return this;
-    }
+	
+	private static final long serialVersionUID = 5313543126135165121L;
+	
+	private final CharChecker charChecker;
+	
+	/** Construct a character range */
+	public CharNot(CharChecker charChecker) {
+		requireNonNull(charChecker);
+		this.charChecker = (charChecker instanceof CharNot)
+		                 ? ((CharNot)charChecker).charChecker
+		                 : charChecker;
+	}
+	
+	/** Checks of the char c is in this char checker */
+	@Override
+	public boolean inSet(char c) {
+		return !charChecker.inSet(c);
+	}
+	
+	@Override
+	public boolean equals(Object O) {
+		if (O == this)
+			return true;
+		
+		if (!(O instanceof CharNot))
+			return false;
+		
+		return charChecker.equals(((CharNot)O).charChecker);
+	}
+	
+	@Override
+	public int hashCode() {
+		return "CharNot".hashCode() + charChecker.hashCode();
+	}
+	
+	@Override
+	public String toString() {
+		return "[^" + charChecker.toString() + "]";
+	}
+	
+	/** Return the optimized version of this Checker */
+	@Override
+	public Checker optimize() {
+		if (charChecker instanceof CharNot)
+			return ((CharNot)charChecker).charChecker;
+		
+		return this;
+	}
+	
 }

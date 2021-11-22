@@ -28,25 +28,24 @@ import net.nawaman.regparser.Checker;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class CheckerFirstFound extends CheckerAlternative {
-    
-    private static final long serialVersionUID = 4464247859465463549L;
-    
-    private static Checker[] getLaters(Checker... laters) {
-        var checkers = new Checker[laters.length - 1];
-        System.arraycopy(laters, 1, checkers, 0, checkers.length);
-        return checkers;
-    }
-    
-    /** Constructs a char set */
-    public CheckerFirstFound(Checker... laters) {
-        super(true, laters[0],
-                (laters.length == 1)
-                    ? null
-                    : (laters.length == 2) 
-                        ? laters[1]
-                        : (laters.length == 3) 
-                            ? new CheckerAlternative(true, getLaters(laters))
-                            : new CheckerFirstFound(getLaters(laters)));
-    }
-    
+	
+	private static final long serialVersionUID = 4464247859465463549L;
+	
+	private static Checker[] getLaters(Checker... laters) {
+		var checkers = new Checker[laters.length - 1];
+		System.arraycopy(laters, 1, checkers, 0, checkers.length);
+		return checkers;
+	}
+	
+	/** Constructs a char set */
+	public CheckerFirstFound(Checker... laters) {
+		super(true, laters[0], (laters.length == 1)
+		                           ? null
+		                           : (laters.length == 2)
+		                                   ? laters[1]
+		                                   : (laters.length == 3)
+		                                           ? new CheckerAlternative(true, getLaters(laters))
+		                                           : new CheckerFirstFound(getLaters(laters)));
+	}
+	
 }

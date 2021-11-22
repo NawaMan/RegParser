@@ -45,138 +45,139 @@ import net.nawaman.regparser.result.ParseResult;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class CheckerAlternative implements Checker {
-    
-    private static final long serialVersionUID = 2146515415886541851L;
-    
-    /** Constructs a char set */
-    public CheckerAlternative(Checker... checkers) {
-        this(false, checkers);
-    }
-    
-    /** Constructs a char set */
-    public CheckerAlternative(boolean hasDefault, Checker... checkers) {
-        // Combine if one of them is alternative
-        
-        var list = new ArrayList<Checker>();
-        for (int i = 0; i < (checkers.length - (hasDefault ? 1 : 0)); i++) {
-            var checker = checkers[i];
-            if (checker != null) {
-                if ((checker instanceof CheckerAlternative) && !((CheckerAlternative) checker).hasDefault()) {
-                    var checkerAlternative = (CheckerAlternative) checker;
-                    for (int c = 0; c < checkerAlternative.checkers.length; c++) {
-                        list.add(checkerAlternative.checkers[c]);
-                    }
-                } else {
-                    list.add(checker);
-                }
-            }
-        }
-        
-        // Generate the array
-        this.checkers = new Checker[list.size()];
-        for (int i = 0; i < list.size(); i++) {
-            var checker = list.get(i);
-            if (checker instanceof RegParser) {
-                checker = ((RegParser) checker).optimize();
-            }
-            this.checkers[i] = checker;
-        }
-        
-        var defaultValue = hasDefault ? checkers[checkers.length - 1] : null;
-        if (defaultValue != null) {
-            defaultValue = defaultValue.optimize();
-        }
-        this.defaultChecker = defaultValue;
-    }
-    
-    public final Checker   defaultChecker;
-    public final Checker[] checkers;
-    
-    
-    @Override
-    public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider) {
-        return this.startLengthOf(text, offset, typeProvider, null);
-    }
-    
-    @Override
-    public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider, ParseResult parseResult) {
-        for (int i = this.checkers.length; --i >= 0;) {
-            var checker = this.checkers[i];
-            int index   = checker.startLengthOf(text, offset, typeProvider, parseResult);
-            if (index != -1) {
-                return index;
-            }
-        }
-        return (this.defaultChecker != null)
-                ? this.defaultChecker.startLengthOf(text, offset, typeProvider, parseResult)
-                : -1;
-    }
-    
-    public boolean hasDefault() {
-        return this.defaultChecker != null;
-    }
-    
-    public Checker defaultChecker() {
-        return this.defaultChecker;
-    }
-    
-    // Object ----------------------------------------------------------------------------------------------------------
-    
-    @Override
-    public String toString() {
-        var buffer = new StringBuffer();
-        buffer.append("(");
-        if (this.checkers != null) {
-            for (int i = 0; i < this.checkers.length; i++) {
-                var checker = this.checkers[i];
-                if (checker == null) {
-                    continue;
-                }
-                if (i != 0) {
-                    buffer.append("|");
-                }
-                buffer.append(checker.toString());
-            }
-        }
-        if (this.defaultChecker != null) {
-            buffer.append("||").append(this.defaultChecker);
-        }
-        buffer.append(")");
-        return buffer.toString();
-    }
-    
-    @Override
-    public boolean equals(Object O) {
-        if (O == this) {
-            return true;
-        }
-        if (!(O instanceof CheckerAlternative)) {
-            return false;
-        }
-        if (this.checkers.length != ((CheckerAlternative) O).checkers.length) {
-            return false;
-        }
-        for (int i = this.checkers.length; --i >= 0;) {
-            if (!this.checkers[i].equals(((CheckerAlternative) O).checkers[i])) {
-                return false;
-            }
-        }
-        return (this.defaultChecker != null) ? this.defaultChecker.equals(((CheckerAlternative) O).defaultChecker) : true;
-    }
-    
-    @Override
-    public int hashCode() {
-        int h = "CheckerAlternative".hashCode();
-        for (int i = 0; i < this.checkers.length; i++) {
-            h += this.checkers[i].hashCode();
-        }
-        
-        return h + ((this.defaultChecker != null) ? this.defaultChecker.hashCode() : 0);
-    }
-    
-    @Override
-    public Checker optimize() {
-        return this;
-    }
-    
+	
+	private static final long serialVersionUID = 2146515415886541851L;
+	
+	public final Checker   defaultChecker;
+	public final Checker[] checkers;
+	
+	/** Constructs a char set */
+	public CheckerAlternative(Checker... checkers) {
+		this(false, checkers);
+	}
+	
+	/** Constructs a char set */
+	public CheckerAlternative(boolean hasDefault, Checker... checkers) {
+		// Combine if one of them is alternative
+		
+		var list      = new ArrayList<Checker>();
+		int lastIndex = checkers.length - (hasDefault ? 1 : 0);
+		for (int i = 0; i < lastIndex; i++) {
+			var checker = checkers[i];
+			if (checker == null)
+				continue;
+			
+			if ((checker instanceof CheckerAlternative) && !((CheckerAlternative)checker).hasDefault()) {
+				var checkerAlternative = (CheckerAlternative)checker;
+				for (int c = 0; c < checkerAlternative.checkers.length; c++) {
+					list.add(checkerAlternative.checkers[c]);
+				}
+			} else {
+				list.add(checker);
+			}
+		}
+		
+		// Generate the array
+		this.checkers = new Checker[list.size()];
+		for (int i = 0; i < list.size(); i++) {
+			var checker = list.get(i);
+			if (checker instanceof RegParser) {
+				checker = ((RegParser)checker).optimize();
+			}
+			this.checkers[i] = checker;
+		}
+		
+		var defaultValue = hasDefault ? checkers[checkers.length - 1] : null;
+		if (defaultValue != null) {
+			defaultValue = defaultValue.optimize();
+		}
+		this.defaultChecker = defaultValue;
+	}
+	
+	@Override
+	public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider) {
+		return startLengthOf(text, offset, typeProvider, null);
+	}
+	
+	@Override
+	public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider, ParseResult parseResult) {
+		for (int i = checkers.length; --i >= 0;) {
+			var checker = checkers[i];
+			int index   = checker.startLengthOf(text, offset, typeProvider, parseResult);
+			if (index != -1)
+				return index;
+		}
+		return (defaultChecker != null)
+		        ? defaultChecker.startLengthOf(text, offset, typeProvider, parseResult)
+		        : -1;
+	}
+	
+	public boolean hasDefault() {
+		return defaultChecker != null;
+	}
+	
+	public Checker defaultChecker() {
+		return defaultChecker;
+	}
+	
+	// Object ----------------------------------------------------------------------------------------------------------
+	
+	@Override
+	public String toString() {
+		var buffer = new StringBuffer();
+		buffer.append("(");
+		if (checkers != null) {
+			for (int i = 0; i < checkers.length; i++) {
+				var checker = checkers[i];
+				if (checker == null)
+					continue;
+				
+				if (i != 0) {
+					buffer.append("|");
+				}
+				buffer.append(checker.toString());
+			}
+		}
+		if (defaultChecker != null) {
+			buffer.append("||").append(this.defaultChecker);
+		}
+		buffer.append(")");
+		return buffer.toString();
+	}
+	
+	@Override
+	public boolean equals(Object O) {
+		if (O == this)
+			return true;
+		
+		if (!(O instanceof CheckerAlternative))
+			return false;
+		
+		if (checkers.length != ((CheckerAlternative)O).checkers.length)
+			return false;
+		
+		for (int i = checkers.length; --i >= 0;) {
+			if (!checkers[i].equals(((CheckerAlternative)O).checkers[i]))
+				return false;
+		}
+		return (defaultChecker != null)
+		        ? defaultChecker.equals(((CheckerAlternative)O).defaultChecker)
+		        : true;
+	}
+	
+	@Override
+	public int hashCode() {
+		int h = "CheckerAlternative".hashCode();
+		for (int i = 0; i < checkers.length; i++) {
+			h += checkers[i].hashCode();
+		}
+		
+		return h + ((defaultChecker != null) ? defaultChecker.hashCode() : 0);
+	}
+	
+	@Override
+	public Checker optimize() {
+		return this;
+	}
+	
 }

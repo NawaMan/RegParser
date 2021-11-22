@@ -156,6 +156,7 @@ public class CoordinateTest {
 		assertTrue(coordinate2.hashCode() != coordinate3.hashCode());
 	}
 	
+	@SuppressWarnings("unlikely-arg-type")
 	@Test
 	public void testEquals() {
 		var coordinate1 = Coordinate.of(1, 2);

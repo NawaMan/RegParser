@@ -59,6 +59,62 @@ public class Util {
 	 * @param  suffix  the suffix character.
 	 * @return         {@code true} if the last character of the text is the suffixCharacter.
 	 */
+	public static boolean startsWith(CharSequence text, CharSequence needle) {
+		return startsWith(text, needle, 0);
+	}
+	
+	/**
+	 * Check text of it ends with the suffix.
+	 * 
+	 * @param  text    the text.
+	 * @param  suffix  the suffix character.
+	 * @return         {@code true} if the last character of the text is the suffixCharacter.
+	 */
+	public static boolean startsWith(CharSequence text, CharSequence prefix, int offset) {
+		var mine = _startsWith(text, prefix, offset);
+		var java = text.toString().startsWith(prefix.toString(), offset);
+		if (mine != java) {
+			System.out.println("Not same: text=" + text + " & prefix=" + prefix + ", offset=" + offset);
+			System.out.println("Not same: mine=" + mine + " vs java=" + java);
+			System.out.println();
+		}
+		return mine;
+	}
+	public static boolean _startsWith(CharSequence text, CharSequence prefix, int offset) {
+		if (text == null)
+			return false;
+		
+		if (prefix == null)
+			return false;
+		
+		int textLength = text.length();
+		if (textLength == 0)
+			return false;
+		
+		int needleLength = prefix.length();
+		if (needleLength == 0)
+			return true;
+		
+		offset = (offset < 0) ? 0 : offset;
+		if (needleLength > textLength - offset)
+			return false;
+		
+		for (int i = 0; i < needleLength; i++) {
+			char textChar   = text.charAt(i + offset);
+			char needleChar = prefix.charAt(i);
+			if (textChar != needleChar)
+				return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * Check text of it ends with the suffix.
+	 * 
+	 * @param  text    the text.
+	 * @param  suffix  the suffix character.
+	 * @return         {@code true} if the last character of the text is the suffixCharacter.
+	 */
 	public static boolean endsWith(CharSequence text, char suffixCharacter) {
 		if (text == null)
 			return false;

@@ -30,61 +30,61 @@ import net.nawaman.regparser.result.ParseResult;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  **/
 public class CheckerAny implements Checker {
-    
-    private static final long serialVersionUID = 1468541215412541527L;
-    
-    static Hashtable<Integer, CheckerAny> checkerAnys = new Hashtable<Integer, CheckerAny>();
-    
-    /** Get an instance of Checker any */
-    public static CheckerAny getCheckerAny(int length) {
-        if (length < -1) {
-            length = -1;
-        }
-        var checkerAny = checkerAnys.get(length);
-        if (checkerAny == null) {
-            checkerAny = new CheckerAny(length);
-            checkerAnys.put(length, checkerAny);
-        }
-        return checkerAny;
-    }
-    
-    CheckerAny(int length) {
-        this.length = (length < -1) ? 1 : length;
-    }
-    
-    private final int length;
-    
-    /** Returns the length of this checker */
-    public int length() {
-        return this.length;
-    }
-    
-    /**{@inheritDoc}*/
-    @Override
-    public Checker optimize() {
-        return this;
-    }
-    
-    @Override
-    public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider) {
-        return this.startLengthOf(text, offset, typeProvider, null);
-    }
-    
-    @Override
-    public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider, ParseResult parseResult) {
-        int SL = (text == null) ? 0 : text.length();
-        if (offset >= SL) {
-            return 0;
-        }
-        if (this.length == -1) {
-            return (SL - offset);
-        }
-        return this.length;
-    }
-    
-    
-    @Override
-    public String toString() {
-        return "." + ((this.length == -1) ? "*" : "{" + this.length + "}");
-    }
+	
+	private static final long serialVersionUID = 1468541215412541527L;
+	
+	static Hashtable<Integer, CheckerAny> checkerAnys = new Hashtable<Integer, CheckerAny>();
+	
+	private final int length;
+	
+	/** Get an instance of Checker any */
+	public static CheckerAny getCheckerAny(int length) {
+		if (length < -1) {
+			length = -1;
+		}
+		var checkerAny = checkerAnys.get(length);
+		if (checkerAny == null) {
+			checkerAny = new CheckerAny(length);
+			checkerAnys.put(length, checkerAny);
+		}
+		return checkerAny;
+	}
+	
+	CheckerAny(int length) {
+		this.length = (length < -1) ? 1 : length;
+	}
+	
+	/** Returns the length of this checker */
+	public int length() {
+		return this.length;
+	}
+	
+	/**{@inheritDoc}*/
+	@Override
+	public Checker optimize() {
+		return this;
+	}
+	
+	@Override
+	public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider) {
+		return startLengthOf(text, offset, typeProvider, null);
+	}
+	
+	@Override
+	public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider, ParseResult parseResult) {
+		int SL = (text == null) ? 0 : text.length();
+		if (offset >= SL)
+			return 0;
+		
+		if (length == -1)
+			return (SL - offset);
+		
+		return length;
+	}
+	
+	
+	@Override
+	public String toString() {
+		return "." + ((length == -1) ? "*" : "{" + length + "}");
+	}
 }

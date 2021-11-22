@@ -1,11 +1,11 @@
-package net.nawaman.regparser;
+package net.nawaman.regparser.checkers;
 
 import static net.nawaman.regparser.TestUtils.validate;
 
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import net.nawaman.regparser.checkers.WordChecker;
+import net.nawaman.regparser.TimeRecordRule;
 
 public class TestWordChecker {
     

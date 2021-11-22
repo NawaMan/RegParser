@@ -30,55 +30,52 @@ import net.nawaman.regparser.result.ParseResult;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class CheckerNot implements Checker {
-    
-    private static final long serialVersionUID = 4485946546354964247L;
-    
-    public CheckerNot(Checker checker) {
-        this.checker = requireNonNull(checker);
-    }
-    
-    private final Checker checker;
-    
-    @Override
-    public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider) {
-        return this.startLengthOf(text, offset, typeProvider, null);
-    }
-    
-    @Override
-    public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider, ParseResult parseResult) {
-        if (this.checker.startLengthOf(text, offset, typeProvider, parseResult) != -1) {
-            return -1;
-        }
-        return 1;
-    }
-    
-    /** Return the optimized version of this Checker */
-    @Override
-    public Checker optimize() {
-        if (this.checker instanceof CheckerNot) {
-            return ((CheckerNot) this.checker).checker;
-        }
-        return this;
-    }
-    
-    @Override
-    public String toString() {
-        return "(^" + this.checker.toString() + ")";
-    }
-    
-    @Override
-    public boolean equals(Object O) {
-        if (O == this) {
-            return true;
-        }
-        if (!(O instanceof CheckerNot)) {
-            return false;
-        }
-        return this.checker.equals(((CheckerNot) O).checker);
-    }
-    
-    @Override
-    public int hashCode() {
-        return "CheckerNot".hashCode() + this.checker.hashCode();
-    }
+	
+	private static final long serialVersionUID = 4485946546354964247L;
+	
+	private final Checker checker;
+	
+	public CheckerNot(Checker checker) {
+		this.checker = requireNonNull(checker);
+	}
+	
+	@Override
+	public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider) {
+		return startLengthOf(text, offset, typeProvider, null);
+	}
+	
+	@Override
+	public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider, ParseResult parseResult) {
+		int startLength = checker.startLengthOf(text, offset, typeProvider, parseResult);
+		return (startLength != -1) ? -1 : 1;
+	}
+	
+	/** Return the optimized version of this Checker */
+	@Override
+	public Checker optimize() {
+		return (checker instanceof CheckerNot)
+		        ? ((CheckerNot)checker).checker
+		        : this;
+	}
+	
+	@Override
+	public String toString() {
+		return "(^" + checker.toString() + ")";
+	}
+	
+	@Override
+	public boolean equals(Object O) {
+		if (O == this)
+			return true;
+		
+		if (!(O instanceof CheckerNot))
+			return false;
+		
+		return checker.equals(((CheckerNot)O).checker);
+	}
+	
+	@Override
+	public int hashCode() {
+		return "CheckerNot".hashCode() + checker.hashCode();
+	}
 }

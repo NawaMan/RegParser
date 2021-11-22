@@ -31,32 +31,32 @@ import net.nawaman.regparser.result.ParseResult;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 abstract public class CharChecker implements Checker {
-    
-    private static final long serialVersionUID = -1609350988393990158L;
-    
-    /** Returns the empty array of CharCheckers */
-    public static final CharChecker[] EMPTY_CHAR_CHECKER_ARRAY = new CharChecker[0];
-    
-    /** Checks of the char c is in this char checker */
-    abstract public boolean inSet(char c);
-    
-    @Override
-    public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider) {
-        return this.startLengthOf(text, offset, typeProvider, null);
-    }
-    
-    @Override
-    public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider, ParseResult parseResult) {
-        if ((offset < 0) || (offset >= text.length())) {
-            return -1;
-        }
-        
-        char c = text.charAt(offset);
-        return this.inSet(c) ? 1 : -1;
-    }
-    
-    @Override
-    public Checker optimize() {
-        return this;
-    }
+	
+	private static final long serialVersionUID = -1609350988393990158L;
+	
+	/** Returns the empty array of CharCheckers */
+	public static final CharChecker[] EMPTY_CHAR_CHECKER_ARRAY = new CharChecker[0];
+	
+	/** Checks of the char c is in this char checker */
+	abstract public boolean inSet(char c);
+	
+	@Override
+	public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider) {
+		return this.startLengthOf(text, offset, typeProvider, null);
+	}
+	
+	@Override
+	public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider, ParseResult parseResult) {
+		if ((offset < 0)
+		 || (offset >= text.length()))
+			return -1;
+		
+		char c = text.charAt(offset);
+		return inSet(c) ? 1 : -1;
+	}
+	
+	@Override
+	public Checker optimize() {
+		return this;
+	}
 }

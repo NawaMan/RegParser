@@ -31,96 +31,99 @@ import net.nawaman.regparser.Checker;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class CharIntersect extends CharChecker {
-    
-    private static final long serialVersionUID = 2351321651321651211L;
-    
-    /** Constructs a char set */
-    public CharIntersect(CharChecker... charCheckers) {
-        // Combine if one of them is alternative
-        
-        var list = new ArrayList<CharChecker>();
-        for (int i = 0; i < charCheckers.length; i++) {
-            var charChecker = charCheckers[i];
-            if (charChecker != null) {
-                if (charChecker instanceof CharIntersect) {
-                    var charIntersect = (CharIntersect) charChecker;
-                    for (int c = 0; c < charIntersect.charCheckers.length; c++)
-                        list.add(charIntersect.charCheckers[c]);
-                } else {
-                    list.add(charCheckers[i]);
-                }
-            }
-        }
-        // Generate the array
-        this.charCheckers = new CharChecker[list.size()];
-        for (int i = 0; i < list.size(); i++) {
-            this.charCheckers[i] = list.get(i);
-        }
-    }
-    
-    private final CharChecker[] charCheckers;
-    
-    @Override
-    public boolean inSet(char c) {
-        for (var charChecker : this.charCheckers) {
-            if (!charChecker.inSet(c)) {
-                return false;
-            }
-        }
-        return true;
-    }
-    
-    @Override
-    public String toString() {
-        var buffer = new StringBuffer();
-        buffer.append("[");
-        if (this.charCheckers != null) {
-            for (int i = 0; i < getLength(this.charCheckers); i++) {
-                var checker = this.charCheckers[i];
-                if (checker == null) {
-                    continue;
-                }
-                if (i != 0) {
-                    buffer.append("&&");
-                }
-                buffer.append(checker.toString());
-            }
-        }
-        buffer.append("]");
-        return buffer.toString();
-    }
-    
-    @Override
-    public boolean equals(Object O) {
-        if (O == this) {
-            return true;
-        }
-        if (!(O instanceof CharIntersect)) {
-            return false;
-        }
-        var checkers = new HashSet<CharChecker>();
-        for (var charChecker : this.charCheckers) {
-            checkers.add(charChecker);
-        }
-        for (var charChecker : ((CharIntersect) O).charCheckers) {
-            if (!checkers.contains(charChecker)) {
-                return false;
-            }
-        }
-        return true;
-    }
-    
-    @Override
-    public int hashCode() {
-        return "CharIntersect".hashCode() + this.charCheckers.hashCode();
-    }
-    
-    @Override
-    public Checker optimize() {
-        if (this.charCheckers.length == 1) {
-            return this.charCheckers[0];
-        }
-        return this;
-    }
-    
+	
+	private static final long serialVersionUID = 2351321651321651211L;
+	
+	private final CharChecker[] charCheckers;
+	
+	/** Constructs a char set */
+	public CharIntersect(CharChecker... charCheckers) {
+		// Combine if one of them is alternative
+		
+		var checkers     = new ArrayList<CharChecker>();
+		int checkerCount = charCheckers.length;
+		for (int i = 0; i < checkerCount; i++) {
+			var charChecker = charCheckers[i];
+			if (charChecker == null)
+				continue;
+			
+			if (charChecker instanceof CharIntersect) {
+				var charIntersect   = (CharIntersect)charChecker;
+				int intersectLength = charIntersect.charCheckers.length;
+				for (int c = 0; c < intersectLength; c++) {
+					var checker = charIntersect.charCheckers[c];
+					checkers.add(checker);
+				}
+			} else {
+				var checker = charCheckers[i];
+				checkers.add(checker);
+			}
+		}
+		// Generate the array
+		this.charCheckers = new CharChecker[checkers.size()];
+		for (int i = 0; i < checkers.size(); i++) {
+			this.charCheckers[i] = checkers.get(i);
+		}
+	}
+	
+	@Override
+	public boolean inSet(char c) {
+		for (var charChecker : charCheckers) {
+			if (!charChecker.inSet(c))
+				return false;
+		}
+		return true;
+	}
+	
+	@Override
+	public String toString() {
+		var buffer = new StringBuffer();
+		buffer.append("[");
+		int length = getLength(charCheckers);
+		for (int i = 0; i < length; i++) {
+			var checker = charCheckers[i];
+			if (checker == null)
+				continue;
+			
+			if (i != 0) {
+				buffer.append("&&");
+			}
+			buffer.append(checker.toString());
+		}
+		buffer.append("]");
+		return buffer.toString();
+	}
+	
+	@Override
+	public boolean equals(Object O) {
+		if (O == this)
+			return true;
+		
+		if (!(O instanceof CharIntersect))
+			return false;
+		
+		var checkers = new HashSet<CharChecker>();
+		for (var charChecker : charCheckers) {
+			checkers.add(charChecker);
+		}
+		for (var charChecker : ((CharIntersect)O).charCheckers) {
+			if (!checkers.contains(charChecker))
+				return false;
+		}
+		return true;
+	}
+	
+	@Override
+	public int hashCode() {
+		return "CharIntersect".hashCode() + charCheckers.hashCode();
+	}
+	
+	@Override
+	public Checker optimize() {
+		if (charCheckers.length == 1) {
+			return charCheckers[0];
+		}
+		return this;
+	}
+	
 }

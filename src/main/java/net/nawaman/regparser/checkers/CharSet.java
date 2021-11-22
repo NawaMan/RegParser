@@ -28,49 +28,51 @@ import java.util.HashSet;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class CharSet extends CharChecker {
-    
-    private static final long serialVersionUID = 2165464135465416515L;
-    
-    public CharSet(String set) {
-        this.set = (set == null) ? "" : set;
-    }
-    
-    public final String set;
-    
-    /** Checks of the char c is in this char checker */
-    @Override
-    public boolean inSet(char c) {
-        return (this.set.indexOf(c) != -1);
-    }
-    
-    @Override
-    public String toString() {
-        var escapeOfRegParser = escapeOfRegParser(this.set);
-        return "[" + escapeOfRegParser + "]";
-    }
-    
-    @Override
-    public boolean equals(Object O) {
-        if (O == this) {
-            return true;
-        }
-        if (!(O instanceof CharSet)) {
-            return false;
-        }
-        var chars = new HashSet<Character>();
-        for (var chr : this.set.toCharArray()) {
-            chars.add(chr);
-        }
-        for (var ch : ((CharSet) O).set.toCharArray()) {
-            if (!chars.contains(ch)) {
-                return false;
-            }
-        }
-        return true;
-    }
-    
-    @Override
-    public int hashCode() {
-        return "CharSet".hashCode() + this.set.hashCode();
-    }
+	
+	private static final long serialVersionUID = 2165464135465416515L;
+	
+	public final String set;
+	
+	public CharSet(String set) {
+		this.set = (set == null)
+		         ? ""
+		         : set;
+	}
+	
+	/** Checks of the char c is in this char checker */
+	@Override
+	public boolean inSet(char c) {
+		return (set.indexOf(c) != -1);
+	}
+	
+	@Override
+	public String toString() {
+		var escapeOfRegParser = escapeOfRegParser(this.set);
+		return "[" + escapeOfRegParser + "]";
+	}
+	
+	@Override
+	public boolean equals(Object O) {
+		if (O == this)
+			return true;
+		
+		if (!(O instanceof CharSet))
+			return false;
+		
+		var chars = new HashSet<Character>();
+		for (var chr : set.toCharArray()) {
+			chars.add(chr);
+		}
+		for (var ch : ((CharSet)O).set.toCharArray()) {
+			if (!chars.contains(ch))
+				return false;
+		}
+		return true;
+	}
+	
+	@Override
+	public int hashCode() {
+		return "CharSet".hashCode() + set.hashCode();
+	}
+	
 }

@@ -18,6 +18,8 @@
 
 package net.nawaman.regparser.checkers;
 
+import static java.lang.String.format;
+
 import java.util.ArrayList;
 
 import net.nawaman.regparser.Checker;
@@ -51,153 +53,161 @@ import net.nawaman.regparser.result.ParseResult;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  **/
 public class CheckerFixeds implements Checker {
-    
-    private static final long serialVersionUID = 5484946354964465247L;
-    
-    /** Constructs a checker fixed */
-    public CheckerFixeds(Entry... entries) {
-        if ((entries == null) || (entries.length == 0)) {
-            return;
-        }
-        int totalLength       = 0;
-        var list = new ArrayList<Entry>();
-        for (int i = 0; i < entries.length; i++) {
-            var entry = entries[i];
-            if (entry == null) {
-                continue;
-            }
-            list.add(entry);
-            int length = entry.length();
-            if (length == -1) {
-                if (i != (entries.length - 1)) {
-                    throw new IllegalArgumentException(
-                            "Length cannot be negative (" + length + "), unless it is the last entry.");
-                }
-            } else {
-                totalLength += length;
-            }
-        }
-        if (list.size() == 0) {
-            return;
-        }
-        this.entries = list.toArray(new Entry[list.size()]);
-        this.length  = totalLength;
-    }
-    
-    /** The group entries */
-    static public class Entry {
-        public Entry() {
-            this(null, -1, (Object) null);
-        }
-        
-        public Entry(String name) {
-            this(name, -1, (Object) null);
-        }
-        
-        public Entry(String name, Checker secondStage) {
-            this(name, -1, (Object) secondStage);
-        }
-        
-        public Entry(String name, PType secondStage) {
-            this(name, -1, (Object) secondStage);
-        }
-        
-        public Entry(String name, PTypeRef secondStage) {
-            this(name, -1, (Object) secondStage);
-        }
-        
-        public Entry(int length) {
-            this(null, length, (Object) null);
-        }
-        
-        public Entry(String name, int length) {
-            this(name, length, (Object) null);
-        }
-        
-        public Entry(String name, int length, Checker secondStage) {
-            this(name, length, (Object) secondStage);
-        }
-        
-        public Entry(String name, int length, PType secondStage) {
-            this(name, length, (Object) secondStage);
-        }
-        
-        public Entry(String name, int length, PTypeRef secondStage) {
-            this(name, length, (Object) secondStage);
-        }
-        
-        Entry(String name, int length, Object secondStage) {
-            if (length < 0) {
-                length = -1;
-            }
-            Checker C = null;
-            if (secondStage != null) {
-                RPEntry[] entries;
-                if (secondStage instanceof Checker) {
-                    entries = new RPEntry[] { RPEntry._new(name, (Checker) secondStage) };
-                } else if (secondStage instanceof PType) {
-                    entries = new RPEntry[] { RPEntry._new(name, (PType) secondStage) };
-                } else if (secondStage instanceof PTypeRef) {
-                    entries = new RPEntry[] { RPEntry._new(name, (PTypeRef) secondStage) };
-                } else {
-                    var errMsg = "Second stage must be null, Checker, PTypeRef or PType (" + secondStage + ").";
-                    throw new IllegalArgumentException(errMsg);
-                }
-                C = new RegParser(entries);
-            }
-            this.entry = RPEntry._new(name, CheckerAny.getCheckerAny(length), null, C);
-        }
-        
-        private final RPEntry entry;
-        
-        public String name() {
-            return this.entry.name();
-        }
-        
-        public int length() {
-            return ((CheckerAny) this.entry.getChecker()).length();
-        }
-        
-        public Checker secondStage() {
-            return this.entry.secondStage();
-        }
-        
-        public RPEntry entry() {
-            return this.entry;
-        }
-    }
-    
-    private int     length   = 0;
-    private Entry[] entries = null;
-    
-    /** Returns the overall length needed by this checker */
-    public int neededLength() {
-        return this.length;
-    }
-    
-    /** Returns the number of fixed-entry */
-    public int entryCount() {
-        return (this.entries == null) ? 0 : this.entries.length;
-    }
-    
-    /** Returns the entry at the index I */
-    public Entry entry(int I) {
-        return ((I < 0) || (I > this.entryCount())) ? null : this.entries[I];
-    }
-    
-    @Override
-    public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider) {
-        return this.startLengthOf(text, offset, typeProvider, null);
-    }
-    
-    @Override
-    public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider, ParseResult parseResult) {
-        return this.neededLength();
-    }
-    
-    @Override
-    public Checker optimize() {
-        return this;
-    }
-    
+	
+	private static final long serialVersionUID = 5484946354964465247L;
+	
+	private int     length  = 0;
+	private Entry[] entries = Entry.EMPTY_ARRAY;
+	
+	/** Constructs a checker fixed */
+	public CheckerFixeds(Entry... entries) {
+		if ((entries == null)
+		 || (entries.length == 0))
+			return;
+		
+		int totalLength = 0;
+		var list        = new ArrayList<Entry>();
+		for (int i = 0; i < entries.length; i++) {
+			var entry = entries[i];
+			if (entry == null)
+				continue;
+			
+			list.add(entry);
+			int length = entry.length();
+			if (length == -1) {
+				if (i != (entries.length - 1)) {
+					var errorMessage = format("Length cannot be negative (%d), unless it is the last entry.", length);
+					throw new IllegalArgumentException(errorMessage);
+				}
+			} else {
+				totalLength += length;
+			}
+		}
+		int listSize = list.size();
+		if (listSize == 0)
+			return;
+		
+		this.entries = list.toArray(new Entry[listSize]);
+		this.length  = totalLength;
+	}
+	
+	/** Returns the overall length needed by this checker */
+	public int neededLength() {
+		return length;
+	}
+	
+	/** Returns the number of fixed-entry */
+	public int entryCount() {
+		return entries.length;
+	}
+	
+	/** Returns the entry at the index I */
+	public Entry entry(int index) {
+		return ((index < 0) || (index > entryCount()))
+		        ? null
+		        : entries[index];
+	}
+	
+	@Override
+	public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider) {
+		return startLengthOf(text, offset, typeProvider, null);
+	}
+	
+	@Override
+	public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider, ParseResult parseResult) {
+		return neededLength();
+	}
+	
+	@Override
+	public Checker optimize() {
+		return this;
+	}
+	
+	/** The group entries */
+	static public class Entry {
+		
+		public static final Entry[] EMPTY_ARRAY = new Entry[0];
+		
+		Entry() {
+			this(null, -1, (Object)null);
+		}
+		
+		Entry(String name) {
+			this(name, -1, (Object)null);
+		}
+		
+		Entry(String name, Checker secondStage) {
+			this(name, -1, (Object)secondStage);
+		}
+		
+		Entry(String name, PType secondStage) {
+			this(name, -1, (Object)secondStage);
+		}
+		
+		Entry(String name, PTypeRef secondStage) {
+			this(name, -1, (Object)secondStage);
+		}
+		
+		Entry(int length) {
+			this(null, length, (Object)null);
+		}
+		
+		Entry(String name, int length) {
+			this(name, length, (Object)null);
+		}
+		
+		Entry(String name, int length, Checker secondStage) {
+			this(name, length, (Object)secondStage);
+		}
+		
+		Entry(String name, int length, PType secondStage) {
+			this(name, length, (Object)secondStage);
+		}
+		
+		Entry(String name, int length, PTypeRef secondStage) {
+			this(name, length, (Object)secondStage);
+		}
+		
+		Entry(String name, int length, Object secondStage) {
+			if (length < 0) {
+				length = -1;
+			}
+			
+			Checker checker = null;
+			if (secondStage != null) {
+				RPEntry[] entries;
+				if (secondStage instanceof Checker) {
+					entries = new RPEntry[] { RPEntry._new(name, (Checker)secondStage) };
+				} else if (secondStage instanceof PType) {
+					entries = new RPEntry[] { RPEntry._new(name, (PType)secondStage) };
+				} else if (secondStage instanceof PTypeRef) {
+					entries = new RPEntry[] { RPEntry._new(name, (PTypeRef)secondStage) };
+				} else {
+					var errMsg = format("Second stage must be null, Checker, PTypeRef or PType (%s).", secondStage);
+					throw new IllegalArgumentException(errMsg);
+				}
+				checker = new RegParser(entries);
+			}
+			this.entry = RPEntry._new(name, CheckerAny.getCheckerAny(length), null, checker);
+		}
+		
+		private final RPEntry entry;
+		
+		public String name() {
+			return entry.name();
+		}
+		
+		public int length() {
+			return ((CheckerAny)entry.getChecker()).length();
+		}
+		
+		public Checker secondStage() {
+			return entry.secondStage();
+		}
+		
+		public RPEntry entry() {
+			return entry;
+		}
+	}
+	
 }

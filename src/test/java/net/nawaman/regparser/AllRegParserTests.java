@@ -4,6 +4,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+import net.nawaman.regparser.checkers.TestAlternative;
+import net.nawaman.regparser.checkers.TestCharChecker;
+import net.nawaman.regparser.checkers.TestCheckerFixeds;
+import net.nawaman.regparser.checkers.TestJavaChecker;
+import net.nawaman.regparser.checkers.TestWordChecker;
+
 @RunWith(Suite.class)
 @SuiteClasses({
     TestAlternative.class,

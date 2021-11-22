@@ -1,15 +1,12 @@
-package net.nawaman.regparser;
+package net.nawaman.regparser.checkers;
 
 import static net.nawaman.regparser.TestUtils.validate;
 
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import net.nawaman.regparser.checkers.CharIntersect;
-import net.nawaman.regparser.checkers.CharNot;
-import net.nawaman.regparser.checkers.CharRange;
-import net.nawaman.regparser.checkers.CharSingle;
-import net.nawaman.regparser.checkers.CharUnion;
+import net.nawaman.regparser.PredefinedCharClasses;
+import net.nawaman.regparser.TimeRecordRule;
 
 public class TestCharChecker {
     

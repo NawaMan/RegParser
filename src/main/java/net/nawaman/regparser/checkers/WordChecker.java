@@ -19,10 +19,11 @@
 package net.nawaman.regparser.checkers;
 
 import static java.util.Objects.requireNonNull;
+import static net.nawaman.regparser.RPCompiler_ParserTypes.escapeOfRegParser;
 
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.PTypeProvider;
-import net.nawaman.regparser.RPCompiler_ParserTypes;
+import net.nawaman.regparser.Util;
 import net.nawaman.regparser.result.ParseResult;
 
 /**
@@ -31,52 +32,53 @@ import net.nawaman.regparser.result.ParseResult;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class WordChecker implements Checker {
-    
-    private static final long serialVersionUID = -6856120712978724955L;
-    
-    static public final WordChecker EmptyWord = new WordChecker();
-    
-    private WordChecker() {
-        this.word = "";
-    }
-    
-    public WordChecker(String word) {
-        this.word = requireNonNull(word);
-        if (word.length() == 0) {
-            throw new IllegalArgumentException();
-        }
-    }
-    
-    private final String word;
-    
-    public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider) {
-        return this.startLengthOf(text, offset, typeProvider, null);
-    }
-    
-    @Override
-    public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider, ParseResult parseResult) {
-        return text.toString().startsWith(this.word, offset) ? this.word.length() : -1;
-    }
-    
-    @Override
-    public String toString() {
-        return RPCompiler_ParserTypes.escapeOfRegParser(this.word);
-    }
-    
-    @Override
-    public boolean equals(Object O) {
-        if (O == this) {
-            return true;
-        }
-        if (!(O instanceof WordChecker)) {
-            return false;
-        }
-        return this.word.equals(((WordChecker) O).word);
-    }
-    
-    @Override
-    public Checker optimize() {
-        return this;
-    }
-    
+	
+	private static final long serialVersionUID = -6856120712978724955L;
+	
+	static public final WordChecker EmptyWord = new WordChecker();
+	
+	private final String word;
+	
+	private WordChecker() {
+		this.word = "";
+	}
+	
+	public WordChecker(String word) {
+		this.word = requireNonNull(word);
+		if (word.length() == 0)
+			throw new IllegalArgumentException();
+	}
+	
+	public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider) {
+		return startLengthOf(text, offset, typeProvider, null);
+	}
+	
+	@Override
+	public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider, ParseResult parseResult) {
+		return Util.startsWith(text, word, offset)
+		        ? word.length()
+		        : -1;
+	}
+	
+	@Override
+	public String toString() {
+		return escapeOfRegParser(word);
+	}
+	
+	@Override
+	public boolean equals(Object O) {
+		if (O == this)
+			return true;
+		
+		if (!(O instanceof WordChecker))
+			return false;
+		
+		return word.equals(((WordChecker)O).word);
+	}
+	
+	@Override
+	public Checker optimize() {
+		return this;
+	}
+	
 }
