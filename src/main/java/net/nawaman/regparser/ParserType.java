@@ -203,7 +203,9 @@ abstract public class ParserType implements Serializable {
 	
 	/** Returns the match if the text is start with a match (from start to the pEndPosition) or -1 if not */
 	public final ParseResult match(CharSequence text, int offset, int endPosition) {
-		int end = (endPosition == -1) ? text.length() : endPosition;
+		int end = (endPosition == -1)
+		        ? text.length()
+		        : endPosition;
 		return match(text, offset, end, null);
 	}
 	
@@ -233,7 +235,9 @@ abstract public class ParserType implements Serializable {
 	/** Returns the match if the text is start with a match (from start to the pEndPosition) or -1 if not */
 	protected ParseResult doMatch(CharSequence text, int offset, int endPosition, PTypeProvider typeProvider) {
 		var provider = PTypeProvider.Library.getEither(typeProvider, this.typeProvider);
-		int end      = (endPosition == -1) ? text.length() : endPosition;
+		int end      = (endPosition == -1)
+		             ? text.length()
+		             : endPosition;
 		return parser().match(text, offset, end, provider);
 	}
 	
