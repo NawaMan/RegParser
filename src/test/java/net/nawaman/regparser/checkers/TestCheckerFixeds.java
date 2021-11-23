@@ -22,7 +22,7 @@ public class TestCheckerFixeds {
 		                new CheckerFixeds(
 		                new CheckerFixeds.Entry(1),
 		                new CheckerFixeds.Entry(4),
-		                new CheckerFixeds.Entry("G1", 5, typeProvider.getType("Number").getTypeRef()),
+		                new CheckerFixeds.Entry("G1", 5, typeProvider.getType("Number").typeRef()),
 		                new CheckerFixeds.Entry()));
 		var result = typeProvider.getType("TestCG").parse("0123456789ABCDEFG");
 		validate("\n"
