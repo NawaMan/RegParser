@@ -26,7 +26,7 @@ import net.nawaman.regparser.result.ParseResult;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 @SuppressWarnings("serial")
-public class PTBackRefCI extends PTBackRef {
+public class PTBackRefCI extends ParserTypeBackRef {
     
     static public final PTBackRefCI BackRefCI_Instance = new PTBackRefCI();
     

@@ -19,7 +19,7 @@ public class TestSelfContain {
 	public static TimeRecordRule timeRecordRule = TimeRecordRule.instance;
 	
 	@SuppressWarnings("serial")
-	private PType Int0To24 = new PType() {
+	private ParserType Int0To24 = new ParserType() {
 		@Override
 		public String name() {
 			return "int0To24~";
@@ -45,7 +45,7 @@ public class TestSelfContain {
 	};
 	
 	@SuppressWarnings("serial")
-	private PType Int25To50 = new PType() {
+	private ParserType Int25To50 = new ParserType() {
 		@Override
 		public String name() {
 			return "$int25To50~";

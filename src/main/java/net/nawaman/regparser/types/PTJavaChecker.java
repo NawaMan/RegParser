@@ -23,7 +23,7 @@ import java.lang.reflect.Method;
 import java.util.Hashtable;
 
 import net.nawaman.regparser.Checker;
-import net.nawaman.regparser.PType;
+import net.nawaman.regparser.ParserType;
 import net.nawaman.regparser.PTypeProvider;
 import net.nawaman.regparser.PredefinedCharClasses;
 import net.nawaman.regparser.Quantifier;
@@ -50,7 +50,7 @@ import net.nawaman.regparser.result.ParseResult;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 @SuppressWarnings("serial")
-public class PTJavaChecker extends PType {
+public class PTJavaChecker extends ParserType {
     
     static Hashtable<String, Checker> Checkers                  = new Hashtable<String, Checker>();
     static Class<?>[]                 EmptyClassArray           = new Class<?>[0];

@@ -22,7 +22,7 @@ package net.nawaman.regparser.types;
 import java.util.Hashtable;
 
 import net.nawaman.regparser.Checker;
-import net.nawaman.regparser.PType;
+import net.nawaman.regparser.ParserType;
 import net.nawaman.regparser.PTypeProvider;
 import net.nawaman.regparser.PredefinedCharClasses;
 import net.nawaman.regparser.Quantifier;
@@ -35,7 +35,7 @@ import net.nawaman.regparser.result.ParseResult;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 @SuppressWarnings("serial")
-public class PTTextCI extends PType {
+public class PTTextCI extends ParserType {
     
     static Hashtable<Integer, Checker> Checkers = new Hashtable<Integer, Checker>();
     

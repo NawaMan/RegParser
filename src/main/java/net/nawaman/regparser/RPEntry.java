@@ -147,25 +147,25 @@ abstract public class RPEntry implements Serializable {
     
     // Type ----------------------------------------------------------------------------------------
     
-    static public RPEntry _new(PType pRPType) {
+    static public RPEntry _new(ParserType pRPType) {
         return new Typed(pRPType);
     }
     
-    static public RPEntry _new(PType pRPType, Quantifier pQuantifier) {
+    static public RPEntry _new(ParserType pRPType, Quantifier pQuantifier) {
         if (pQuantifier == null)
             return new Typed(pRPType);
         else
             return new Typed_WithQ(pRPType, pQuantifier);
     }
     
-    static public RPEntry _new(String pName, PType pRPType) {
+    static public RPEntry _new(String pName, ParserType pRPType) {
         if (pName == null)
             return new Typed(pRPType);
         else
             return new NamedTyped(pName, pRPType);
     }
     
-    static public RPEntry _new(String pName, PType pRPType, Quantifier pQuantifier) {
+    static public RPEntry _new(String pName, ParserType pRPType, Quantifier pQuantifier) {
         if (pName == null) {
             if (pQuantifier == null)
                 return new Typed(pRPType);
@@ -179,7 +179,7 @@ abstract public class RPEntry implements Serializable {
         }
     }
     
-    static public RPEntry _new(String pName, PType pRPType, Quantifier pQuantifier, RegParser pSecondStage) {
+    static public RPEntry _new(String pName, ParserType pRPType, Quantifier pQuantifier, RegParser pSecondStage) {
         if (pSecondStage == null)
             return _new(pName, pRPType, pQuantifier);
         if (pName == null) {
@@ -209,7 +209,7 @@ abstract public class RPEntry implements Serializable {
         return null;
     }
     
-    public PType type() {
+    public ParserType type() {
         return null;
     }
     
@@ -229,7 +229,7 @@ abstract public class RPEntry implements Serializable {
         String       N  = this.name();
         Checker      C  = this.getChecker();
         PTypeRef     TR = this.typeRef();
-        PType        T  = this.type();
+        ParserType        T  = this.type();
         Quantifier   Q  = this.getQuantifier();
         
         if (T != null) {
@@ -436,16 +436,16 @@ abstract public class RPEntry implements Serializable {
         
         static private final long serialVersionUID = 4566522331246354535L;
         
-        protected Typed(PType pRPType) {
+        protected Typed(ParserType pRPType) {
             this.TheType = pRPType;
             if (this.TheType == null)
                 throw new NullPointerException();
         }
         
-        PType TheType = null;
+        ParserType TheType = null;
         
         @Override
-        public PType type() {
+        public ParserType type() {
             return this.TheType;
         }
     }
@@ -454,7 +454,7 @@ abstract public class RPEntry implements Serializable {
         
         static private final long serialVersionUID = 3125454566463522335L;
         
-        protected Typed_WithQ(PType pRPType, Quantifier pQuantifier) {
+        protected Typed_WithQ(ParserType pRPType, Quantifier pQuantifier) {
             super(pRPType);
             this.TheQuantifier = pQuantifier;
         }
@@ -471,7 +471,7 @@ abstract public class RPEntry implements Serializable {
         
         static private final long serialVersionUID = 6312352354545266435L;
         
-        protected NamedTyped(String pName, PType pRPType) {
+        protected NamedTyped(String pName, ParserType pRPType) {
             super(pRPType);
             this.Name = pName;
         }
@@ -488,7 +488,7 @@ abstract public class RPEntry implements Serializable {
         
         static private final long serialVersionUID = 2613235452356436455L;
         
-        protected NamedTyped_WithQ(String pName, PType pRPType, Quantifier pQuantifier) {
+        protected NamedTyped_WithQ(String pName, ParserType pRPType, Quantifier pQuantifier) {
             super(pName, pRPType);
             this.TheQuantifier = pQuantifier;
         }
@@ -531,7 +531,7 @@ abstract public class RPEntry implements Serializable {
         }
         
         @Override
-        public PType type() {
+        public ParserType type() {
             return this.Delegate.type();
         }
         

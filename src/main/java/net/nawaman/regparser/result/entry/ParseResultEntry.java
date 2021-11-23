@@ -2,7 +2,7 @@ package net.nawaman.regparser.result.entry;
 
 import java.io.Serializable;
 
-import net.nawaman.regparser.PType;
+import net.nawaman.regparser.ParserType;
 import net.nawaman.regparser.PTypeRef;
 import net.nawaman.regparser.RPEntry;
 import net.nawaman.regparser.result.ParseResult;
@@ -70,7 +70,7 @@ public class ParseResultEntry implements Serializable {
 		        : null;
 	}
 	
-	public final PType type() {
+	public final ParserType type() {
 		return hasParserEntry()
 		        ? parserEntry().type()
 		        : null;

@@ -65,7 +65,7 @@ public class RPCompiler_ParserTypes {
     // Types -----------------------------------------------------------------------------------------------------------
     
     @SuppressWarnings("serial")
-    static public class RPTComment extends PType {
+    static public class RPTComment extends ParserType {
         static public String Name = "Comment";
         @Override public String name() { return Name; }
         Checker Checker = null;
@@ -86,7 +86,7 @@ public class RPCompiler_ParserTypes {
     }
     
     @SuppressWarnings("serial")
-    static public class RPTEscape extends PType {
+    static public class RPTEscape extends ParserType {
         static public String Name = "Escape";
         @Override public String name() { return Name; }
         Checker Checker = RegParser.newRegParser(new CharSingle('\\'), new CharSet(RPCompiler_ParserTypes.Escapable));
@@ -104,7 +104,7 @@ public class RPCompiler_ParserTypes {
     }
     
     @SuppressWarnings("serial")
-    static public class RPTEscapeOct extends PType {
+    static public class RPTEscapeOct extends ParserType {
         static public String Name = "EscapeOct";
         @Override public String name() { return Name; }
         Checker Checker = RegParser.newRegParser(    // ~\\0[0-3]?[0-7]?[0-7]~
@@ -129,7 +129,7 @@ public class RPCompiler_ParserTypes {
     }
     
     @SuppressWarnings("serial")
-    static public class RPTEscapeHex extends PType {
+    static public class RPTEscapeHex extends ParserType {
         static public String Name = "EscapeHex";
         @Override public String name() { return Name; }
         Checker Checker = RegParser.newRegParser(    // ~\\x[0-9A-Fa-f][0-9A-Fa-f]~
@@ -153,7 +153,7 @@ public class RPCompiler_ParserTypes {
     }
     
     @SuppressWarnings("serial")
-    static public class RPTEscapeUnicode extends PType {
+    static public class RPTEscapeUnicode extends ParserType {
         static public String Name = "EscapeUnicode";
         @Override public String name() { return Name; }
         Checker Checker = RegParser.newRegParser(    // ~\\u[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f]~
@@ -411,7 +411,7 @@ public class RPCompiler_ParserTypes {
     }
     
     @SuppressWarnings("serial")
-    static public class RPTType extends PType {
+    static public class RPTType extends ParserType {
         static public String Name = "Type";
         @Override public String name() { return Name; }
         Checker Checker = RegParser.newRegParser(
@@ -465,7 +465,7 @@ public class RPCompiler_ParserTypes {
     }
     
     @SuppressWarnings("serial")
-    static public class RPTQuantifier extends PType {
+    static public class RPTQuantifier extends ParserType {
         static public String Name = "Quantifier";
         @Override public String name() { return Name; }
         Checker Checker = RegParser.newRegParser(    // ((?|*|+|{\s[\d]*\s}|{\s[\d]*\s,\s}|{\s,\s[\d]*\s}|{\s[\d]*\s,\s[\d]*\s})(*|+)?)?
@@ -610,7 +610,7 @@ public class RPCompiler_ParserTypes {
     }
     
     @SuppressWarnings("serial")
-    static public class RPTRange extends PType {
+    static public class RPTRange extends ParserType {
         static public String Name = "Range";
         @Override public String name() { return Name; }
         Checker TheChecker = null;
@@ -691,7 +691,7 @@ public class RPCompiler_ParserTypes {
     }
     
     @SuppressWarnings("serial")
-    static public class RPTCharSetItem extends PType {
+    static public class RPTCharSetItem extends ParserType {
         static public String Name = "CharSetItem";
         @Override public String name() { return Name; }
         Checker TheChecker = null;
@@ -803,7 +803,7 @@ public class RPCompiler_ParserTypes {
     }
     
     @SuppressWarnings("serial")
-    static public class RPTRegParserItem extends PType {
+    static public class RPTRegParserItem extends ParserType {
         static public String Name = "RegParserItem[]";
         @Override public String name() { return Name; }
         Checker TheChecker = null;
@@ -1035,7 +1035,7 @@ public class RPCompiler_ParserTypes {
                     if(pThisResult.lastStringOf("#BackRefCI") != null)
                         return RPEntry._new(new PTypeRef.Simple(PTBackRefCI.BackRefCI_Instance.name(), N+GN+M));
                     else
-                        return RPEntry._new(new PTypeRef.Simple(PTBackRef.BackRef_Instance.name(), N+GN+M));
+                        return RPEntry._new(new PTypeRef.Simple(ParserTypeBackRef.BackRef_Instance.name(), N+GN+M));
                 }
                 
                 RegParser Second = null;
@@ -1075,7 +1075,7 @@ public class RPCompiler_ParserTypes {
     }
     
     @SuppressWarnings("serial")
-    static public class RPTRegParser extends PType {
+    static public class RPTRegParser extends ParserType {
         static public String Name = "RegParser";
         @Override public String name() { return Name; }
         Checker Checker = RegParser.newRegParser(

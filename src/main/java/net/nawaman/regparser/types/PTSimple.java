@@ -19,7 +19,7 @@
 package net.nawaman.regparser.types;
 
 import net.nawaman.regparser.Checker;
-import net.nawaman.regparser.PType;
+import net.nawaman.regparser.ParserType;
 import net.nawaman.regparser.PTypeProvider;
 import net.nawaman.regparser.RPGetChecker;
 import net.nawaman.regparser.result.ParseResult;
@@ -29,7 +29,7 @@ import net.nawaman.regparser.result.ParseResult;
  * 
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  **/
-public class PTSimple extends PType {
+public class PTSimple extends ParserType {
     
     private static final long serialVersionUID = 5886175272511843777L;
     

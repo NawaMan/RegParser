@@ -20,7 +20,7 @@ package net.nawaman.regparser.types;
 
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.CompilationContext;
-import net.nawaman.regparser.PType;
+import net.nawaman.regparser.ParserType;
 import net.nawaman.regparser.PTypeProvider;
 import net.nawaman.regparser.result.ParseResult;
 
@@ -30,7 +30,7 @@ import net.nawaman.regparser.result.ParseResult;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  **/
 @SuppressWarnings("serial")
-public class PTError extends PType {
+public class PTError extends ParserType {
     
     protected PTError(String pTheName, String pErrMessage, boolean pIsFatal) {
         this.TheName    = pTheName;

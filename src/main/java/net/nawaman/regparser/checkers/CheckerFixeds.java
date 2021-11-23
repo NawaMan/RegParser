@@ -23,7 +23,7 @@ import static java.lang.String.format;
 import java.util.ArrayList;
 
 import net.nawaman.regparser.Checker;
-import net.nawaman.regparser.PType;
+import net.nawaman.regparser.ParserType;
 import net.nawaman.regparser.PTypeProvider;
 import net.nawaman.regparser.PTypeRef;
 import net.nawaman.regparser.RPEntry;
@@ -140,7 +140,7 @@ public class CheckerFixeds implements Checker {
 			this(name, -1, (Object)secondStage);
 		}
 		
-		Entry(String name, PType secondStage) {
+		Entry(String name, ParserType secondStage) {
 			this(name, -1, (Object)secondStage);
 		}
 		
@@ -160,7 +160,7 @@ public class CheckerFixeds implements Checker {
 			this(name, length, (Object)secondStage);
 		}
 		
-		Entry(String name, int length, PType secondStage) {
+		Entry(String name, int length, ParserType secondStage) {
 			this(name, length, (Object)secondStage);
 		}
 		
@@ -178,8 +178,8 @@ public class CheckerFixeds implements Checker {
 				RPEntry[] entries;
 				if (secondStage instanceof Checker) {
 					entries = new RPEntry[] { RPEntry._new(name, (Checker)secondStage) };
-				} else if (secondStage instanceof PType) {
-					entries = new RPEntry[] { RPEntry._new(name, (PType)secondStage) };
+				} else if (secondStage instanceof ParserType) {
+					entries = new RPEntry[] { RPEntry._new(name, (ParserType)secondStage) };
 				} else if (secondStage instanceof PTypeRef) {
 					entries = new RPEntry[] { RPEntry._new(name, (PTypeRef)secondStage) };
 				} else {

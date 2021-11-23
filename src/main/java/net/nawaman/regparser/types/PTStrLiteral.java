@@ -19,7 +19,7 @@
 package net.nawaman.regparser.types;
 
 import net.nawaman.regparser.Checker;
-import net.nawaman.regparser.PType;
+import net.nawaman.regparser.ParserType;
 import net.nawaman.regparser.PTypeProvider;
 import net.nawaman.regparser.Quantifier;
 import net.nawaman.regparser.RegParser;
@@ -35,7 +35,7 @@ import net.nawaman.regparser.result.ParseResult;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 @SuppressWarnings("serial")
-public class PTStrLiteral extends PType {
+public class PTStrLiteral extends ParserType {
     
     static public String Name = "$StringLiteral";
     

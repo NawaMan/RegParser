@@ -39,7 +39,7 @@ import net.nawaman.regparser.types.PTTextCI;
 public interface PTypeProvider extends Serializable {
     
     /** Returns type from name */
-    public PType getType(String pName);
+    public ParserType getType(String pName);
     
     /** Returns the names of all types in this provider */
     public Set<String> getAllTypeNames();
@@ -56,7 +56,7 @@ public interface PTypeProvider extends Serializable {
     static public class Simple implements PTypeProvider {
         
         /** Include the type pPT to exclusively be a member of the provider pTP */
-        static public boolean exclusivelyInclude(PTypeProvider pTP, PType pPT) {
+        static public boolean exclusivelyInclude(PTypeProvider pTP, ParserType pPT) {
             if ((pPT == null) || (pPT.TProvider != null))
                 return false;
             pPT.TProvider = pTP;
@@ -70,7 +70,7 @@ public interface PTypeProvider extends Serializable {
                 return Default;
             Default = new PTypeProvider.Extensible();
             Default.addRPType(new PTTextCI());
-            Default.addRPType(new PTBackRef());
+            Default.addRPType(new ParserTypeBackRef());
             Default.addRPType(new PTBackRefCI());
             Default.addRPType(new PTJavaChecker());
             return Default;
@@ -81,18 +81,18 @@ public interface PTypeProvider extends Serializable {
         }
         
         /** Constructs a type provider with the types */
-        public Simple(PType... pTypes) {
+        public Simple(ParserType... pTypes) {
             if (pTypes == null)
                 return;
-            this.RPTypes = new Hashtable<String, PType>();
-            for (PType T : pTypes) {
+            this.RPTypes = new Hashtable<String, ParserType>();
+            for (ParserType T : pTypes) {
                 if (T == null)
                     continue;
                 this.RPTypes.put(T.name(), T);
             }
         }
         
-        Hashtable<String, PType>  RPTypes = null;
+        Hashtable<String, ParserType>  RPTypes = null;
         Hashtable<String, String> ErrMsgs = null;
         
         // Services --------------------------------------------------------------------------------------------------------
@@ -105,31 +105,31 @@ public interface PTypeProvider extends Serializable {
             return this.RPTypes.keySet();
         }
         
-        protected boolean addRPType(PType pRPT) {
+        protected boolean addRPType(ParserType pRPT) {
             if (pRPT == null)
                 return false;
             if ((this.RPTypes != null) && (this.RPTypes.containsKey(pRPT.name())))
                 return false;
             
             if (this.RPTypes == null)
-                this.RPTypes = new Hashtable<String, PType>();
+                this.RPTypes = new Hashtable<String, ParserType>();
             this.RPTypes.put(pRPT.name(), pRPT);
             return true;
         }
         
-        protected boolean removeRPType(PType pRPT) {
+        protected boolean removeRPType(ParserType pRPT) {
             if (pRPT == null)
                 return false;
             if ((this.RPTypes != null) && (this.RPTypes.containsKey(pRPT.name())))
                 return false;
             
             if (this.RPTypes == null)
-                this.RPTypes = new Hashtable<String, PType>();
+                this.RPTypes = new Hashtable<String, ParserType>();
             this.RPTypes.remove(pRPT.name());
             return true;
         }
         
-        public PType getType(String pName) {
+        public ParserType getType(String pName) {
             if (pName == null)
                 return null;
             if (this.RPTypes == null)
@@ -192,25 +192,25 @@ public interface PTypeProvider extends Serializable {
         
         /** Load type provider from a stream */
         static public PTypeProvider loadTypeProviderFromStream(InputStream pIS) throws IOException {
-            PType[] Ts = loadTypesFromStream(pIS);
+            ParserType[] Ts = loadTypesFromStream(pIS);
             return new Simple(Ts);
         }
         
         /** Load types into a type provider from a stream */
         static public int loadTypeProviderFromStream(InputStream pIS, PTypeProvider pProvider, boolean isToReplace)
                 throws IOException {
-            PType[] Ts = loadTypesFromStream(pIS);
+            ParserType[] Ts = loadTypesFromStream(pIS);
             if (Ts == null)
                 return 0;
             if (pProvider == null)
                 return -1;
             
             if ((Ts.length != 0) && (((Simple) pProvider).RPTypes == null))
-                ((Simple) pProvider).RPTypes = new Hashtable<String, PType>();
+                ((Simple) pProvider).RPTypes = new Hashtable<String, ParserType>();
             
             int t = 0;
             for (int i = Ts.length; --i >= 0;) {
-                PType T = Ts[i];
+                ParserType T = Ts[i];
                 if (T == null)
                     continue;
                 String N = T.name();
@@ -223,19 +223,19 @@ public interface PTypeProvider extends Serializable {
         }
         
         /** Load types a stream */
-        static public PType[] loadTypesFromStream(InputStream pIS) throws IOException {
+        static public ParserType[] loadTypesFromStream(InputStream pIS) throws IOException {
             Object O = Util.loadObjectsFromStream(pIS);
             if (!((O instanceof Serializable[]) && (((Serializable[]) O).length != 0)))
                 throw new IOException("The selected file is mal-formed.");
             
             Serializable[]        Ss        = (Serializable[]) O;
-            Vector<PType>         Types     = new Vector<PType>();
+            Vector<ParserType>         Types     = new Vector<ParserType>();
             Vector<PTypeProvider> Providers = new Vector<PTypeProvider>();
             for (Serializable S : Ss) {
-                if (!(S instanceof PType) && !(S instanceof PTypeProvider))
+                if (!(S instanceof ParserType) && !(S instanceof PTypeProvider))
                     continue;
-                if (S instanceof PType)
-                    Types.add((PType) S);
+                if (S instanceof ParserType)
+                    Types.add((ParserType) S);
                 else
                     Providers.add((PTypeProvider) S);
             }
@@ -244,7 +244,7 @@ public interface PTypeProvider extends Serializable {
                 Set<String> TNames = Provider.getAllTypeNames();
                 if (TNames != null) {
                     for (String TName : TNames) {
-                        PType T = Provider.getType(TName);
+                        ParserType T = Provider.getType(TName);
                         if (T == null)
                             continue;
                         Types.add(T);
@@ -252,7 +252,7 @@ public interface PTypeProvider extends Serializable {
                 }
             }
             
-            return Types.toArray(PType.EmptyTypeArray);
+            return Types.toArray(ParserType.EmptyTypeArray);
         }
         
         /** Save a type provider to the stream */
@@ -261,7 +261,7 @@ public interface PTypeProvider extends Serializable {
         }
         
         /** Save a type provider to the stream */
-        static public void saveRPTypesToStream(OutputStream pOS, PType[] pTypes) throws IOException {
+        static public void saveRPTypesToStream(OutputStream pOS, ParserType[] pTypes) throws IOException {
             Util.saveObjectsToStream(pOS, pTypes);
         }
     }
@@ -273,12 +273,12 @@ public interface PTypeProvider extends Serializable {
         }
         
         /** Constructs a type provider with the types */
-        public Extensible(PType... pTypes) {
+        public Extensible(ParserType... pTypes) {
             super(pTypes);
         }
         
         @Override
-        public boolean addRPType(PType pRPT) {
+        public boolean addRPType(ParserType pRPT) {
             return super.addRPType(pRPT);
         }
         
@@ -289,7 +289,7 @@ public interface PTypeProvider extends Serializable {
         
         // Add Type exclusively ----------------------------------------------------------------------------------------
         
-        public boolean addType(PType pRPT) {
+        public boolean addType(ParserType pRPT) {
             if ((pRPT != null) && (pRPT.TProvider == null))
                 pRPT.TProvider = this;
             return super.addRPType(pRPT);
@@ -350,7 +350,7 @@ public interface PTypeProvider extends Serializable {
             return new Library(First, Second);
         }
         
-        public Library(PType[] pTypes, PTypeProvider... pProviders) {
+        public Library(ParserType[] pTypes, PTypeProvider... pProviders) {
             super(pTypes);
             if (pProviders == null)
                 return;
@@ -411,15 +411,15 @@ public interface PTypeProvider extends Serializable {
         }
         
         @Override
-        public PType getType(String pName) {
+        public ParserType getType(String pName) {
             if (this.RPTypes != null) {
-                PType RPT = this.RPTypes.get(pName);
+                ParserType RPT = this.RPTypes.get(pName);
                 if (RPT != null)
                     return RPT;
             }
             if (this.Providers != null) {
                 for (int i = 0; i < this.Providers.size(); i++) {
-                    PType RPT = this.Providers.get(i).getType(pName);
+                    ParserType RPT = this.Providers.get(i).getType(pName);
                     if (RPT != null)
                         return RPT;
                 }

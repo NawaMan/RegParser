@@ -24,46 +24,46 @@ package net.nawaman.regparser;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public enum Greediness {
-    
-    /** Maximum possible match that still allow the later part to match */
-    Maximum,
-    /** Minimum possible match that still allow the later part to match */
-    Minimum,
-    /** Eat all token until no longer can and do not care about the later part */
-    Possessive;
-    
-    /** Symbol for Maximum in RegParser language */
-    public static final String MaximumSign = "+";
-    public static final String MinimumSign = "*";
-    
-    /** Checks if this is a maximum greediness */
-    public boolean isMaximum() {
-        return this == Maximum;
-    }
-    
-    /** Checks if this is a minimum greediness */
-    public boolean isMinimum() {
-        return this == Minimum;
-    }
-    
-    /** Checks if this is a possessive greediness */
-    public boolean isPossessive() {
-        return this == Possessive;
-    }
-    
-    /** Returns the sign of this greediness */
-    public String sign() {
-        switch (this) {
-            case Maximum:
-                return MaximumSign;
-                
-            case Minimum:
-                return MinimumSign;
-                
-            case Possessive:
-                return "";
-        }
-        return "";
-    }
-    
+	
+	/** Maximum possible match that still allow the later part to match */
+	Maximum,
+	/** Minimum possible match that still allow the later part to match */
+	Minimum,
+	/** Eat all token until no longer can and do not care about the later part */
+	Possessive;
+	
+	/** Symbol for Maximum in RegParser language */
+	public static final String MaximumSign = "+";
+	public static final String MinimumSign = "*";
+	
+	/** Checks if this is a maximum greediness */
+	public boolean isMaximum() {
+		return this == Maximum;
+	}
+	
+	/** Checks if this is a minimum greediness */
+	public boolean isMinimum() {
+		return this == Minimum;
+	}
+	
+	/** Checks if this is a possessive greediness */
+	public boolean isPossessive() {
+		return this == Possessive;
+	}
+	
+	/** Returns the sign of this greediness */
+	public String sign() {
+		switch (this) {
+			case Maximum:
+				return MaximumSign;
+			
+			case Minimum:
+				return MinimumSign;
+			
+			case Possessive:
+			return "";
+		}
+		return "";
+	}
+	
 }

@@ -470,7 +470,7 @@ public class TestRegParserCompiler2 {
 			validate(11, parser.match("int V1 = 5;",  typeProvider).endPosition());
 		}
 		
-		typeProvider.addRPType(PTBackRef.BackRef_Instance);
+		typeProvider.addRPType(ParserTypeBackRef.BackRef_Instance);
 		typeProvider.addRPType(PTBackRefCI.BackRefCI_Instance);
 		
 		{

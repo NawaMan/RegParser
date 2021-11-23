@@ -31,28 +31,28 @@ import net.nawaman.regparser.result.ParseResult;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public interface Checker extends Serializable {
-    
-    /** Returns the empty array of Checkers */
-    public static final Checker[] EMPTY_CHECKER_ARRAY = new Checker[0];
-    
-    /**
-     * Returns the length of the match if the string S starts (from offset) with this checker.<br />
-     * @param  text    the string to be parsed
-     * @param  offset  the starting point of the checking
-     * @return         the length of the match or -1 if the string S does not start with this checker
-     */
-    public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider);
-    
-    /**
-     * Returns the length of the match if the string S starts (from offset) with this checker.<br />
-     * @param  text         the string to be parsed
-     * @param  offset       the starting point of the checking
-     * @param  parseResult  the parse result of the current parsing. Only given in special case from RegParser.
-     * @return              the length of the match or -1 if the string S does not start with this checker
-     */
-    public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider, ParseResult parseResult);
-    
-    /** Return the optimized version of this Checker */
-    public Checker optimize();
-    
+	
+	/** Returns the empty array of Checkers */
+	public static final Checker[] EMPTY_CHECKER_ARRAY = new Checker[0];
+	
+	/**
+	 * Returns the length of the match if the string S starts (from offset) with this checker.<br />
+	 * @param  text    the string to be parsed
+	 * @param  offset  the starting point of the checking
+	 * @return         the length of the match or -1 if the string S does not start with this checker
+	 */
+	public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider);
+	
+	/**
+	 * Returns the length of the match if the string S starts (from offset) with this checker.<br />
+	 * @param  text         the string to be parsed
+	 * @param  offset       the starting point of the checking
+	 * @param  parseResult  the parse result of the current parsing. Only given in special case from RegParser.
+	 * @return              the length of the match or -1 if the string S does not start with this checker
+	 */
+	public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider, ParseResult parseResult);
+	
+	/** Return the optimized version of this Checker */
+	public Checker optimize();
+	
 }

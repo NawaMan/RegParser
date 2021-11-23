@@ -35,7 +35,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 import net.nawaman.regparser.CompilationContext;
-import net.nawaman.regparser.PType;
+import net.nawaman.regparser.ParserType;
 import net.nawaman.regparser.PTypeProvider;
 import net.nawaman.regparser.PTypeRef;
 import net.nawaman.regparser.RPEntry;
@@ -696,7 +696,7 @@ abstract public class ParseResult implements Serializable {
 	}
 	
 	/** Get Type of the last match */
-	public final PType typeOf(int index, PTypeProvider typeProvider) {
+	public final ParserType typeOf(int index, PTypeProvider typeProvider) {
 		var entry = entryAt(index);
 		if (entry == null)
 			return null;
@@ -716,22 +716,22 @@ abstract public class ParseResult implements Serializable {
 	}
 	
 	/** Get Type of the last match */
-	public final PType typeOf(String name, PTypeProvider typeProvider) {
+	public final ParserType typeOf(String name, PTypeProvider typeProvider) {
 		int index = indexOf(name);
 		return typeOf(index, typeProvider);
 	}
 	
 	/** Get subs result of the last match */
-	public final PType[] typesOf(String name, PTypeProvider typeProvider) {
+	public final ParserType[] typesOf(String name, PTypeProvider typeProvider) {
 		var indexes = indexesOf(name);
 		if (indexes == null)
 			return null;
 		
 		int length = indexes.length;
 		if (length == 0)
-			return new PType[0];
+			return new ParserType[0];
 		
-		var types = new PType[length];
+		var types = new ParserType[length];
 		for (int i = types.length; --i >= 0; ) {
 			int index = indexes[i];
 			types[i] = typeOf(index, typeProvider);
@@ -1419,7 +1419,7 @@ abstract public class ParseResult implements Serializable {
 		
 		// Collapse the same type and same name that end with '[]'
 		lastEntry = entries.get(entries.size() - 1);
-		PType    LatestType = lastEntry.type();
+		ParserType    LatestType = lastEntry.type();
 		PTypeRef LatestTRef = lastEntry.typeRef();
 		String   LatestName = lastEntry.name();
 		

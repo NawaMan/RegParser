@@ -27,17 +27,17 @@ import net.nawaman.regparser.result.ParseResult;
  * 
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-abstract public class PType implements Serializable {
+abstract public class ParserType implements Serializable {
     
     static private final long serialVersionUID = 7148744076563340787L;
     
     /** An empty array of RPType */
-    static public final PType[] EmptyTypeArray = new PType[0];
+    static public final ParserType[] EmptyTypeArray = new ParserType[0];
     
     /** Returns the name of the type */
     abstract public String name();
     
-    PTypeRef DefaultRef = null;
+    private PTypeRef DefaultRef = null;
     
     /** Return the default TypeRef of this type */
     final public PTypeRef getTypeRef() {

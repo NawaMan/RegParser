@@ -34,7 +34,7 @@ public class TestType {
 	private PTypeProvider.Simple defaultTypeProvider;
 	
 	@SuppressWarnings("serial")
-	static class RTByte extends PType {
+	static class RTByte extends ParserType {
 		
 		static public final RTByte Instance = new RTByte();
 		
@@ -89,7 +89,7 @@ public class TestType {
 	public void testDefineType() {
 		
 		@SuppressWarnings("serial")
-		var byteType = new PType() {
+		var byteType = new ParserType() {
 			@Override
 			public String name() {
 				return "$byte?";
@@ -119,7 +119,7 @@ public class TestType {
 	public void testTypeWithValidation() {
 		
 		@SuppressWarnings("serial")
-		var int0To4 = new PType() {
+		var int0To4 = new ParserType() {
 			@Override
 			public String name() {
 				return "$int(0-4)?";
@@ -141,7 +141,7 @@ public class TestType {
 		};
 		
 		@SuppressWarnings("serial")
-		var int5To9 = new PType() {
+		var int5To9 = new ParserType() {
 			@Override
 			public String name() {
 				return "$int(5-9)?";
@@ -177,7 +177,7 @@ public class TestType {
 	@Test
 	public void testRecursive() {
 		@SuppressWarnings("serial")
-		var blockType = new PType() {
+		var blockType = new ParserType() {
 			@Override
 			public String name() {
 				return "block";
@@ -240,13 +240,13 @@ public class TestType {
 	@Test
 	public void testBackReference() {
 		// Add the type
-		defaultTypeProvider.addRPType(PTBackRef.BackRef_Instance);
+		defaultTypeProvider.addRPType(ParserTypeBackRef.BackRef_Instance);
 		defaultTypeProvider.addRPType(PTBackRefCI.BackRefCI_Instance);
 		
 		var regParser = newRegParser(defaultTypeProvider,
 		                    RPEntry._new("#X", new PTypeRef.Simple("$byte?")), 
 		                    new CharSingle('x'),
-		                    newRegParser(defaultTypeProvider, new PTypeRef.Simple(PTBackRef.BackRef_Instance.name(), "#X"))
+		                    newRegParser(defaultTypeProvider, new PTypeRef.Simple(ParserTypeBackRef.BackRef_Instance.name(), "#X"))
 		        );
 		validate("(#X:!$byte?!)[x]((!$BackRef?(\"#X\")!))", regParser);
 		
@@ -264,7 +264,7 @@ public class TestType {
 	@Test
 	public void testBackReference_xml() {
 		// Add the type
-		var typeProvider = new PTypeProvider.Simple(PTBackRef.BackRef_Instance);
+		var typeProvider = new PTypeProvider.Simple(ParserTypeBackRef.BackRef_Instance);
 		
 		var parser = newRegParser(typeProvider, 
 		                new CharSingle('<'),
@@ -274,7 +274,7 @@ public class TestType {
 		                Any, ZeroOrMore_Minimum,
 		                newRegParser(typeProvider, "#End",
 		                        newRegParser(typeProvider, new WordChecker("</"),
-		                                RPEntry._new("#EndTag", new PTypeRef.Simple(PTBackRef.BackRef_Instance.name(), "Begin")),
+		                                RPEntry._new("#EndTag", new PTypeRef.Simple(ParserTypeBackRef.BackRef_Instance.name(), "Begin")),
 		                                new CharSingle('>'))));
 		
 		validate(
@@ -307,7 +307,7 @@ public class TestType {
 	public void testExtensibleTypeProvider() {
 		
 		@SuppressWarnings("serial")
-		var identifierType = new PType() {
+		var identifierType = new ParserType() {
 			@Override
 			public String name() {
 				return "Identifier";
@@ -324,7 +324,7 @@ public class TestType {
 		};
 		
 		@SuppressWarnings("serial")
-		var stringLiteralType = new PType() {
+		var stringLiteralType = new ParserType() {
 		@Override
 		public String name() {
 			return "StringValue";
@@ -348,7 +348,7 @@ public class TestType {
 		};
 		
 		@SuppressWarnings("serial")
-		var attributeType = new PType() {
+		var attributeType = new ParserType() {
 			@Override
 			public String name() {
 				return "Attribute";
@@ -367,7 +367,7 @@ public class TestType {
 		};
 		
 		@SuppressWarnings("serial")
-		var tagType = new PType() {
+		var tagType = new ParserType() {
 			@Override
 			public String name() {
 				return "Tag";
