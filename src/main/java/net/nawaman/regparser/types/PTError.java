@@ -66,7 +66,7 @@ public class PTError extends ParserType {
     
     /**{@inheritDoc}*/
     @Override
-    final public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
+    final public Checker checker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
         return this.TheChecker;
     }
     

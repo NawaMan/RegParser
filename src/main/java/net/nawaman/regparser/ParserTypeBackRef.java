@@ -46,7 +46,7 @@ public class ParserTypeBackRef extends ParserType {
 	
 	/**{@inheritDoc}*/
 	@Override
-	public Checker getChecker(ParseResult hostResult, String parameter, PTypeProvider typeProvider) {
+	public Checker checker(ParseResult hostResult, String parameter, PTypeProvider typeProvider) {
 		var word = lastMatchByName(hostResult, parameter, typeProvider);
 		return (word == null)
 		        ? WordChecker.EmptyWord

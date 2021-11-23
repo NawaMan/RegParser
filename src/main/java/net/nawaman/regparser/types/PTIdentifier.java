@@ -48,7 +48,7 @@ public class PTIdentifier extends ParserType {
             Quantifier.ZeroOrMore);
     
     @Override
-    public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
+    public Checker checker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
         return this.Checker;
     }
     

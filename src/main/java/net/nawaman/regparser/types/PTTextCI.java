@@ -47,7 +47,7 @@ public class PTTextCI extends ParserType {
     }
     
     @Override
-    public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
+    public Checker checker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
         if (pParam == null)
             pParam = "";
         int     L = pParam.length();

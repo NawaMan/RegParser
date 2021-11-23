@@ -57,9 +57,9 @@ public interface PTypeProvider extends Serializable {
         
         /** Include the type pPT to exclusively be a member of the provider pTP */
         static public boolean exclusivelyInclude(PTypeProvider pTP, ParserType pPT) {
-            if ((pPT == null) || (pPT.TProvider != null))
+            if ((pPT == null) || (pPT.typeProvider() != null))
                 return false;
-            pPT.TProvider = pTP;
+            pPT.setTypeProvider(pTP);
             return true;
         }
         
@@ -290,8 +290,8 @@ public interface PTypeProvider extends Serializable {
         // Add Type exclusively ----------------------------------------------------------------------------------------
         
         public boolean addType(ParserType pRPT) {
-            if ((pRPT != null) && (pRPT.TProvider == null))
-                pRPT.TProvider = this;
+            if ((pRPT != null) && (pRPT.typeProvider() == null))
+                pRPT.setTypeProvider(this);
             return super.addRPType(pRPT);
         }
         

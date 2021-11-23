@@ -46,7 +46,7 @@ public class TestType {
 		Checker checker = newRegParser(Digit, new Quantifier(1, 3));
 		
 		@Override
-		public Checker getChecker(ParseResult hostResult, String param, PTypeProvider provider) {
+		public Checker checker(ParseResult hostResult, String param, PTypeProvider provider) {
 			return this.checker;
 		}
 		
@@ -98,7 +98,7 @@ public class TestType {
 			Checker checker = newRegParser(Digit, new Quantifier(1, 3));
 			
 			@Override
-			public Checker getChecker(ParseResult hostResult, String param, PTypeProvider typeProvider) {
+			public Checker checker(ParseResult hostResult, String param, PTypeProvider typeProvider) {
 				return this.checker;
 			}
 			
@@ -128,7 +128,7 @@ public class TestType {
 			Checker checker = newRegParser(Digit, new Quantifier(1, 1, Maximum));
 			
 			@Override
-			public Checker getChecker(ParseResult hostResult, String param, PTypeProvider provider) {
+			public Checker checker(ParseResult hostResult, String param, PTypeProvider provider) {
 				return this.checker;
 			}
 			
@@ -150,7 +150,7 @@ public class TestType {
 			Checker checker = newRegParser(Digit, new Quantifier(1, 1, Maximum));
 			
 			@Override
-			public Checker getChecker(ParseResult hostResult, String param, PTypeProvider typeProvider) {
+			public Checker checker(ParseResult hostResult, String param, PTypeProvider typeProvider) {
 				return this.checker;
 			}
 			
@@ -192,7 +192,7 @@ public class TestType {
 			                    new CharSingle('>'));
 			
 			@Override
-			public Checker getChecker(ParseResult hostResult, String param, PTypeProvider typeProvider) {
+			public Checker checker(ParseResult hostResult, String param, PTypeProvider typeProvider) {
 				return this.checker;
 			}
 		};
@@ -318,7 +318,7 @@ public class TestType {
 			                        new CharUnion(Alphabet, new CharSingle('_'), Digit), ZeroOrMore);
 			
 			@Override
-			public Checker getChecker(ParseResult hostResult, String param, PTypeProvider typeProvider) {
+			public Checker checker(ParseResult hostResult, String param, PTypeProvider typeProvider) {
 				return this.checker;
 			}
 		};
@@ -342,7 +342,7 @@ public class TestType {
 		                                    Quantifier.ZeroOrMore_Minimum, new CharSingle('\''))));
 		
 		@Override
-		public Checker getChecker(ParseResult hostResult, String param, PTypeProvider typeProvider) {
+		public Checker checker(ParseResult hostResult, String param, PTypeProvider typeProvider) {
 			return this.checker;
 		}
 		};
@@ -361,7 +361,7 @@ public class TestType {
 			                    new PTypeRef.Simple("StringValue"));
 			
 			@Override
-			public Checker getChecker(ParseResult hostResult, String param, PTypeProvider typeProvider) {
+			public Checker checker(ParseResult hostResult, String param, PTypeProvider typeProvider) {
 				return this.checker;
 			}
 		};
@@ -393,7 +393,7 @@ public class TestType {
 			                            newRegParser(new WordChecker("/>"))));
 			
 			@Override
-			public Checker getChecker(ParseResult hostResult, String param, PTypeProvider typeProvider) {
+			public Checker checker(ParseResult hostResult, String param, PTypeProvider typeProvider) {
 				return this.checker;
 			}
 		};

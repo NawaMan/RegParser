@@ -533,7 +533,7 @@ public class RegParser implements Checker, Serializable {
             Set<String> Ns = RPTProvider.getAllTypeNames();
             for (String N : Ns) {
                 ParserType RPType = RPTProvider.getType(N);
-                RPType.getChecker(null, null, RPTProvider);
+                RPType.checker(null, null, RPTProvider);
             }
             
             // Save for later use
@@ -855,7 +855,7 @@ public class RegParser implements Checker, Serializable {
                         
                         // Extract a type
                         if (FT != null) {
-                            FP = FT.getChecker(pResult, Param, pProvider);
+                            FP = FT.checker(pResult, Param, pProvider);
                             if (FP == null)
                                 throw new RPParsingException("RegParser type named '" + FTR + "' has no checker.");
                         }

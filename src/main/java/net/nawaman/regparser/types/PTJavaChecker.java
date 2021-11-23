@@ -68,7 +68,7 @@ public class PTJavaChecker extends ParserType {
     
     @SuppressWarnings("deprecation")
     @Override
-    public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
+    public Checker checker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
         if ((pParam == null) || (pParam.length() == 0))
             return RegParser.newRegParser(new CharNot(PredefinedCharClasses.Any), Quantifier.Zero);
         

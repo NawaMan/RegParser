@@ -52,9 +52,10 @@ abstract public class ParserType implements Serializable {
 	}
 	
 	/** Returns the checker for parsing the type */
-	abstract public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider);
+	abstract public Checker checker(ParseResult pHostResult, String pParam, PTypeProvider pProvider);
 	
-	int Flags = 0;
+	
+	private int Flags = 0;
 	
 	/** Checks if this type will not record the sub-result but record as a text */
 	final public boolean isText() {
@@ -128,18 +129,26 @@ abstract public class ParserType implements Serializable {
 	
 	// Parsing and Matching ------------------------------------------------------------------------
 	
-	private RegParser     ThisRP    = null;
-	PTypeProvider TProvider = null;
+	private RegParser parser    = null;
+	private PTypeProvider typeProvider = null;
 	
-	PTypeProvider getDefaultTypeProvider() {
-		return this.TProvider;
+	public PTypeProvider typeProvider() {
+		return typeProvider;
+	}
+	
+	void setTypeProvider(PTypeProvider typeProvider) {
+		this.typeProvider = typeProvider;
+	}
+	
+	PTypeProvider defaultTypeProvider() {
+		return this.typeProvider;
 	}
 	
 	/** Returns the RegParser wrapping this type */
 	public RegParser getRegParser() {
-		if (this.ThisRP == null)
-			this.ThisRP = RegParser.newRegParser(this);
-		return this.ThisRP;
+		if (this.parser == null)
+			this.parser = RegParser.newRegParser(this);
+		return this.parser;
 	}
 	
 	// Parse
@@ -166,7 +175,7 @@ abstract public class ParserType implements Serializable {
 	
 	/** Returns the match if the text is start with a match (from pOffset on) or -1 if not */
 	public ParseResult doParse(CharSequence pText, int pOffset, PTypeProvider pProvider) {
-		PTypeProvider TP = PTypeProvider.Library.getEither(pProvider, this.TProvider);
+		PTypeProvider TP = PTypeProvider.Library.getEither(pProvider, this.typeProvider);
 		return this.getRegParser().parse(pText, pOffset, TP);
 	}
 	
@@ -204,7 +213,7 @@ abstract public class ParserType implements Serializable {
 	
 	/** Returns the match if the text is start with a match (from start to the pEndPosition) or -1 if not */
 	protected ParseResult doMatch(CharSequence pText, int pOffset, int pEndPosition, PTypeProvider pProvider) {
-		PTypeProvider TP = PTypeProvider.Library.getEither(pProvider, this.TProvider);
+		PTypeProvider TP = PTypeProvider.Library.getEither(pProvider, this.typeProvider);
 		return this.getRegParser().match(pText, pOffset, (pEndPosition == -1) ? pText.length() : pEndPosition, TP);
 	}
 	
@@ -218,7 +227,7 @@ abstract public class ParserType implements Serializable {
 	/** Validate the parse result */
 	final public boolean validate(ParseResult pHostResult, ParseResult pThisResult, String pParam,
 	        PTypeProvider pProvider) {
-		PTypeProvider TP = PTypeProvider.Library.getEither(pProvider, this.TProvider);
+		PTypeProvider TP = PTypeProvider.Library.getEither(pProvider, this.typeProvider);
 		return this.doValidate(pHostResult, pThisResult, pParam, TP);
 	}
 	
@@ -304,7 +313,7 @@ abstract public class ParserType implements Serializable {
 	/** Compiles a ParseResult in to an object with a parameter */
 	final public Object compile(ParseResult pThisResult, int pEntryIndex, String pParam, CompilationContext pContext,
 	        PTypeProvider pProvider) {
-		PTypeProvider TP = PTypeProvider.Library.getEither(pProvider, this.TProvider);
+		PTypeProvider TP = PTypeProvider.Library.getEither(pProvider, this.typeProvider);
 		return this.doCompile(pThisResult, pEntryIndex, pParam, pContext, TP);
 	}
 	

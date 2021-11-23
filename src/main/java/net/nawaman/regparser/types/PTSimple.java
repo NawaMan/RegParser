@@ -54,7 +54,7 @@ public class PTSimple extends ParserType {
     }
 
     /**{@inheritDoc}*/ @Override
-    final public Checker getChecker(ParseResult pHostResult, String pParam,
+    final public Checker checker(ParseResult pHostResult, String pParam,
             PTypeProvider pProvider) {
         
         if(this.TheChecker instanceof RPGetChecker)

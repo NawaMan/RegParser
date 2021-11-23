@@ -69,7 +69,7 @@ public class RPCompiler_ParserTypes {
         static public String Name = "Comment";
         @Override public String name() { return Name; }
         Checker Checker = null;
-        @Override public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
+        @Override public Checker checker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
             if(this.Checker == null) {
                 this.Checker = new CheckerAlternative(
                     RegParser.newRegParser(new WordChecker("/*"), new CheckerNot(new WordChecker("*/")), Quantifier.ZeroOrMore, new WordChecker("*/")),
@@ -90,7 +90,7 @@ public class RPCompiler_ParserTypes {
         static public String Name = "Escape";
         @Override public String name() { return Name; }
         Checker Checker = RegParser.newRegParser(new CharSingle('\\'), new CharSet(RPCompiler_ParserTypes.Escapable));
-        @Override public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) { return this.Checker; }
+        @Override public Checker checker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) { return this.Checker; }
         @Override public Object  doCompile(ParseResult pThisResult, int pEntryIndex, String pParam, CompilationContext pContext,
                 PTypeProvider pProvider) {
             
@@ -113,7 +113,7 @@ public class RPCompiler_ParserTypes {
                 new CharRange('0', '7'), new Quantifier(1, 2)
             );
         static final String OCT = "01234567";
-        @Override public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) { return this.Checker; }
+        @Override public Checker checker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) { return this.Checker; }
         @Override public Object  doCompile(ParseResult pThisResult, int pEntryIndex, String pParam, CompilationContext pContext,
                 PTypeProvider pProvider) {
             
@@ -138,7 +138,7 @@ public class RPCompiler_ParserTypes {
                 PredefinedCharClasses.HexadecimalDigit
             );
         static final public String HEX = "0123456789ABCDEF";
-        @Override public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) { return this.Checker; }
+        @Override public Checker checker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) { return this.Checker; }
         @Override public Object  doCompile(ParseResult pThisResult, int pEntryIndex, String pParam, CompilationContext pContext,
                 PTypeProvider pProvider) {
             
@@ -164,7 +164,7 @@ public class RPCompiler_ParserTypes {
                 PredefinedCharClasses.HexadecimalDigit
             );
         static final public String HEX = "0123456789ABCDEF";
-        @Override public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) { return this.Checker; }
+        @Override public Checker checker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) { return this.Checker; }
         @Override public Object  doCompile(ParseResult pThisResult, int pEntryIndex, String pParam, CompilationContext pContext,
                 PTypeProvider pProvider) {
             
@@ -437,7 +437,7 @@ public class RPCompiler_ParserTypes {
                 )
             )
         );
-        @Override public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) { return this.Checker; }
+        @Override public Checker checker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) { return this.Checker; }
         @Override public Object  doCompile(ParseResult pThisResult, int pEntryIndex, String pParam, CompilationContext pContext,
                 PTypeProvider pProvider) {
             pThisResult = pThisResult.entryAt(pEntryIndex).subResult();
@@ -516,7 +516,7 @@ public class RPCompiler_ParserTypes {
                 ),
                 "#Greediness", new CharSet("+*"), Quantifier.ZeroOrOne
             );
-        @Override public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) { return this.Checker; }
+        @Override public Checker checker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) { return this.Checker; }
         @Override public Object  doCompile(ParseResult pThisResult, int pEntryIndex, String pParam, CompilationContext pContext,
                 PTypeProvider pProvider) {
 
@@ -614,7 +614,7 @@ public class RPCompiler_ParserTypes {
         static public String Name = "Range";
         @Override public String name() { return Name; }
         Checker TheChecker = null;
-        @Override public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
+        @Override public Checker checker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
             if(this.TheChecker == null) {
                 Vector<Checker> Cs = new Vector<Checker>();
                 Cs.add(RegParser.newRegParser(new CharNot(new CharSet(RPCompiler_ParserTypes.Escapable + "-"))));
@@ -695,7 +695,7 @@ public class RPCompiler_ParserTypes {
         static public String Name = "CharSetItem";
         @Override public String name() { return Name; }
         Checker TheChecker = null;
-        @Override public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
+        @Override public Checker checker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
             if(this.TheChecker == null) {
                 Vector<Checker> Cs = new Vector<Checker>();
                 Cs.add(RPCompiler_ParserTypes.PredefinedCheckers);
@@ -808,7 +808,7 @@ public class RPCompiler_ParserTypes {
         @Override public String name() { return Name; }
         Checker TheChecker = null;
         //@Override public boolean isText() { return false; }
-        @Override public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
+        @Override public Checker checker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
             if(this.TheChecker == null) {
                 Vector<Checker> Cs = new Vector<Checker>();
                 Cs.add(RPCompiler_ParserTypes.PredefinedCheckers);
@@ -1095,7 +1095,7 @@ public class RPCompiler_ParserTypes {
                 )
             ), Quantifier.OneOrMore
         );
-        @Override public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) { return this.Checker; }
+        @Override public Checker checker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) { return this.Checker; }
         @Override public Object  doCompile(ParseResult pThisResult, int pEntryIndex, String pParam, CompilationContext pContext,
                 PTypeProvider pProvider) {
             
