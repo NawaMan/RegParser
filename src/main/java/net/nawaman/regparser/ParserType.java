@@ -18,6 +18,8 @@
 
 package net.nawaman.regparser;
 
+import static net.nawaman.regparser.RegParser.newRegParser;
+
 import java.io.Serializable;
 
 import net.nawaman.regparser.result.ParseResult;
@@ -34,300 +36,343 @@ abstract public class ParserType implements Serializable {
 	/** An empty array of RPType */
 	static public final ParserType[] EmptyTypeArray = new ParserType[0];
 	
-	private PTypeRef defaultRef = null;
+	private PTypeRef      defaultRef   = null;
+	private int           flags        = 0;
+	private RegParser     parser       = null;
+	private PTypeProvider typeProvider = null;
 	
 	/** Returns the name of the type */
 	abstract public String name();
 	
+	/** Returns the checker for parsing the type */
+	abstract public Checker checker(ParseResult hostResult, String param, PTypeProvider typeProvider);
+	
+	
 	/** Return the default TypeRef of this type */
-	final public PTypeRef typeRef() {
+	public final PTypeRef typeRef() {
 		return (defaultRef != null)
-		        ? defaultRef :
-		        (defaultRef = new PTypeRef.Simple(name(), null));
+		        ? defaultRef
+		        : (defaultRef = new PTypeRef.Simple(name(), null));
 	}
 	
 	/** Return the default TypeRef of this type with the parameter */
-	final public PTypeRef typeRef(String pParam) {
-		return (pParam == null) ? this.typeRef() : new PTypeRef.Simple(this.name(), pParam);
+	public final PTypeRef typeRef(String parameter) {
+		return (parameter == null)
+		        ? typeRef()
+		        : new PTypeRef.Simple(name(), parameter);
 	}
 	
-	/** Returns the checker for parsing the type */
-	abstract public Checker checker(ParseResult pHostResult, String pParam, PTypeProvider pProvider);
-	
-	
-	private int Flags = 0;
-	
 	/** Checks if this type will not record the sub-result but record as a text */
-	final public boolean isText() {
-		if ((this.Flags & 0x80) != 0)
-			return ((this.Flags & 0x08) != 0);
-		boolean IsText = this.name().startsWith("$");
-		this.Flags = (this.Flags | 0x80) | (IsText ? 0x08 : 0x00);
-		return IsText;
+	public final boolean isText() {
+		if ((flags & 0x80) != 0)
+			return ((flags & 0x08) != 0);
+		
+		boolean isText = name().startsWith("$");
+		flags = (flags | 0x80) | (isText ? 0x08 : 0x00);
+		
+		return isText;
 	}
 	
 	/** Checks if the continuous text results of this type will collapse into one */
-	final public boolean isCollective() {
-		if ((this.Flags & 0x40) != 0)
-			return ((this.Flags & 0x04) != 0);
-		boolean IsCollective = this.name().endsWith("[]");
-		this.Flags = (this.Flags | 0x40) | (IsCollective ? 0x04 : 0x00);
-		return IsCollective;
+	public final boolean isCollective() {
+		if ((flags & 0x40) != 0)
+			return ((flags & 0x04) != 0);
+		
+		boolean isCollective = name().endsWith("[]");
+		flags = (flags | 0x40) | (isCollective ? 0x04 : 0x00);
+		
+		return isCollective;
 	}
 	
 	/**
 	 * Checks if the boundary of the result of this type can be determine by the its checker alone and validation is not
 	 *    mandatory to determine its length
 	 **/
-	final public boolean hasValidation() {
-		if ((this.Flags & 0x20) != 0)
-			return ((this.Flags & 0x02) != 0);
-		String  N             = this.name();
-		boolean HasValidation = N.contains("?") || N.contains("~");
-		this.Flags = (this.Flags | 0x20) | (HasValidation ? 0x02 : 0x00);
-		return HasValidation;
+	public final boolean hasValidation() {
+		if ((flags & 0x20) != 0)
+			return ((flags & 0x02) != 0);
+		
+		var     name          = name();
+		boolean hasValidation = name.contains("?") || name.contains("~");
+		flags = (flags | 0x20) | (hasValidation ? 0x02 : 0x00);
+		
+		return hasValidation;
 	}
 	
 	/**
 	 * Checks if the boundary of the result of this type can be determine by the its checker alone and validation is not
 	 *    mandatory to determine its length
 	 **/
-	final public boolean isSelfContain() {
-		if ((this.Flags & 0x10) != 0)
-			return ((this.Flags & 0x01) != 0);
-		String  N             = this.name();
-		boolean IsSelfContain = !N.contains("~");
-		this.Flags = (this.Flags | 0x10) | (IsSelfContain ? 0x01 : 0x00);
-		return IsSelfContain;
+	public final boolean isSelfContain() {
+		if ((flags & 0x10) != 0)
+			return ((flags & 0x01) != 0);
+		
+		var     name          = name();
+		boolean isSelfContain = !name.contains("~");
+		flags = (flags | 0x10) | (isSelfContain ? 0x01 : 0x00);
+		
+		return isSelfContain;
 	}
 	
 	/**
 	 * Checks if the boundary of the result of this type can be determine by the its checker alone and validation is not
 	 *    mandatory to determine its length
 	 **/
-	final public boolean hasFlatAlways() {
-		if ((this.Flags & 0x2000) != 0)
-			return ((this.Flags & 0x0200) != 0);
-		String  N             = this.name();
-		boolean HasValidation = N.contains("*");
-		this.Flags = (this.Flags | 0x2000) | (HasValidation ? 0x0200 : 0x0000);
-		return HasValidation;
+	public final boolean hasFlatAlways() {
+		if ((flags & 0x2000) != 0)
+			return ((flags & 0x0200) != 0);
+		
+		var     name          = name();
+		boolean hasValidation = name.contains("*");
+		flags = (flags | 0x2000) | (hasValidation ? 0x0200 : 0x0000);
+		
+		return hasValidation;
 	}
 	
 	/**
 	 * Checks if the boundary of the result of this type can be determine by the its checker alone and validation is not
 	 *    mandatory to determine its length
 	 **/
-	final public boolean isFlatSingle() {
-		if ((this.Flags & 0x1000) != 0)
-			return ((this.Flags & 0x0100) != 0);
-		String  N             = this.name();
-		boolean IsSelfContain = !N.contains("+");
-		this.Flags = (this.Flags | 0x1000) | (IsSelfContain ? 0x0100 : 0x0000);
-		return IsSelfContain;
+	public final boolean isFlatSingle() {
+		if ((flags & 0x1000) != 0)
+			return ((flags & 0x0100) != 0);
+		
+		var     name          = name();
+		boolean isSelfContain = !name.contains("+");
+		flags = (flags | 0x1000) | (isSelfContain ? 0x0100 : 0x0000);
+		
+		return isSelfContain;
 	}
 	
-	// Parsing and Matching ------------------------------------------------------------------------
-	
-	private RegParser parser    = null;
-	private PTypeProvider typeProvider = null;
-	
-	public PTypeProvider typeProvider() {
+	public final PTypeProvider typeProvider() {
 		return typeProvider;
 	}
 	
-	void setTypeProvider(PTypeProvider typeProvider) {
+	final void setTypeProvider(PTypeProvider typeProvider) {
 		this.typeProvider = typeProvider;
 	}
 	
-	PTypeProvider defaultTypeProvider() {
-		return this.typeProvider;
+	final PTypeProvider defaultTypeProvider() {
+		return typeProvider;
 	}
 	
 	/** Returns the RegParser wrapping this type */
-	public RegParser getRegParser() {
-		if (this.parser == null)
-			this.parser = RegParser.newRegParser(this);
-		return this.parser;
+	public final RegParser parser() {
+		if (parser == null) {
+			parser = newRegParser(this);
+		}
+		return parser;
 	}
 	
-	// Parse
+	// == Parse ==
 	
 	/** Returns the the match if the text is start with a match or -1 if not */
-	final public ParseResult parse(CharSequence pText) {
-		return this.parse(pText, 0, null);
+	public final ParseResult parse(CharSequence text) {
+		return parse(text, 0, null);
 	}
 	
 	/** Returns the match if the text is start with a match (from pOffset on) or -1 if not */
-	final public ParseResult parse(CharSequence pText, int pOffset) {
-		return this.parse(pText, pOffset, null);
+	public final ParseResult parse(CharSequence text, int offset) {
+		return parse(text, offset, null);
 	}
 	
 	/** Returns the the match if the text is start with a match or -1 if not */
-	final public ParseResult parse(CharSequence pText, PTypeProvider pProvider) {
-		return this.parse(pText, 0, pProvider);
+	public final ParseResult parse(CharSequence text, PTypeProvider typeProvider) {
+		return parse(text, 0, typeProvider);
 	}
 	
 	/** Returns the match if the text is start with a match (from pOffset on) or -1 if not */
-	final public ParseResult parse(CharSequence pText, int pOffset, PTypeProvider pProvider) {
-		return this.doParse(pText, pOffset, pProvider);
+	public final ParseResult parse(CharSequence text, int offset, PTypeProvider typeProvider) {
+		return doParse(text, offset, typeProvider);
 	}
 	
 	/** Returns the match if the text is start with a match (from pOffset on) or -1 if not */
-	public ParseResult doParse(CharSequence pText, int pOffset, PTypeProvider pProvider) {
-		PTypeProvider TP = PTypeProvider.Library.getEither(pProvider, this.typeProvider);
-		return this.getRegParser().parse(pText, pOffset, TP);
+	public final ParseResult doParse(CharSequence text, int offset, PTypeProvider typeProvider) {
+		var provider = PTypeProvider.Library.getEither(typeProvider, this.typeProvider);
+		return parser()
+				.parse(text, offset, provider);
 	}
 	
 	// Match
 	
 	/** Returns the match if the text is start with a match (from start to the end) or -1 if not */
-	final public ParseResult match(CharSequence pText) {
-		return this.match(pText, 0, pText.length(), null);
+	public final ParseResult match(CharSequence text) {
+		int endPosition = text.length();
+		return match(text, 0, endPosition, null);
 	}
 	
 	/** Returns the match if the text is start with a match (from start to the pEndPosition) or -1 if not */
-	final public ParseResult match(CharSequence pText, int pOffset, int pEndPosition) {
-		return this.match(pText, pOffset, (pEndPosition == -1) ? pText.length() : pEndPosition, null);
+	public final ParseResult match(CharSequence text, int offset, int endPosition) {
+		int end = (endPosition == -1) ? text.length() : endPosition;
+		return match(text, offset, end, null);
 	}
 	
 	/** Returns the match if the text is start with a match (from start to the end) or -1 if not */
-	final public ParseResult match(CharSequence pText, PTypeProvider pProvider) {
-		return this.match(pText, 0, pText.length(), pProvider);
+	public final ParseResult match(CharSequence text, PTypeProvider typeProvider) {
+		int endPosition = text.length();
+		return match(text, 0, endPosition, typeProvider);
 	}
 	
 	/** Returns the match if the text is start with a match (from start to the pEndPosition) or -1 if not */
-	final public ParseResult match(CharSequence pText, int pOffset) {
-		return this.match(pText, pOffset, pText.length(), null);
+	public final ParseResult match(CharSequence text, int offset) {
+		int endPosition = text.length();
+		return match(text, offset, endPosition, null);
 	}
 	
 	/** Returns the match if the text is start with a match (from start to the end) or -1 if not */
-	final public ParseResult match(CharSequence pText, int pOffset, PTypeProvider pProvider) {
-		return this.match(pText, pOffset, pText.length(), pProvider);
+	public final ParseResult match(CharSequence text, int offset, PTypeProvider typeProvider) {
+		int endPosition = text.length();
+		return match(text, offset, endPosition, typeProvider);
 	}
 	
 	/** Returns the match if the text is start with a match (from start to the pEndPosition) or -1 if not */
-	final public ParseResult match(CharSequence pText, int pOffset, int pEndPosition, PTypeProvider pProvider) {
-		return this.doMatch(pText, pOffset, pEndPosition, pProvider);
+	public final ParseResult match(CharSequence text, int offset, int endPosition, PTypeProvider typeProvider) {
+		return doMatch(text, offset, endPosition, typeProvider);
 	}
 	
 	/** Returns the match if the text is start with a match (from start to the pEndPosition) or -1 if not */
-	protected ParseResult doMatch(CharSequence pText, int pOffset, int pEndPosition, PTypeProvider pProvider) {
-		PTypeProvider TP = PTypeProvider.Library.getEither(pProvider, this.typeProvider);
-		return this.getRegParser().match(pText, pOffset, (pEndPosition == -1) ? pText.length() : pEndPosition, TP);
+	protected ParseResult doMatch(CharSequence text, int offset, int endPosition, PTypeProvider typeProvider) {
+		var provider = PTypeProvider.Library.getEither(typeProvider, this.typeProvider);
+		int end      = (endPosition == -1) ? text.length() : endPosition;
+		return parser().match(text, offset, end, provider);
 	}
 	
 	// Validation ----------------------------------------------------------------------------------
 	
 	/** Returns a display string that represent a validation code */
-	public String getValidation_toString() {
+	public String validation() {
 		return "...";
 	}
 	
 	/** Validate the parse result */
-	final public boolean validate(ParseResult pHostResult, ParseResult pThisResult, String pParam,
-	        PTypeProvider pProvider) {
-		PTypeProvider TP = PTypeProvider.Library.getEither(pProvider, this.typeProvider);
-		return this.doValidate(pHostResult, pThisResult, pParam, TP);
+	public final boolean validate(
+							ParseResult   hostResult,
+							ParseResult   thisResult,
+							String        parameter,
+							PTypeProvider typeProvider) {
+		var provider = PTypeProvider.Library.getEither(typeProvider, this.typeProvider);
+		return doValidate(hostResult, thisResult, parameter, provider);
 	}
 	
 	/** Validate the parse result */
-	protected boolean doValidate(ParseResult pHostResult, ParseResult pThisResult, String pParam,
-	        PTypeProvider pProvider) {
+	protected boolean doValidate(
+							ParseResult   hostResult,
+							ParseResult   thisResult,
+							String        parameter,
+							PTypeProvider typeProvider) {
 		return true;
 	}
 	
 	// Compilation ---------------------------------------------------------------------------------
 	
 	/** Returns a display string that represent a compilation code */
-	public String getCompilation_toString() {
+	public String compilation() {
 		return "...";
 	}
 	
 	
 	/** Compiles a ParseResult in to an object */
-	final public Object compile(String pText) {
-		ParseResult ThisResult = RegParser.newRegParser(this).match(pText);
-		if (ThisResult == null)
-			return null;
-		return this.compile(ThisResult, 0, null, null, null);
-	}
-	
-	/** Compiles a ParseResult in to an object */
-	final public Object compile(String pText, PTypeProvider pProvider) {
-		ParseResult ThisResult = RegParser.newRegParser(this).match(pText, pProvider);
-		if (ThisResult == null)
+	public final Object compile(String text) {
+		var thisResult = newRegParser(this).match(text);
+		if (thisResult == null)
 			return null;
 		
-		return this.compile(ThisResult, 0, null, null, pProvider);
-		
+		return compile(thisResult, 0, null, null, null);
 	}
 	
 	/** Compiles a ParseResult in to an object */
-	final public Object compile(String pText, String pParam, PTypeProvider pProvider) {
-		return this.compile(pText, pParam, null, pProvider);
+	public final Object compile(String text, PTypeProvider typeProvider) {
+		var thisResult = newRegParser(this).match(text, typeProvider);
+		if (thisResult == null)
+			return null;
+		
+		return compile(thisResult, 0, null, null, typeProvider);
 	}
 	
 	/** Compiles a ParseResult in to an object */
-	final public Object compile(String pText, String pParam, CompilationContext pContext, PTypeProvider pProvider) {
-		RegParser RP = null;
+	public final Object compile(String text, String parameter, PTypeProvider typeProvider) {
+		return compile(text, parameter, null, typeProvider);
+	}
+	
+	/** Compiles a ParseResult in to an object */
+	public final Object compile(
+							String             text,
+							String             parameter,
+							CompilationContext compilationContext,
+							PTypeProvider      typeProvider) {
+		RegParser regParser = null;
 		
-		if (pParam == null)
-			RP = RegParser.newRegParser(this);
-		else {
+		if (parameter == null) {
+			regParser = newRegParser(this);
+		} else {
 			// The provide does not hold this type
-			if (pProvider.getType(this.name()) == null) {
+			if (typeProvider.getType(name()) == null) {
 				// Add it in
-				PTypeProvider         NewProvider = new PTypeProvider.Extensible();
-				PTypeProvider.Library NewLibrary  = new PTypeProvider.Library(pProvider, NewProvider);
-				((PTypeProvider.Extensible)NewProvider).addRPType(this);
-				pProvider = NewLibrary;
+				var newProvider = new PTypeProvider.Extensible();
+				var newLibrary  = new PTypeProvider.Library(typeProvider, newProvider);
+				((PTypeProvider.Extensible)newProvider).addRPType(this);
+				typeProvider = newLibrary;
 			}
-			RP = RegParser.newRegParser(new PTypeRef.Simple(this.name(), pParam));
+			var typeRef = new PTypeRef.Simple(name(), parameter);
+			regParser = newRegParser(typeRef);
 		}
-		ParseResult ThisResult = RP.match(pText, pProvider);
-		if (ThisResult == null)
+		
+		var thisResult = regParser.match(text, typeProvider);
+		if (thisResult == null)
 			return null;
 		
-		return this.compile(ThisResult, 0, pParam, pContext, pProvider);
+		return compile(thisResult, 0, parameter, compilationContext, typeProvider);
 	}
 	
 	// Parse from Result -----------------------------------------------------------------------------------------------
 	
 	/** Compiles a ParseResult in to an object */
-	final public Object compile(ParseResult pThisResult) {
-		return this.compile(pThisResult, 0, null, null, null);
+	public final Object compile(ParseResult thisResult) {
+		return compile(thisResult, 0, null, null, null);
 	}
 	
 	/** Compiles a ParseResult in to an object */
-	final public Object compile(ParseResult pThisResult, PTypeProvider pProvider) {
-		return this.compile(pThisResult, 0, null, null, pProvider);
+	public final Object compile(ParseResult thisResult, PTypeProvider typeProvider) {
+		return compile(thisResult, 0, null, null, typeProvider);
 	}
 	
 	/** Compiles a ParseResult in to an object with a parameter */
-	final public Object compile(ParseResult pThisResult, String pParam, CompilationContext pContext,
-	        PTypeProvider pProvider) {
-		return this.compile(pThisResult, 0, null, pContext, pProvider);
+	public final Object compile(
+							ParseResult        thisResult,
+							String             parameter,
+							CompilationContext compilationContext,
+							PTypeProvider      typeProvider) {
+		return compile(thisResult, 0, null, compilationContext, typeProvider);
 	}
 	
 	/** Compiles a ParseResult in to an object with a parameter */
-	final public Object compile(ParseResult pThisResult, int pEntryIndex, String pParam, CompilationContext pContext,
-	        PTypeProvider pProvider) {
-		PTypeProvider TP = PTypeProvider.Library.getEither(pProvider, this.typeProvider);
-		return this.doCompile(pThisResult, pEntryIndex, pParam, pContext, TP);
+	public final Object compile(
+							ParseResult        thisResult,
+							int                entryIndex,
+							String             parameter,
+							CompilationContext compilationContext,
+							PTypeProvider      typeProvider) {
+		var provider = PTypeProvider.Library.getEither(typeProvider, this.typeProvider);
+		return doCompile(thisResult, entryIndex, parameter, compilationContext, provider);
 	}
 	
 	/** Compiles a ParseResult in to an object with a parameter */
-	protected Object doCompile(ParseResult pThisResult, int pEntryIndex, String pParam, CompilationContext pContext,
-	        PTypeProvider pProvider) {
-		return (pThisResult == null) ? null : pThisResult.textOf(pEntryIndex);
+	protected Object doCompile(
+						ParseResult        thisResult,
+						int                entryIndex,
+						String             parameter,
+						CompilationContext compilationContext,
+						PTypeProvider      typeProvider) {
+		return (thisResult == null)
+		        ? null
+		        : thisResult.textOf(entryIndex);
 	}
 	
 	// Object --------------------------------------------------------------------------------------
 	
 	@Override
 	public String toString() {
-		return "!" + this.name() + "!";
+		return "!" + name() + "!";
 	}
 	
 }
