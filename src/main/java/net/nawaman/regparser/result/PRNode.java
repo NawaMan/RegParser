@@ -89,12 +89,12 @@ public final class PRNode extends PRNormal {
 	@Override
 	public final String lastStringOf(String name) {
 		var string = super.lastStringOf(name);
-		if (string != null) {
+		if (string != null)
 			return string;
-		}
-		if (parent != null) {
+		
+		if (parent != null)
 			return parent.lastStringOf(name);
-		}
+		
 		return null;
 	}
 	

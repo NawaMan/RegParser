@@ -27,29 +27,39 @@ import net.nawaman.regparser.result.ParseResult;
  */
 @SuppressWarnings("serial")
 public class PTBackRefCI extends ParserTypeBackRef {
-    
-    static public final PTBackRefCI BackRefCI_Instance = new PTBackRefCI();
-    
-    PTBackRefCI() {
-    }
-    
-    @Override
-    public String name() {
-        return "$BackRefCI?";
-    }
-    
-    @Override
-    public boolean doValidate(ParseResult pHostResult, ParseResult pThisResult, String pParam,
-            PTypeProvider pProvider) {
-        if (pHostResult == null)
-            return false;
-        String W = pHostResult.lastStringOf(pParam);
-        String T = pThisResult.text().toLowerCase();
-        if (W == T)
-            return true;
-        if ((W == null) || (T == null))
-            return true;
-        return W.toLowerCase().equals(pThisResult.text().toLowerCase());
-    }
-    
+	
+	static public final PTBackRefCI BackRefCI_Instance = new PTBackRefCI();
+	
+	PTBackRefCI() {
+	}
+	
+	@Override
+	public String name() {
+		return "$BackRefCI?";
+	}
+	
+	@Override
+	public boolean doValidate(
+					ParseResult   hostResult,
+					ParseResult   thisResult,
+					String        parameter,
+					PTypeProvider typeProvider) {
+		if (hostResult == null)
+			return false;
+		
+		var word = hostResult.lastStringOf(parameter);
+		var text = thisResult.text();
+		
+		if (word == text)
+			return true;
+		
+		if ((word == null)
+		 || (text == null))
+			return false ;
+		
+		word = word.toLowerCase();
+		text = text.toLowerCase();
+		return word.equals(text);
+	}
+	
 }

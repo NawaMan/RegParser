@@ -447,13 +447,14 @@ abstract public class ParseResult implements Serializable {
 	
 	/** Returns the text of the the last match */
 	public String lastStringOf(String name) {
-		for (int i = entries.size(); --i >= 0;) {
+		for (int i = entryCount(); --i >= 0;) {
 			var entry = entryAt(i);
 			if (!entry.hasParserEntry())
 				continue;
 			
 			var parseEntry = entry.parserEntry();
-			if (name.equals(parseEntry.name()))
+			var entryName  = parseEntry.name();
+			if (name.equals(entryName))
 				return textOf(i);
 		}
 		return null;
