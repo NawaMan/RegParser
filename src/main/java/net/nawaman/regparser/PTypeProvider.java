@@ -71,7 +71,7 @@ public interface PTypeProvider extends Serializable {
             Default = new PTypeProvider.Extensible();
             Default.addRPType(new PTTextCI());
             Default.addRPType(new ParserTypeBackRef());
-            Default.addRPType(new PTBackRefCI());
+            Default.addRPType(new ParserTypeBackRefCI());
             Default.addRPType(new PTJavaChecker());
             return Default;
         }

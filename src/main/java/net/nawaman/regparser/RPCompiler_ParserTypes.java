@@ -1033,7 +1033,7 @@ public class RPCompiler_ParserTypes {
                 String B = pThisResult.lastStringOf("#BackRef");
                 if(B != null) {
                     if(pThisResult.lastStringOf("#BackRefCI") != null)
-                        return RPEntry._new(new PTypeRef.Simple(PTBackRefCI.BackRefCI_Instance.name(), N+GN+M));
+                        return RPEntry._new(new PTypeRef.Simple(ParserTypeBackRefCI.BackRefCI_Instance.name(), N+GN+M));
                     else
                         return RPEntry._new(new PTypeRef.Simple(ParserTypeBackRef.BackRef_Instance.name(), N+GN+M));
                 }

@@ -471,7 +471,7 @@ public class TestRegParserCompiler2 {
 		}
 		
 		typeProvider.addRPType(ParserTypeBackRef.BackRef_Instance);
-		typeProvider.addRPType(PTBackRefCI.BackRefCI_Instance);
+		typeProvider.addRPType(ParserTypeBackRefCI.BackRefCI_Instance);
 		
 		{
 		var parser = newRegParser("(#X:~[:AlphabetAndDigit:]+~)\\-(#X;)\\-(#X;)");

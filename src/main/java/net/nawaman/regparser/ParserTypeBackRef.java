@@ -20,20 +20,21 @@ package net.nawaman.regparser;
 
 import net.nawaman.regparser.checkers.CheckerAny;
 import net.nawaman.regparser.checkers.WordChecker;
-import net.nawaman.regparser.result.ParseResult;
 import net.nawaman.regparser.result.PRNode;
 import net.nawaman.regparser.result.PRRoot;
 import net.nawaman.regparser.result.PRTemp;
+import net.nawaman.regparser.result.ParseResult;
 
 /**
  * RegParser Type for Back referencing.
  * 
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-@SuppressWarnings("serial")
 public class ParserTypeBackRef extends ParserType {
 	
-	static public final ParserTypeBackRef BackRef_Instance = new ParserTypeBackRef();
+	private static final long serialVersionUID = 4619586708646758390L;
+	
+	public static final ParserTypeBackRef BackRef_Instance = new ParserTypeBackRef();
 	
 	ParserTypeBackRef() {
 	}
@@ -56,10 +57,10 @@ public class ParserTypeBackRef extends ParserType {
 	/**{@inheritDoc}*/
 	@Override
 	public boolean doValidate(
-	                ParseResult   hostResult,
-	                ParseResult   thisResult,
-	                String        parameter,
-	                PTypeProvider typeProvider) {
+					ParseResult   hostResult,
+					ParseResult   thisResult,
+					String        parameter,
+					PTypeProvider typeProvider) {
 		var word = lastMatchByName(hostResult, parameter, typeProvider);
 		if (word == null)
 			return false;

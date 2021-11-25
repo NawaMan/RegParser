@@ -25,12 +25,13 @@ import net.nawaman.regparser.result.ParseResult;
  * 
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-@SuppressWarnings("serial")
-public class PTBackRefCI extends ParserTypeBackRef {
+public class ParserTypeBackRefCI extends ParserTypeBackRef {
 	
-	static public final PTBackRefCI BackRefCI_Instance = new PTBackRefCI();
+	private static final long serialVersionUID = 4711433513141637509L;
 	
-	PTBackRefCI() {
+	public static final ParserTypeBackRefCI BackRefCI_Instance = new ParserTypeBackRefCI();
+	
+	ParserTypeBackRefCI() {
 	}
 	
 	@Override

@@ -106,28 +106,28 @@ public class PredefinedCharClasses {
 	// Java ------------------------------------------------------------------------------------------------------------
 	// For compatibility
 	
-	static public final CharClass Java_Any                 = new CharClass(".", "[:Any:]");
-	static public final CharClass Java_Digit               = new CharClass("\\d", "[:Digit:]");
-	static public final CharClass Java_NonDigit            = new CharClass("\\D", "[:NonDigit:]");
-	static public final CharClass Java_WhiteSpace          = new CharClass("\\s", "[:WhiteSpace:]");
-	static public final CharClass Java_NonWhiteSpace       = new CharClass("\\S", "[:NonWhiteSpace:]");
+	static public final CharClass Java_Any                 = new CharClass(".",           "[:Any:]");
+	static public final CharClass Java_Digit               = new CharClass("\\d",         "[:Digit:]");
+	static public final CharClass Java_NonDigit            = new CharClass("\\D",         "[:NonDigit:]");
+	static public final CharClass Java_WhiteSpace          = new CharClass("\\s",         "[:WhiteSpace:]");
+	static public final CharClass Java_NonWhiteSpace       = new CharClass("\\S",         "[:NonWhiteSpace:]");
 	static public final CharClass Java_WhiteSpaceNoNewLine = new CharClass("[ \\t\\x0B]", "[:WhiteSpaceNoNewLine:]");
-	static public final CharClass Java_Word                = new CharClass("\\w", "[:Word:]");
-	static public final CharClass Java_NonWord             = new CharClass("\\W", "[:NonWord:]");
+	static public final CharClass Java_Word                = new CharClass("\\w",         "[:Word:]");
+	static public final CharClass Java_NonWord             = new CharClass("\\W",         "[:NonWord:]");
 	
-	static public final CharClass Java_LowerCaseAlphabet = new CharClass("\\p{Lower}", "[:LowerCaseAlphabet:]");
-	static public final CharClass Java_UpperCaseAlphabet = new CharClass("\\p{Upper}", "[:UpperCaseAlphabet:]");
-	static public final CharClass Java_ASCII             = new CharClass("\\p{ASCII}", "[:ASCII:]");
-	static public final CharClass Java_Alphabet          = new CharClass("\\p{Alpha}", "[:Alphabet:]");
-	static public final CharClass Java_AlphabetAndDigit  = new CharClass("\\p{Alnum}", "[:AlphabetAndDigit:]");
-	static public final CharClass Java_Punctuation       = new CharClass("\\p{Punct}", "[:Punctuation:]");
-	static public final CharClass Java_Visible           = new CharClass("\\p{Graph}", "[:Visible:]");
-	static public final CharClass Java_Printable         = new CharClass("\\p{Print}", "[:Printable:]");
-	static public final CharClass Java_Blank             = new CharClass("\\p{Blank}", "[:SpaceOrTab:]");
-	static public final CharClass Java_ControlCharacter  = new CharClass("\\p{Cntrl}", "[:ControlCharacter:]");
+	static public final CharClass Java_LowerCaseAlphabet = new CharClass("\\p{Lower}",  "[:LowerCaseAlphabet:]");
+	static public final CharClass Java_UpperCaseAlphabet = new CharClass("\\p{Upper}",  "[:UpperCaseAlphabet:]");
+	static public final CharClass Java_ASCII             = new CharClass("\\p{ASCII}",  "[:ASCII:]");
+	static public final CharClass Java_Alphabet          = new CharClass("\\p{Alpha}",  "[:Alphabet:]");
+	static public final CharClass Java_AlphabetAndDigit  = new CharClass("\\p{Alnum}",  "[:AlphabetAndDigit:]");
+	static public final CharClass Java_Punctuation       = new CharClass("\\p{Punct}",  "[:Punctuation:]");
+	static public final CharClass Java_Visible           = new CharClass("\\p{Graph}",  "[:Visible:]");
+	static public final CharClass Java_Printable         = new CharClass("\\p{Print}",  "[:Printable:]");
+	static public final CharClass Java_Blank             = new CharClass("\\p{Blank}",  "[:SpaceOrTab:]");
+	static public final CharClass Java_ControlCharacter  = new CharClass("\\p{Cntrl}",  "[:ControlCharacter:]");
 	static public final CharClass Java_HexadecimalDigit  = new CharClass("\\p{XDigit}", "[:HexadecimalDigit:]");
 	
 	static public final CharClass Java_Greek          = new CharClass("\\p{InGreek}", "[:Greek:]");
-	static public final CharClass Java_CurrencySimbol = new CharClass("\\p{Sc}", "[:CurrencySimbol:]");
+	static public final CharClass Java_CurrencySimbol = new CharClass("\\p{Sc}",      "[:CurrencySimbol:]");
 	
 }
