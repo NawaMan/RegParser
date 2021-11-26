@@ -22,8 +22,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
@@ -39,7 +41,7 @@ import net.nawaman.regparser.types.PTTextCI;
 public interface PTypeProvider extends Serializable {
 	
 	/** Returns type from name */
-	public ParserType getType(String pName);
+	public ParserType getType(String name);
 	
 	/** Returns the names of all types in this provider */
 	public Set<String> getAllTypeNames();
@@ -48,7 +50,7 @@ public interface PTypeProvider extends Serializable {
 	public Set<String> getAllErrorMessageNames();
 	
 	/** Get an error message  */
-	public String getErrorMessage(String pErrName);
+	public String getErrorMessage(String errorName);
 	
 	// Sub classes -----------------------------------------------------------------------------------------------------
 	
@@ -76,15 +78,21 @@ public interface PTypeProvider extends Serializable {
 			return Default;
 		}
 		
+		private final Hashtable<String, ParserType> RPTypes;
+		private final Hashtable<String, String>     ErrMsgs;
+		
 		/** Constructs an empty type provider */
 		protected Simple() {
+			this(new ParserType[0]);
 		}
 		
 		/** Constructs a type provider with the types */
 		public Simple(ParserType... pTypes) {
-			if (pTypes == null)
-				return;
 			this.RPTypes = new Hashtable<String, ParserType>();
+			this.ErrMsgs = new Hashtable<String, String>();
+			if (pTypes == null) {
+				return;
+			}
 			for (ParserType T : pTypes) {
 				if (T == null)
 					continue;
@@ -92,27 +100,20 @@ public interface PTypeProvider extends Serializable {
 			}
 		}
 		
-		Hashtable<String, ParserType> RPTypes = null;
-		Hashtable<String, String>     ErrMsgs = null;
-		
 		// Services --------------------------------------------------------------------------------------------------------
 		
 		// Type --------------------------------------------------------------------------
 		
 		public Set<String> getAllTypeNames() {
-			if (this.RPTypes == null)
-				return null;
 			return this.RPTypes.keySet();
 		}
 		
 		protected boolean addRPType(ParserType pRPT) {
 			if (pRPT == null)
 				return false;
-			if ((this.RPTypes != null) && (this.RPTypes.containsKey(pRPT.name())))
+			if (this.RPTypes.containsKey(pRPT.name()))
 				return false;
 			
-			if (this.RPTypes == null)
-				this.RPTypes = new Hashtable<String, ParserType>();
 			this.RPTypes.put(pRPT.name(), pRPT);
 			return true;
 		}
@@ -120,19 +121,15 @@ public interface PTypeProvider extends Serializable {
 		protected boolean removeRPType(ParserType pRPT) {
 			if (pRPT == null)
 				return false;
-			if ((this.RPTypes != null) && (this.RPTypes.containsKey(pRPT.name())))
+			if (this.RPTypes.containsKey(pRPT.name()))
 				return false;
 			
-			if (this.RPTypes == null)
-				this.RPTypes = new Hashtable<String, ParserType>();
 			this.RPTypes.remove(pRPT.name());
 			return true;
 		}
 		
 		public ParserType getType(String pName) {
 			if (pName == null)
-				return null;
-			if (this.RPTypes == null)
 				return null;
 			return this.RPTypes.get(pName);
 		}
@@ -154,8 +151,6 @@ public interface PTypeProvider extends Serializable {
 			if ((this.ErrMsgs != null) && (this.ErrMsgs.containsKey(pErrName)))
 				return false;
 			
-			if (this.ErrMsgs == null)
-				this.ErrMsgs = new Hashtable<String, String>();
 			this.ErrMsgs.put(pErrName, pErrMsg);
 			return true;
 		}
@@ -166,8 +161,6 @@ public interface PTypeProvider extends Serializable {
 			if ((this.ErrMsgs != null) && (this.ErrMsgs.containsKey(pErrName)))
 				return false;
 			
-			if (this.ErrMsgs == null)
-				this.ErrMsgs = new Hashtable<String, String>();
 			this.ErrMsgs.remove(pErrName);
 			return true;
 		}
@@ -185,7 +178,7 @@ public interface PTypeProvider extends Serializable {
 		
 		@Override
 		public String toString() {
-			return (this.RPTypes == null) ? "{=}" : RPTypes.toString();
+			return this.RPTypes.isEmpty() ? "{=}" : RPTypes.toString();
 		}
 		
 		// Load and Save -----------------------------------------------------------------------------------------------
@@ -204,9 +197,6 @@ public interface PTypeProvider extends Serializable {
 				return 0;
 			if (pProvider == null)
 				return -1;
-			
-			if ((Ts.length != 0) && (((Simple)pProvider).RPTypes == null))
-				((Simple)pProvider).RPTypes = new Hashtable<String, ParserType>();
 			
 			int t = 0;
 			for (int i = Ts.length; --i >= 0;) {
@@ -350,11 +340,12 @@ public interface PTypeProvider extends Serializable {
 			return new Library(First, Second);
 		}
 		
+		private final List<PTypeProvider> Providers= new ArrayList<PTypeProvider>();
+		
 		public Library(ParserType[] pTypes, PTypeProvider... pProviders) {
 			super(pTypes);
 			if (pProviders == null)
 				return;
-			this.Providers = new Vector<PTypeProvider>();
 			for (int i = 0; i < pProviders.length; i++) {
 				if (pProviders[i] == null)
 					continue;
@@ -366,13 +357,9 @@ public interface PTypeProvider extends Serializable {
 			this(null, pProviders);
 		}
 		
-		Vector<PTypeProvider> Providers;
-		
 		public void addProvider(PTypeProvider pProvider) {
 			if (pProvider == null)
 				return;
-			if (this.Providers == null)
-				this.Providers = new Vector<PTypeProvider>();
 			for (int i = 0; i < this.Providers.size(); i++) {
 				if (this.Providers.get(i) == pProvider)
 					return;
@@ -382,8 +369,6 @@ public interface PTypeProvider extends Serializable {
 		
 		public void removeProvider(PTypeProvider pProvider) {
 			if (pProvider == null)
-				return;
-			if (this.Providers == null)
 				return;
 			for (int i = 0; i < this.Providers.size(); i++) {
 				if (this.Providers.get(i) == pProvider) {
@@ -398,31 +383,24 @@ public interface PTypeProvider extends Serializable {
 		@Override
 		public Set<String> getAllTypeNames() {
 			HashSet<String> Names = new HashSet<String>();
-			if (this.RPTypes != null)
-				Names.addAll(this.RPTypes.keySet());
-			if (this.Providers != null) {
-				for (int i = 0; i < this.Providers.size(); i++) {
-					Set<String> Ns = this.Providers.get(i).getAllTypeNames();
-					if (Ns != null)
-						Names.addAll(Ns);
-				}
+			Names.addAll(this.getAllTypeNames());
+			for (int i = 0; i < this.Providers.size(); i++) {
+				Set<String> Ns = this.Providers.get(i).getAllTypeNames();
+				if (Ns != null)
+					Names.addAll(Ns);
 			}
 			return Names;
 		}
 		
 		@Override
 		public ParserType getType(String pName) {
-			if (this.RPTypes != null) {
-				ParserType RPT = this.RPTypes.get(pName);
-				if (RPT != null)
-					return RPT;
-			}
-			if (this.Providers != null) {
-				for (int i = 0; i < this.Providers.size(); i++) {
-					ParserType RPT = this.Providers.get(i).getType(pName);
-					if (RPT != null)
-						return RPT;
-				}
+			ParserType RPT = super.getType(pName);
+			if (RPT != null)
+				return RPT;
+			for (int i = 0; i < this.Providers.size(); i++) {
+				ParserType RPT2 = this.Providers.get(i).getType(pName);
+				if (RPT2 != null)
+					return RPT2;
 			}
 			return null;
 		}
@@ -430,8 +408,7 @@ public interface PTypeProvider extends Serializable {
 		@Override
 		public Set<String> getAllErrorMessageNames() {
 			HashSet<String> Names = new HashSet<String>();
-			if (this.ErrMsgs != null)
-				Names.addAll(this.ErrMsgs.keySet());
+			Names.addAll(this.getAllErrorMessageNames());
 			if (this.Providers != null) {
 				for (int i = 0; i < this.Providers.size(); i++) {
 					Set<String> Ns = this.Providers.get(i).getAllErrorMessageNames();
@@ -444,17 +421,14 @@ public interface PTypeProvider extends Serializable {
 		
 		@Override
 		public String getErrorMessage(String pErrName) {
-			if (this.ErrMsgs != null) {
-				String ErrMsg = this.ErrMsgs.get(pErrName);
-				if (ErrMsg != null)
-					return ErrMsg;
-			}
-			if (this.Providers != null) {
-				for (int i = 0; i < this.Providers.size(); i++) {
-					String ErrMsg = this.Providers.get(i).getErrorMessage(pErrName);
-					if (ErrMsg != null)
-						return ErrMsg;
-				}
+			String ErrMsg = this.getErrorMessage(pErrName);
+			if (ErrMsg != null)
+				return ErrMsg;
+			
+			for (int i = 0; i < this.Providers.size(); i++) {
+				String ErrMsg2 = this.Providers.get(i).getErrorMessage(pErrName);
+				if (ErrMsg2 != null)
+					return ErrMsg2;
 			}
 			return null;
 		}
@@ -463,15 +437,13 @@ public interface PTypeProvider extends Serializable {
 		public String toString() {
 			StringBuffer SB = new StringBuffer();
 			SB.append("{");
-			SB.append((this.RPTypes == null) ? "{=}" : RPTypes.toString());
-			if (this.Providers != null) {
-				for (int i = 0; i < this.Providers.size(); i++) {
-					PTypeProvider TP = this.Providers.get(i);
-					if (TP == null)
-						continue;
-					SB.append("; ");
-					SB.append(TP.toString());
-				}
+			SB.append(super.toString());
+			for (int i = 0; i < this.Providers.size(); i++) {
+				PTypeProvider TP = this.Providers.get(i);
+				if (TP == null)
+					continue;
+				SB.append("; ");
+				SB.append(TP.toString());
 			}
 			SB.append("}");
 			return SB.toString();
