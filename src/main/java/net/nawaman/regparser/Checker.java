@@ -41,7 +41,7 @@ public interface Checker extends Serializable {
 	 * @param  offset  the starting point of the checking
 	 * @return         the length of the match or -1 if the string S does not start with this checker
 	 */
-	public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider);
+	public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider);
 	
 	/**
 	 * Returns the length of the match if the string S starts (from offset) with this checker.<br />
@@ -50,7 +50,7 @@ public interface Checker extends Serializable {
 	 * @param  parseResult  the parse result of the current parsing. Only given in special case from RegParser.
 	 * @return              the length of the match or -1 if the string S does not start with this checker
 	 */
-	public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider, ParseResult parseResult);
+	public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider, ParseResult parseResult);
 	
 	/** Return the optimized version of this Checker */
 	public Checker optimize();

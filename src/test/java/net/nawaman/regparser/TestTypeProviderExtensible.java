@@ -8,7 +8,7 @@ public class TestTypeProviderExtensible {
 	
 	@Test
 	public void test() {
-		var typeProvider = new PTypeProvider.Extensible();
+		var typeProvider = new ParserTypeProvider.Extensible();
 		typeProvider.addType("Number", "[0-9]+");
 		typeProvider.addType("Plus", "!Number![:WhiteSpace:]*[:+:][:WhiteSpace:]*!Number!");
 		

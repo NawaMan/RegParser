@@ -19,7 +19,7 @@
 package net.nawaman.regparser.checkers;
 
 import net.nawaman.regparser.Checker;
-import net.nawaman.regparser.PTypeProvider;
+import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.result.ParseResult;
 
 /**
@@ -41,12 +41,12 @@ abstract public class CharChecker implements Checker {
 	abstract public boolean inSet(char c);
 	
 	@Override
-	public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider) {
+	public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider) {
 		return this.startLengthOf(text, offset, typeProvider, null);
 	}
 	
 	@Override
-	public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider, ParseResult parseResult) {
+	public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider, ParseResult parseResult) {
 		if ((offset < 0)
 		 || (offset >= text.length()))
 			return -1;

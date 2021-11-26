@@ -6,7 +6,7 @@ import static net.nawaman.regparser.TestUtils.validate;
 import org.junit.Test;
 
 import net.nawaman.regparser.Checker;
-import net.nawaman.regparser.PTypeProvider;
+import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.result.ParseResult;
 
 public class TestJavaChecker {
@@ -22,16 +22,16 @@ public class TestJavaChecker {
 		public DigitChecker() {
 		}
 		
-		public int startLengthOf(CharSequence string, int offset, PTypeProvider typeProvider) {
+		public int startLengthOf(CharSequence string, int offset, ParserTypeProvider typeProvider) {
 			return this.startLengthOf(string, offset, typeProvider, null);
 		}
 		
-		public int startLengthOf(CharSequence string, int offset, PTypeProvider typeProvider, ParseResult result) {
+		public int startLengthOf(CharSequence string, int offset, ParserTypeProvider typeProvider, ParseResult result) {
 			return DigitChecker.getLengthOf(string, offset, typeProvider, result);
 		}
 		
 		// Returns the length of the detected digits.
-		static public int getLengthOf(CharSequence string, int offset, PTypeProvider typeProvider, ParseResult result) {
+		static public int getLengthOf(CharSequence string, int offset, ParserTypeProvider typeProvider, ParseResult result) {
 			for (int i = offset; i < string.length(); i++) {
 				char c = string.charAt(i);
 				if (!((c >= '0') && (c <= '9')))

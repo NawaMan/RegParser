@@ -24,7 +24,7 @@ import java.util.Hashtable;
 
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.ParserType;
-import net.nawaman.regparser.PTypeProvider;
+import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.PredefinedCharClasses;
 import net.nawaman.regparser.Quantifier;
 import net.nawaman.regparser.RegParser;
@@ -55,9 +55,9 @@ public class PTJavaChecker extends ParserType {
     static Hashtable<String, Checker> Checkers                  = new Hashtable<String, Checker>();
     static Class<?>[]                 EmptyClassArray           = new Class<?>[0];
     static Class<?>[]                 CheckerClassArray_int     = new Class<?>[] { CharSequence.class, int.class,
-            PTypeProvider.class, ParseResult.class };
+            ParserTypeProvider.class, ParseResult.class };
     static Class<?>[]                 CheckerClassArray_Integer = new Class<?>[] { CharSequence.class, Integer.class,
-            PTypeProvider.class, ParseResult.class };
+            ParserTypeProvider.class, ParseResult.class };
     
     static public String Name = "javaChecker";
     
@@ -68,7 +68,7 @@ public class PTJavaChecker extends ParserType {
     
     @SuppressWarnings("deprecation")
     @Override
-    public Checker checker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
+    public Checker checker(ParseResult pHostResult, String pParam, ParserTypeProvider pProvider) {
         if ((pParam == null) || (pParam.length() == 0))
             return RegParser.newRegParser(new CharNot(PredefinedCharClasses.Any), Quantifier.Zero);
         
@@ -128,13 +128,13 @@ public class PTJavaChecker extends ParserType {
                 C = new Checker() {
                     /**{@inherDoc}*/
                     @Override
-                    public int startLengthOf(CharSequence S, int pOffset, PTypeProvider pTProvider) {
+                    public int startLengthOf(CharSequence S, int pOffset, ParserTypeProvider pTProvider) {
                         return this.startLengthOf(S, pOffset, pTProvider, null);
                     }
                     
                     /**{@inherDoc}*/
                     @Override
-                    public int startLengthOf(CharSequence S, int pOffset, PTypeProvider pTProvider,
+                    public int startLengthOf(CharSequence S, int pOffset, ParserTypeProvider pTProvider,
                             ParseResult pResult) {
                         try {
                             return ((Integer) TheMethod.invoke(null, S, pOffset, pTProvider, pResult)).intValue();

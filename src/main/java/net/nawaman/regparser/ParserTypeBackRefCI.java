@@ -44,7 +44,7 @@ public class ParserTypeBackRefCI extends ParserTypeBackRef {
 					ParseResult   hostResult,
 					ParseResult   thisResult,
 					String        parameter,
-					PTypeProvider typeProvider) {
+					ParserTypeProvider typeProvider) {
 		if (hostResult == null)
 			return false;
 		

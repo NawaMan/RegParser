@@ -31,7 +31,7 @@ public class TestType {
 	@ClassRule
 	public static TimeRecordRule timeRecordRule = TimeRecordRule.instance;
 	
-	private PTypeProvider.Simple defaultTypeProvider;
+	private ParserTypeProvider.Simple defaultTypeProvider;
 	
 	@SuppressWarnings("serial")
 	static class RTByte extends ParserType {
@@ -46,12 +46,12 @@ public class TestType {
 		Checker checker = newRegParser(Digit, new Quantifier(1, 3));
 		
 		@Override
-		public Checker checker(ParseResult hostResult, String param, PTypeProvider provider) {
+		public Checker checker(ParseResult hostResult, String param, ParserTypeProvider provider) {
 			return this.checker;
 		}
 		
 		@Override
-		public boolean doValidate(ParseResult hostResult, ParseResult thisResult, String param, PTypeProvider provider) {
+		public boolean doValidate(ParseResult hostResult, ParseResult thisResult, String param, ParserTypeProvider provider) {
 			var text  = thisResult.text();
 			int value = Integer.parseInt(text);
 			return (value >= 0) && (value <= 255);
@@ -61,7 +61,7 @@ public class TestType {
 	
 	@Before
 	public void setup() {
-	    defaultTypeProvider = new PTypeProvider.Extensible(RTByte.Instance);
+	    defaultTypeProvider = new ParserTypeProvider.Extensible(RTByte.Instance);
 	}
 	
 	@Test
@@ -98,12 +98,12 @@ public class TestType {
 			Checker checker = newRegParser(Digit, new Quantifier(1, 3));
 			
 			@Override
-			public Checker checker(ParseResult hostResult, String param, PTypeProvider typeProvider) {
+			public Checker checker(ParseResult hostResult, String param, ParserTypeProvider typeProvider) {
 				return this.checker;
 			}
 			
 			@Override
-			public boolean doValidate(ParseResult hostResult, ParseResult thisResult, String param, PTypeProvider provider) {
+			public boolean doValidate(ParseResult hostResult, ParseResult thisResult, String param, ParserTypeProvider provider) {
 				var text  = thisResult.text();
 				int value = Integer.parseInt(text);
 				return (value >= 0) && (value <= 255);
@@ -128,12 +128,12 @@ public class TestType {
 			Checker checker = newRegParser(Digit, new Quantifier(1, 1, Maximum));
 			
 			@Override
-			public Checker checker(ParseResult hostResult, String param, PTypeProvider provider) {
+			public Checker checker(ParseResult hostResult, String param, ParserTypeProvider provider) {
 				return this.checker;
 			}
 			
 			@Override
-			public boolean doValidate(ParseResult hostResult, ParseResult thisResult, String param, PTypeProvider provider) {
+			public boolean doValidate(ParseResult hostResult, ParseResult thisResult, String param, ParserTypeProvider provider) {
 				var text  = thisResult.text();
 				int value = Integer.parseInt(text);
 				return (value >= 0) && (value <= 4);
@@ -150,12 +150,12 @@ public class TestType {
 			Checker checker = newRegParser(Digit, new Quantifier(1, 1, Maximum));
 			
 			@Override
-			public Checker checker(ParseResult hostResult, String param, PTypeProvider typeProvider) {
+			public Checker checker(ParseResult hostResult, String param, ParserTypeProvider typeProvider) {
 				return this.checker;
 			}
 			
 			@Override
-			public boolean doValidate(ParseResult hostResult, ParseResult thisResult, String param, PTypeProvider provider) {
+			public boolean doValidate(ParseResult hostResult, ParseResult thisResult, String param, ParserTypeProvider provider) {
 				var text  = thisResult.text();
 				int value = Integer.parseInt(text);
 				return (value >= 5) && (value <= 9);
@@ -192,12 +192,12 @@ public class TestType {
 			                    new CharSingle('>'));
 			
 			@Override
-			public Checker checker(ParseResult hostResult, String param, PTypeProvider typeProvider) {
+			public Checker checker(ParseResult hostResult, String param, ParserTypeProvider typeProvider) {
 				return this.checker;
 			}
 		};
 		
-		var typeProvider = new PTypeProvider.Simple(blockType);
+		var typeProvider = new ParserTypeProvider.Simple(blockType);
 		validate("!block!", typeProvider.type("block"));
 		
 		var regParser = newRegParser(typeProvider, RPEntry._new("#Block", blockType));
@@ -264,7 +264,7 @@ public class TestType {
 	@Test
 	public void testBackReference_xml() {
 		// Add the type
-		var typeProvider = new PTypeProvider.Simple(ParserTypeBackRef.BackRef_Instance);
+		var typeProvider = new ParserTypeProvider.Simple(ParserTypeBackRef.BackRef_Instance);
 		
 		var parser = newRegParser(typeProvider, 
 		                new CharSingle('<'),
@@ -318,7 +318,7 @@ public class TestType {
 			                        new CharUnion(Alphabet, new CharSingle('_'), Digit), ZeroOrMore);
 			
 			@Override
-			public Checker checker(ParseResult hostResult, String param, PTypeProvider typeProvider) {
+			public Checker checker(ParseResult hostResult, String param, ParserTypeProvider typeProvider) {
 				return this.checker;
 			}
 		};
@@ -342,7 +342,7 @@ public class TestType {
 		                                    Quantifier.ZeroOrMore_Minimum, new CharSingle('\''))));
 		
 		@Override
-		public Checker checker(ParseResult hostResult, String param, PTypeProvider typeProvider) {
+		public Checker checker(ParseResult hostResult, String param, ParserTypeProvider typeProvider) {
 			return this.checker;
 		}
 		};
@@ -361,7 +361,7 @@ public class TestType {
 			                    new PTypeRef.Simple("StringValue"));
 			
 			@Override
-			public Checker checker(ParseResult hostResult, String param, PTypeProvider typeProvider) {
+			public Checker checker(ParseResult hostResult, String param, ParserTypeProvider typeProvider) {
 				return this.checker;
 			}
 		};
@@ -393,13 +393,13 @@ public class TestType {
 			                            newRegParser(new WordChecker("/>"))));
 			
 			@Override
-			public Checker checker(ParseResult hostResult, String param, PTypeProvider typeProvider) {
+			public Checker checker(ParseResult hostResult, String param, ParserTypeProvider typeProvider) {
 				return this.checker;
 			}
 		};
 		
 		// Add the type
-		var typeProvider = new PTypeProvider.Extensible();
+		var typeProvider = new ParserTypeProvider.Extensible();
 		typeProvider.addRPType(tagType);
 		typeProvider.addRPType(identifierType);
 		typeProvider.addRPType(stringLiteralType);

@@ -37,7 +37,7 @@ import java.io.Serializable;
  */
 public interface PTypeProviderPocket extends Serializable {
     
-    public PTypeProvider getTProvider();
+    public ParserTypeProvider getTProvider();
     
     public boolean isRepackagingNeeded();
     
@@ -45,14 +45,14 @@ public interface PTypeProviderPocket extends Serializable {
     @SuppressWarnings("serial")
     static public class Simple implements PTypeProviderPocket {
         
-        public Simple(PTypeProvider pTProvider) {
+        public Simple(ParserTypeProvider pTProvider) {
             this.TProvider = pTProvider;
         }
         
         transient boolean       isRepackagingNeeded = false;
-        transient PTypeProvider TProvider           = null;
+        transient ParserTypeProvider TProvider           = null;
         
-        public PTypeProvider getTProvider() {
+        public ParserTypeProvider getTProvider() {
             return this.TProvider;
         }
         
@@ -68,7 +68,7 @@ public interface PTypeProviderPocket extends Serializable {
             try {
                 ObjectInputStream IOS = new ObjectInputStream(new ByteArrayInputStream((byte[]) aStream.readObject()));
                 // Load the body
-                this.TProvider = (PTypeProvider) IOS.readObject();
+                this.TProvider = (ParserTypeProvider) IOS.readObject();
             } catch (Exception E) {
                 this.isRepackagingNeeded = true;
             }
@@ -140,35 +140,35 @@ public interface PTypeProviderPocket extends Serializable {
         // TypeProvider ----------------------------------------------------------------------------
         
         /** Load a type package as text from a file named FN */
-        static public PTypeProvider loadAsPocketFromFile(String FN) throws IOException {
+        static public ParserTypeProvider loadAsPocketFromFile(String FN) throws IOException {
             PTypeProviderPocket PTPP = loadPocketFromFile(new File(FN));
             return (PTPP == null) ? null : PTPP.getTProvider();
         }
         
         /** Load a type package as text from a file F */
-        static public PTypeProvider loadAsPocketFromFile(File F) throws IOException {
+        static public ParserTypeProvider loadAsPocketFromFile(File F) throws IOException {
             PTypeProviderPocket PTPP = loadPocketFromFile(F);
             return (PTPP == null) ? null : PTPP.getTProvider();
         }
         
         /** Load a type package as text from a stream IS */
-        static public PTypeProvider loadAsPocketFromStream(InputStream IS) throws IOException {
+        static public ParserTypeProvider loadAsPocketFromStream(InputStream IS) throws IOException {
             PTypeProviderPocket PTPP = loadPocketFromStream(IS);
             return (PTPP == null) ? null : PTPP.getTProvider();
         }
         
         /** Save this type package as text to a file named FN */
-        public void saveAsPocketToFile(String FN, PTypeProvider pPTProvider) throws IOException {
+        public void saveAsPocketToFile(String FN, ParserTypeProvider pPTProvider) throws IOException {
             savePocketToFile(FN, new PTypeProviderPocket.Simple(pPTProvider));
         }
         
         /** Save this type package as text to a file F */
-        public void saveAsPocketToFile(File F, PTypeProvider pPTProvider) throws IOException {
+        public void saveAsPocketToFile(File F, ParserTypeProvider pPTProvider) throws IOException {
             savePocketToFile(F, new PTypeProviderPocket.Simple(pPTProvider));
         }
         
         /** Save this type package as text to a stream OS */
-        public void saveAsPocketToStream(OutputStream OS, PTypeProvider pPTProvider) throws IOException {
+        public void saveAsPocketToStream(OutputStream OS, ParserTypeProvider pPTProvider) throws IOException {
             savePocketToStream(OS, new PTypeProviderPocket.Simple(pPTProvider));
         }
     }

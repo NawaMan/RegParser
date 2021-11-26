@@ -21,7 +21,7 @@ package net.nawaman.regparser.checkers;
 import java.util.ArrayList;
 
 import net.nawaman.regparser.Checker;
-import net.nawaman.regparser.PTypeProvider;
+import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.RegParser;
 import net.nawaman.regparser.result.ParseResult;
 
@@ -95,12 +95,12 @@ public class CheckerAlternative implements Checker {
 	}
 	
 	@Override
-	public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider) {
+	public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider) {
 		return startLengthOf(text, offset, typeProvider, null);
 	}
 	
 	@Override
-	public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider, ParseResult parseResult) {
+	public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider, ParseResult parseResult) {
 		for (int i = checkers.length; --i >= 0;) {
 			var checker = checkers[i];
 			int index   = checker.startLengthOf(text, offset, typeProvider, parseResult);

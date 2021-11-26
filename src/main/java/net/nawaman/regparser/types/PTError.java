@@ -21,7 +21,7 @@ package net.nawaman.regparser.types;
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.CompilationContext;
 import net.nawaman.regparser.ParserType;
-import net.nawaman.regparser.PTypeProvider;
+import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.result.ParseResult;
 
 /**
@@ -66,7 +66,7 @@ public class PTError extends ParserType {
     
     /**{@inheritDoc}*/
     @Override
-    final public Checker checker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
+    final public Checker checker(ParseResult pHostResult, String pParam, ParserTypeProvider pProvider) {
         return this.TheChecker;
     }
     
@@ -79,7 +79,7 @@ public class PTError extends ParserType {
     /**{@inheritDoc}*/
     @Override
     public Object doCompile(ParseResult pThisResult, int pEntryIndex, String pParam, CompilationContext pCContext,
-            PTypeProvider pProvider) {
+            ParserTypeProvider pProvider) {
         
         String ErrMsg = String.format("%s%s\n", this.ErrMessage, (pParam == null) ? "" : String.format(" (%s)", pParam),
                 pCContext.getLocationAsString(pThisResult.startPositionOf(pEntryIndex)));

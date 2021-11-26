@@ -18,7 +18,7 @@
 
 package net.nawaman.regparser.types;
 
-import net.nawaman.regparser.PTypeProvider;
+import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.result.ParseResult;
 
 /**
@@ -38,7 +38,7 @@ public class PTIdentifierCI extends PTIdentifier {
     
     @Override
     public boolean doValidate(ParseResult pHostResult, ParseResult pThisResult, String pParam,
-            PTypeProvider pProvider) {
+            ParserTypeProvider pProvider) {
         String S = pThisResult.text();
         if (S == pParam)
             return true;

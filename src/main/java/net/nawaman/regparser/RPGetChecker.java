@@ -28,6 +28,6 @@ import net.nawaman.regparser.result.ParseResult;
 public interface RPGetChecker {
     
     /** Returns the checker */
-    public Checker getChecker(ParseResult pHostResult, String pParam, PTypeProvider pProvider);
+    public Checker getChecker(ParseResult pHostResult, String pParam, ParserTypeProvider pProvider);
     
 }

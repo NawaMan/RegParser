@@ -28,7 +28,7 @@ public class TestSelfContain {
 		Checker checker = newRegParser(Digit, new Quantifier(1, 2, Maximum));
 		
 		@Override
-		public Checker checker(ParseResult postResult, String param, PTypeProvider typeProvider) {
+		public Checker checker(ParseResult postResult, String param, ParserTypeProvider typeProvider) {
 			return this.checker;
 		}
 		
@@ -37,7 +37,7 @@ public class TestSelfContain {
 						ParseResult   hostResult,
 						ParseResult   thisResult,
 						String        param,
-						PTypeProvider typeProvider) {
+						ParserTypeProvider typeProvider) {
 			var text  = thisResult.text().toString();
 			int value = Integer.parseInt(text);
 			return (value >= 0) && (value <= 24);
@@ -54,7 +54,7 @@ public class TestSelfContain {
 		Checker checker = RegParser.newRegParser(Digit, new Quantifier(1, 2, Maximum));
 		
 		@Override
-		public Checker checker(ParseResult hostResult, String param, PTypeProvider typeProvider) {
+		public Checker checker(ParseResult hostResult, String param, ParserTypeProvider typeProvider) {
 			return this.checker;
 		}
 		
@@ -63,7 +63,7 @@ public class TestSelfContain {
 						ParseResult   hostResult,
 						ParseResult   thisResult,
 						String        param,
-						PTypeProvider typeProvider) {
+						ParserTypeProvider typeProvider) {
 			var text  = thisResult.text().toString();
 			int value = Integer.parseInt(text);
 			return (value >= 25) && (value <= 50);

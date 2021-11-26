@@ -64,7 +64,7 @@ public class RegParser implements Checker, Serializable {
     static public boolean           DebugMode           = false;
     static public PrintStream       DebugPrintStream    = null;
     
-    static PTypeProvider.Extensible RPTProvider       = null;
+    static ParserTypeProvider.Extensible RPTProvider       = null;
     static String                   RegParserCompiler = "RegParserCompiler." + RegParserTypeExt;
     
     // TODO - Should this be like this - Nawa 2021
@@ -236,7 +236,7 @@ public class RegParser implements Checker, Serializable {
     }
     
     /** Creates a new RegParser from a series of construction entries */
-    static public RegParser newRegParser(PTypeProvider pTProvider, ConstructionEntry... pEntries) {
+    static public RegParser newRegParser(ParserTypeProvider pTProvider, ConstructionEntry... pEntries) {
         if (pEntries == null)
             throw new NullPointerException();
         
@@ -285,7 +285,7 @@ public class RegParser implements Checker, Serializable {
      * Name and Quantifier can be absent. If the name is absent, that entry has no name. If the quantifier is absent, 
      * the entry has the quantifier of one. 
      **/
-    static public RegParser newRegParser(PTypeProvider pTProvider, Object... pParams) {
+    static public RegParser newRegParser(ParserTypeProvider pTProvider, Object... pParams) {
         if (pParams == null)
             throw new NullPointerException();
         Vector<RPEntry> RPEs = new Vector<RPEntry>();
@@ -474,15 +474,15 @@ public class RegParser implements Checker, Serializable {
     }
     
     /** Compiles a new RegParser from a RegParser code */
-    static public RegParser newRegParser(PTypeProvider pTProvider, String pText) {
+    static public RegParser newRegParser(ParserTypeProvider pTProvider, String pText) {
         boolean IsToSave = true;
         
         if (RPTProvider == null) {
             // Try to load from Resource
             try {
-                PTypeProvider PT = (PTypeProvider.Extensible) (Util
+                ParserTypeProvider PT = (ParserTypeProvider.Extensible) (Util
                         .loadObjectsFromStream(ClassLoader.getSystemResourceAsStream(RegParserCompiler))[0]);
-                RPTProvider = (PTypeProvider.Extensible) PT;
+                RPTProvider = (ParserTypeProvider.Extensible) PT;
                 IsToSave    = false;
             } catch (Exception E) {
             }
@@ -490,8 +490,8 @@ public class RegParser implements Checker, Serializable {
             // Try to load from local file
             if (RPTProvider == null) {
                 try {
-                    PTypeProvider PT = (PTypeProvider.Extensible) Util.loadObjectsFromFile(RegParserCompiler)[0];
-                    RPTProvider = (PTypeProvider.Extensible) PT;
+                    ParserTypeProvider PT = (ParserTypeProvider.Extensible) Util.loadObjectsFromFile(RegParserCompiler)[0];
+                    RPTProvider = (ParserTypeProvider.Extensible) PT;
                     IsToSave    = false;
                 } catch (Exception E) {
                 }
@@ -499,7 +499,7 @@ public class RegParser implements Checker, Serializable {
             
             // Try to create one
             if (RPTProvider == null) {
-                RPTProvider = new PTypeProvider.Extensible();
+                RPTProvider = new ParserTypeProvider.Extensible();
                 RPTProvider.addType(new PTTextCI());
                 // Add the type
                 RPTProvider.addType(new PTIdentifier());
@@ -568,7 +568,7 @@ public class RegParser implements Checker, Serializable {
     
     // Default TypePackage ---------------------------------------------------------------------------------------------
     
-    PTypeProvider getDefaultTypeProvider() {
+    ParserTypeProvider getDefaultTypeProvider() {
         return null;
     }
     
@@ -577,33 +577,33 @@ public class RegParser implements Checker, Serializable {
         
         private static final long serialVersionUID = -7904907723214116873L;
         
-        static public RegParser attachDefaultTypeProvider(RegParser pRegParser, PTypeProvider pTProvider) {
+        static public RegParser attachDefaultTypeProvider(RegParser pRegParser, ParserTypeProvider pTProvider) {
             if ((pRegParser == null) || (pTProvider == null))
                 return pRegParser;
             
-            PTypeProvider PTProvider = pRegParser.getDefaultTypeProvider();
-            if ((pRegParser instanceof WithDefaultTypeProvider) && (PTProvider instanceof PTypeProvider.Library))
-                ((PTypeProvider.Library) PTProvider).addProvider(pTProvider);
+            ParserTypeProvider PTProvider = pRegParser.getDefaultTypeProvider();
+            if ((pRegParser instanceof WithDefaultTypeProvider) && (PTProvider instanceof ParserTypeProvider.Library))
+                ((ParserTypeProvider.Library) PTProvider).addProvider(pTProvider);
             else {
                 var parserEntries = ((RegParser)(pRegParser)).entries();
                 var entries = (parserEntries == null) ? null : parserEntries.toArray(RPEntry[]::new);
                     var TProvider = ((PTProvider != null) && (PTProvider != pTProvider))
                             ? null
-                            : new PTypeProvider.Library(pTProvider, PTProvider);
+                            : new ParserTypeProvider.Library(pTProvider, PTProvider);
                 pRegParser = new WithDefaultTypeProvider(entries, TProvider);
             }
             return pRegParser;
         }
         
-        WithDefaultTypeProvider(RPEntry[] Entries, PTypeProvider pTProvider) {
+        WithDefaultTypeProvider(RPEntry[] Entries, ParserTypeProvider pTProvider) {
             super(Entries);
             this.TProvider = pTProvider;
         }
         
-        PTypeProvider TProvider = null;
+        ParserTypeProvider TProvider = null;
         
         @Override
-        PTypeProvider getDefaultTypeProvider() {
+        ParserTypeProvider getDefaultTypeProvider() {
             return this.TProvider;
         }
         
@@ -613,8 +613,8 @@ public class RegParser implements Checker, Serializable {
         @Override
         /** Returns the length of the match if the text is start with a match or -1 if not */
         protected ParseResult parse(CharSequence pText, int pOffset, int pIndex, int pTimes, ParseResult pResult,
-                PTypeProvider pProvider, ParserType pRPType, String pRPTParam, int pTabs) {
-            PTypeProvider TP = PTypeProvider.Library.getEither(pProvider, this.TProvider);
+                ParserTypeProvider pProvider, ParserType pRPType, String pRPTParam, int pTabs) {
+            ParserTypeProvider TP = ParserTypeProvider.Library.getEither(pProvider, this.TProvider);
             return super.parse(pText, pOffset, pIndex, pTimes, pResult, TP, pRPType, pRPTParam, pTabs);
         }
         
@@ -642,7 +642,7 @@ public class RegParser implements Checker, Serializable {
     }
     
     /** Returns the the match if the text is start with a match or -1 if not */
-    public ParseResult parse(CharSequence pText, PTypeProvider pProvider) {
+    public ParseResult parse(CharSequence pText, ParserTypeProvider pProvider) {
         ParseResult PR = this.parse(pText, 0, 0, 0, null, pProvider, null, null, 0);
         if (PR != null)
             PR.collapse(pProvider);
@@ -650,7 +650,7 @@ public class RegParser implements Checker, Serializable {
     }
     
     /** Returns the match if the text is start with a match (from pOffset on) or -1 if not */
-    public ParseResult parse(CharSequence pText, int pOffset, PTypeProvider pProvider) {
+    public ParseResult parse(CharSequence pText, int pOffset, ParserTypeProvider pProvider) {
         ParseResult PR = this.parse(pText, pOffset, 0, 0, null, pProvider, null, null, 0);
         if (PR != null)
             PR.collapse(pProvider);
@@ -682,7 +682,7 @@ public class RegParser implements Checker, Serializable {
     }
     
     /** Returns the match if the text is start with a match (from start to the end) or -1 if not */
-    public ParseResult match(CharSequence pText, PTypeProvider pProvider) {
+    public ParseResult match(CharSequence pText, ParserTypeProvider pProvider) {
         ParseResult PR = this.parse(pText, 0, 0, 0, null, pProvider, null, null, 0);
         if ((PR != null) && (pText != null)) {
             if (PR.endPosition() != pText.length())
@@ -693,7 +693,7 @@ public class RegParser implements Checker, Serializable {
     }
     
     /** Returns the match if the text is start with a match (from start to the pEndPosition) or -1 if not */
-    public ParseResult match(CharSequence pText, int pOffset, int pEndPosition, PTypeProvider pProvider) {
+    public ParseResult match(CharSequence pText, int pOffset, int pEndPosition, ParserTypeProvider pProvider) {
         ParseResult PR = this.parse(pText, pOffset, 0, 0, null, pProvider, null, null, 0);
         if ((PR != null) && (pText != null)) {
             if (PR.endPosition() != pEndPosition)
@@ -707,7 +707,7 @@ public class RegParser implements Checker, Serializable {
     
     /** Parse an entry at the index pIndex possessively */
     protected ParseResult parseEach_P(CharSequence pText, int pOffset, int pIndex, ParseResult pResult,
-            PTypeProvider pProvider, int pTabs) {
+            ParserTypeProvider pProvider, int pTabs) {
         String   FN  = this.Entries[pIndex].name();
         PTypeRef FTR = this.Entries[pIndex].typeRef();
         ParserType    FT  = this.Entries[pIndex].type();
@@ -718,7 +718,7 @@ public class RegParser implements Checker, Serializable {
     
     /** Parse an entry possessively */
     protected ParseResult parseEach_P(CharSequence pText, int pOffset, int pIndex, String FN, ParserType FT, PTypeRef FTR,
-            Checker FP, ParseResult pResult, PTypeProvider pProvider, int pTabs) {
+            Checker FP, ParseResult pResult, ParserTypeProvider pProvider, int pTabs) {
         
         boolean IsFPType          = (FT != null) || (FTR != null);
         boolean IsFPName          = (FN != null);
@@ -845,7 +845,7 @@ public class RegParser implements Checker, Serializable {
                             }
                             if (FT == null) {
                                 // Get from the default
-                                FT = PTypeProvider.Simple.getDefault().type(FTR.name());
+                                FT = ParserTypeProvider.Simple.getDefault().type(FTR.name());
                                 if (FT == null) {
                                     throw new RPParsingException(
                                             "RegParser type named '" + FTR.name() + "' is not found.");
@@ -996,7 +996,7 @@ public class RegParser implements Checker, Serializable {
     
     /** Returns the length of the match if the text is start with a match or -1 if not */
     protected ParseResult parse(CharSequence pText, int pOffset, int pIndex, int pTimes, ParseResult pResult,
-            PTypeProvider pProvider, ParserType pRPType, String pRPTParam, int pTabs) {
+            ParserTypeProvider pProvider, ParserType pRPType, String pRPTParam, int pTabs) {
         
         // If the entry has a name, ask it to parse with a new parse result 
         if (pResult == null)
@@ -1464,7 +1464,7 @@ public class RegParser implements Checker, Serializable {
      * @param    pOffset the starting point of the checking
      * @return    the length of the match or -1 if the string S does not start with this checker
      */
-    public int startLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider) {
+    public int startLengthOf(CharSequence S, int pOffset, ParserTypeProvider pProvider) {
         return this.startLengthOf(S, pOffset, pProvider, null);
     }
     
@@ -1476,7 +1476,7 @@ public class RegParser implements Checker, Serializable {
      * @return    the length of the match or -1 if the string S does not start with this checker
      */
     @Override
-    public int startLengthOf(CharSequence S, int pOffset, PTypeProvider pProvider, ParseResult pResult) {
+    public int startLengthOf(CharSequence S, int pOffset, ParserTypeProvider pProvider, ParseResult pResult) {
         if (pResult == null) {
             ParseResult PR = this.parse(S.toString(), pOffset, pProvider);
             if (PR == null)

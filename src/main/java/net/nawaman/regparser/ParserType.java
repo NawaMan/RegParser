@@ -39,13 +39,13 @@ abstract public class ParserType implements Serializable {
 	private PTypeRef      defaultRef   = null;
 	private int           flags        = 0;
 	private RegParser     parser       = null;
-	private PTypeProvider typeProvider = null;
+	private ParserTypeProvider typeProvider = null;
 	
 	/** Returns the name of the type */
 	abstract public String name();
 	
 	/** Returns the checker for parsing the type */
-	abstract public Checker checker(ParseResult hostResult, String param, PTypeProvider typeProvider);
+	abstract public Checker checker(ParseResult hostResult, String param, ParserTypeProvider typeProvider);
 	
 	
 	/** Return the default TypeRef of this type */
@@ -144,15 +144,15 @@ abstract public class ParserType implements Serializable {
 		return isSelfContain;
 	}
 	
-	public final PTypeProvider typeProvider() {
+	public final ParserTypeProvider typeProvider() {
 		return typeProvider;
 	}
 	
-	final void setTypeProvider(PTypeProvider typeProvider) {
+	final void setTypeProvider(ParserTypeProvider typeProvider) {
 		this.typeProvider = typeProvider;
 	}
 	
-	final PTypeProvider defaultTypeProvider() {
+	final ParserTypeProvider defaultTypeProvider() {
 		return typeProvider;
 	}
 	
@@ -177,18 +177,18 @@ abstract public class ParserType implements Serializable {
 	}
 	
 	/** Returns the the match if the text is start with a match or -1 if not */
-	public final ParseResult parse(CharSequence text, PTypeProvider typeProvider) {
+	public final ParseResult parse(CharSequence text, ParserTypeProvider typeProvider) {
 		return parse(text, 0, typeProvider);
 	}
 	
 	/** Returns the match if the text is start with a match (from pOffset on) or -1 if not */
-	public final ParseResult parse(CharSequence text, int offset, PTypeProvider typeProvider) {
+	public final ParseResult parse(CharSequence text, int offset, ParserTypeProvider typeProvider) {
 		return doParse(text, offset, typeProvider);
 	}
 	
 	/** Returns the match if the text is start with a match (from pOffset on) or -1 if not */
-	public final ParseResult doParse(CharSequence text, int offset, PTypeProvider typeProvider) {
-		var provider = PTypeProvider.Library.getEither(typeProvider, this.typeProvider);
+	public final ParseResult doParse(CharSequence text, int offset, ParserTypeProvider typeProvider) {
+		var provider = ParserTypeProvider.Library.getEither(typeProvider, this.typeProvider);
 		return parser()
 				.parse(text, offset, provider);
 	}
@@ -210,7 +210,7 @@ abstract public class ParserType implements Serializable {
 	}
 	
 	/** Returns the match if the text is start with a match (from start to the end) or -1 if not */
-	public final ParseResult match(CharSequence text, PTypeProvider typeProvider) {
+	public final ParseResult match(CharSequence text, ParserTypeProvider typeProvider) {
 		int endPosition = text.length();
 		return match(text, 0, endPosition, typeProvider);
 	}
@@ -222,19 +222,19 @@ abstract public class ParserType implements Serializable {
 	}
 	
 	/** Returns the match if the text is start with a match (from start to the end) or -1 if not */
-	public final ParseResult match(CharSequence text, int offset, PTypeProvider typeProvider) {
+	public final ParseResult match(CharSequence text, int offset, ParserTypeProvider typeProvider) {
 		int endPosition = text.length();
 		return match(text, offset, endPosition, typeProvider);
 	}
 	
 	/** Returns the match if the text is start with a match (from start to the pEndPosition) or -1 if not */
-	public final ParseResult match(CharSequence text, int offset, int endPosition, PTypeProvider typeProvider) {
+	public final ParseResult match(CharSequence text, int offset, int endPosition, ParserTypeProvider typeProvider) {
 		return doMatch(text, offset, endPosition, typeProvider);
 	}
 	
 	/** Returns the match if the text is start with a match (from start to the pEndPosition) or -1 if not */
-	protected ParseResult doMatch(CharSequence text, int offset, int endPosition, PTypeProvider typeProvider) {
-		var provider = PTypeProvider.Library.getEither(typeProvider, this.typeProvider);
+	protected ParseResult doMatch(CharSequence text, int offset, int endPosition, ParserTypeProvider typeProvider) {
+		var provider = ParserTypeProvider.Library.getEither(typeProvider, this.typeProvider);
 		int end      = (endPosition == -1)
 		             ? text.length()
 		             : endPosition;
@@ -253,8 +253,8 @@ abstract public class ParserType implements Serializable {
 							ParseResult   hostResult,
 							ParseResult   thisResult,
 							String        parameter,
-							PTypeProvider typeProvider) {
-		var provider = PTypeProvider.Library.getEither(typeProvider, this.typeProvider);
+							ParserTypeProvider typeProvider) {
+		var provider = ParserTypeProvider.Library.getEither(typeProvider, this.typeProvider);
 		return doValidate(hostResult, thisResult, parameter, provider);
 	}
 	
@@ -263,7 +263,7 @@ abstract public class ParserType implements Serializable {
 							ParseResult   hostResult,
 							ParseResult   thisResult,
 							String        parameter,
-							PTypeProvider typeProvider) {
+							ParserTypeProvider typeProvider) {
 		return true;
 	}
 	
@@ -285,7 +285,7 @@ abstract public class ParserType implements Serializable {
 	}
 	
 	/** Compiles a ParseResult in to an object */
-	public final Object compile(String text, PTypeProvider typeProvider) {
+	public final Object compile(String text, ParserTypeProvider typeProvider) {
 		var thisResult = newRegParser(this).match(text, typeProvider);
 		if (thisResult == null)
 			return null;
@@ -294,7 +294,7 @@ abstract public class ParserType implements Serializable {
 	}
 	
 	/** Compiles a ParseResult in to an object */
-	public final Object compile(String text, String parameter, PTypeProvider typeProvider) {
+	public final Object compile(String text, String parameter, ParserTypeProvider typeProvider) {
 		return compile(text, parameter, null, typeProvider);
 	}
 	
@@ -303,7 +303,7 @@ abstract public class ParserType implements Serializable {
 							String             text,
 							String             parameter,
 							CompilationContext compilationContext,
-							PTypeProvider      typeProvider) {
+							ParserTypeProvider      typeProvider) {
 		RegParser regParser = null;
 		
 		if (parameter == null) {
@@ -312,9 +312,9 @@ abstract public class ParserType implements Serializable {
 			// The provide does not hold this type
 			if (typeProvider.type(name()) == null) {
 				// Add it in
-				var newProvider = new PTypeProvider.Extensible();
-				var newLibrary  = new PTypeProvider.Library(typeProvider, newProvider);
-				((PTypeProvider.Extensible)newProvider).addRPType(this);
+				var newProvider = new ParserTypeProvider.Extensible();
+				var newLibrary  = new ParserTypeProvider.Library(typeProvider, newProvider);
+				((ParserTypeProvider.Extensible)newProvider).addRPType(this);
 				typeProvider = newLibrary;
 			}
 			var typeRef = new PTypeRef.Simple(name(), parameter);
@@ -336,7 +336,7 @@ abstract public class ParserType implements Serializable {
 	}
 	
 	/** Compiles a ParseResult in to an object */
-	public final Object compile(ParseResult thisResult, PTypeProvider typeProvider) {
+	public final Object compile(ParseResult thisResult, ParserTypeProvider typeProvider) {
 		return compile(thisResult, 0, null, null, typeProvider);
 	}
 	
@@ -345,7 +345,7 @@ abstract public class ParserType implements Serializable {
 							ParseResult        thisResult,
 							String             parameter,
 							CompilationContext compilationContext,
-							PTypeProvider      typeProvider) {
+							ParserTypeProvider      typeProvider) {
 		return compile(thisResult, 0, null, compilationContext, typeProvider);
 	}
 	
@@ -355,8 +355,8 @@ abstract public class ParserType implements Serializable {
 							int                entryIndex,
 							String             parameter,
 							CompilationContext compilationContext,
-							PTypeProvider      typeProvider) {
-		var provider = PTypeProvider.Library.getEither(typeProvider, this.typeProvider);
+							ParserTypeProvider      typeProvider) {
+		var provider = ParserTypeProvider.Library.getEither(typeProvider, this.typeProvider);
 		return doCompile(thisResult, entryIndex, parameter, compilationContext, provider);
 	}
 	
@@ -366,7 +366,7 @@ abstract public class ParserType implements Serializable {
 						int                entryIndex,
 						String             parameter,
 						CompilationContext compilationContext,
-						PTypeProvider      typeProvider) {
+						ParserTypeProvider      typeProvider) {
 		return (thisResult == null)
 		        ? null
 		        : thisResult.textOf(entryIndex);

@@ -21,7 +21,7 @@ package net.nawaman.regparser.checkers;
 import static java.util.Objects.requireNonNull;
 
 import net.nawaman.regparser.Checker;
-import net.nawaman.regparser.PTypeProvider;
+import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.result.ParseResult;
 
 /**
@@ -40,12 +40,12 @@ public class CheckerNot implements Checker {
 	}
 	
 	@Override
-	public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider) {
+	public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider) {
 		return startLengthOf(text, offset, typeProvider, null);
 	}
 	
 	@Override
-	public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider, ParseResult parseResult) {
+	public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider, ParseResult parseResult) {
 		int startLength = checker.startLengthOf(text, offset, typeProvider, parseResult);
 		return (startLength != -1) ? -1 : 1;
 	}

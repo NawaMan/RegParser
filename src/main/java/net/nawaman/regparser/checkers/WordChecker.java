@@ -22,7 +22,7 @@ import static java.util.Objects.requireNonNull;
 import static net.nawaman.regparser.RPCompiler_ParserTypes.escapeOfRegParser;
 
 import net.nawaman.regparser.Checker;
-import net.nawaman.regparser.PTypeProvider;
+import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.Util;
 import net.nawaman.regparser.result.ParseResult;
 
@@ -49,12 +49,12 @@ public class WordChecker implements Checker {
 			throw new IllegalArgumentException();
 	}
 	
-	public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider) {
+	public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider) {
 		return startLengthOf(text, offset, typeProvider, null);
 	}
 	
 	@Override
-	public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider, ParseResult parseResult) {
+	public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider, ParseResult parseResult) {
 		return Util.startsWith(text, word, offset)
 		        ? word.length()
 		        : -1;

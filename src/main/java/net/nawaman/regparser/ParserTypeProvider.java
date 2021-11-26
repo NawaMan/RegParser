@@ -38,7 +38,7 @@ import net.nawaman.regparser.types.PTTextCI;
  * 
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-public interface PTypeProvider extends Serializable {
+public interface ParserTypeProvider extends Serializable {
 	
 	/** Returns type from name */
 	public ParserType type(String name);
@@ -55,22 +55,22 @@ public interface PTypeProvider extends Serializable {
 	// Sub classes -----------------------------------------------------------------------------------------------------
 	
 	@SuppressWarnings("serial")
-	static public class Simple implements PTypeProvider {
+	static public class Simple implements ParserTypeProvider {
 		
 		/** Include the type pPT to exclusively be a member of the provider pTP */
-		static public boolean exclusivelyInclude(PTypeProvider pTP, ParserType pPT) {
+		static public boolean exclusivelyInclude(ParserTypeProvider pTP, ParserType pPT) {
 			if ((pPT == null) || (pPT.typeProvider() != null))
 				return false;
 			pPT.setTypeProvider(pTP);
 			return true;
 		}
 		
-		static private PTypeProvider.Extensible Default = null;
+		static private ParserTypeProvider.Extensible Default = null;
 		
-		static public final PTypeProvider.Extensible getDefault() {
+		static public final ParserTypeProvider.Extensible getDefault() {
 			if (Default != null)
 				return Default;
-			Default = new PTypeProvider.Extensible();
+			Default = new ParserTypeProvider.Extensible();
 			Default.addRPType(new PTTextCI());
 			Default.addRPType(new ParserTypeBackRef());
 			Default.addRPType(new ParserTypeBackRefCI());
@@ -184,13 +184,13 @@ public interface PTypeProvider extends Serializable {
 		// Load and Save -----------------------------------------------------------------------------------------------
 		
 		/** Load type provider from a stream */
-		static public PTypeProvider loadTypeProviderFromStream(InputStream pIS) throws IOException {
+		static public ParserTypeProvider loadTypeProviderFromStream(InputStream pIS) throws IOException {
 			ParserType[] Ts = loadTypesFromStream(pIS);
 			return new Simple(Ts);
 		}
 		
 		/** Load types into a type provider from a stream */
-		static public int loadTypeProviderFromStream(InputStream pIS, PTypeProvider pProvider, boolean isToReplace)
+		static public int loadTypeProviderFromStream(InputStream pIS, ParserTypeProvider pProvider, boolean isToReplace)
 		        throws IOException {
 			ParserType[] Ts = loadTypesFromStream(pIS);
 			if (Ts == null)
@@ -220,17 +220,17 @@ public interface PTypeProvider extends Serializable {
 			
 			Serializable[]        Ss        = (Serializable[])O;
 			Vector<ParserType>    Types     = new Vector<ParserType>();
-			Vector<PTypeProvider> Providers = new Vector<PTypeProvider>();
+			Vector<ParserTypeProvider> Providers = new Vector<ParserTypeProvider>();
 			for (Serializable S : Ss) {
-				if (!(S instanceof ParserType) && !(S instanceof PTypeProvider))
+				if (!(S instanceof ParserType) && !(S instanceof ParserTypeProvider))
 					continue;
 				if (S instanceof ParserType)
 					Types.add((ParserType)S);
 				else
-					Providers.add((PTypeProvider)S);
+					Providers.add((ParserTypeProvider)S);
 			}
 			
-			for (PTypeProvider Provider : Providers) {
+			for (ParserTypeProvider Provider : Providers) {
 				Set<String> TNames = Provider.typeNames();
 				if (TNames != null) {
 					for (String TName : TNames) {
@@ -246,7 +246,7 @@ public interface PTypeProvider extends Serializable {
 		}
 		
 		/** Save a type provider to the stream */
-		static public void saveRPTypeProviderToStream(OutputStream pOS, PTypeProvider pProvider) throws IOException {
+		static public void saveRPTypeProviderToStream(OutputStream pOS, ParserTypeProvider pProvider) throws IOException {
 			Util.saveObjectsToStream(pOS, new Serializable[] { pProvider });
 		}
 		
@@ -332,7 +332,7 @@ public interface PTypeProvider extends Serializable {
 	static public class Library extends Simple {
 		
 		/** Returns the TypeProvider that include either providers */
-		static public PTypeProvider getEither(PTypeProvider First, PTypeProvider Second) {
+		static public ParserTypeProvider getEither(ParserTypeProvider First, ParserTypeProvider Second) {
 			if (First == null)
 				return Second;
 			if (Second == null)
@@ -340,9 +340,9 @@ public interface PTypeProvider extends Serializable {
 			return new Library(First, Second);
 		}
 		
-		private final List<PTypeProvider> Providers= new ArrayList<PTypeProvider>();
+		private final List<ParserTypeProvider> Providers= new ArrayList<ParserTypeProvider>();
 		
-		public Library(ParserType[] pTypes, PTypeProvider... pProviders) {
+		public Library(ParserType[] pTypes, ParserTypeProvider... pProviders) {
 			super(pTypes);
 			if (pProviders == null)
 				return;
@@ -353,11 +353,11 @@ public interface PTypeProvider extends Serializable {
 			}
 		}
 		
-		public Library(PTypeProvider... pProviders) {
+		public Library(ParserTypeProvider... pProviders) {
 			this(null, pProviders);
 		}
 		
-		public void addProvider(PTypeProvider pProvider) {
+		public void addProvider(ParserTypeProvider pProvider) {
 			if (pProvider == null)
 				return;
 			for (int i = 0; i < this.Providers.size(); i++) {
@@ -367,7 +367,7 @@ public interface PTypeProvider extends Serializable {
 			this.Providers.add(pProvider);
 		}
 		
-		public void removeProvider(PTypeProvider pProvider) {
+		public void removeProvider(ParserTypeProvider pProvider) {
 			if (pProvider == null)
 				return;
 			for (int i = 0; i < this.Providers.size(); i++) {
@@ -439,7 +439,7 @@ public interface PTypeProvider extends Serializable {
 			SB.append("{");
 			SB.append(super.toString());
 			for (int i = 0; i < this.Providers.size(); i++) {
-				PTypeProvider TP = this.Providers.get(i);
+				ParserTypeProvider TP = this.Providers.get(i);
 				if (TP == null)
 					continue;
 				SB.append("; ");

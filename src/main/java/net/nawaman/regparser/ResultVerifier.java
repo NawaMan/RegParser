@@ -29,6 +29,6 @@ import net.nawaman.regparser.types.PTComposable;
 public interface ResultVerifier {
     
     /** Validate the parse result */
-    public boolean validate(ParseResult hostResult, ParseResult thisResult, String parameter, PTypeProvider typeProvider);
+    public boolean validate(ParseResult hostResult, ParseResult thisResult, String parameter, ParserTypeProvider typeProvider);
     
 }

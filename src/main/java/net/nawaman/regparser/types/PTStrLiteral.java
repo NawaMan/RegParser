@@ -20,7 +20,7 @@ package net.nawaman.regparser.types;
 
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.ParserType;
-import net.nawaman.regparser.PTypeProvider;
+import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.Quantifier;
 import net.nawaman.regparser.RegParser;
 import net.nawaman.regparser.checkers.CharNot;
@@ -60,7 +60,7 @@ public class PTStrLiteral extends ParserType {
                                     Quantifier.ZeroOrMore, new CharSingle('`'))));
     
     @Override
-    public Checker checker(ParseResult pHostResult, String pParam, PTypeProvider pProvider) {
+    public Checker checker(ParseResult pHostResult, String pParam, ParserTypeProvider pProvider) {
         return this.Checker;
     }
     

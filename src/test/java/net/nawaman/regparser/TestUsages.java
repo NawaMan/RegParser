@@ -11,7 +11,7 @@ public class TestUsages {
 	
 	@Test
 	public void testDeclareVariable() {
-		var typeProvider = new PTypeProvider.Extensible(new PTIdentifier());
+		var typeProvider = new ParserTypeProvider.Extensible(new PTIdentifier());
 		
 		var parser = newRegParser(
 		                typeProvider,
@@ -28,7 +28,7 @@ public class TestUsages {
 	
 	@Test
 	public void testDeclareArray() {
-		var typeProvider = new PTypeProvider.Extensible(new PTIdentifier());
+		var typeProvider = new ParserTypeProvider.Extensible(new PTIdentifier());
 		
 		var parser = newRegParser(typeProvider,
 		        "var"

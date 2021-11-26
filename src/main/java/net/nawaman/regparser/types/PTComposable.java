@@ -20,7 +20,7 @@ package net.nawaman.regparser.types;
 
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.CompilationContext;
-import net.nawaman.regparser.PTypeProvider;
+import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.RPCompiler;
 import net.nawaman.regparser.RPGetChecker;
 import net.nawaman.regparser.ResultVerifier;
@@ -71,7 +71,7 @@ public class PTComposable extends PTSimple {
     /**{@inheritDoc}*/
     @Override
     final public boolean doValidate(ParseResult pHostResult, ParseResult pThisResult, String pParam,
-            PTypeProvider pProvider) {
+            ParserTypeProvider pProvider) {
         if (this.Verifier == null)
             return super.validate(pHostResult, pThisResult, pParam, pProvider);
         return this.Verifier.validate(pHostResult, pThisResult, pParam, pProvider);
@@ -80,7 +80,7 @@ public class PTComposable extends PTSimple {
     /**{@inheritDoc}*/
     @Override
     final public Object doCompile(ParseResult pThisResult, int pEntryIndex, String pParam, CompilationContext pContext,
-            PTypeProvider pProvider) {
+            ParserTypeProvider pProvider) {
         Object Return = null;
         if (this.Compiler == null)
             Return = pThisResult.textOf(pEntryIndex);

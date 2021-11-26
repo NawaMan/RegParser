@@ -36,7 +36,7 @@ import java.util.stream.Stream;
 
 import net.nawaman.regparser.CompilationContext;
 import net.nawaman.regparser.ParserType;
-import net.nawaman.regparser.PTypeProvider;
+import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.PTypeRef;
 import net.nawaman.regparser.RPEntry;
 import net.nawaman.regparser.RegParser;
@@ -697,7 +697,7 @@ abstract public class ParseResult implements Serializable {
 	}
 	
 	/** Get Type of the last match */
-	public final ParserType typeOf(int index, PTypeProvider typeProvider) {
+	public final ParserType typeOf(int index, ParserTypeProvider typeProvider) {
 		var entry = entryAt(index);
 		if (entry == null)
 			return null;
@@ -717,13 +717,13 @@ abstract public class ParseResult implements Serializable {
 	}
 	
 	/** Get Type of the last match */
-	public final ParserType typeOf(String name, PTypeProvider typeProvider) {
+	public final ParserType typeOf(String name, ParserTypeProvider typeProvider) {
 		int index = indexOf(name);
 		return typeOf(index, typeProvider);
 	}
 	
 	/** Get subs result of the last match */
-	public final ParserType[] typesOf(String name, PTypeProvider typeProvider) {
+	public final ParserType[] typesOf(String name, ParserTypeProvider typeProvider) {
 		var indexes = indexesOf(name);
 		if (indexes == null)
 			return null;
@@ -1044,7 +1044,7 @@ abstract public class ParseResult implements Serializable {
 	//-- Compiled value ------------------------------------------------------------------------------------------------
 	
 	/** Get compile value of the last match */
-	public final Object valueOf(int index, PTypeProvider typeProvider, CompilationContext compilationContext) {
+	public final Object valueOf(int index, ParserTypeProvider typeProvider, CompilationContext compilationContext) {
 		var type = typeOf(index, typeProvider);
 		if (type == null) {
 			var typeName = this.typeNameOf(index);
@@ -1062,13 +1062,13 @@ abstract public class ParseResult implements Serializable {
 	}
 	
 	/** Get compile value of the last match */
-	public final Object valueOf(String name, PTypeProvider typeProvider, CompilationContext compilationContext) {
+	public final Object valueOf(String name, ParserTypeProvider typeProvider, CompilationContext compilationContext) {
 		int index = indexOf(name);
 		return valueOf(index, typeProvider, compilationContext);
 	}
 	
 	/** Get subs result of the last match */
-	public final Object[] valuesOf(String name, PTypeProvider typeProvider, CompilationContext compilationContext) {
+	public final Object[] valuesOf(String name, ParserTypeProvider typeProvider, CompilationContext compilationContext) {
 		var indexes = indexesOf(name);
 		if (indexes == null)
 			return null;
@@ -1088,7 +1088,7 @@ abstract public class ParseResult implements Serializable {
 	//-- Compiled value as Text ----------------------------------------------------------------------------------------
 	
 	/** Get compile value as text of the last match */
-	public final String valueAsTextOf(int index, PTypeProvider typeProvider, CompilationContext compilationContext) {
+	public final String valueAsTextOf(int index, ParserTypeProvider typeProvider, CompilationContext compilationContext) {
 		var type = typeOf(index, typeProvider);
 		if (type == null) {
 			var typeName = typeNameOf(index);
@@ -1122,13 +1122,13 @@ abstract public class ParseResult implements Serializable {
 	}
 	
 	/** Get compile value as text of the last match */
-	public final String valueAsTextOf(String name, PTypeProvider typeProvider, CompilationContext compilationContext) {
+	public final String valueAsTextOf(String name, ParserTypeProvider typeProvider, CompilationContext compilationContext) {
 		int index = indexOf(name);
 		return valueAsTextOf(index, typeProvider, compilationContext);
 	}
 	
 	/** Get compile value as text of the all match */
-	public final String[] valueAsTextsOf(String name, PTypeProvider typeProvider, CompilationContext compilationContext) {
+	public final String[] valueAsTextsOf(String name, ParserTypeProvider typeProvider, CompilationContext compilationContext) {
 		var indexes = indexesOf(name);
 		if (indexes == null)
 			return null;
@@ -1175,7 +1175,7 @@ abstract public class ParseResult implements Serializable {
 	}
 	
 	/** Detect and report all error and warning - returns if there is at least one error or warning */
-	public final boolean hasNoError(PTypeProvider typeProvider) {
+	public final boolean hasNoError(ParserTypeProvider typeProvider) {
 		boolean haveErrorOrWanrning = false;
 		int     entryCount          = entryCount();
 		for (int i = 0; i < entryCount; i++) {
@@ -1191,7 +1191,7 @@ abstract public class ParseResult implements Serializable {
 					     ? null
 					     : typeProvider.type(typeName);
 					if (type == null) {
-						type = PTypeProvider.Extensible.getDefault().type(typeName);
+						type = ParserTypeProvider.Extensible.getDefault().type(typeName);
 						if (type == null)
 							throw new RuntimeException(format("Unknown type `%s`.", typeName));
 					}
@@ -1218,7 +1218,7 @@ abstract public class ParseResult implements Serializable {
 	}
 	
 	/** Detect and report all error and warning - returns if there is at least one error or warning */
-	public final boolean ensureNoError(PTypeProvider typeProvider, CompilationContext compilationContext) {
+	public final boolean ensureNoError(ParserTypeProvider typeProvider, CompilationContext compilationContext) {
 		boolean haveErrorOrWanrning = false;
 		int     entryCount          = entryCount();
 		for (int i = 0; i < entryCount; i++) {
@@ -1234,7 +1234,7 @@ abstract public class ParseResult implements Serializable {
 					     ? null
 					     : typeProvider.type(typeName);
 					if (type == null) {
-						type = PTypeProvider.Extensible.getDefault().type(typeName);
+						type = ParserTypeProvider.Extensible.getDefault().type(typeName);
 						if (type == null)
 							throw new RuntimeException(format("Unknown type `%s`.", typeName));
 					}
@@ -1338,7 +1338,7 @@ abstract public class ParseResult implements Serializable {
 	}
 	
 	/** Collapse the result so entry with $ and [] will be combine */
-	public final void collapse(PTypeProvider typeProvider) {
+	public final void collapse(ParserTypeProvider typeProvider) {
 		if (this.entries == null)
 			return;
 		
@@ -1529,7 +1529,7 @@ abstract public class ParseResult implements Serializable {
 	}
 	
 	/** Parse the result entry - Only when the entry has no sub */
-	public final boolean parseEntry(int index, RegParser parser, PTypeProvider typeProvider) {
+	public final boolean parseEntry(int index, RegParser parser, ParserTypeProvider typeProvider) {
 		if (parser == null)
 			return false;
 		

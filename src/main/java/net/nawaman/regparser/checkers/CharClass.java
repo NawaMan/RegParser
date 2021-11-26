@@ -21,7 +21,7 @@ package net.nawaman.regparser.checkers;
 import java.util.regex.Pattern;
 
 import net.nawaman.regparser.Checker;
-import net.nawaman.regparser.PTypeProvider;
+import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.result.ParseResult;
 
 /**
@@ -66,7 +66,7 @@ final public class CharClass extends CharChecker {
 	}
 	
 	@Override
-	public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider, ParseResult parseResult) {
+	public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider, ParseResult parseResult) {
 		if (offset >= text.length())
 			return -1;
 		

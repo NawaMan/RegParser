@@ -24,7 +24,7 @@ import java.util.ArrayList;
 
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.ParserType;
-import net.nawaman.regparser.PTypeProvider;
+import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.PTypeRef;
 import net.nawaman.regparser.RPEntry;
 import net.nawaman.regparser.RegParser;
@@ -109,12 +109,12 @@ public class CheckerFixeds implements Checker {
 	}
 	
 	@Override
-	public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider) {
+	public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider) {
 		return startLengthOf(text, offset, typeProvider, null);
 	}
 	
 	@Override
-	public int startLengthOf(CharSequence text, int offset, PTypeProvider typeProvider, ParseResult parseResult) {
+	public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider, ParseResult parseResult) {
 		return neededLength();
 	}
 	

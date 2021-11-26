@@ -29,6 +29,6 @@ public interface RPCompiler {
     
     /** Compiles a ParseResult in to an object with a parameter */
     public Object compile(ParseResult pThisResult, int pEntryIndex, String pParam, CompilationContext pContext,
-            PTypeProvider pProvider);
+            ParserTypeProvider pProvider);
     
 }

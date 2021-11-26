@@ -33,7 +33,7 @@ public class TestRegParserCompiler2 {
 	@ClassRule
 	public static TimeRecordRule timeRecordRule = TimeRecordRule.instance;
 	
-	private PTypeProvider.Extensible typeProvider;
+	private ParserTypeProvider.Extensible typeProvider;
 	private Random                   random = new Random();
 	
 	static void validate(CharChecker expectedCharChecker, Object actual) {
@@ -54,7 +54,7 @@ public class TestRegParserCompiler2 {
 	
 	@Before
 	public void setup() {
-		var typeProvider = new PTypeProvider.Extensible();
+		var typeProvider = new ParserTypeProvider.Extensible();
 		
 		typeProvider.addRPType(new PTTextCI());
 		typeProvider.addRPType(new PTIdentifier());

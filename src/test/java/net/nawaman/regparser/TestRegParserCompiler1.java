@@ -30,12 +30,12 @@ public class TestRegParserCompiler1 {
 	@ClassRule
 	public static TimeRecordRule timeRecordRule = TimeRecordRule.instance;
 	
-	private PTypeProvider.Extensible typeProvider;
+	private ParserTypeProvider.Extensible typeProvider;
 	private RegParser                parser;
 	
 	@Before
 	public void setup() {
-		typeProvider = new PTypeProvider.Extensible();
+		typeProvider = new ParserTypeProvider.Extensible();
 		typeProvider.addRPType(new PTTextCI());
 		typeProvider.addRPType(new PTIdentifier());
 		typeProvider.addRPType(new PTStrLiteral());
