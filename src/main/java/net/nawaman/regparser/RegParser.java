@@ -138,35 +138,35 @@ public class RegParser implements Checker, Serializable {
             this(pName, (Object) pPType, pQuantifier, pSecondStage);
         }
         
-        public ConstructionEntry(PTypeRef pPTypeRef) {
+        public ConstructionEntry(ParserTypeRef pPTypeRef) {
             this(null, (Object) pPTypeRef, null, null);
         }
         
-        public ConstructionEntry(PTypeRef pPTypeRef, Checker pSecondStage) {
+        public ConstructionEntry(ParserTypeRef pPTypeRef, Checker pSecondStage) {
             this(null, (Object) pPTypeRef, null, pSecondStage);
         }
         
-        public ConstructionEntry(PTypeRef pPTypeRef, Quantifier pQuantifier) {
+        public ConstructionEntry(ParserTypeRef pPTypeRef, Quantifier pQuantifier) {
             this(null, (Object) pPTypeRef, pQuantifier, null);
         }
         
-        public ConstructionEntry(PTypeRef pPTypeRef, Quantifier pQuantifier, Checker pSecondStage) {
+        public ConstructionEntry(ParserTypeRef pPTypeRef, Quantifier pQuantifier, Checker pSecondStage) {
             this(null, (Object) pPTypeRef, pQuantifier, pSecondStage);
         }
         
-        public ConstructionEntry(String pName, PTypeRef pPTypeRef) {
+        public ConstructionEntry(String pName, ParserTypeRef pPTypeRef) {
             this(pName, (Object) pPTypeRef, null, null);
         }
         
-        public ConstructionEntry(String pName, PTypeRef pPTypeRef, Checker pSecondStage) {
+        public ConstructionEntry(String pName, ParserTypeRef pPTypeRef, Checker pSecondStage) {
             this(pName, (Object) pPTypeRef, null, pSecondStage);
         }
         
-        public ConstructionEntry(String pName, PTypeRef pPTypeRef, Quantifier pQuantifier) {
+        public ConstructionEntry(String pName, ParserTypeRef pPTypeRef, Quantifier pQuantifier) {
             this(pName, (Object) pPTypeRef, pQuantifier, null);
         }
         
-        public ConstructionEntry(String pName, PTypeRef pPTypeRef, Quantifier pQuantifier, Checker pSecondStage) {
+        public ConstructionEntry(String pName, ParserTypeRef pPTypeRef, Quantifier pQuantifier, Checker pSecondStage) {
             this(pName, (Object) pPTypeRef, pQuantifier, pSecondStage);
         }
         
@@ -194,8 +194,8 @@ public class RegParser implements Checker, Serializable {
             return (this.Item instanceof ParserType) ? (ParserType) this.Item : null;
         }
         
-        public PTypeRef getTypeRef() {
-            return (this.Item instanceof PTypeRef) ? (PTypeRef) this.Item : null;
+        public ParserTypeRef getTypeRef() {
+            return (this.Item instanceof ParserTypeRef) ? (ParserTypeRef) this.Item : null;
         }
         
         public boolean isChecker() {
@@ -207,7 +207,7 @@ public class RegParser implements Checker, Serializable {
         }
         
         public boolean isTypeRef() {
-            return (this.Item instanceof PTypeRef);
+            return (this.Item instanceof ParserTypeRef);
         }
         
         public Quantifier getQuantifier() {
@@ -293,7 +293,7 @@ public class RegParser implements Checker, Serializable {
         boolean    IsNew = false;
         String     N     = null;
         Checker    C     = null;
-        PTypeRef   TR    = null;
+        ParserTypeRef   TR    = null;
         ParserType      T     = null;
         Quantifier Q     = null;
         
@@ -380,7 +380,7 @@ public class RegParser implements Checker, Serializable {
                         IsSkipped = false;
                         
                     } else
-                        if (O instanceof PTypeRef) {
+                        if (O instanceof ParserTypeRef) {
                             if (IsNew) {
                                 if (C != null)
                                     RPEs.add(RPEntry._new(N, C, Q));
@@ -402,7 +402,7 @@ public class RegParser implements Checker, Serializable {
                             }
                             
                             IsNew     = true;
-                            TR        = (PTypeRef) O;
+                            TR        = (ParserTypeRef) O;
                             IsSkipped = false;
                             
                         } else
@@ -709,7 +709,7 @@ public class RegParser implements Checker, Serializable {
     protected ParseResult parseEach_P(CharSequence pText, int pOffset, int pIndex, ParseResult pResult,
             ParserTypeProvider pProvider, int pTabs) {
         String   FN  = this.Entries[pIndex].name();
-        PTypeRef FTR = this.Entries[pIndex].typeRef();
+        ParserTypeRef FTR = this.Entries[pIndex].typeRef();
         ParserType    FT  = this.Entries[pIndex].type();
         Checker  FP  = this.Entries[pIndex].getChecker();
         
@@ -717,7 +717,7 @@ public class RegParser implements Checker, Serializable {
     }
     
     /** Parse an entry possessively */
-    protected ParseResult parseEach_P(CharSequence pText, int pOffset, int pIndex, String FN, ParserType FT, PTypeRef FTR,
+    protected ParseResult parseEach_P(CharSequence pText, int pOffset, int pIndex, String FN, ParserType FT, ParserTypeRef FTR,
             Checker FP, ParseResult pResult, ParserTypeProvider pProvider, int pTabs) {
         
         boolean IsFPType          = (FT != null) || (FTR != null);
@@ -1226,7 +1226,7 @@ public class RegParser implements Checker, Serializable {
                     if ((FPQ.hasNoUpperBound()) || (pTimes < FPQ.upperBound())) {    // Not yet
                         
                         ParserType    FT  = this.Entries[pIndex].type();
-                        PTypeRef FTR = this.Entries[pIndex].typeRef();
+                        ParserTypeRef FTR = this.Entries[pIndex].typeRef();
                         Checker  FP  = this.Entries[pIndex].getChecker();
                         
                         boolean IsFPAlternative = ((FT == null) && (FTR == null)) && !(FP instanceof RegParser)
@@ -1330,7 +1330,7 @@ public class RegParser implements Checker, Serializable {
                             return null; // Yes
                             
                         ParserType    FT  = this.Entries[pIndex].type();
-                        PTypeRef FTR = this.Entries[pIndex].typeRef();
+                        ParserTypeRef FTR = this.Entries[pIndex].typeRef();
                         Checker  FP  = this.Entries[pIndex].getChecker();
                         
                         boolean IsFPAlternative = ((FT == null) && (FTR == null)) && !(FP instanceof RegParser)

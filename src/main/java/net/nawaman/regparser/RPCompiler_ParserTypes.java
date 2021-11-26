@@ -420,13 +420,13 @@ public class RPCompiler_ParserTypes {
                 true,
                 RegParser.newRegParser(
                     "#AsText",     new CharSingle('$'),   Quantifier.ZeroOrOne,
-                    "#TypeName",   new PTypeRef.Simple(PTIdentifier.Name),
+                    "#TypeName",   new ParserTypeRef.Simple(PTIdentifier.Name),
                     "#TypeOption", new CharSet("*+"),     Quantifier.ZeroOrOne,
                     "#Validate",   new CharSet("~?"),     Quantifier.ZeroOrOne,
                     "#Collective", new WordChecker("[]"), Quantifier.ZeroOrOne,
                     "#Param",      RegParser.newRegParser(
                         new CharSingle('('),
-                        "#ParamValue", new PTypeRef.Simple(PTStrLiteral.Name), Quantifier.ZeroOrOne,
+                        "#ParamValue", new ParserTypeRef.Simple(PTStrLiteral.Name), Quantifier.ZeroOrOne,
                         new CharSingle(')')
                     ), Quantifier.ZeroOrOne,
                     new CharSingle('!')
@@ -460,7 +460,7 @@ public class RPCompiler_ParserTypes {
                 if(Param != null) Param = Util.unescapeText(Param.substring(1, Param.length() - 1)).toString();
                 
             }
-            return new PTypeRef.Simple(TName, Param);
+            return new ParserTypeRef.Simple(TName, Param);
         }
     }
     
@@ -618,10 +618,10 @@ public class RPCompiler_ParserTypes {
             if(this.TheChecker == null) {
                 Vector<Checker> Cs = new Vector<Checker>();
                 Cs.add(RegParser.newRegParser(new CharNot(new CharSet(RPCompiler_ParserTypes.Escapable + "-"))));
-                Cs.add(RegParser.newRegParser(new PTypeRef.Simple(RPTEscape.Name)));
-                Cs.add(RegParser.newRegParser(new PTypeRef.Simple(RPTEscapeOct.Name)));
-                Cs.add(RegParser.newRegParser(new PTypeRef.Simple(RPTEscapeHex.Name)));
-                Cs.add(RegParser.newRegParser(new PTypeRef.Simple(RPTEscapeUnicode.Name)));
+                Cs.add(RegParser.newRegParser(new ParserTypeRef.Simple(RPTEscape.Name)));
+                Cs.add(RegParser.newRegParser(new ParserTypeRef.Simple(RPTEscapeOct.Name)));
+                Cs.add(RegParser.newRegParser(new ParserTypeRef.Simple(RPTEscapeHex.Name)));
+                Cs.add(RegParser.newRegParser(new ParserTypeRef.Simple(RPTEscapeUnicode.Name)));
                 
                 // Last
                 Cs.add(RegParser.newRegParser("#Error[]", new CharNot(new CharSingle(']'))));
@@ -701,10 +701,10 @@ public class RPCompiler_ParserTypes {
                 Cs.add(RPCompiler_ParserTypes.PredefinedCheckers);
                 Cs.add(
                     RegParser.newRegParser(
-                        new PTypeRef.Simple(RPTCharSetItem.Name),
+                        new ParserTypeRef.Simple(RPTCharSetItem.Name),
                         RegParser.newRegParser(
                             "#Intersect", new WordChecker("&&"),
-                            new PTypeRef.Simple(RPTCharSetItem.Name)
+                            new ParserTypeRef.Simple(RPTCharSetItem.Name)
                         ), Quantifier.ZeroOrMore
                     )
                 );
@@ -712,7 +712,7 @@ public class RPCompiler_ParserTypes {
                 Cs.add(RegParser.newRegParser("#Ignored[]", PredefinedCharClasses.WhiteSpace, Quantifier.OneOrMore));
                 
                 // The last item
-                Cs.add(RegParser.newRegParser("#Range", new PTypeRef.Simple(RPTRange.Name)));
+                Cs.add(RegParser.newRegParser("#Range", new ParserTypeRef.Simple(RPTRange.Name)));
                 
                 // Create the checker
                 this.TheChecker = RegParser.newRegParser(
@@ -813,14 +813,14 @@ public class RPCompiler_ParserTypes {
                 Vector<Checker> Cs = new Vector<Checker>();
                 Cs.add(RPCompiler_ParserTypes.PredefinedCheckers);
                 // Escape
-                Cs.add(RegParser.newRegParser(new PTypeRef.Simple(RPTEscape.Name)));
-                Cs.add(RegParser.newRegParser(new PTypeRef.Simple(RPTEscapeOct.Name)));
-                Cs.add(RegParser.newRegParser(new PTypeRef.Simple(RPTEscapeHex.Name)));
-                Cs.add(RegParser.newRegParser(new PTypeRef.Simple(RPTEscapeUnicode.Name)));
+                Cs.add(RegParser.newRegParser(new ParserTypeRef.Simple(RPTEscape.Name)));
+                Cs.add(RegParser.newRegParser(new ParserTypeRef.Simple(RPTEscapeOct.Name)));
+                Cs.add(RegParser.newRegParser(new ParserTypeRef.Simple(RPTEscapeHex.Name)));
+                Cs.add(RegParser.newRegParser(new ParserTypeRef.Simple(RPTEscapeUnicode.Name)));
                 // CharSet
-                Cs.add(RegParser.newRegParser(new PTypeRef.Simple(RPTType.Name)));
+                Cs.add(RegParser.newRegParser(new ParserTypeRef.Simple(RPTType.Name)));
                 // Type
-                Cs.add(RegParser.newRegParser(new PTypeRef.Simple(RPTCharSetItem.Name)));
+                Cs.add(RegParser.newRegParser(new ParserTypeRef.Simple(RPTCharSetItem.Name)));
                 
                 Cs.add(
                     RegParser.newRegParser(
@@ -835,14 +835,14 @@ public class RPCompiler_ParserTypes {
                                         true,
                                         RegParser.newRegParser(
                                             "#NOT", new CharSingle('^'), Quantifier.ZeroOrOne,
-                                            new PTypeRef.Simple("RegParser"), Quantifier.OneOrMore,
+                                            new ParserTypeRef.Simple("RegParser"), Quantifier.OneOrMore,
                                             RegParser.newRegParser(
                                                 "#OR", new CharSingle('|'),
-                                                new PTypeRef.Simple("RegParser"), Quantifier.OneOrMore
+                                                new ParserTypeRef.Simple("RegParser"), Quantifier.OneOrMore
                                             ), Quantifier.ZeroOrMore,
                                             RegParser.newRegParser(
                                                 "#Default", new WordChecker("||"),
-                                                new PTypeRef.Simple("RegParser"), Quantifier.OneOrMore
+                                                new ParserTypeRef.Simple("RegParser"), Quantifier.OneOrMore
                                             ), Quantifier.ZeroOrMore,
                                             new CharSingle(')')
                                         ),
@@ -857,7 +857,7 @@ public class RPCompiler_ParserTypes {
                                     new CheckerAlternative(
                                         true,
                                         RegParser.newRegParser(
-                                            "#Group-Name",   new PTypeRef.Simple(PTIdentifier.Name),
+                                            "#Group-Name",   new ParserTypeRef.Simple(PTIdentifier.Name),
                                             "#Group-Option", new CharSet("*+"),     Quantifier.ZeroOrOne,
                                             "#Multiple",     new WordChecker("[]"), Quantifier.ZeroOrOne,
                                             PredefinedCharClasses.WhiteSpace, Quantifier.ZeroOrMore,
@@ -869,7 +869,7 @@ public class RPCompiler_ParserTypes {
                                                     new CheckerAlternative(
                                                         // Type
                                                         RegParser.newRegParser(
-                                                            "#Type", new PTypeRef.Simple(RPTType.Name)
+                                                            "#Type", new ParserTypeRef.Simple(RPTType.Name)
                                                         ),
                                                         // Error of Type
                                                         RegParser.newRegParser(
@@ -882,7 +882,7 @@ public class RPCompiler_ParserTypes {
                                                         // Nested-RegParser
                                                         RegParser.newRegParser(
                                                             new CharSingle('~'),
-                                                            "#GroupRegParser", new PTypeRef.Simple("RegParser"),
+                                                            "#GroupRegParser", new ParserTypeRef.Simple("RegParser"),
                                                             new CharSingle('~')
                                                         ),
                                                         RegParser.newRegParser(
@@ -900,7 +900,7 @@ public class RPCompiler_ParserTypes {
                                                         new CheckerAlternative(
                                                             // Type
                                                             RegParser.newRegParser(
-                                                                "#Type", new PTypeRef.Simple(RPTType.Name)
+                                                                "#Type", new ParserTypeRef.Simple(RPTType.Name)
                                                             ),
                                                             // Error of Type
                                                             RegParser.newRegParser(
@@ -913,7 +913,7 @@ public class RPCompiler_ParserTypes {
                                                             // Nested-RegParser
                                                             RegParser.newRegParser(
                                                                 new CharSingle('~'),
-                                                                "#GroupRegParser", new PTypeRef.Simple("RegParser"),
+                                                                "#GroupRegParser", new ParserTypeRef.Simple("RegParser"),
                                                                 new CharSingle('~')
                                                             ),
                                                             RegParser.newRegParser(
@@ -1013,11 +1013,11 @@ public class RPCompiler_ParserTypes {
                 String Text = pThisResult.textOf(0);
                 // Return as Word if its lower case and upper case is the same
                 if(Text.toUpperCase().equals(Text.toLowerCase())) return RPEntry.newParserEntry(new WordChecker(Text));
-                return RPEntry._new(new PTypeRef.Simple(PTTextCI.Name, Text.substring(1, Text.length() - 1)));
+                return RPEntry._new(new ParserTypeRef.Simple(PTTextCI.Name, Text.substring(1, Text.length() - 1)));
             }
             
             if(RPTType.Name.equals(PType))
-                return RPEntry._new((PTypeRef)pProvider.type(RPTType.Name   ).compile(pThisResult, 0, null, pContext, pProvider));
+                return RPEntry._new((ParserTypeRef)pProvider.type(RPTType.Name   ).compile(pThisResult, 0, null, pContext, pProvider));
             
             if("#Group".equals(PName)) {
                 
@@ -1033,9 +1033,9 @@ public class RPCompiler_ParserTypes {
                 String B = pThisResult.lastStringOf("#BackRef");
                 if(B != null) {
                     if(pThisResult.lastStringOf("#BackRefCI") != null)
-                        return RPEntry._new(new PTypeRef.Simple(ParserTypeBackRefCI.BackRefCI_Instance.name(), N+GN+M));
+                        return RPEntry._new(new ParserTypeRef.Simple(ParserTypeBackRefCI.BackRefCI_Instance.name(), N+GN+M));
                     else
-                        return RPEntry._new(new PTypeRef.Simple(ParserTypeBackRef.BackRef_Instance.name(), N+GN+M));
+                        return RPEntry._new(new ParserTypeRef.Simple(ParserTypeBackRef.BackRef_Instance.name(), N+GN+M));
                 }
                 
                 RegParser Second = null;
@@ -1045,7 +1045,7 @@ public class RPCompiler_ParserTypes {
                     
                     int IT = Sub_Second.indexOf("#Type");
                     if(IT != -1) {    // TypeRef with Name
-                        Second = RegParser.newRegParser((PTypeRef)pProvider.type(RPTType .Name).compile(Sub_Second, IT, null, pContext, pProvider));
+                        Second = RegParser.newRegParser((ParserTypeRef)pProvider.type(RPTType .Name).compile(Sub_Second, IT, null, pContext, pProvider));
                     } else {
                         int IE = Sub_Second.indexOf("#GroupRegParser");
                         // Named Group
@@ -1057,7 +1057,7 @@ public class RPCompiler_ParserTypes {
                 if(IT != -1) {    // TypeRef with Name
                     return RPEntry._new(
                             N+GN+O+M,
-                            (PTypeRef)pProvider.type(RPTType .Name).compile(pThisResult, IT, null, pContext, pProvider),
+                            (ParserTypeRef)pProvider.type(RPTType .Name).compile(pThisResult, IT, null, pContext, pProvider),
                             null,
                             Second);
                 }
@@ -1083,14 +1083,14 @@ public class RPCompiler_ParserTypes {
                 RegParser.newRegParser(
                     "#ItemQuantifier", 
                     RegParser.newRegParser(
-                        new PTypeRef.Simple(RPTRegParserItem.Name),
+                        new ParserTypeRef.Simple(RPTRegParserItem.Name),
                         RegParser.newRegParser("#Ignored[]", PredefinedCharClasses.WhiteSpace, Quantifier.ZeroOrMore),
-                        new PTypeRef.Simple(RPTQuantifier.Name)
+                        new ParserTypeRef.Simple(RPTQuantifier.Name)
                     )
                 ),
-                RegParser.newRegParser("#Comment",   new PTypeRef.Simple(RPTComment.Name)),
+                RegParser.newRegParser("#Comment",   new ParserTypeRef.Simple(RPTComment.Name)),
                 new CheckerAlternative(true,
-                    RegParser.newRegParser("#Item[]",    new PTypeRef.Simple(RPTRegParserItem.Name)),
+                    RegParser.newRegParser("#Item[]",    new ParserTypeRef.Simple(RPTRegParserItem.Name)),
                     RegParser.newRegParser("#Ignored[]", new CharSet(" \t\n\r\f"))
                 )
             ), Quantifier.OneOrMore

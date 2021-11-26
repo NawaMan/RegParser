@@ -74,7 +74,7 @@ public class TestType {
 	@Test
 	public void testBasicTypeRef() {
 		@SuppressWarnings("serial")
-		var refToByte = new PTypeRef() {
+		var refToByte = new ParserTypeRef() {
 		@Override
 		public String name() {
 			return "$byte?";
@@ -187,7 +187,7 @@ public class TestType {
 			                    new CharSingle('<'),
 			                    new CheckerAlternative(
 			                            newRegParser("#Other",    newRegParser(new CharNot(new CharSet("<>")), OneOrMore)),
-			                            newRegParser("#SubBlock", new PTypeRef.Simple("block"))
+			                            newRegParser("#SubBlock", new ParserTypeRef.Simple("block"))
 			                    ), ZeroOrMore_Minimum,
 			                    new CharSingle('>'));
 			
@@ -244,9 +244,9 @@ public class TestType {
 		defaultTypeProvider.addType(ParserTypeBackRefCI.BackRefCI_Instance);
 		
 		var regParser = newRegParser(defaultTypeProvider,
-		                    RPEntry._new("#X", new PTypeRef.Simple("$byte?")), 
+		                    RPEntry._new("#X", new ParserTypeRef.Simple("$byte?")), 
 		                    new CharSingle('x'),
-		                    newRegParser(defaultTypeProvider, new PTypeRef.Simple(ParserTypeBackRef.BackRef_Instance.name(), "#X"))
+		                    newRegParser(defaultTypeProvider, new ParserTypeRef.Simple(ParserTypeBackRef.BackRef_Instance.name(), "#X"))
 		        );
 		validate("(#X:!$byte?!)[x]((!$BackRef?(\"#X\")!))", regParser);
 		
@@ -274,7 +274,7 @@ public class TestType {
 		                Any, ZeroOrMore_Minimum,
 		                newRegParser(typeProvider, "#End",
 		                        newRegParser(typeProvider, new WordChecker("</"),
-		                                RPEntry._new("#EndTag", new PTypeRef.Simple(ParserTypeBackRef.BackRef_Instance.name(), "Begin")),
+		                                RPEntry._new("#EndTag", new ParserTypeRef.Simple(ParserTypeBackRef.BackRef_Instance.name(), "Begin")),
 		                                new CharSingle('>'))));
 		
 		validate(
@@ -355,10 +355,10 @@ public class TestType {
 			}
 			
 			Checker checker = newRegParser(
-			                    "#AttrName", new PTypeRef.Simple("Identifier"),
+			                    "#AttrName", new ParserTypeRef.Simple("Identifier"),
 			                    Blank, ZeroOrMore, new CharSingle('='),
 			                    Blank, ZeroOrMore, "#AttrValue",
-			                    new PTypeRef.Simple("StringValue"));
+			                    new ParserTypeRef.Simple("StringValue"));
 			
 			@Override
 			public Checker checker(ParseResult hostResult, String param, ParserTypeProvider typeProvider) {
@@ -378,16 +378,16 @@ public class TestType {
 			                    RPEntry._new("$Begin", newRegParser(new CharUnion(new CharRange('a', 'z'), new CharRange('A', 'Z')), OneOrMore)),
 			                    Blank, ZeroOrMore,
 			                    newRegParser(newRegParser(Blank, ZeroOrMore,
-			                            "$Attr", new PTypeRef.Simple("Attribute"), Blank,
+			                            "$Attr", new ParserTypeRef.Simple("Attribute"), Blank,
 			                            ZeroOrMore), ZeroOrMore),
 			                    new CheckerAlternative(
 			                            newRegParser(new CharSingle('>'),
 			                                    new CheckerAlternative(
 			                                            newRegParser("#Other", newRegParser(new CharNot(new CharSet("<>")), OneOrMore)),
-			                                            newRegParser("#SubBlock", new PTypeRef.Simple("Tag"))), ZeroOrMore_Minimum,
+			                                            newRegParser("#SubBlock", new ParserTypeRef.Simple("Tag"))), ZeroOrMore_Minimum,
 			                                    newRegParser("#End", newRegParser(new WordChecker("</"),
 			                                            RPEntry._new("#EndTag",
-			                                                    new PTypeRef.Simple(ParserTypeBackRefCI.BackRefCI_Instance.name(),
+			                                                    new ParserTypeRef.Simple(ParserTypeBackRefCI.BackRefCI_Instance.name(),
 			                                                            "$Begin")),
 			                                            new CharSingle('>')))),
 			                            newRegParser(new WordChecker("/>"))));

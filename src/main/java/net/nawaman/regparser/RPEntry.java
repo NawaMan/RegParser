@@ -97,25 +97,25 @@ abstract public class RPEntry implements Serializable {
     
     // TypeRef -------------------------------------------------------------------------------------
     
-    static public RPEntry _new(PTypeRef pRPTypeRef) {
+    static public RPEntry _new(ParserTypeRef pRPTypeRef) {
         return new TypeRef(pRPTypeRef);
     }
     
-    static public RPEntry _new(PTypeRef pRPTypeRef, Quantifier pQuantifier) {
+    static public RPEntry _new(ParserTypeRef pRPTypeRef, Quantifier pQuantifier) {
         if (pQuantifier == null)
             return new TypeRef(pRPTypeRef);
         else
             return new TypeRef_WithQ(pRPTypeRef, pQuantifier);
     }
     
-    static public RPEntry _new(String pName, PTypeRef pRPTypeRef) {
+    static public RPEntry _new(String pName, ParserTypeRef pRPTypeRef) {
         if (pName == null)
             return new TypeRef(pRPTypeRef);
         else
             return new NamedTypeRef(pName, pRPTypeRef);
     }
     
-    static public RPEntry _new(String pName, PTypeRef pRPTypeRef, Quantifier pQuantifier) {
+    static public RPEntry _new(String pName, ParserTypeRef pRPTypeRef, Quantifier pQuantifier) {
         if (pName == null) {
             if (pQuantifier == null)
                 return new TypeRef(pRPTypeRef);
@@ -129,7 +129,7 @@ abstract public class RPEntry implements Serializable {
         }
     }
     
-    static public RPEntry _new(String pName, PTypeRef pRPTypeRef, Quantifier pQuantifier, Checker pSecondStage) {
+    static public RPEntry _new(String pName, ParserTypeRef pRPTypeRef, Quantifier pQuantifier, Checker pSecondStage) {
         if (pSecondStage == null)
             return _new(pName, pRPTypeRef, pQuantifier);
         if (pName == null) {
@@ -205,7 +205,7 @@ abstract public class RPEntry implements Serializable {
         return null;
     }
     
-    public PTypeRef typeRef() {
+    public ParserTypeRef typeRef() {
         return null;
     }
     
@@ -228,7 +228,7 @@ abstract public class RPEntry implements Serializable {
         StringBuffer SB = new StringBuffer();
         String       N  = this.name();
         Checker      C  = this.getChecker();
-        PTypeRef     TR = this.typeRef();
+        ParserTypeRef     TR = this.typeRef();
         ParserType        T  = this.type();
         Quantifier   Q  = this.getQuantifier();
         
@@ -365,16 +365,16 @@ abstract public class RPEntry implements Serializable {
         
         static private final long serialVersionUID = 3565652656351262366L;
         
-        protected TypeRef(PTypeRef pRPTypeRef) {
+        protected TypeRef(ParserTypeRef pRPTypeRef) {
             this.TheTypeRef = pRPTypeRef;
             if (this.TheTypeRef == null)
                 throw new NullPointerException();
         }
         
-        PTypeRef TheTypeRef = null;
+        ParserTypeRef TheTypeRef = null;
         
         @Override
-        public PTypeRef typeRef() {
+        public ParserTypeRef typeRef() {
             return this.TheTypeRef;
         }
     }
@@ -383,7 +383,7 @@ abstract public class RPEntry implements Serializable {
         
         static private final long serialVersionUID = 4123563534562456523L;
         
-        protected TypeRef_WithQ(PTypeRef pRPTypeRef, Quantifier pQuantifier) {
+        protected TypeRef_WithQ(ParserTypeRef pRPTypeRef, Quantifier pQuantifier) {
             super(pRPTypeRef);
             this.TheQuantifier = pQuantifier;
         }
@@ -400,7 +400,7 @@ abstract public class RPEntry implements Serializable {
         
         static private final long serialVersionUID = 3456412356352456523L;
         
-        protected NamedTypeRef(String pName, PTypeRef pRPTypeRef) {
+        protected NamedTypeRef(String pName, ParserTypeRef pRPTypeRef) {
             super(pRPTypeRef);
             this.Name = pName;
         }
@@ -417,7 +417,7 @@ abstract public class RPEntry implements Serializable {
         
         static private final long serialVersionUID = 6312456522334564535L;
         
-        protected NamedTypeRef_WithQ(String pName, PTypeRef pRPTypeRef, Quantifier pQuantifier) {
+        protected NamedTypeRef_WithQ(String pName, ParserTypeRef pRPTypeRef, Quantifier pQuantifier) {
             super(pName, pRPTypeRef);
             this.TheQuantifier = pQuantifier;
         }
@@ -526,7 +526,7 @@ abstract public class RPEntry implements Serializable {
         }
         
         @Override
-        public PTypeRef typeRef() {
+        public ParserTypeRef typeRef() {
             return this.Delegate.typeRef();
         }
         

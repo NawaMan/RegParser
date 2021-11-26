@@ -36,7 +36,7 @@ abstract public class ParserType implements Serializable {
 	/** An empty array of RPType */
 	static public final ParserType[] EmptyTypeArray = new ParserType[0];
 	
-	private PTypeRef      defaultRef   = null;
+	private ParserTypeRef      defaultRef   = null;
 	private int           flags        = 0;
 	private RegParser     parser       = null;
 	private ParserTypeProvider typeProvider = null;
@@ -49,17 +49,17 @@ abstract public class ParserType implements Serializable {
 	
 	
 	/** Return the default TypeRef of this type */
-	public final PTypeRef typeRef() {
+	public final ParserTypeRef typeRef() {
 		return (defaultRef != null)
 		        ? defaultRef
-		        : (defaultRef = new PTypeRef.Simple(name(), null));
+		        : (defaultRef = new ParserTypeRef.Simple(name(), null));
 	}
 	
 	/** Return the default TypeRef of this type with the parameter */
-	public final PTypeRef typeRef(String parameter) {
+	public final ParserTypeRef typeRef(String parameter) {
 		return (parameter == null)
 		        ? typeRef()
-		        : new PTypeRef.Simple(name(), parameter);
+		        : new ParserTypeRef.Simple(name(), parameter);
 	}
 	
 	/** Checks if this type will not record the sub-result but record as a text */
@@ -317,7 +317,7 @@ abstract public class ParserType implements Serializable {
 				((ParserTypeProvider.Extensible)newProvider).addType(this);
 				typeProvider = newLibrary;
 			}
-			var typeRef = new PTypeRef.Simple(name(), parameter);
+			var typeRef = new ParserTypeRef.Simple(name(), parameter);
 			regParser = newRegParser(typeRef);
 		}
 		

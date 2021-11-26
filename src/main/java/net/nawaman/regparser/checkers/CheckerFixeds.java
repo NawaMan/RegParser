@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.ParserType;
 import net.nawaman.regparser.ParserTypeProvider;
-import net.nawaman.regparser.PTypeRef;
+import net.nawaman.regparser.ParserTypeRef;
 import net.nawaman.regparser.RPEntry;
 import net.nawaman.regparser.RegParser;
 import net.nawaman.regparser.result.ParseResult;
@@ -144,7 +144,7 @@ public class CheckerFixeds implements Checker {
 			this(name, -1, (Object)secondStage);
 		}
 		
-		Entry(String name, PTypeRef secondStage) {
+		Entry(String name, ParserTypeRef secondStage) {
 			this(name, -1, (Object)secondStage);
 		}
 		
@@ -164,7 +164,7 @@ public class CheckerFixeds implements Checker {
 			this(name, length, (Object)secondStage);
 		}
 		
-		Entry(String name, int length, PTypeRef secondStage) {
+		Entry(String name, int length, ParserTypeRef secondStage) {
 			this(name, length, (Object)secondStage);
 		}
 		
@@ -180,8 +180,8 @@ public class CheckerFixeds implements Checker {
 					entries = new RPEntry[] { RPEntry._new(name, (Checker)secondStage) };
 				} else if (secondStage instanceof ParserType) {
 					entries = new RPEntry[] { RPEntry._new(name, (ParserType)secondStage) };
-				} else if (secondStage instanceof PTypeRef) {
-					entries = new RPEntry[] { RPEntry._new(name, (PTypeRef)secondStage) };
+				} else if (secondStage instanceof ParserTypeRef) {
+					entries = new RPEntry[] { RPEntry._new(name, (ParserTypeRef)secondStage) };
 				} else {
 					var errMsg = format("Second stage must be null, Checker, PTypeRef or PType (%s).", secondStage);
 					throw new IllegalArgumentException(errMsg);

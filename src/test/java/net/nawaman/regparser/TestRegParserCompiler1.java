@@ -51,7 +51,7 @@ public class TestRegParserCompiler1 {
 		typeProvider.addType(new RPTCharSetItem());
 		typeProvider.addType(new RPTRegParser());
 		
-		parser = RegParser.newRegParser(typeProvider, new PTypeRef.Simple(RPTType.Name));
+		parser = RegParser.newRegParser(typeProvider, new ParserTypeRef.Simple(RPTType.Name));
 	}
 	
 	@Test
@@ -93,7 +93,7 @@ public class TestRegParserCompiler1 {
 	
 	@Test
 	public void testParseCharClass() {
-		var parser = newRegParser(typeProvider, new PTypeRef.Simple(RPTRegParserItem.Name), OneOrMore, Any, ZeroOrMore);
+		var parser = newRegParser(typeProvider, new ParserTypeRef.Simple(RPTRegParserItem.Name), OneOrMore, Any, ZeroOrMore);
 		
 		var result = parser.match(".\\s\\D[:WhiteSpace:]a\\p{Blank}d", typeProvider);
 		validate("\n"
@@ -185,7 +185,7 @@ public class TestRegParserCompiler1 {
 	
 	@Test
 	public void testParseQunatifier() {
-		var parser = newRegParser(new PTypeRef.Simple(RPTQuantifier.Name), OneOrMore, Any, ZeroOrMore);
+		var parser = newRegParser(new ParserTypeRef.Simple(RPTQuantifier.Name), OneOrMore, Any, ZeroOrMore);
 		validate("(!Quantifier!)+.*", parser);
 		
 		var result = parser.match("?+*{54}{5,}*{,7}+{12,65}{ 1 }{ 4 , }{ , 8}{2,6}*", typeProvider);
@@ -247,7 +247,7 @@ public class TestRegParserCompiler1 {
 	
 	@Test
 	public void testParseCharSet() {
-		var parser = newRegParser(new PTypeRef.Simple(RPTCharSetItem.Name), OneOrMore, Any, ZeroOrMore);
+		var parser = newRegParser(new ParserTypeRef.Simple(RPTCharSetItem.Name), OneOrMore, Any, ZeroOrMore);
 		validate("(!CharSetItem!)+.*", parser);
 		
 		var result = parser.match("[a-bg-h.gfj\\s\\u0035-c\\s[:Any:][:Digit:]g\\jp{ASCII}]", typeProvider);
@@ -351,7 +351,7 @@ public class TestRegParserCompiler1 {
 	
 	@Test
 	public void testAlternative() {
-		var parser = newRegParser(new PTypeRef.Simple(RPTRegParser.Name), OneOrMore);
+		var parser = newRegParser(new ParserTypeRef.Simple(RPTRegParser.Name), OneOrMore);
 		var result = parser.match("ab(c.d)o(i|o)o\\)e[h-g]u\\(f", typeProvider);
 		validate("\n"
 		        + "00 - - - - - => [   26] = <NoName>        :RegParser        = \"ab(c.d)o(i|o)o\\\\)e[h-g]u\\\\(f\"\n"
@@ -467,7 +467,7 @@ public class TestRegParserCompiler1 {
 	
 	@Test
 	public void testNamed() {
-		var parser = newRegParser(new PTypeRef.Simple(RPTRegParser.Name), OneOrMore);
+		var parser = newRegParser(new ParserTypeRef.Simple(RPTRegParser.Name), OneOrMore);
 		var result = parser.match("var\\ (#Name:~[a-zA-Z_][a-zA-Z_0-9]*~)\\ =\\ (#Value:~[0-9]*~);", typeProvider);
 		validate("\n"
 		        + "00 - - - - - - - - => [   60] = <NoName>        :RegParser        = \"var\\\\ (#Name:~[a-zA-Z_][a-zA-Z_0-9]*~)\\\\ =\\\\ (#Value:~[0-9]*~);\"\n"
@@ -570,7 +570,7 @@ public class TestRegParserCompiler1 {
 	
 	@Test
 	public void testIncomplete() {
-		var parser = newRegParser(new PTypeRef.Simple(RPTRegParser.Name), OneOrMore);
+		var parser = newRegParser(new ParserTypeRef.Simple(RPTRegParser.Name), OneOrMore);
 		var result = parser.parse("a(a)s)?a", typeProvider);
 		validate(5, result.endPosition());
 		
@@ -589,7 +589,7 @@ public class TestRegParserCompiler1 {
 	
 	@Test
 	public void testError() {
-		var parser = newRegParser(new PTypeRef.Simple(RPTRegParser.Name), OneOrMore);
+		var parser = newRegParser(new ParserTypeRef.Simple(RPTRegParser.Name), OneOrMore);
 		var result = parser.parse("a(a(s)?a", typeProvider);
 		validate(8, result.endPosition());
 		validate("\n"
@@ -609,7 +609,7 @@ public class TestRegParserCompiler1 {
 	
 	@Test
 	public void testOthers() {
-		var parser = newRegParser(new PTypeRef.Simple(RPTRegParser.Name), OneOrMore);
+		var parser = newRegParser(new ParserTypeRef.Simple(RPTRegParser.Name), OneOrMore);
 		
 		var result = parser.match("([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])", typeProvider);
 		validate("\n"
@@ -919,7 +919,7 @@ public class TestRegParserCompiler1 {
 	
 	@Test
 	public void testComment() {
-		var parser = newRegParser(new PTypeRef.Simple(RPTRegParser.Name), OneOrMore);
+		var parser = newRegParser(new ParserTypeRef.Simple(RPTRegParser.Name), OneOrMore);
 		var result = parser.match("ABC(*DEF*)/*G(*H*)I*/JKL", typeProvider);
 		validate("\n"
 		        + "00 - => [   24] = <NoName>        :RegParser        = \"ABC(*DEF*)/*G(*H*)I*/JKL\"\n"
@@ -931,7 +931,7 @@ public class TestRegParserCompiler1 {
 	
 	@Test
 	public void testWhitespace() {
-		var parser = newRegParser(new PTypeRef.Simple(RPTRegParser.Name), OneOrMore);
+		var parser = newRegParser(new ParserTypeRef.Simple(RPTRegParser.Name), OneOrMore);
 		var result = parser.match("ABC   JKL", typeProvider);
 		validate("\n"
 		        + "00 - => [    9] = <NoName>        :RegParser        = \"ABC   JKL\"\n"

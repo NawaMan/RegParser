@@ -37,7 +37,7 @@ import java.util.stream.Stream;
 import net.nawaman.regparser.CompilationContext;
 import net.nawaman.regparser.ParserType;
 import net.nawaman.regparser.ParserTypeProvider;
-import net.nawaman.regparser.PTypeRef;
+import net.nawaman.regparser.ParserTypeRef;
 import net.nawaman.regparser.RPEntry;
 import net.nawaman.regparser.RegParser;
 import net.nawaman.regparser.Util;
@@ -1421,7 +1421,7 @@ abstract public class ParseResult implements Serializable {
 		// Collapse the same type and same name that end with '[]'
 		lastEntry = entries.get(entries.size() - 1);
 		ParserType    LatestType = lastEntry.type();
-		PTypeRef LatestTRef = lastEntry.typeRef();
+		ParserTypeRef LatestTRef = lastEntry.typeRef();
 		String   LatestName = lastEntry.name();
 		
 		for (int i = (entries.size() - 1); --i >= 0;) {
