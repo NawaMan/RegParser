@@ -713,7 +713,7 @@ abstract public class ParseResult implements Serializable {
 		if (typeProvider == null)
 			return null;
 		
-		return typeProvider.getType(typeName);
+		return typeProvider.type(typeName);
 	}
 	
 	/** Get Type of the last match */
@@ -1052,7 +1052,7 @@ abstract public class ParseResult implements Serializable {
 			if (typeName == null)
 				return textOf(index);
 			
-			type = typeProvider.getType(typeName);
+			type = typeProvider.type(typeName);
 			if (type == null)
 				throw new RuntimeException(format("Unknown type `%s`.", typeName));
 		}
@@ -1109,7 +1109,7 @@ abstract public class ParseResult implements Serializable {
 				return buffer.toString();
 			}
 			
-			type = typeProvider.getType(typeName);
+			type = typeProvider.type(typeName);
 			if (type == null)
 				throw new RuntimeException(format("Unknown type `%s`.", typeName));
 		}
@@ -1189,9 +1189,9 @@ abstract public class ParseResult implements Serializable {
 				if (typeName != null) {
 					type = (typeProvider == null)
 					     ? null
-					     : typeProvider.getType(typeName);
+					     : typeProvider.type(typeName);
 					if (type == null) {
-						type = PTypeProvider.Extensible.getDefault().getType(typeName);
+						type = PTypeProvider.Extensible.getDefault().type(typeName);
 						if (type == null)
 							throw new RuntimeException(format("Unknown type `%s`.", typeName));
 					}
@@ -1232,9 +1232,9 @@ abstract public class ParseResult implements Serializable {
 				if (typeName != null) {
 					type = (typeProvider == null)
 					     ? null
-					     : typeProvider.getType(typeName);
+					     : typeProvider.type(typeName);
 					if (type == null) {
-						type = PTypeProvider.Extensible.getDefault().getType(typeName);
+						type = PTypeProvider.Extensible.getDefault().type(typeName);
 						if (type == null)
 							throw new RuntimeException(format("Unknown type `%s`.", typeName));
 					}
@@ -1269,7 +1269,7 @@ abstract public class ParseResult implements Serializable {
 					
 					var msg = (typeProvider == null)
 					        ? null
-					        : typeProvider.getErrorMessage(name.substring(1));
+					        : typeProvider.errorMessage(name.substring(1));
 					// NOTE: 1 is to eliminate $ prefix >-----------------------------------^
 					msg = (msg != null)
 					    ? msg

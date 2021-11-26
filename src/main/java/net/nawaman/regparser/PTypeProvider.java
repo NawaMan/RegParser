@@ -41,16 +41,16 @@ import net.nawaman.regparser.types.PTTextCI;
 public interface PTypeProvider extends Serializable {
 	
 	/** Returns type from name */
-	public ParserType getType(String name);
+	public ParserType type(String name);
 	
 	/** Returns the names of all types in this provider */
-	public Set<String> getAllTypeNames();
-	
-	/** Returns the names of all types in this provider */
-	public Set<String> getAllErrorMessageNames();
+	public Set<String> typeNames();
 	
 	/** Get an error message  */
-	public String getErrorMessage(String errorName);
+	public String errorMessage(String errorName);
+	
+	/** Returns the names of all types in this provider */
+	public Set<String> errorMessageNames();
 	
 	// Sub classes -----------------------------------------------------------------------------------------------------
 	
@@ -104,7 +104,7 @@ public interface PTypeProvider extends Serializable {
 		
 		// Type --------------------------------------------------------------------------
 		
-		public Set<String> getAllTypeNames() {
+		public Set<String> typeNames() {
 			return this.RPTypes.keySet();
 		}
 		
@@ -128,7 +128,7 @@ public interface PTypeProvider extends Serializable {
 			return true;
 		}
 		
-		public ParserType getType(String pName) {
+		public ParserType type(String pName) {
 			if (pName == null)
 				return null;
 			return this.RPTypes.get(pName);
@@ -137,7 +137,7 @@ public interface PTypeProvider extends Serializable {
 		// Error -------------------------------------------------------------------------
 		
 		/** Returns the names of all types in this provider */
-		public Set<String> getAllErrorMessageNames() {
+		public Set<String> errorMessageNames() {
 			if (this.ErrMsgs == null)
 				return null;
 			return this.ErrMsgs.keySet();
@@ -166,7 +166,7 @@ public interface PTypeProvider extends Serializable {
 		}
 		
 		/** Get an error message  */
-		public String getErrorMessage(String pName) {
+		public String errorMessage(String pName) {
 			if (pName == null)
 				return null;
 			if (this.ErrMsgs == null)
@@ -231,10 +231,10 @@ public interface PTypeProvider extends Serializable {
 			}
 			
 			for (PTypeProvider Provider : Providers) {
-				Set<String> TNames = Provider.getAllTypeNames();
+				Set<String> TNames = Provider.typeNames();
 				if (TNames != null) {
 					for (String TName : TNames) {
-						ParserType T = Provider.getType(TName);
+						ParserType T = Provider.type(TName);
 						if (T == null)
 							continue;
 						Types.add(T);
@@ -381,11 +381,11 @@ public interface PTypeProvider extends Serializable {
 		// Override of the services -----------------------------------------------------------------------------------
 		
 		@Override
-		public Set<String> getAllTypeNames() {
+		public Set<String> typeNames() {
 			HashSet<String> Names = new HashSet<String>();
-			Names.addAll(this.getAllTypeNames());
+			Names.addAll(this.typeNames());
 			for (int i = 0; i < this.Providers.size(); i++) {
-				Set<String> Ns = this.Providers.get(i).getAllTypeNames();
+				Set<String> Ns = this.Providers.get(i).typeNames();
 				if (Ns != null)
 					Names.addAll(Ns);
 			}
@@ -393,12 +393,12 @@ public interface PTypeProvider extends Serializable {
 		}
 		
 		@Override
-		public ParserType getType(String pName) {
-			ParserType RPT = super.getType(pName);
+		public ParserType type(String pName) {
+			ParserType RPT = super.type(pName);
 			if (RPT != null)
 				return RPT;
 			for (int i = 0; i < this.Providers.size(); i++) {
-				ParserType RPT2 = this.Providers.get(i).getType(pName);
+				ParserType RPT2 = this.Providers.get(i).type(pName);
 				if (RPT2 != null)
 					return RPT2;
 			}
@@ -406,12 +406,12 @@ public interface PTypeProvider extends Serializable {
 		}
 		
 		@Override
-		public Set<String> getAllErrorMessageNames() {
+		public Set<String> errorMessageNames() {
 			HashSet<String> Names = new HashSet<String>();
-			Names.addAll(this.getAllErrorMessageNames());
+			Names.addAll(this.errorMessageNames());
 			if (this.Providers != null) {
 				for (int i = 0; i < this.Providers.size(); i++) {
-					Set<String> Ns = this.Providers.get(i).getAllErrorMessageNames();
+					Set<String> Ns = this.Providers.get(i).errorMessageNames();
 					if (Ns != null)
 						Names.addAll(Ns);
 				}
@@ -420,13 +420,13 @@ public interface PTypeProvider extends Serializable {
 		}
 		
 		@Override
-		public String getErrorMessage(String pErrName) {
-			String ErrMsg = this.getErrorMessage(pErrName);
+		public String errorMessage(String pErrName) {
+			String ErrMsg = this.errorMessage(pErrName);
 			if (ErrMsg != null)
 				return ErrMsg;
 			
 			for (int i = 0; i < this.Providers.size(); i++) {
-				String ErrMsg2 = this.Providers.get(i).getErrorMessage(pErrName);
+				String ErrMsg2 = this.Providers.get(i).errorMessage(pErrName);
 				if (ErrMsg2 != null)
 					return ErrMsg2;
 			}

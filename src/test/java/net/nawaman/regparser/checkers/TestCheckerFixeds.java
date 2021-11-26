@@ -22,9 +22,9 @@ public class TestCheckerFixeds {
 		                new CheckerFixeds(
 		                new CheckerFixeds.Entry(1),
 		                new CheckerFixeds.Entry(4),
-		                new CheckerFixeds.Entry("G1", 5, typeProvider.getType("Number").typeRef()),
+		                new CheckerFixeds.Entry("G1", 5, typeProvider.type("Number").typeRef()),
 		                new CheckerFixeds.Entry()));
-		var result = typeProvider.getType("TestCG").parse("0123456789ABCDEFG");
+		var result = typeProvider.type("TestCG").parse("0123456789ABCDEFG");
 		validate("\n"
 		       + "00 - => [   17] = <NoName>        :TestCG           = \"0123456789ABCDEFG\"\n"
 		       + ". 00 => [    5] = <NoName>        :<NoType>         = \"01234\"\n"

@@ -66,7 +66,7 @@ public class TestType {
 	
 	@Test
 	public void testBasicType() {
-		var regParser = newRegParser(defaultTypeProvider, RPEntry._new("#Value", defaultTypeProvider.getType("$byte?")));
+		var regParser = newRegParser(defaultTypeProvider, RPEntry._new("#Value", defaultTypeProvider.type("$byte?")));
 		var result    = regParser.parse("192");
 		validate("192", result.textOf("#Value"));
 	}
@@ -198,7 +198,7 @@ public class TestType {
 		};
 		
 		var typeProvider = new PTypeProvider.Simple(blockType);
-		validate("!block!", typeProvider.getType("block"));
+		validate("!block!", typeProvider.type("block"));
 		
 		var regParser = newRegParser(typeProvider, RPEntry._new("#Block", blockType));
 		validate("(#Block:!block!)", regParser);

@@ -12,7 +12,7 @@ public class TestTypeProviderExtensible {
 		typeProvider.addType("Number", "[0-9]+");
 		typeProvider.addType("Plus", "!Number![:WhiteSpace:]*[:+:][:WhiteSpace:]*!Number!");
 		
-		var type   = typeProvider.getType("Plus");
+		var type   = typeProvider.type("Plus");
 		var result = type.parse("5 + 10");
 		validate("\n"
 		       + "00 - => [    6] = <NoName>        :Plus             = \"5 + 10\"\n"

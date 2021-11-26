@@ -82,7 +82,7 @@ public class TestRegParserCompiler2 {
 		
 		for (char c : RPCompiler_ParserTypes.Escapable.toCharArray()) {
 		    var result = parser.match("\\" + c, typeProvider);
-		    validate("" + c, typeProvider.getType(typeName).compile(result, null, null, typeProvider));
+		    validate("" + c, typeProvider.type(typeName).compile(result, null, null, typeProvider));
 		}
 	}
 	
@@ -95,11 +95,11 @@ public class TestRegParserCompiler2 {
 		char c  = 'n';
 		var  result = parser.match("\\0" + ((c / (8 * 8)) % 8) + "" + ((c / 8) % 8) + "" + (c % 8), typeProvider);
 		//System.out.println((PR == null)?"null":PR.toDetail());
-		validate("n", typeProvider.getType(typeName).compile(result, null, null, typeProvider));
+		validate("n", typeProvider.type(typeName).compile(result, null, null, typeProvider));
 		
 		for (int i = 32; i < 126; i++) {
 		    result = parser.match("\\0" + ((i / (8 * 8)) % 8) + "" + ((i / 8) % 8) + "" + (i % 8), typeProvider);
-		    validate("" + ((char)i), typeProvider.getType(typeName).compile(result, null, null, typeProvider));
+		    validate("" + ((char)i), typeProvider.type(typeName).compile(result, null, null, typeProvider));
 		}
 	}
 	
@@ -114,13 +114,13 @@ public class TestRegParserCompiler2 {
 		var result = parser.match("\\x" + RPTEscapeHex.HEX.charAt((c / 16) % 16)
 		                           + "" + RPTEscapeHex.HEX.charAt(c % 16), typeProvider);
 		//System.out.println((PR == null)?"null":PR.toDetail());
-		validate("" + c, typeProvider.getType(typeName).compile(result, null, null, typeProvider));
+		validate("" + c, typeProvider.type(typeName).compile(result, null, null, typeProvider));
 		
 		c  = (char) (random.nextInt(126 - 32) + 32);
 		result = parser.match("\\x" + RPTEscapeHex.HEX.charAt((c / 16) % 16)
 		                       + "" + RPTEscapeHex.HEX.charAt(c % 16), typeProvider);
 		//System.out.println((PR == null)?"null":PR.toDetail());
-		validate("" + c, typeProvider.getType(typeName).compile(result, null, null, typeProvider));
+		validate("" + c, typeProvider.type(typeName).compile(result, null, null, typeProvider));
 	}
 	
 	@Test
@@ -138,14 +138,14 @@ public class TestRegParserCompiler2 {
 		validate("\n"
 		        + "00 => [    6] = <NoName>        :EscapeUnicode    = \"\\\\u006D\"",
 		        result);
-		validate("" + c, typeProvider.getType(typeName).compile(result, null, null, typeProvider));
+		validate("" + c, typeProvider.type(typeName).compile(result, null, null, typeProvider));
 		
 		c  = (char) (random.nextInt('ฮ' - 'ก') + 'ก');
 		result = parser.match("\\u" + RPTEscapeHex.HEX.charAt((c / (16 * 16 * 16)) % 16) + ""
 		                            + RPTEscapeHex.HEX.charAt((c / (16 * 16)) % 16) + "" 
 		                            + RPTEscapeHex.HEX.charAt((c / (16)) % 16) + ""
 		                            + RPTEscapeHex.HEX.charAt(c % 16), typeProvider);
-		validate("" + c, typeProvider.getType(typeName).compile(result, null, null, typeProvider));
+		validate("" + c, typeProvider.type(typeName).compile(result, null, null, typeProvider));
 	}
 	
 	@Test
@@ -256,7 +256,7 @@ public class TestRegParserCompiler2 {
 	@Test
 	public void testTextType() {
 		var typeName = RPTType.Name;
-		var type  = typeProvider.getType(typeName);
+		var type  = typeProvider.type(typeName);
 		
 		var parser = newRegParser(new PTypeRef.Simple(typeName));
 		validate("(!Type!)", parser);
@@ -269,7 +269,7 @@ public class TestRegParserCompiler2 {
 		        + ". 02 => [    6] = <NoName>        :<NoType>         = \"!\"",
 		        result);
 		validate("!Text!",
-		        typeProvider.getType(typeName).compile(result, null, null, typeProvider));
+		        typeProvider.type(typeName).compile(result, null, null, typeProvider));
 		
 		validate("!text!",                  type.compile("!text!",                null, typeProvider));
 		validate("!$text!",                 type.compile("!$text!",               null, typeProvider));
@@ -295,7 +295,7 @@ public class TestRegParserCompiler2 {
 	@Test
 	public void testQualifier() {
 		var typeName = RPTQuantifier.Name;
-		var type  = typeProvider.getType(typeName);
+		var type  = typeProvider.type(typeName);
 		
 		var parser = newRegParser(new PTypeRef.Simple(typeName));
 		validate("(!Quantifier!)", parser);
@@ -312,7 +312,7 @@ public class TestRegParserCompiler2 {
 		        + ". 01 - => [    7] = #Greediness     :<NoType>         = \"*\"",
 		        result);
 		validate("{5,10}*",
-		        typeProvider.getType(typeName).compile(result, null, null, typeProvider));
+		        typeProvider.type(typeName).compile(result, null, null, typeProvider));
 		
 		validate("?",      type.compile("?",          null, typeProvider));
 		validate("*",      type.compile("*",          null, typeProvider));
@@ -351,7 +351,7 @@ public class TestRegParserCompiler2 {
 	@Test
 	public void testRange() {
 		var typeName = RPTRange.Name;
-		var type     = typeProvider.getType(typeName);
+		var type     = typeProvider.type(typeName);
 		var parser   = RegParser.newRegParser(new PTypeRef.Simple(typeName));
 		validate("(!Range!)", parser);
 		
@@ -362,7 +362,7 @@ public class TestRegParserCompiler2 {
 		        + ". 01 => [    2] = <NoName>        :<NoType>         = \"-\"\n"
 		        + ". 02 => [    3] = #End            :<NoType>         = \"z\"",
 		        result);
-		validate("[b-z]", typeProvider.getType(typeName).compile(result, null, null, typeProvider));
+		validate("[b-z]", typeProvider.type(typeName).compile(result, null, null, typeProvider));
 		
 		validate("[a]",       type.compile("a",       null, typeProvider));
 		validate("[a-d]",     type.compile("a-d",     null, typeProvider));
@@ -374,7 +374,7 @@ public class TestRegParserCompiler2 {
 	@Test
 	public void testCharSet() {
 		var typeName = RPTCharSetItem.Name;
-		var type     = typeProvider.getType(typeName);
+		var type     = typeProvider.type(typeName);
 		var text     = "[^a-zasdfg[A-Z][0-9].\\s\\jp{Blank}]&&[[:JDigit:]]";
 		
 		var parser = newRegParser(new PTypeRef.Simple(typeName));
@@ -432,7 +432,7 @@ public class TestRegParserCompiler2 {
 		        + ". . 02 - => [   48] = <NoName>        :<NoType>         = \"]\"",
 		        result);
 		validate("[[^[[a-z][asdfg][A-Z][0-9].[\\ \\t\\n\\r\\" + ((char)11) + "\\f][:SpaceOrTab:]]]&&[:Digit:]]",
-		         typeProvider.getType(typeName).compile(result, null, null, typeProvider));
+		         typeProvider.type(typeName).compile(result, null, null, typeProvider));
 		validate("[[^[[a-z][asdfg][A-Z][0-9].[\\ \\t\\n\\r\\" + ((char)11) + "\\f][:SpaceOrTab:]]]&&[:Digit:]]",
 		         type.compile(text, null, typeProvider));
 	}

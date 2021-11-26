@@ -310,7 +310,7 @@ abstract public class ParserType implements Serializable {
 			regParser = newRegParser(this);
 		} else {
 			// The provide does not hold this type
-			if (typeProvider.getType(name()) == null) {
+			if (typeProvider.type(name()) == null) {
 				// Add it in
 				var newProvider = new PTypeProvider.Extensible();
 				var newLibrary  = new PTypeProvider.Library(typeProvider, newProvider);

@@ -519,7 +519,7 @@ public class RegParser implements Checker, Serializable {
         } else
             IsToSave = false;
         
-        ParserType     RPT = RPTProvider.getType(RPTRegParser.Name);
+        ParserType     RPT = RPTProvider.type(RPTRegParser.Name);
         RegParser RP  = (RegParser) (RPT.compile(pText, null, null, RPTProvider));
         
         // If have type provider
@@ -530,9 +530,9 @@ public class RegParser implements Checker, Serializable {
         
         if (IsToSave) {
             // Try to get checker of every all type in the provider so that when it is saved
-            Set<String> Ns = RPTProvider.getAllTypeNames();
+            Set<String> Ns = RPTProvider.typeNames();
             for (String N : Ns) {
-                ParserType RPType = RPTProvider.getType(N);
+                ParserType RPType = RPTProvider.type(N);
                 RPType.checker(null, null, RPTProvider);
             }
             
@@ -841,11 +841,11 @@ public class RegParser implements Checker, Serializable {
                             // Get type from the ref
                             if (pProvider != null) {
                                 // Get from the given provider
-                                FT = pProvider.getType(FTR.name());
+                                FT = pProvider.type(FTR.name());
                             }
                             if (FT == null) {
                                 // Get from the default
-                                FT = PTypeProvider.Simple.getDefault().getType(FTR.name());
+                                FT = PTypeProvider.Simple.getDefault().type(FTR.name());
                                 if (FT == null) {
                                     throw new RPParsingException(
                                             "RegParser type named '" + FTR.name() + "' is not found.");

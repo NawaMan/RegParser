@@ -663,7 +663,7 @@ public class RPCompiler_ParserTypes {
             if(S.length() > 1) {
                 // Only possibility is that it is an escape
                 ParseResult PS = pThisResult.lastEntryOf("#Start").subResult();
-                SC = (Character)(pProvider.getType(RPTEscape.Name).compile(PS, pProvider));
+                SC = (Character)(pProvider.type(RPTEscape.Name).compile(PS, pProvider));
             }
             
             String E = pThisResult.lastStringOf("#End");
@@ -680,7 +680,7 @@ public class RPCompiler_ParserTypes {
                 if(E.length() > 1) {
                     // Only possibility is that it is an escape
                     ParseResult PS = pThisResult.lastEntryOf("#End").subResult();
-                    EC = (Character)(pProvider.getType(RPTEscape.Name).compile(PS, pProvider));
+                    EC = (Character)(pProvider.type(RPTEscape.Name).compile(PS, pProvider));
                 }
                 if(SC > EC)
                     throw new RPCompilationException("Range starter must not be greater than its ender - near \""
@@ -760,7 +760,7 @@ public class RPCompiler_ParserTypes {
                     CCs.add(getCharClass(pThisResult, i));
                     
                 } else if("#Range".equals(PName)) {    // Extract Range
-                    CharChecker CC = (CharChecker)pProvider.getType(RPTRange.Name ).compile(pThisResult, i, null,
+                    CharChecker CC = (CharChecker)pProvider.type(RPTRange.Name ).compile(pThisResult, i, null,
                             pContext, pProvider);
                     
                     if((CC instanceof CharSingle) && (CCs.size() > 0)) {
@@ -998,16 +998,16 @@ public class RPCompiler_ParserTypes {
             
             String PType = PSE.typeName();
             if(RPTEscape.Name.equals(PType))
-                return RPEntry.newParserEntry(new CharSingle((Character)pProvider.getType(RPTEscape.Name       ).compile(pThisResult, 0, null, pContext, pProvider)));
+                return RPEntry.newParserEntry(new CharSingle((Character)pProvider.type(RPTEscape.Name       ).compile(pThisResult, 0, null, pContext, pProvider)));
             if(RPTEscapeOct.Name.equals(PType))
-                return RPEntry.newParserEntry(new CharSingle((Character)pProvider.getType(RPTEscapeOct.Name    ).compile(pThisResult, 0, null, pContext, pProvider)));
+                return RPEntry.newParserEntry(new CharSingle((Character)pProvider.type(RPTEscapeOct.Name    ).compile(pThisResult, 0, null, pContext, pProvider)));
             if(RPTEscapeHex.Name.equals(PType))
-                return RPEntry.newParserEntry(new CharSingle((Character)pProvider.getType(RPTEscapeHex.Name    ).compile(pThisResult, 0, null, pContext, pProvider)));
+                return RPEntry.newParserEntry(new CharSingle((Character)pProvider.type(RPTEscapeHex.Name    ).compile(pThisResult, 0, null, pContext, pProvider)));
             if(RPTEscapeUnicode.Name.equals(PType))
-                return RPEntry.newParserEntry(new CharSingle((Character)pProvider.getType(RPTEscapeUnicode.Name).compile(pThisResult, 0, null, pContext, pProvider)));
+                return RPEntry.newParserEntry(new CharSingle((Character)pProvider.type(RPTEscapeUnicode.Name).compile(pThisResult, 0, null, pContext, pProvider)));
             
             if(RPTCharSetItem.Name.equals(PType))
-                return RPEntry.newParserEntry((Checker)pProvider.getType(RPTCharSetItem.Name  ).compile(pThisResult, 0, null, pContext, pProvider));
+                return RPEntry.newParserEntry((Checker)pProvider.type(RPTCharSetItem.Name  ).compile(pThisResult, 0, null, pContext, pProvider));
             
             if("$TextCI".equals(PName)) {
                 String Text = pThisResult.textOf(0);
@@ -1017,12 +1017,12 @@ public class RPCompiler_ParserTypes {
             }
             
             if(RPTType.Name.equals(PType))
-                return RPEntry._new((PTypeRef)pProvider.getType(RPTType.Name   ).compile(pThisResult, 0, null, pContext, pProvider));
+                return RPEntry._new((PTypeRef)pProvider.type(RPTType.Name   ).compile(pThisResult, 0, null, pContext, pProvider));
             
             if("#Group".equals(PName)) {
                 
                 String N = PSE.subResult().lastStringOf("#Name");
-                if(N == null) return RPEntry.newParserEntry((Checker)pProvider.getType(RPTRegParser.Name).compile(pThisResult, 0, null, pContext, pProvider));
+                if(N == null) return RPEntry.newParserEntry((Checker)pProvider.type(RPTRegParser.Name).compile(pThisResult, 0, null, pContext, pProvider));
                 
                 pThisResult = PSE.subResult();
                 
@@ -1045,11 +1045,11 @@ public class RPCompiler_ParserTypes {
                     
                     int IT = Sub_Second.indexOf("#Type");
                     if(IT != -1) {    // TypeRef with Name
-                        Second = RegParser.newRegParser((PTypeRef)pProvider.getType(RPTType .Name).compile(Sub_Second, IT, null, pContext, pProvider));
+                        Second = RegParser.newRegParser((PTypeRef)pProvider.type(RPTType .Name).compile(Sub_Second, IT, null, pContext, pProvider));
                     } else {
                         int IE = Sub_Second.indexOf("#GroupRegParser");
                         // Named Group
-                        Second = RegParser.newRegParser((Checker)pProvider.getType(RPTRegParser.Name).compile(Sub_Second, IE, null, pContext, pProvider));
+                        Second = RegParser.newRegParser((Checker)pProvider.type(RPTRegParser.Name).compile(Sub_Second, IE, null, pContext, pProvider));
                     }
                 }
                 
@@ -1057,7 +1057,7 @@ public class RPCompiler_ParserTypes {
                 if(IT != -1) {    // TypeRef with Name
                     return RPEntry._new(
                             N+GN+O+M,
-                            (PTypeRef)pProvider.getType(RPTType .Name).compile(pThisResult, IT, null, pContext, pProvider),
+                            (PTypeRef)pProvider.type(RPTType .Name).compile(pThisResult, IT, null, pContext, pProvider),
                             null,
                             Second);
                 }
@@ -1066,7 +1066,7 @@ public class RPCompiler_ParserTypes {
                 // Named Group
                 return RPEntry._new(
                         N+GN+O+M,
-                        (Checker)pProvider.getType(RPTRegParser.Name).compile(pThisResult, IE, null, pContext, pProvider),
+                        (Checker)pProvider.type(RPTRegParser.Name).compile(pThisResult, IE, null, pContext, pProvider),
                         null,
                         Second);
             }
@@ -1178,16 +1178,16 @@ public class RPCompiler_ParserTypes {
                         }
                         
                     } else if("#Item[]".equals(PName)) {    // Process not
-                        RPI = (RPEntry)pProvider.getType(RPTRegParserItem.Name).compile(pThisResult, i, null, pContext, pProvider);
+                        RPI = (RPEntry)pProvider.type(RPTRegParserItem.Name).compile(pThisResult, i, null, pContext, pProvider);
                         
                     } else {
                         ParseResult Sub = PSE.subResult();
         
-                        RPI = (RPEntry)pProvider.getType(RPTRegParserItem.Name).compile(Sub, 0, null, pContext, pProvider);
+                        RPI = (RPEntry)pProvider.type(RPTRegParserItem.Name).compile(Sub, 0, null, pContext, pProvider);
     
                         Quantifier Q = Quantifier.One;
                         if(Sub.rawEntryCount() == 2) {
-                            Q = (Quantifier)pProvider.getType(RPTQuantifier.Name).compile(Sub, 1, null, pContext, pProvider); 
+                            Q = (Quantifier)pProvider.type(RPTQuantifier.Name).compile(Sub, 1, null, pContext, pProvider); 
                         }
                         if(Q != Quantifier.One) {
                             if(RPI.getChecker() != null) RPI = RPEntry._new(RPI.name(), RPI.getChecker(), Q, RPI.secondStage());
