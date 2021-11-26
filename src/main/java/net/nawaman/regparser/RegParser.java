@@ -614,7 +614,7 @@ public class RegParser implements Checker, Serializable {
         /** Returns the length of the match if the text is start with a match or -1 if not */
         protected ParseResult parse(CharSequence pText, int pOffset, int pIndex, int pTimes, ParseResult pResult,
                 ParserTypeProvider pProvider, ParserType pRPType, String pRPTParam, int pTabs) {
-            ParserTypeProvider TP = ParserTypeProvider.Library.getEither(pProvider, this.TProvider);
+            ParserTypeProvider TP = ParserTypeProvider.Library.either(pProvider, this.TProvider);
             return super.parse(pText, pOffset, pIndex, pTimes, pResult, TP, pRPType, pRPTParam, pTabs);
         }
         
@@ -845,7 +845,7 @@ public class RegParser implements Checker, Serializable {
                             }
                             if (FT == null) {
                                 // Get from the default
-                                FT = ParserTypeProvider.Simple.getDefault().type(FTR.name());
+                                FT = ParserTypeProvider.Simple.defaultProvider().type(FTR.name());
                                 if (FT == null) {
                                     throw new RPParsingException(
                                             "RegParser type named '" + FTR.name() + "' is not found.");

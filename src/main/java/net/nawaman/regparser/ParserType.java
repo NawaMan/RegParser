@@ -188,7 +188,7 @@ abstract public class ParserType implements Serializable {
 	
 	/** Returns the match if the text is start with a match (from pOffset on) or -1 if not */
 	public final ParseResult doParse(CharSequence text, int offset, ParserTypeProvider typeProvider) {
-		var provider = ParserTypeProvider.Library.getEither(typeProvider, this.typeProvider);
+		var provider = ParserTypeProvider.Library.either(typeProvider, this.typeProvider);
 		return parser()
 				.parse(text, offset, provider);
 	}
@@ -234,7 +234,7 @@ abstract public class ParserType implements Serializable {
 	
 	/** Returns the match if the text is start with a match (from start to the pEndPosition) or -1 if not */
 	protected ParseResult doMatch(CharSequence text, int offset, int endPosition, ParserTypeProvider typeProvider) {
-		var provider = ParserTypeProvider.Library.getEither(typeProvider, this.typeProvider);
+		var provider = ParserTypeProvider.Library.either(typeProvider, this.typeProvider);
 		int end      = (endPosition == -1)
 		             ? text.length()
 		             : endPosition;
@@ -254,7 +254,7 @@ abstract public class ParserType implements Serializable {
 							ParseResult   thisResult,
 							String        parameter,
 							ParserTypeProvider typeProvider) {
-		var provider = ParserTypeProvider.Library.getEither(typeProvider, this.typeProvider);
+		var provider = ParserTypeProvider.Library.either(typeProvider, this.typeProvider);
 		return doValidate(hostResult, thisResult, parameter, provider);
 	}
 	
@@ -314,7 +314,7 @@ abstract public class ParserType implements Serializable {
 				// Add it in
 				var newProvider = new ParserTypeProvider.Extensible();
 				var newLibrary  = new ParserTypeProvider.Library(typeProvider, newProvider);
-				((ParserTypeProvider.Extensible)newProvider).addRPType(this);
+				((ParserTypeProvider.Extensible)newProvider).addType(this);
 				typeProvider = newLibrary;
 			}
 			var typeRef = new PTypeRef.Simple(name(), parameter);
@@ -356,7 +356,7 @@ abstract public class ParserType implements Serializable {
 							String             parameter,
 							CompilationContext compilationContext,
 							ParserTypeProvider      typeProvider) {
-		var provider = ParserTypeProvider.Library.getEither(typeProvider, this.typeProvider);
+		var provider = ParserTypeProvider.Library.either(typeProvider, this.typeProvider);
 		return doCompile(thisResult, entryIndex, parameter, compilationContext, provider);
 	}
 	

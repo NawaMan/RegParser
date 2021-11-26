@@ -240,8 +240,8 @@ public class TestType {
 	@Test
 	public void testBackReference() {
 		// Add the type
-		defaultTypeProvider.addRPType(ParserTypeBackRef.BackRef_Instance);
-		defaultTypeProvider.addRPType(ParserTypeBackRefCI.BackRefCI_Instance);
+		defaultTypeProvider.addType(ParserTypeBackRef.BackRef_Instance);
+		defaultTypeProvider.addType(ParserTypeBackRefCI.BackRefCI_Instance);
 		
 		var regParser = newRegParser(defaultTypeProvider,
 		                    RPEntry._new("#X", new PTypeRef.Simple("$byte?")), 
@@ -400,10 +400,10 @@ public class TestType {
 		
 		// Add the type
 		var typeProvider = new ParserTypeProvider.Extensible();
-		typeProvider.addRPType(tagType);
-		typeProvider.addRPType(identifierType);
-		typeProvider.addRPType(stringLiteralType);
-		typeProvider.addRPType(attributeType);
+		typeProvider.addType(tagType);
+		typeProvider.addType(identifierType);
+		typeProvider.addType(stringLiteralType);
+		typeProvider.addType(attributeType);
 		
 		var parser = RegParser.newRegParser(RPEntry._new("#Block", tagType));
 		validate("(#Block:!Tag!)", parser);

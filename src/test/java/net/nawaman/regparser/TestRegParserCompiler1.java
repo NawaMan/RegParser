@@ -36,20 +36,20 @@ public class TestRegParserCompiler1 {
 	@Before
 	public void setup() {
 		typeProvider = new ParserTypeProvider.Extensible();
-		typeProvider.addRPType(new PTTextCI());
-		typeProvider.addRPType(new PTIdentifier());
-		typeProvider.addRPType(new PTStrLiteral());
-		typeProvider.addRPType(new RPTComment());
-		typeProvider.addRPType(new RPTType());
-		typeProvider.addRPType(new RPTQuantifier());
-		typeProvider.addRPType(new RPTRegParserItem());
-		typeProvider.addRPType(new RPTEscape());
-		typeProvider.addRPType(new RPTEscapeOct());
-		typeProvider.addRPType(new RPTEscapeHex());
-		typeProvider.addRPType(new RPTEscapeUnicode());
-		typeProvider.addRPType(new RPTRange());
-		typeProvider.addRPType(new RPTCharSetItem());
-		typeProvider.addRPType(new RPTRegParser());
+		typeProvider.addType(new PTTextCI());
+		typeProvider.addType(new PTIdentifier());
+		typeProvider.addType(new PTStrLiteral());
+		typeProvider.addType(new RPTComment());
+		typeProvider.addType(new RPTType());
+		typeProvider.addType(new RPTQuantifier());
+		typeProvider.addType(new RPTRegParserItem());
+		typeProvider.addType(new RPTEscape());
+		typeProvider.addType(new RPTEscapeOct());
+		typeProvider.addType(new RPTEscapeHex());
+		typeProvider.addType(new RPTEscapeUnicode());
+		typeProvider.addType(new RPTRange());
+		typeProvider.addType(new RPTCharSetItem());
+		typeProvider.addType(new RPTRegParser());
 		
 		parser = RegParser.newRegParser(typeProvider, new PTypeRef.Simple(RPTType.Name));
 	}

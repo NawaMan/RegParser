@@ -1191,7 +1191,7 @@ abstract public class ParseResult implements Serializable {
 					     ? null
 					     : typeProvider.type(typeName);
 					if (type == null) {
-						type = ParserTypeProvider.Extensible.getDefault().type(typeName);
+						type = ParserTypeProvider.Extensible.defaultProvider().type(typeName);
 						if (type == null)
 							throw new RuntimeException(format("Unknown type `%s`.", typeName));
 					}
@@ -1234,7 +1234,7 @@ abstract public class ParseResult implements Serializable {
 					     ? null
 					     : typeProvider.type(typeName);
 					if (type == null) {
-						type = ParserTypeProvider.Extensible.getDefault().type(typeName);
+						type = ParserTypeProvider.Extensible.defaultProvider().type(typeName);
 						if (type == null)
 							throw new RuntimeException(format("Unknown type `%s`.", typeName));
 					}

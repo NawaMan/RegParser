@@ -56,20 +56,20 @@ public class TestRegParserCompiler2 {
 	public void setup() {
 		var typeProvider = new ParserTypeProvider.Extensible();
 		
-		typeProvider.addRPType(new PTTextCI());
-		typeProvider.addRPType(new PTIdentifier());
-		typeProvider.addRPType(new PTStrLiteral());
-		typeProvider.addRPType(new RPTComment());
-		typeProvider.addRPType(new RPTType());
-		typeProvider.addRPType(new RPTQuantifier());
-		typeProvider.addRPType(new RPTRegParserItem());
-		typeProvider.addRPType(new RPTEscape());
-		typeProvider.addRPType(new RPTEscapeOct());
-		typeProvider.addRPType(new RPTEscapeHex());
-		typeProvider.addRPType(new RPTEscapeUnicode());
-		typeProvider.addRPType(new RPTRange());
-		typeProvider.addRPType(new RPTCharSetItem());
-		typeProvider.addRPType(new RPTRegParser());
+		typeProvider.addType(new PTTextCI());
+		typeProvider.addType(new PTIdentifier());
+		typeProvider.addType(new PTStrLiteral());
+		typeProvider.addType(new RPTComment());
+		typeProvider.addType(new RPTType());
+		typeProvider.addType(new RPTQuantifier());
+		typeProvider.addType(new RPTRegParserItem());
+		typeProvider.addType(new RPTEscape());
+		typeProvider.addType(new RPTEscapeOct());
+		typeProvider.addType(new RPTEscapeHex());
+		typeProvider.addType(new RPTEscapeUnicode());
+		typeProvider.addType(new RPTRange());
+		typeProvider.addType(new RPTCharSetItem());
+		typeProvider.addType(new RPTRegParser());
 		
 		this.typeProvider = typeProvider;
 	}
@@ -462,7 +462,7 @@ public class TestRegParserCompiler2 {
 			validate("null", parser.match("Shape",  typeProvider));
 		}
 		{
-			typeProvider.addRPType(new PTIdentifier());
+			typeProvider.addType(new PTIdentifier());
 			var parser = newRegParser("(var|int)\\b+!$Identifier!\\b*=\\b*[0-9]+\\b*;");
 			validate(12, parser.match("var V1 = 45;", typeProvider).endPosition());
 			validate(10, parser.match("var V1=45;",   typeProvider).endPosition());
@@ -470,8 +470,8 @@ public class TestRegParserCompiler2 {
 			validate(11, parser.match("int V1 = 5;",  typeProvider).endPosition());
 		}
 		
-		typeProvider.addRPType(ParserTypeBackRef.BackRef_Instance);
-		typeProvider.addRPType(ParserTypeBackRefCI.BackRefCI_Instance);
+		typeProvider.addType(ParserTypeBackRef.BackRef_Instance);
+		typeProvider.addType(ParserTypeBackRefCI.BackRefCI_Instance);
 		
 		{
 		var parser = newRegParser("(#X:~[:AlphabetAndDigit:]+~)\\-(#X;)\\-(#X;)");

@@ -18,16 +18,20 @@
 
 package net.nawaman.regparser;
 
+import static net.nawaman.regparser.RegParser.newRegParser;
+import static net.nawaman.regparser.Util.loadObjectsFromStream;
+import static net.nawaman.regparser.Util.saveObjectsToStream;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 
 import net.nawaman.regparser.types.PTComposable;
 import net.nawaman.regparser.types.PTJavaChecker;
@@ -57,29 +61,32 @@ public interface ParserTypeProvider extends Serializable {
 	@SuppressWarnings("serial")
 	static public class Simple implements ParserTypeProvider {
 		
-		/** Include the type pPT to exclusively be a member of the provider pTP */
-		static public boolean exclusivelyInclude(ParserTypeProvider pTP, ParserType pPT) {
-			if ((pPT == null) || (pPT.typeProvider() != null))
+		/** Include the type to exclusively be a member of the provider */
+		public static boolean exclusivelyInclude(ParserTypeProvider provider, ParserType type) {
+			if ((type == null)
+			 || (type.typeProvider() != null))
 				return false;
-			pPT.setTypeProvider(pTP);
+			
+			type.setTypeProvider(provider);
 			return true;
 		}
 		
-		static private ParserTypeProvider.Extensible Default = null;
+		private static ParserTypeProvider.Extensible defaultProvider = null;
 		
-		static public final ParserTypeProvider.Extensible getDefault() {
-			if (Default != null)
-				return Default;
-			Default = new ParserTypeProvider.Extensible();
-			Default.addRPType(new PTTextCI());
-			Default.addRPType(new ParserTypeBackRef());
-			Default.addRPType(new ParserTypeBackRefCI());
-			Default.addRPType(new PTJavaChecker());
-			return Default;
+		public static final ParserTypeProvider.Extensible defaultProvider() {
+			if (defaultProvider != null)
+				return defaultProvider;
+			
+			defaultProvider = new ParserTypeProvider.Extensible();
+			defaultProvider.addType(new PTTextCI());
+			defaultProvider.addType(new ParserTypeBackRef());
+			defaultProvider.addType(new ParserTypeBackRefCI());
+			defaultProvider.addType(new PTJavaChecker());
+			return defaultProvider;
 		}
 		
-		private final Hashtable<String, ParserType> RPTypes;
-		private final Hashtable<String, String>     ErrMsgs;
+		private final Map<String, ParserType> types;
+		private final Map<String, String>     errorMessages;
 		
 		/** Constructs an empty type provider */
 		protected Simple() {
@@ -87,172 +94,205 @@ public interface ParserTypeProvider extends Serializable {
 		}
 		
 		/** Constructs a type provider with the types */
-		public Simple(ParserType... pTypes) {
-			this.RPTypes = new Hashtable<String, ParserType>();
-			this.ErrMsgs = new Hashtable<String, String>();
-			if (pTypes == null) {
+		public Simple(ParserType... types) {
+			this.types         = new HashMap<String, ParserType>();
+			this.errorMessages = new HashMap<String, String>();
+			if (types == null) {
 				return;
 			}
-			for (ParserType T : pTypes) {
-				if (T == null)
+			for (var type : types) {
+				if (type == null)
 					continue;
-				this.RPTypes.put(T.name(), T);
+				
+				this.types.put(type.name(), type);
 			}
 		}
 		
-		// Services --------------------------------------------------------------------------------------------------------
+		// Services ----------------------------------------------------------------------------------------------------
 		
 		// Type --------------------------------------------------------------------------
 		
 		public Set<String> typeNames() {
-			return this.RPTypes.keySet();
+			return types.keySet();
 		}
 		
-		protected boolean addRPType(ParserType pRPT) {
-			if (pRPT == null)
-				return false;
-			if (this.RPTypes.containsKey(pRPT.name()))
+		protected boolean addType(ParserType type) {
+			if (type == null)
 				return false;
 			
-			this.RPTypes.put(pRPT.name(), pRPT);
+			var name = type.name();
+			if (types.containsKey(name))
+				return false;
+			
+			types.put(name, type);
 			return true;
 		}
 		
-		protected boolean removeRPType(ParserType pRPT) {
-			if (pRPT == null)
-				return false;
-			if (this.RPTypes.containsKey(pRPT.name()))
+		protected boolean removeType(ParserType type) {
+			if (type == null)
 				return false;
 			
-			this.RPTypes.remove(pRPT.name());
+			var name = type.name();
+			if (types.containsKey(name))
+				return false;
+			
+			types.remove(name);
 			return true;
 		}
 		
-		public ParserType type(String pName) {
-			if (pName == null)
+		protected boolean removeType(String name) {
+			if (name == null)
+				return false;
+			
+			if (types.containsKey(name))
+				return false;
+			
+			types.remove(name);
+			return true;
+		}
+		
+		public ParserType type(String name) {
+			if (name == null)
 				return null;
-			return this.RPTypes.get(pName);
+			
+			return types.get(name);
 		}
 		
 		// Error -------------------------------------------------------------------------
 		
 		/** Returns the names of all types in this provider */
 		public Set<String> errorMessageNames() {
-			if (this.ErrMsgs == null)
-				return null;
-			return this.ErrMsgs.keySet();
+			return errorMessages.keySet();
 		}
 		
-		protected boolean addErrorMessage(String pErrName, String pErrMsg) {
-			if (pErrName == null)
-				return false;
-			if (pErrMsg == null)
-				return false;
-			if ((this.ErrMsgs != null) && (this.ErrMsgs.containsKey(pErrName)))
+		protected boolean addErrorMessage(String errorName, String errorMessage) {
+			if (errorName == null)
 				return false;
 			
-			this.ErrMsgs.put(pErrName, pErrMsg);
+			if (errorMessage == null)
+				return false;
+			
+			if (errorMessages.containsKey(errorName))
+				return false;
+			
+			errorMessages.put(errorName, errorMessage);
 			return true;
 		}
 		
-		protected boolean removeRPType(String pErrName) {
-			if (pErrName == null)
-				return false;
-			if ((this.ErrMsgs != null) && (this.ErrMsgs.containsKey(pErrName)))
+		protected boolean removeError(String errorName) {
+			if (errorName == null)
 				return false;
 			
-			this.ErrMsgs.remove(pErrName);
-			return true;
+			var previous = errorMessages.remove(errorName);
+			return (previous != null);
 		}
 		
 		/** Get an error message  */
-		public String errorMessage(String pName) {
-			if (pName == null)
+		public String errorMessage(String name) {
+			if (name == null)
 				return null;
-			if (this.ErrMsgs == null)
+			
+			if (errorMessages == null)
 				return null;
-			return this.ErrMsgs.get(pName);
+			
+			return errorMessages.get(name);
 		}
 		
 		// ToString ----------------------------------------------------------------------------------------------------
 		
 		@Override
 		public String toString() {
-			return this.RPTypes.isEmpty() ? "{=}" : RPTypes.toString();
+			return this.types.isEmpty() ? "{=}" : types.toString();
 		}
 		
 		// Load and Save -----------------------------------------------------------------------------------------------
 		
 		/** Load type provider from a stream */
-		static public ParserTypeProvider loadTypeProviderFromStream(InputStream pIS) throws IOException {
-			ParserType[] Ts = loadTypesFromStream(pIS);
-			return new Simple(Ts);
+		static public ParserTypeProvider loadTypeProviderFromStream(InputStream inputStream) throws IOException {
+			var types = loadTypesFromStream(inputStream);
+			return new Simple(types);
 		}
 		
 		/** Load types into a type provider from a stream */
-		static public int loadTypeProviderFromStream(InputStream pIS, ParserTypeProvider pProvider, boolean isToReplace)
-		        throws IOException {
-			ParserType[] Ts = loadTypesFromStream(pIS);
-			if (Ts == null)
+		static public int loadTypeProviderFromStream(
+							InputStream        inputStream,
+							ParserTypeProvider typeProvider,
+							boolean            isToReplace)
+								throws IOException {
+			var types = loadTypesFromStream(inputStream);
+			if (types == null)
 				return 0;
-			if (pProvider == null)
+			
+			if (typeProvider == null)
 				return -1;
 			
 			int t = 0;
-			for (int i = Ts.length; --i >= 0;) {
-				ParserType T = Ts[i];
-				if (T == null)
+			for (int i = types.length; --i >= 0;) {
+				var type = types[i];
+				if (type == null)
 					continue;
-				String N = T.name();
 				
-				if (!isToReplace && ((Simple)pProvider).RPTypes.containsKey(N))
-					((Simple)pProvider).RPTypes.put(N, T);
+				var name = type.name();
+				if (!isToReplace
+				 && ((Simple)typeProvider).types.containsKey(name)) {
+					((Simple)typeProvider).types.put(name, type);
+				}
+				
 				t++;
 			}
 			return t;
 		}
 		
 		/** Load types a stream */
-		static public ParserType[] loadTypesFromStream(InputStream pIS) throws IOException {
-			Object O = Util.loadObjectsFromStream(pIS);
-			if (!((O instanceof Serializable[]) && (((Serializable[])O).length != 0)))
+		static public ParserType[] loadTypesFromStream(InputStream inputStream) throws IOException {
+			var object = loadObjectsFromStream(inputStream);
+			if (!((object instanceof Serializable[])
+			 && (((Serializable[])object).length != 0)))
 				throw new IOException("The selected file is mal-formed.");
 			
-			Serializable[]        Ss        = (Serializable[])O;
-			Vector<ParserType>    Types     = new Vector<ParserType>();
-			Vector<ParserTypeProvider> Providers = new Vector<ParserTypeProvider>();
-			for (Serializable S : Ss) {
-				if (!(S instanceof ParserType) && !(S instanceof ParserTypeProvider))
+			var objects   = (Serializable[])object;
+			var types     = new ArrayList<ParserType>();
+			var providers = new ArrayList<ParserTypeProvider>();
+			for (var serializable : objects) {
+				if (!(serializable instanceof ParserType)
+				 && !(serializable instanceof ParserTypeProvider))
 					continue;
-				if (S instanceof ParserType)
-					Types.add((ParserType)S);
-				else
-					Providers.add((ParserTypeProvider)S);
-			}
-			
-			for (ParserTypeProvider Provider : Providers) {
-				Set<String> TNames = Provider.typeNames();
-				if (TNames != null) {
-					for (String TName : TNames) {
-						ParserType T = Provider.type(TName);
-						if (T == null)
-							continue;
-						Types.add(T);
-					}
+				
+				if (serializable instanceof ParserType) {
+					types.add((ParserType)serializable);
+				} else {
+					providers.add((ParserTypeProvider)serializable);
 				}
 			}
 			
-			return Types.toArray(ParserType.EmptyTypeArray);
+			for (var provider : providers) {
+				var typeNames = provider.typeNames();
+				if (typeNames == null)
+					continue;
+				
+				for (var typeName : typeNames) {
+					var type = provider.type(typeName);
+					if (type == null)
+						continue;
+					
+					types.add(type);
+				}
+			}
+			
+			return types.toArray(ParserType.EmptyTypeArray);
 		}
 		
 		/** Save a type provider to the stream */
-		static public void saveRPTypeProviderToStream(OutputStream pOS, ParserTypeProvider pProvider) throws IOException {
-			Util.saveObjectsToStream(pOS, new Serializable[] { pProvider });
+		static public void saveTypeProviderToStream(
+							OutputStream       outputStream,
+							ParserTypeProvider typeProvider)
+								throws IOException {
+			saveObjectsToStream(outputStream, new Serializable[] { typeProvider });
 		}
 		
 		/** Save a type provider to the stream */
-		static public void saveRPTypesToStream(OutputStream pOS, ParserType[] pTypes) throws IOException {
-			Util.saveObjectsToStream(pOS, pTypes);
+		static public void saveTypesToStream(OutputStream outputStream, ParserType[] types) throws IOException {
+			saveObjectsToStream(outputStream, types);
 		}
 	}
 	
@@ -263,68 +303,76 @@ public interface ParserTypeProvider extends Serializable {
 		}
 		
 		/** Constructs a type provider with the types */
-		public Extensible(ParserType... pTypes) {
-			super(pTypes);
-		}
-		
-		@Override
-		public boolean addRPType(ParserType pRPT) {
-			return super.addRPType(pRPT);
-		}
-		
-		@Override
-		public boolean addErrorMessage(String pErrName, String pErrMsg) {
-			return super.addErrorMessage(pErrName, pErrMsg);
+		public Extensible(ParserType... types) {
+			super(types);
 		}
 		
 		// Add Type exclusively ----------------------------------------------------------------------------------------
 		
-		public boolean addType(ParserType pRPT) {
-			if ((pRPT != null) && (pRPT.typeProvider() == null))
-				pRPT.setTypeProvider(this);
-			return super.addRPType(pRPT);
+		@Override
+		public boolean addType(ParserType type) {
+			if ((type != null)
+			 && (type.typeProvider() == null))
+				type.setTypeProvider(this);
+			
+			return super.addType(type);
 		}
 		
-		public boolean addType(String pName, Checker pChecker) {
-			return this.addType(pName, pChecker, null, null);
+		public boolean addType(String name, Checker checker) {
+			return addType(name, checker, null, null);
 		}
 		
-		public boolean addType(String pName, Checker pChecker, ResultVerifier pVertifier) {
-			return this.addType(pName, pChecker, pVertifier, null);
+		public boolean addType(String name, Checker checker, ResultVerifier vertifier) {
+			return addType(name, checker, vertifier, null);
 		}
 		
-		public boolean addType(String pName, Checker pChecker, RPCompiler pCompiler) {
-			return this.addType(pName, pChecker, null, pCompiler);
+		public boolean addType(String name, Checker checker, RPCompiler compiler) {
+			return addType(name, checker, null, compiler);
 		}
 		
-		public boolean addType(String pName, Checker pChecker, ResultVerifier pVertifier, RPCompiler pCompiler) {
-			if (pChecker == null)
+		public boolean addType(String name, Checker checker, ResultVerifier vertifier, RPCompiler compiler) {
+			if (checker == null)
 				return false;
-			if (pChecker instanceof RegParser)
-				pChecker = RegParser.WithDefaultTypeProvider.attachDefaultTypeProvider((RegParser)pChecker, this);
-			else
-				pChecker = RegParser.newRegParser(this, pChecker);
-			return this.addType(new PTComposable(pName, pChecker, pVertifier, pCompiler));
+			
+			checker = (checker instanceof RegParser)
+			        ? RegParser.WithDefaultTypeProvider.attachDefaultTypeProvider((RegParser)checker, this)
+			        : RegParser.newRegParser(this, checker);
+			
+			return addType(new PTComposable(name, checker, vertifier, compiler));
+		}
+
+		public boolean addType(String name, String regParser) {
+			return addType(name, regParser, null, null);
 		}
 		
-		
-		public boolean addType(String pName, String pRegParser) {
-			return this.addType(pName, pRegParser, null, null);
+		public boolean addType(String name, String regParser, ResultVerifier vertifier) {
+			return addType(name, regParser, vertifier, null);
 		}
 		
-		public boolean addType(String pName, String pRegParser, ResultVerifier pVertifier) {
-			return this.addType(pName, pRegParser, pVertifier, null);
+		public boolean addType(String name, String regParser, RPCompiler compiler) {
+			return addType(name, regParser, null, compiler);
 		}
 		
-		public boolean addType(String pName, String pRegParser, RPCompiler pCompiler) {
-			return this.addType(pName, pRegParser, null, pCompiler);
+		public boolean addType(String name, String regParser, ResultVerifier vertifier, RPCompiler compiler) {
+			var parser = newRegParser(this, regParser);
+			return addType(new PTComposable(name, parser, vertifier, compiler));
 		}
 		
-		public boolean addType(String pName, String pRegParser, ResultVerifier pVertifier, RPCompiler pCompiler) {
-			RegParser RP = RegParser.newRegParser(this, pRegParser);
-			if (RP == null)
-				return false;
-			return this.addType(new PTComposable(pName, RP, pVertifier, pCompiler));
+		public boolean addType(String name, RegParser parser) {
+			return addType(name, parser, null, null);
+		}
+		
+		public boolean addType(String name, RegParser parser, ResultVerifier vertifier) {
+			return addType(name, parser, vertifier, null);
+		}
+		
+		public boolean addType(String name, RegParser parser, RPCompiler compiler) {
+			return addType(name, parser, null, compiler);
+		}
+		
+		public boolean addType(String name, RegParser parser, ResultVerifier vertifier, RPCompiler compiler) {
+			var type = new PTComposable(name, parser, vertifier, compiler);
+			return addType(type);
 		}
 	}
 	
@@ -332,121 +380,127 @@ public interface ParserTypeProvider extends Serializable {
 	static public class Library extends Simple {
 		
 		/** Returns the TypeProvider that include either providers */
-		static public ParserTypeProvider getEither(ParserTypeProvider First, ParserTypeProvider Second) {
-			if (First == null)
-				return Second;
-			if (Second == null)
-				return First;
-			return new Library(First, Second);
+		static public ParserTypeProvider either(ParserTypeProvider firstProvider, ParserTypeProvider secondProvider) {
+			if (firstProvider == null)
+				return secondProvider;
+			
+			if (secondProvider == null)
+				return firstProvider;
+			
+			return new Library(firstProvider, secondProvider);
 		}
 		
-		private final List<ParserTypeProvider> Providers= new ArrayList<ParserTypeProvider>();
+		private final List<ParserTypeProvider> providers = new ArrayList<ParserTypeProvider>();
 		
-		public Library(ParserType[] pTypes, ParserTypeProvider... pProviders) {
-			super(pTypes);
-			if (pProviders == null)
+		public Library(ParserType[] types, ParserTypeProvider... typeProviders) {
+			super(types);
+			
+			if (typeProviders == null)
 				return;
-			for (int i = 0; i < pProviders.length; i++) {
-				if (pProviders[i] == null)
+			
+			for (var typeProvider : typeProviders) {
+				if (typeProvider == null)
 					continue;
-				this.Providers.add(pProviders[i]);
+				
+				providers.add(typeProvider);
 			}
 		}
 		
-		public Library(ParserTypeProvider... pProviders) {
-			this(null, pProviders);
+		public Library(ParserTypeProvider... typeProviders) {
+			this(null, typeProviders);
 		}
 		
-		public void addProvider(ParserTypeProvider pProvider) {
-			if (pProvider == null)
+		public void addProvider(ParserTypeProvider typeProvider) {
+			if (typeProvider == null)
 				return;
-			for (int i = 0; i < this.Providers.size(); i++) {
-				if (this.Providers.get(i) == pProvider)
+			
+			for (var provider : providers) {
+				if (provider == typeProvider)
 					return;
 			}
-			this.Providers.add(pProvider);
+			
+			providers.add(typeProvider);
 		}
 		
-		public void removeProvider(ParserTypeProvider pProvider) {
-			if (pProvider == null)
+		public void removeProvider(ParserTypeProvider typeProvider) {
+			if (typeProvider == null)
 				return;
-			for (int i = 0; i < this.Providers.size(); i++) {
-				if (this.Providers.get(i) == pProvider) {
-					this.Providers.remove(i);
-					return;
-				}
-			}
+			
+			providers.remove(typeProvider);
 		}
 		
 		// Override of the services -----------------------------------------------------------------------------------
 		
 		@Override
 		public Set<String> typeNames() {
-			HashSet<String> Names = new HashSet<String>();
-			Names.addAll(this.typeNames());
-			for (int i = 0; i < this.Providers.size(); i++) {
-				Set<String> Ns = this.Providers.get(i).typeNames();
-				if (Ns != null)
-					Names.addAll(Ns);
+			var names = new HashSet<String>();
+			names.addAll(typeNames());
+			
+			for (var provider : providers) {
+				var typeNames = provider.typeNames();
+				if (typeNames != null) {
+					names.addAll(typeNames);
+				}
 			}
-			return Names;
+			return names;
 		}
 		
 		@Override
-		public ParserType type(String pName) {
-			ParserType RPT = super.type(pName);
-			if (RPT != null)
-				return RPT;
-			for (int i = 0; i < this.Providers.size(); i++) {
-				ParserType RPT2 = this.Providers.get(i).type(pName);
-				if (RPT2 != null)
-					return RPT2;
+		public ParserType type(String name) {
+			var type = super.type(name);
+			if (type != null)
+				return type;
+			
+			for (var provider : providers) {
+				type = provider.type(name);
+				if (type != null)
+					return type;
 			}
 			return null;
 		}
 		
 		@Override
 		public Set<String> errorMessageNames() {
-			HashSet<String> Names = new HashSet<String>();
-			Names.addAll(this.errorMessageNames());
-			if (this.Providers != null) {
-				for (int i = 0; i < this.Providers.size(); i++) {
-					Set<String> Ns = this.Providers.get(i).errorMessageNames();
-					if (Ns != null)
-						Names.addAll(Ns);
+			var names = new HashSet<String>();
+			names.addAll(errorMessageNames());
+			
+			for (var provider : providers) {
+				var moreErrorNames = provider.errorMessageNames();
+				if (moreErrorNames != null) {
+					names.addAll(moreErrorNames);
 				}
 			}
-			return Names;
+			return names;
 		}
 		
 		@Override
-		public String errorMessage(String pErrName) {
-			String ErrMsg = this.errorMessage(pErrName);
-			if (ErrMsg != null)
-				return ErrMsg;
+		public String errorMessage(String errorName) {
+			var errorMessage = errorMessage(errorName);
+			if (errorMessage != null)
+				return errorMessage;
 			
-			for (int i = 0; i < this.Providers.size(); i++) {
-				String ErrMsg2 = this.Providers.get(i).errorMessage(pErrName);
-				if (ErrMsg2 != null)
-					return ErrMsg2;
+			for (var provider : providers) {
+				errorMessage = provider.errorMessage(errorName);
+				if (errorMessage != null)
+					return errorMessage;
 			}
 			return null;
 		}
 		
 		@Override
 		public String toString() {
-			StringBuffer SB = new StringBuffer();
-			SB.append("{");
-			SB.append(super.toString());
-			for (int i = 0; i < this.Providers.size(); i++) {
-				ParserTypeProvider TP = this.Providers.get(i);
-				if (TP == null)
+			var buffer = new StringBuffer();
+			buffer.append("{");
+			buffer.append(super.toString());
+			for (var provider : providers) {
+				if (provider == null)
 					continue;
-				SB.append("; ");
-				SB.append(TP.toString());
+				
+				buffer.append("; ");
+				buffer.append(provider.toString());
 			}
-			SB.append("}");
-			return SB.toString();
+			buffer.append("}");
+			return buffer.toString();
 		}
 	}
 	
