@@ -18,20 +18,21 @@
 
 package net.nawaman.regparser;
 
+import net.nawaman.regparser.result.ParseResult;
+
 /**
- * Exception for reporting Regular Parser parsing problems
- *
+ * Regular Parser Compiler to be used with PTComposable.
+ * 
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
- */
-@SuppressWarnings("serial")
-public class RPParsingException extends RuntimeException {
-    
-    public RPParsingException() {
-        super();
-    }
-    
-    public RPParsingException(String pMessage) {
-        super(pMessage);
-    }
-    
+ **/
+public interface ResultCompiler {
+	
+	/** Compiles a ParseResult in to an object with a parameter */
+	public Object compile(
+					ParseResult        thisResult,
+					int                entryIndex,
+					String             parameter,
+					CompilationContext compilationContext,
+					ParserTypeProvider typeProvider);
+	
 }

@@ -21,7 +21,7 @@ package net.nawaman.regparser.types;
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.CompilationContext;
 import net.nawaman.regparser.ParserTypeProvider;
-import net.nawaman.regparser.RPCompiler;
+import net.nawaman.regparser.ResultCompiler;
 import net.nawaman.regparser.RPGetChecker;
 import net.nawaman.regparser.ResultVerifier;
 import net.nawaman.regparser.result.ParseResult;
@@ -39,20 +39,20 @@ public class PTComposable extends PTSimple {
         super(pTheName);
     }
     
-    public PTComposable(String pTheName, Checker pTheChecker, ResultVerifier pVerifier, RPCompiler pCompiler) {
+    public PTComposable(String pTheName, Checker pTheChecker, ResultVerifier pVerifier, ResultCompiler pCompiler) {
         super(pTheName, pTheChecker);
         this.Verifier = pVerifier;
         this.Compiler = pCompiler;
     }
     
-    public PTComposable(String pTheName, RPGetChecker pTheGetChecker, ResultVerifier pVerifier, RPCompiler pCompiler) {
+    public PTComposable(String pTheName, RPGetChecker pTheGetChecker, ResultVerifier pVerifier, ResultCompiler pCompiler) {
         super(pTheName, pTheGetChecker);
         this.Verifier = pVerifier;
         this.Compiler = pCompiler;
     }
     
     ResultVerifier Verifier;
-    RPCompiler Compiler;
+    ResultCompiler Compiler;
     
     protected boolean setVerifier(ResultVerifier pVerifier) {
         if (this.Verifier != null)
@@ -61,7 +61,7 @@ public class PTComposable extends PTSimple {
         return true;
     }
     
-    protected boolean setCompiler(RPCompiler pCompiler) {
+    protected boolean setCompiler(ResultCompiler pCompiler) {
         if (this.Compiler != null)
             return false;
         this.Compiler = pCompiler;

@@ -326,11 +326,11 @@ public interface ParserTypeProvider extends Serializable {
 			return addType(name, checker, vertifier, null);
 		}
 		
-		public boolean addType(String name, Checker checker, RPCompiler compiler) {
+		public boolean addType(String name, Checker checker, ResultCompiler compiler) {
 			return addType(name, checker, null, compiler);
 		}
 		
-		public boolean addType(String name, Checker checker, ResultVerifier vertifier, RPCompiler compiler) {
+		public boolean addType(String name, Checker checker, ResultVerifier vertifier, ResultCompiler compiler) {
 			if (checker == null)
 				return false;
 			
@@ -349,11 +349,11 @@ public interface ParserTypeProvider extends Serializable {
 			return addType(name, regParser, vertifier, null);
 		}
 		
-		public boolean addType(String name, String regParser, RPCompiler compiler) {
+		public boolean addType(String name, String regParser, ResultCompiler compiler) {
 			return addType(name, regParser, null, compiler);
 		}
 		
-		public boolean addType(String name, String regParser, ResultVerifier vertifier, RPCompiler compiler) {
+		public boolean addType(String name, String regParser, ResultVerifier vertifier, ResultCompiler compiler) {
 			var parser = newRegParser(this, regParser);
 			return addType(new PTComposable(name, parser, vertifier, compiler));
 		}
@@ -366,11 +366,11 @@ public interface ParserTypeProvider extends Serializable {
 			return addType(name, parser, vertifier, null);
 		}
 		
-		public boolean addType(String name, RegParser parser, RPCompiler compiler) {
+		public boolean addType(String name, RegParser parser, ResultCompiler compiler) {
 			return addType(name, parser, null, compiler);
 		}
 		
-		public boolean addType(String name, RegParser parser, ResultVerifier vertifier, RPCompiler compiler) {
+		public boolean addType(String name, RegParser parser, ResultVerifier vertifier, ResultCompiler compiler) {
 			var type = new PTComposable(name, parser, vertifier, compiler);
 			return addType(type);
 		}

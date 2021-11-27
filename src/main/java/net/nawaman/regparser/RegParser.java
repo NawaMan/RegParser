@@ -847,7 +847,7 @@ public class RegParser implements Checker, Serializable {
                                 // Get from the default
                                 FT = ParserTypeProvider.Simple.defaultProvider().type(FTR.name());
                                 if (FT == null) {
-                                    throw new RPParsingException(
+                                    throw new ParsingException(
                                             "RegParser type named '" + FTR.name() + "' is not found.");
                                 }
                             }
@@ -857,7 +857,7 @@ public class RegParser implements Checker, Serializable {
                         if (FT != null) {
                             FP = FT.checker(pResult, Param, pProvider);
                             if (FP == null)
-                                throw new RPParsingException("RegParser type named '" + FTR + "' has no checker.");
+                                throw new ParsingException("RegParser type named '" + FTR + "' has no checker.");
                         }
                         
                         // If type is a text, FP is not a node
