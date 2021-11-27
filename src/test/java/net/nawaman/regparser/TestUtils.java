@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Objects;
 
+import net.nawaman.regparser.utils.Util;
+
 public class TestUtils {
 	
 	static public void validate(int expected, int actual) {

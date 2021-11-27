@@ -18,7 +18,7 @@
 
 package net.nawaman.regparser;
 
-import static net.nawaman.regparser.Util.escapeText;
+import static net.nawaman.regparser.utils.Util.escapeText;
 
 import java.io.Serializable;
 

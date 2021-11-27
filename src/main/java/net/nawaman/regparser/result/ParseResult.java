@@ -19,13 +19,13 @@ package net.nawaman.regparser.result;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
-import static net.nawaman.regparser.Util.dashes;
-import static net.nawaman.regparser.Util.indents;
-import static net.nawaman.regparser.Util.spaces;
-import static net.nawaman.regparser.Util.tabs;
-import static net.nawaman.regparser.Util.textWidth;
-import static net.nawaman.regparser.Util.zeros;
 import static net.nawaman.regparser.result.entry.ParseResultEntry.newEntry;
+import static net.nawaman.regparser.utils.Util.dashes;
+import static net.nawaman.regparser.utils.Util.indents;
+import static net.nawaman.regparser.utils.Util.spaces;
+import static net.nawaman.regparser.utils.Util.tabs;
+import static net.nawaman.regparser.utils.Util.textWidth;
+import static net.nawaman.regparser.utils.Util.zeros;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -40,12 +40,12 @@ import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.ParserTypeRef;
 import net.nawaman.regparser.RPEntry;
 import net.nawaman.regparser.RegParser;
-import net.nawaman.regparser.Util;
 import net.nawaman.regparser.result.entry.ParseResultEntry;
 import net.nawaman.regparser.result.entry.ParseResultEntryWithParserEntryAndSubResult;
 import net.nawaman.regparser.result.entry.ParseResultEntryWithSubResult;
 import net.nawaman.regparser.types.PTError;
 import net.nawaman.regparser.utils.IStream;
+import net.nawaman.regparser.utils.Util;
 
 /**
  * The result of the parsing

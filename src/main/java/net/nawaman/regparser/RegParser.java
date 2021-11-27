@@ -48,6 +48,7 @@ import net.nawaman.regparser.result.entry.ParseResultEntry;
 import net.nawaman.regparser.types.PTIdentifier;
 import net.nawaman.regparser.types.PTStrLiteral;
 import net.nawaman.regparser.types.PTTextCI;
+import net.nawaman.regparser.utils.Util;
 
 /**
  * The regular parser

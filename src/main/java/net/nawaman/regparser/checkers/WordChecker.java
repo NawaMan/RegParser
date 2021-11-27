@@ -23,8 +23,8 @@ import static net.nawaman.regparser.RPCompiler_ParserTypes.escapeOfRegParser;
 
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.ParserTypeProvider;
-import net.nawaman.regparser.Util;
 import net.nawaman.regparser.result.ParseResult;
+import net.nawaman.regparser.utils.Util;
 
 /**
  * Checker for checking a sequence of character or a word

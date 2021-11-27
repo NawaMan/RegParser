@@ -15,6 +15,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 import net.nawaman.regparser.checkers.CharSingle;
+import net.nawaman.regparser.utils.Util;
 
 public class TestName {
 	

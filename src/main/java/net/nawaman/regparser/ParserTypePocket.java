@@ -18,8 +18,8 @@
 
 package net.nawaman.regparser;
 
-import static net.nawaman.regparser.Util.loadObjectsFromStream;
-import static net.nawaman.regparser.Util.saveObjectsToStream;
+import static net.nawaman.regparser.utils.Util.loadObjectsFromStream;
+import static net.nawaman.regparser.utils.Util.saveObjectsToStream;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

@@ -28,9 +28,9 @@ import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.PredefinedCharClasses;
 import net.nawaman.regparser.Quantifier;
 import net.nawaman.regparser.RegParser;
-import net.nawaman.regparser.Util;
 import net.nawaman.regparser.checkers.CharNot;
 import net.nawaman.regparser.result.ParseResult;
+import net.nawaman.regparser.utils.Util;
 
 /**
  * Parser Type for java checker.

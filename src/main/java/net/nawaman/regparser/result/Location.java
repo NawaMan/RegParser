@@ -17,9 +17,9 @@
  */
 package net.nawaman.regparser.result;
 
-import static net.nawaman.regparser.Util.endsWith;
-import static net.nawaman.regparser.Util.lastIndexOf;
-import static net.nawaman.regparser.Util.indexOf;
+import static net.nawaman.regparser.utils.Util.endsWith;
+import static net.nawaman.regparser.utils.Util.indexOf;
+import static net.nawaman.regparser.utils.Util.lastIndexOf;
 
 import java.util.Objects;
 

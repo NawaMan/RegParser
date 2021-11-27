@@ -1,9 +1,9 @@
 package net.nawaman.regparser;
 
 import static net.nawaman.regparser.TestUtils.validate;
-import static net.nawaman.regparser.Util.indexOf;
-import static net.nawaman.regparser.Util.lastIndexOf;
-import static net.nawaman.regparser.Util.startsWith;
+import static net.nawaman.regparser.utils.Util.indexOf;
+import static net.nawaman.regparser.utils.Util.lastIndexOf;
+import static net.nawaman.regparser.utils.Util.startsWith;
 
 import org.junit.Assert;
 import org.junit.Test;
