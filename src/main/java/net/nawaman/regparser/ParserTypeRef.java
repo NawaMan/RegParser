@@ -18,6 +18,8 @@
 
 package net.nawaman.regparser;
 
+import static net.nawaman.regparser.Util.escapeText;
+
 import java.io.Serializable;
 
 /**
@@ -39,28 +41,28 @@ abstract public class ParserTypeRef implements Serializable {
 		
 		private static final long serialVersionUID = -1749338159178519582L;
 		
-		public Simple(String pTypeName) {
-			this.TypeName = pTypeName;
+		public Simple(String typeName) {
+			this(typeName, null);
 		}
 		
-		public Simple(String pTypeName, String pParam) {
-			this.TypeName = pTypeName;
-			this.Param    = pParam;
+		public Simple(String typeName, String parameter) {
+			this.typeName  = typeName;
+			this.parameter = parameter;
 		}
 		
-		String TypeName;
-		String Param;
+		private final String typeName;
+		private final String parameter;
 		
 		/**{@inheritDoc}*/
 		@Override
 		public String name() {
-			return this.TypeName;
+			return typeName;
 		}
 		
 		/**{@inheritDoc}*/
 		@Override
 		public String parameter() {
-			return this.Param;
+			return parameter;
 		}
 	}
 	
@@ -69,12 +71,14 @@ abstract public class ParserTypeRef implements Serializable {
 	/**{@inheritDoc}*/
 	@Override
 	public String toString() {
-		return "!" + this.name()
-		        + ((this.parameter() == null) ? "" : ("(\"" + Util.escapeText(this.parameter()) + "\")")) + "!";
+		var name      = name();
+		var parameter = parameter();
+		var param     = (parameter == null) ? "" : ("(\"" + escapeText(parameter) + "\")");
+		return "!" + name + param + "!";
 	}
 	
 	public String toDetail() {
-		return this.toString();
+		return toString();
 	}
 	
 	/**{@inheritDoc}*/
@@ -83,14 +87,16 @@ abstract public class ParserTypeRef implements Serializable {
 		if (!(O instanceof ParserTypeRef))
 			return false;
 		
-		String TN = this.name();
-		String ON = ((ParserTypeRef)O).name();
-		if ((TN != ON) || ((TN != null) && !TN.equals(ON)))
+		var thisName = this.name();
+		var thatName = ((ParserTypeRef)O).name();
+		if ((thisName != thatName)
+		|| ((thisName != null) && !thisName.equals(thatName)))
 			return false;
 		
-		String TP = this.parameter();
-		String OP = ((ParserTypeRef)O).parameter();
-		if ((TP != OP) || ((TP != null) && !TP.equals(OP)))
+		var thisParameter = parameter();
+		var thatParameter = ((ParserTypeRef)O).parameter();
+		if ((thisParameter != thatParameter)
+		 || ((thisParameter != null) && !thisParameter.equals(thatParameter)))
 			return false;
 		
 		return true;
