@@ -27,8 +27,12 @@ import net.nawaman.regparser.types.PTComposable;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  **/
 public interface ResultVerifier {
-    
-    /** Validate the parse result */
-    public boolean validate(ParseResult hostResult, ParseResult thisResult, String parameter, ParserTypeProvider typeProvider);
-    
+	
+	/** Validate the parse result */
+	public boolean validate(
+					ParseResult        hostResult,
+					ParseResult        thisResult,
+					String             parameter,
+					ParserTypeProvider typeProvider);
+	
 }
