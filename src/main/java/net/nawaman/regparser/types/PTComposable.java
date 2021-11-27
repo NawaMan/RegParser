@@ -22,7 +22,7 @@ import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.CompilationContext;
 import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.ResultCompiler;
-import net.nawaman.regparser.RPGetChecker;
+import net.nawaman.regparser.CheckerProvider;
 import net.nawaman.regparser.ResultVerifier;
 import net.nawaman.regparser.result.ParseResult;
 
@@ -45,7 +45,7 @@ public class PTComposable extends PTSimple {
         this.Compiler = pCompiler;
     }
     
-    public PTComposable(String pTheName, RPGetChecker pTheGetChecker, ResultVerifier pVerifier, ResultCompiler pCompiler) {
+    public PTComposable(String pTheName, CheckerProvider pTheGetChecker, ResultVerifier pVerifier, ResultCompiler pCompiler) {
         super(pTheName, pTheGetChecker);
         this.Verifier = pVerifier;
         this.Compiler = pCompiler;

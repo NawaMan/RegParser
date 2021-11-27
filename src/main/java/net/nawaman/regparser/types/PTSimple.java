@@ -21,7 +21,7 @@ package net.nawaman.regparser.types;
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.ParserType;
 import net.nawaman.regparser.ParserTypeProvider;
-import net.nawaman.regparser.RPGetChecker;
+import net.nawaman.regparser.CheckerProvider;
 import net.nawaman.regparser.result.ParseResult;
 
 /**
@@ -40,7 +40,7 @@ public class PTSimple extends ParserType {
         this(pTheName);
         this.TheChecker = pTheChecker;
     }
-    public PTSimple(String pTheName, RPGetChecker pTheGetChecker) {
+    public PTSimple(String pTheName, CheckerProvider pTheGetChecker) {
         this(pTheName);
         this.TheChecker = pTheGetChecker;
     }
@@ -57,8 +57,8 @@ public class PTSimple extends ParserType {
     final public Checker checker(ParseResult pHostResult, String pParam,
             ParserTypeProvider pProvider) {
         
-        if(this.TheChecker instanceof RPGetChecker)
-            return ((RPGetChecker)TheChecker).getChecker(pHostResult, pParam, pProvider);
+        if(this.TheChecker instanceof CheckerProvider)
+            return ((CheckerProvider)TheChecker).getChecker(pHostResult, pParam, pProvider);
         
         return (Checker)TheChecker;
     }
