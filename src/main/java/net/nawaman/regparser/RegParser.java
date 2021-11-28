@@ -69,7 +69,7 @@ public class RegParser implements Checker, Serializable {
     static String                   RegParserCompiler = "RegParserCompiler." + RegParserTypeExt;
     
     // TODO - Should this be like this - Nawa 2021
-    public RegParser(RPEntry[] entries) {
+    public RegParser(RegParserEntry[] entries) {
         this.Entries = entries;
     }
     
@@ -241,25 +241,25 @@ public class RegParser implements Checker, Serializable {
         if (pEntries == null)
             throw new NullPointerException();
         
-        Vector<RPEntry> RPEs = new Vector<RPEntry>();
+        Vector<RegParserEntry> RPEs = new Vector<RegParserEntry>();
         for (int i = 0; i < pEntries.length; i++) {
             ConstructionEntry CE = pEntries[i];
             if (CE == null)
                 continue;
             
             if (CE.isChecker())
-                RPEs.add(RPEntry._new(CE.getName(), CE.getChecker(), CE.getQuantifier()));
+                RPEs.add(RegParserEntry.newParserEntry(CE.getName(), CE.getChecker(), CE.getQuantifier()));
             else
                 if (CE.isType())
-                    RPEs.add(RPEntry._new(CE.getName(), CE.getType(), CE.getQuantifier()));
+                    RPEs.add(RegParserEntry.newParserEntry(CE.getName(), CE.getType(), CE.getQuantifier()));
                 else
                     if (CE.isTypeRef())
-                        RPEs.add(RPEntry._new(CE.getName(), CE.getTypeRef(), CE.getQuantifier()));
+                        RPEs.add(RegParserEntry.newParserEntry(CE.getName(), CE.getTypeRef(), CE.getQuantifier()));
         }
         
         RegParser RP = (pTProvider == null)
-                ? new RegParser(RPEs.toArray(RPEntry.EmptyRPEntryArray))
-                : new RegParser.WithDefaultTypeProvider(RPEs.toArray(RPEntry.EmptyRPEntryArray), pTProvider);
+                ? new RegParser(RPEs.toArray(RegParserEntry.EmptyRPEntryArray))
+                : new RegParser.WithDefaultTypeProvider(RPEs.toArray(RegParserEntry.EmptyRPEntryArray), pTProvider);
         return RP;
     }
     
@@ -289,7 +289,7 @@ public class RegParser implements Checker, Serializable {
     static public RegParser newRegParser(ParserTypeProvider pTProvider, Object... pParams) {
         if (pParams == null)
             throw new NullPointerException();
-        Vector<RPEntry> RPEs = new Vector<RPEntry>();
+        Vector<RegParserEntry> RPEs = new Vector<RegParserEntry>();
         
         boolean    IsNew = false;
         String     N     = null;
@@ -301,16 +301,16 @@ public class RegParser implements Checker, Serializable {
         boolean IsSkipped = false;
         for (int i = 0; i < pParams.length; i++) {
             Object O = pParams[i];
-            if (O instanceof RPEntry) {
+            if (O instanceof RegParserEntry) {
                 if (IsNew) {
                     if (C != null)
-                        RPEs.add(RPEntry._new(N, C, Q));
+                        RPEs.add(RegParserEntry.newParserEntry(N, C, Q));
                     else
                         if (T != null)
-                            RPEs.add(RPEntry._new(N, T, Q));
+                            RPEs.add(RegParserEntry.newParserEntry(N, T, Q));
                         else
                             if (TR != null)
-                                RPEs.add(RPEntry._new(N, TR, Q));
+                                RPEs.add(RegParserEntry.newParserEntry(N, TR, Q));
                             else
                                 throw new IllegalArgumentException(
                                         "Invalid parameters (" + Arrays.toString(pParams) + ").");
@@ -322,7 +322,7 @@ public class RegParser implements Checker, Serializable {
                     Q     = null;
                 }
                 
-                RPEs.add((RPEntry) O);
+                RPEs.add((RegParserEntry) O);
                 IsSkipped = false;
                 
             } else
@@ -333,13 +333,13 @@ public class RegParser implements Checker, Serializable {
                     
                     if (IsNew) {
                         if (C != null)
-                            RPEs.add(RPEntry._new(N, C, Q));
+                            RPEs.add(RegParserEntry.newParserEntry(N, C, Q));
                         else
                             if (T != null)
-                                RPEs.add(RPEntry._new(N, T, Q));
+                                RPEs.add(RegParserEntry.newParserEntry(N, T, Q));
                             else
                                 if (TR != null)
-                                    RPEs.add(RPEntry._new(N, TR, Q));
+                                    RPEs.add(RegParserEntry.newParserEntry(N, TR, Q));
                                 else
                                     throw new IllegalArgumentException(
                                             "Invalid parameters (" + Arrays.toString(pParams) + ").");
@@ -358,13 +358,13 @@ public class RegParser implements Checker, Serializable {
                     if (O instanceof Checker) {
                         if (IsNew) {
                             if (C != null)
-                                RPEs.add(RPEntry._new(N, C, Q));
+                                RPEs.add(RegParserEntry.newParserEntry(N, C, Q));
                             else
                                 if (T != null)
-                                    RPEs.add(RPEntry._new(N, T, Q));
+                                    RPEs.add(RegParserEntry.newParserEntry(N, T, Q));
                                 else
                                     if (TR != null)
-                                        RPEs.add(RPEntry._new(N, TR, Q));
+                                        RPEs.add(RegParserEntry.newParserEntry(N, TR, Q));
                                     else
                                         throw new IllegalArgumentException(
                                                 "Invalid parameters (" + Arrays.toString(pParams) + ").");
@@ -384,13 +384,13 @@ public class RegParser implements Checker, Serializable {
                         if (O instanceof ParserTypeRef) {
                             if (IsNew) {
                                 if (C != null)
-                                    RPEs.add(RPEntry._new(N, C, Q));
+                                    RPEs.add(RegParserEntry.newParserEntry(N, C, Q));
                                 else
                                     if (T != null)
-                                        RPEs.add(RPEntry._new(N, T, Q));
+                                        RPEs.add(RegParserEntry.newParserEntry(N, T, Q));
                                     else
                                         if (TR != null)
-                                            RPEs.add(RPEntry._new(N, TR, Q));
+                                            RPEs.add(RegParserEntry.newParserEntry(N, TR, Q));
                                         else
                                             throw new IllegalArgumentException(
                                                     "Invalid parameters (" + Arrays.toString(pParams) + ").");
@@ -410,13 +410,13 @@ public class RegParser implements Checker, Serializable {
                             if (O instanceof ParserType) {
                                 if (IsNew) {
                                     if (C != null)
-                                        RPEs.add(RPEntry._new(N, C, Q));
+                                        RPEs.add(RegParserEntry.newParserEntry(N, C, Q));
                                     else
                                         if (T != null)
-                                            RPEs.add(RPEntry._new(N, T, Q));
+                                            RPEs.add(RegParserEntry.newParserEntry(N, T, Q));
                                         else
                                             if (TR != null)
-                                                RPEs.add(RPEntry._new(N, TR, Q));
+                                                RPEs.add(RegParserEntry.newParserEntry(N, TR, Q));
                                             else
                                                 throw new IllegalArgumentException(
                                                         "Invalid parameters (" + Arrays.toString(pParams) + ").");
@@ -452,20 +452,20 @@ public class RegParser implements Checker, Serializable {
         }
         if (IsNew || (N != null)) {
             if (C != null)
-                RPEs.add(RPEntry._new(N, C, Q));
+                RPEs.add(RegParserEntry.newParserEntry(N, C, Q));
             else
                 if (T != null)
-                    RPEs.add(RPEntry._new(N, T, Q));
+                    RPEs.add(RegParserEntry.newParserEntry(N, T, Q));
                 else
                     if (TR != null)
-                        RPEs.add(RPEntry._new(N, TR, Q));
+                        RPEs.add(RegParserEntry.newParserEntry(N, TR, Q));
                     else
                         throw new IllegalArgumentException("Invalid parameters (" + Arrays.toString(pParams) + ").");
         }
         
         RegParser RP = (pTProvider == null)
-                ? new RegParser(RPEs.toArray(RPEntry.EmptyRPEntryArray))
-                : new RegParser.WithDefaultTypeProvider(RPEs.toArray(RPEntry.EmptyRPEntryArray), pTProvider);
+                ? new RegParser(RPEs.toArray(RegParserEntry.EmptyRPEntryArray))
+                : new RegParser.WithDefaultTypeProvider(RPEs.toArray(RegParserEntry.EmptyRPEntryArray), pTProvider);
         return RP;
     }
     
@@ -525,7 +525,7 @@ public class RegParser implements Checker, Serializable {
         
         // If have type provider
         if ((RP != null) && (pTProvider != null)) {
-            RPEntry[] Es = RP.Entries;
+            RegParserEntry[] Es = RP.Entries;
             RP         = new RegParser.WithDefaultTypeProvider(Es, pTProvider);
         }
         
@@ -549,9 +549,9 @@ public class RegParser implements Checker, Serializable {
     
     // Data ------------------------------------------------------------------------------------------------------------
     
-    private final RPEntry[] Entries;
+    private final RegParserEntry[] Entries;
     
-    public Stream<RPEntry> entries() {
+    public Stream<RegParserEntry> entries() {
         // TODO - Rethink this.
         return (Entries == null) ? null : Stream.of(Entries);
     }
@@ -561,7 +561,7 @@ public class RegParser implements Checker, Serializable {
         return (this.Entries == null) ? 0 : this.Entries.length;
     }
     
-    public RPEntry getEntryAt(int pIndex) {
+    public RegParserEntry getEntryAt(int pIndex) {
         if ((pIndex < 0) || (pIndex >= this.getEntryCount()))
             return null;
         return this.Entries[pIndex];
@@ -587,7 +587,7 @@ public class RegParser implements Checker, Serializable {
                 ((ParserTypeProvider.Library) PTProvider).addProvider(pTProvider);
             else {
                 var parserEntries = ((RegParser)(pRegParser)).entries();
-                var entries = (parserEntries == null) ? null : parserEntries.toArray(RPEntry[]::new);
+                var entries = (parserEntries == null) ? null : parserEntries.toArray(RegParserEntry[]::new);
                     var TProvider = ((PTProvider != null) && (PTProvider != pTProvider))
                             ? null
                             : new ParserTypeProvider.Library(pTProvider, PTProvider);
@@ -596,7 +596,7 @@ public class RegParser implements Checker, Serializable {
             return pRegParser;
         }
         
-        WithDefaultTypeProvider(RPEntry[] Entries, ParserTypeProvider pTProvider) {
+        WithDefaultTypeProvider(RegParserEntry[] Entries, ParserTypeProvider pTProvider) {
             super(Entries);
             this.TProvider = pTProvider;
         }
@@ -1053,7 +1053,7 @@ public class RegParser implements Checker, Serializable {
                 boolean ToTry = false;
                 // If the current multiple matchings end prematurely
                 if (pTimes < FPQ.lowerBound()) {
-                    RPEntry RPE = this.Entries[pIndex];
+                    RegParserEntry RPE = this.Entries[pIndex];
                     Checker C   = RPE.getChecker();
                     // If this is a normal checker, return null
                     if (!((C instanceof RegParser) || (C instanceof CheckerAlternative)
@@ -1066,7 +1066,7 @@ public class RegParser implements Checker, Serializable {
                 if (!ToTry) {
                     // Check the rest of the Entry
                     TryLoop: for (int i = (pIndex + 1); i < EntryLength; i++) {
-                        RPEntry RPE = this.Entries[i];
+                        RegParserEntry RPE = this.Entries[i];
                         
                         Checker    C = RPE.getChecker();
                         Quantifier Q = RPE.getQuantifier();
@@ -1156,7 +1156,7 @@ public class RegParser implements Checker, Serializable {
                     } else {
                         
                         // Is it any
-                        RPEntry RPE = this.Entries[pIndex];
+                        RegParserEntry RPE = this.Entries[pIndex];
                         if (RPE.getChecker() == PredefinedCharClasses.Any) {
                             if ((RPE.name() == null) && (RPE.typeRef() == null) && (RPE.type() == null)) {
                                 // Is this limited - Match till the limit
@@ -1434,21 +1434,21 @@ public class RegParser implements Checker, Serializable {
             return this.Entries[0].getChecker();
         }
         
-        RPEntry[] RPEs      = new RPEntry[this.Entries.length];
+        RegParserEntry[] RPEs      = new RegParserEntry[this.Entries.length];
         boolean   IsChanged = false;
         
         for (int i = 0; i < this.Entries.length; i++) {
-            RPEntry RPE = this.Entries[i];
+            RegParserEntry RPE = this.Entries[i];
             if ((RPE.typeRef() == null) && (RPE.getChecker() instanceof RegParser)) {
                 Checker New = ((RegParser) RPE.getChecker()).optimize();
                 if (New != RPE.getChecker()) {
-                    RPEs[i]   = RPEntry._new(RPE.name(), New, RPE.getQuantifier());
+                    RPEs[i]   = RegParserEntry.newParserEntry(RPE.name(), New, RPE.getQuantifier());
                     IsChanged = true;
                 } else {
-                    RPEs[i] = RPEntry._new(RPE.name(), RPE.getChecker(), RPE.getQuantifier());
+                    RPEs[i] = RegParserEntry.newParserEntry(RPE.name(), RPE.getChecker(), RPE.getQuantifier());
                 }
             } else
-                RPEs[i] = RPEntry._new(RPE.name(), RPE.getChecker(), RPE.getQuantifier());
+                RPEs[i] = RegParserEntry.newParserEntry(RPE.name(), RPE.getChecker(), RPE.getQuantifier());
         }
         
         if (IsChanged)

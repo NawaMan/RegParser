@@ -1,6 +1,6 @@
 package net.nawaman.regparser.result.entry;
 
-import net.nawaman.regparser.RPEntry;
+import net.nawaman.regparser.RegParserEntry;
 import net.nawaman.regparser.result.ParseResult;
 
 
@@ -13,7 +13,7 @@ public class ParseResultEntryWithParserEntryAndSubResult extends ParseResultEntr
 	
 	private final ParseResult subResult;
 	
-	ParseResultEntryWithParserEntryAndSubResult(int endPosition, RPEntry entry, ParseResult subResult) {
+	ParseResultEntryWithParserEntryAndSubResult(int endPosition, RegParserEntry entry, ParseResult subResult) {
 		super(endPosition, entry);
 		this.subResult = subResult;
 	}

@@ -106,9 +106,9 @@ public class TestRegParser {
 	@Test
 	public void testQuantifierMixed_One_andZeroOrMore() {
 		var parser = newRegParser(
-		                RPEntry.newParserEntry(new WordChecker("One"), One),
-		                RPEntry.newParserEntry(new CharRange('0', '9'), ZeroOrMore),
-		                RPEntry.newParserEntry(new WordChecker("One")));
+		                RegParserEntry.newParserEntry(new WordChecker("One"), One),
+		                RegParserEntry.newParserEntry(new CharRange('0', '9'), ZeroOrMore),
+		                RegParserEntry.newParserEntry(new WordChecker("One")));
 		validate(null, parser.parse("One123"));
 		validate(null, parser.parse("123One"));
 		validate(   6, parser.parse("OneOne").endPosition());
@@ -120,9 +120,9 @@ public class TestRegParser {
 	@Test
 	public void testQuantifierRange() {
 		var parser = newRegParser(
-		                RPEntry.newParserEntry(new WordChecker("One"), One),
-		                RPEntry.newParserEntry(new CharRange('0', '9'), new Quantifier(0, 5)),
-		                RPEntry.newParserEntry(new WordChecker("One")));
+		                RegParserEntry.newParserEntry(new WordChecker("One"), One),
+		                RegParserEntry.newParserEntry(new CharRange('0', '9'), new Quantifier(0, 5)),
+		                RegParserEntry.newParserEntry(new WordChecker("One")));
 		validate(null, parser.parse("One123"));
 		validate(null, parser.parse("123One"));
 		validate(   6, parser.parse("OneOne").endPosition());
@@ -134,9 +134,9 @@ public class TestRegParser {
 	@Test
 	public void testQuantifierRange_open() {
 		var parser = newRegParser(
-		                RPEntry.newParserEntry(new WordChecker("One"), One),
-		                RPEntry.newParserEntry(new CharRange('0', '9'), new Quantifier(5, -1)), 
-		                RPEntry.newParserEntry(new WordChecker("One")));
+		                RegParserEntry.newParserEntry(new WordChecker("One"), One),
+		                RegParserEntry.newParserEntry(new CharRange('0', '9'), new Quantifier(5, -1)), 
+		                RegParserEntry.newParserEntry(new WordChecker("One")));
 		validate(null, parser.parse("One123"));
 		validate(null, parser.parse("123One"));
 		validate(null, parser.parse("OneOne"));
@@ -149,15 +149,15 @@ public class TestRegParser {
 	@Test
 	public void testQuantifierPossessive() {
 		var parser = newRegParser(
-		                RPEntry.newParserEntry(new WordChecker("Col")),
-		                RPEntry.newParserEntry(
+		                RegParserEntry.newParserEntry(new WordChecker("Col")),
+		                RegParserEntry.newParserEntry(
 		                        new CheckerAlternative(
 		                                new WordChecker("o"),
 		                                new WordChecker("ou")
 		                        ),
 		                        new Quantifier(2, Possessive)
 		                ), 
-		                RPEntry.newParserEntry(new WordChecker("r")));
+		                RegParserEntry.newParserEntry(new WordChecker("r")));
 		
 		validate(5, parser.parse("Color").endPosition());
 		validate(6, parser.parse("Colour").endPosition());
@@ -166,9 +166,9 @@ public class TestRegParser {
 	@Test
 	public void testAlternative() {
 		var parser = newRegParser(
-		                RPEntry.newParserEntry(new WordChecker("Col")),
-		                RPEntry.newParserEntry(new CheckerAlternative(new WordChecker("o"), new WordChecker("ou"))),
-		                RPEntry.newParserEntry(new WordChecker("ur")));
+		                RegParserEntry.newParserEntry(new WordChecker("Col")),
+		                RegParserEntry.newParserEntry(new CheckerAlternative(new WordChecker("o"), new WordChecker("ou"))),
+		                RegParserEntry.newParserEntry(new WordChecker("ur")));
 		
 		validate(null, parser.parse("Colour"));
 		validate(   7, parser.parse("Colouur").endPosition());
@@ -177,9 +177,9 @@ public class TestRegParser {
 	@Test
 	public void testAlternative_withQualifer() {
 		var parser = newRegParser(
-		                RPEntry.newParserEntry(new WordChecker("Col")),
-		                RPEntry.newParserEntry(new CheckerAlternative(new WordChecker("o"), new WordChecker("ou")), OneOrMore),
-		                RPEntry.newParserEntry(new WordChecker("r")));
+		                RegParserEntry.newParserEntry(new WordChecker("Col")),
+		                RegParserEntry.newParserEntry(new CheckerAlternative(new WordChecker("o"), new WordChecker("ou")), OneOrMore),
+		                RegParserEntry.newParserEntry(new WordChecker("r")));
 		
 		validate(null, parser.parse("Colur"));
 		validate(   6, parser.parse("Colour").endPosition());

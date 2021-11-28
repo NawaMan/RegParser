@@ -1,6 +1,6 @@
 package net.nawaman.regparser.result.entry;
 
-import net.nawaman.regparser.RPEntry;
+import net.nawaman.regparser.RegParserEntry;
 
 /**
  * Parse result entry with parser entry.
@@ -9,9 +9,9 @@ public class ParseResultEntryWithParserEntry extends ParseResultEntry {
 	
 	static private final long serialVersionUID = 2254558458854566555L;
 	
-	private final RPEntry entry;
+	private final RegParserEntry entry;
 	
-	ParseResultEntryWithParserEntry(int endPosition, RPEntry entry) {
+	ParseResultEntryWithParserEntry(int endPosition, RegParserEntry entry) {
 		super(endPosition);
 		this.entry = entry;
 	}
@@ -22,7 +22,7 @@ public class ParseResultEntryWithParserEntry extends ParseResultEntry {
 	}
 	
 	@Override
-	public RPEntry parserEntry() {
+	public RegParserEntry parserEntry() {
 		return entry;
 	}
 	

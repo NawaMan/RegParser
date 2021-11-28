@@ -67,7 +67,7 @@ public class TestType {
 	
 	@Test
 	public void testBasicType() {
-		var regParser = newRegParser(defaultTypeProvider, RPEntry._new("#Value", defaultTypeProvider.type("$byte?")));
+		var regParser = newRegParser(defaultTypeProvider, RegParserEntry.newParserEntry("#Value", defaultTypeProvider.type("$byte?")));
 		var result    = regParser.parse("192");
 		validate("192", result.textOf("#Value"));
 	}
@@ -81,7 +81,7 @@ public class TestType {
 			return "$byte?";
 		}
 		};
-		var regParser = newRegParser(defaultTypeProvider, RPEntry._new("#Value", refToByte));
+		var regParser = newRegParser(defaultTypeProvider, RegParserEntry.newParserEntry("#Value", refToByte));
 		var result    = regParser.parse("192");
 		validate("192", result.textOf("#Value"));
 	}
@@ -111,7 +111,7 @@ public class TestType {
 			}
 		};
 		
-		var regParser = newRegParser(RPEntry._new("#Value", byteType));
+		var regParser = newRegParser(RegParserEntry.newParserEntry("#Value", byteType));
 		var result    = regParser.parse("192");
 		validate("192", result.textOf("#Value"));
 	}
@@ -201,7 +201,7 @@ public class TestType {
 		var typeProvider = new ParserTypeProvider.Simple(blockType);
 		validate("!block!", typeProvider.type("block"));
 		
-		var regParser = newRegParser(typeProvider, RPEntry._new("#Block", blockType));
+		var regParser = newRegParser(typeProvider, RegParserEntry.newParserEntry("#Block", blockType));
 		validate("(#Block:!block!)", regParser);
 		
 		var parseResult = regParser.parse("<123456>");
@@ -245,7 +245,7 @@ public class TestType {
 		defaultTypeProvider.addType(ParserTypeBackRefCaseInsensitive.BackRefCI_Instance);
 		
 		var regParser = newRegParser(defaultTypeProvider,
-		                    RPEntry._new("#X", new ParserTypeRef.Simple("$byte?")), 
+		                    RegParserEntry.newParserEntry("#X", new ParserTypeRef.Simple("$byte?")), 
 		                    new CharSingle('x'),
 		                    newRegParser(defaultTypeProvider, new ParserTypeRef.Simple(ParserTypeBackRef.BackRef_Instance.name(), "#X"))
 		        );
@@ -269,13 +269,13 @@ public class TestType {
 		
 		var parser = newRegParser(typeProvider, 
 		                new CharSingle('<'),
-		                RPEntry._new("Begin", newRegParser(typeProvider, new CharUnion(new CharRange('a', 'z'), new CharRange('A', 'Z')), OneOrMore)),
+		                RegParserEntry.newParserEntry("Begin", newRegParser(typeProvider, new CharUnion(new CharRange('a', 'z'), new CharRange('A', 'Z')), OneOrMore)),
 		                Blank, ZeroOrMore,
 		                new CharSingle('>'),
 		                Any, ZeroOrMore_Minimum,
 		                newRegParser(typeProvider, "#End",
 		                        newRegParser(typeProvider, new WordChecker("</"),
-		                                RPEntry._new("#EndTag", new ParserTypeRef.Simple(ParserTypeBackRef.BackRef_Instance.name(), "Begin")),
+		                                RegParserEntry.newParserEntry("#EndTag", new ParserTypeRef.Simple(ParserTypeBackRef.BackRef_Instance.name(), "Begin")),
 		                                new CharSingle('>'))));
 		
 		validate(
@@ -376,7 +376,7 @@ public class TestType {
 			
 			Checker checker = newRegParser(
 			                    new CharSingle('<'),
-			                    RPEntry._new("$Begin", newRegParser(new CharUnion(new CharRange('a', 'z'), new CharRange('A', 'Z')), OneOrMore)),
+			                    RegParserEntry.newParserEntry("$Begin", newRegParser(new CharUnion(new CharRange('a', 'z'), new CharRange('A', 'Z')), OneOrMore)),
 			                    Blank, ZeroOrMore,
 			                    newRegParser(newRegParser(Blank, ZeroOrMore,
 			                            "$Attr", new ParserTypeRef.Simple("Attribute"), Blank,
@@ -387,7 +387,7 @@ public class TestType {
 			                                            newRegParser("#Other", newRegParser(new CharNot(new CharSet("<>")), OneOrMore)),
 			                                            newRegParser("#SubBlock", new ParserTypeRef.Simple("Tag"))), ZeroOrMore_Minimum,
 			                                    newRegParser("#End", newRegParser(new WordChecker("</"),
-			                                            RPEntry._new("#EndTag",
+			                                            RegParserEntry.newParserEntry("#EndTag",
 			                                                    new ParserTypeRef.Simple(ParserTypeBackRefCaseInsensitive.BackRefCI_Instance.name(),
 			                                                            "$Begin")),
 			                                            new CharSingle('>')))),
@@ -406,7 +406,7 @@ public class TestType {
 		typeProvider.addType(stringLiteralType);
 		typeProvider.addType(attributeType);
 		
-		var parser = RegParser.newRegParser(RPEntry._new("#Block", tagType));
+		var parser = RegParser.newRegParser(RegParserEntry.newParserEntry("#Block", tagType));
 		validate("(#Block:!Tag!)", parser);
 		
 		var result = parser.parse(

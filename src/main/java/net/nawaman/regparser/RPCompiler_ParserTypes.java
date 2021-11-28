@@ -985,7 +985,7 @@ public class RPCompiler_ParserTypes {
             
             if(!HasSub) {    // A word
                 String Text = pThisResult.textOf(pEntryIndex);
-                return RPEntry.newParserEntry((Text.length() == 0)?new CharSingle(Text.charAt(0)):new WordChecker(Text));
+                return RegParserEntry.newParserEntry((Text.length() == 0)?new CharSingle(Text.charAt(0)):new WordChecker(Text));
             }
             
             // Go into the sub
@@ -994,36 +994,36 @@ public class RPCompiler_ParserTypes {
             
             String PName = PSE.name();
             
-            if("#Any".equals(PName))        return RPEntry.newParserEntry(PredefinedCharClasses.Any);
-            if(CharClassName.equals(PName)) return RPEntry.newParserEntry(getCharClass(pThisResult, 0));
+            if("#Any".equals(PName))        return RegParserEntry.newParserEntry(PredefinedCharClasses.Any);
+            if(CharClassName.equals(PName)) return RegParserEntry.newParserEntry(getCharClass(pThisResult, 0));
             
             String PType = PSE.typeName();
             if(RPTEscape.Name.equals(PType))
-                return RPEntry.newParserEntry(new CharSingle((Character)pProvider.type(RPTEscape.Name       ).compile(pThisResult, 0, null, pContext, pProvider)));
+                return RegParserEntry.newParserEntry(new CharSingle((Character)pProvider.type(RPTEscape.Name       ).compile(pThisResult, 0, null, pContext, pProvider)));
             if(RPTEscapeOct.Name.equals(PType))
-                return RPEntry.newParserEntry(new CharSingle((Character)pProvider.type(RPTEscapeOct.Name    ).compile(pThisResult, 0, null, pContext, pProvider)));
+                return RegParserEntry.newParserEntry(new CharSingle((Character)pProvider.type(RPTEscapeOct.Name    ).compile(pThisResult, 0, null, pContext, pProvider)));
             if(RPTEscapeHex.Name.equals(PType))
-                return RPEntry.newParserEntry(new CharSingle((Character)pProvider.type(RPTEscapeHex.Name    ).compile(pThisResult, 0, null, pContext, pProvider)));
+                return RegParserEntry.newParserEntry(new CharSingle((Character)pProvider.type(RPTEscapeHex.Name    ).compile(pThisResult, 0, null, pContext, pProvider)));
             if(RPTEscapeUnicode.Name.equals(PType))
-                return RPEntry.newParserEntry(new CharSingle((Character)pProvider.type(RPTEscapeUnicode.Name).compile(pThisResult, 0, null, pContext, pProvider)));
+                return RegParserEntry.newParserEntry(new CharSingle((Character)pProvider.type(RPTEscapeUnicode.Name).compile(pThisResult, 0, null, pContext, pProvider)));
             
             if(RPTCharSetItem.Name.equals(PType))
-                return RPEntry.newParserEntry((Checker)pProvider.type(RPTCharSetItem.Name  ).compile(pThisResult, 0, null, pContext, pProvider));
+                return RegParserEntry.newParserEntry((Checker)pProvider.type(RPTCharSetItem.Name  ).compile(pThisResult, 0, null, pContext, pProvider));
             
             if("$TextCI".equals(PName)) {
                 String Text = pThisResult.textOf(0);
                 // Return as Word if its lower case and upper case is the same
-                if(Text.toUpperCase().equals(Text.toLowerCase())) return RPEntry.newParserEntry(new WordChecker(Text));
-                return RPEntry._new(new ParserTypeRef.Simple(PTTextCI.Name, Text.substring(1, Text.length() - 1)));
+                if(Text.toUpperCase().equals(Text.toLowerCase())) return RegParserEntry.newParserEntry(new WordChecker(Text));
+                return RegParserEntry.newParserEntry(new ParserTypeRef.Simple(PTTextCI.Name, Text.substring(1, Text.length() - 1)));
             }
             
             if(RPTType.Name.equals(PType))
-                return RPEntry._new((ParserTypeRef)pProvider.type(RPTType.Name   ).compile(pThisResult, 0, null, pContext, pProvider));
+                return RegParserEntry.newParserEntry((ParserTypeRef)pProvider.type(RPTType.Name   ).compile(pThisResult, 0, null, pContext, pProvider));
             
             if("#Group".equals(PName)) {
                 
                 String N = PSE.subResult().lastStringOf("#Name");
-                if(N == null) return RPEntry.newParserEntry((Checker)pProvider.type(RPTRegParser.Name).compile(pThisResult, 0, null, pContext, pProvider));
+                if(N == null) return RegParserEntry.newParserEntry((Checker)pProvider.type(RPTRegParser.Name).compile(pThisResult, 0, null, pContext, pProvider));
                 
                 pThisResult = PSE.subResult();
                 
@@ -1034,9 +1034,9 @@ public class RPCompiler_ParserTypes {
                 String B = pThisResult.lastStringOf("#BackRef");
                 if(B != null) {
                     if(pThisResult.lastStringOf("#BackRefCI") != null)
-                        return RPEntry._new(new ParserTypeRef.Simple(ParserTypeBackRefCaseInsensitive.BackRefCI_Instance.name(), N+GN+M));
+                        return RegParserEntry.newParserEntry(new ParserTypeRef.Simple(ParserTypeBackRefCaseInsensitive.BackRefCI_Instance.name(), N+GN+M));
                     else
-                        return RPEntry._new(new ParserTypeRef.Simple(ParserTypeBackRef.BackRef_Instance.name(), N+GN+M));
+                        return RegParserEntry.newParserEntry(new ParserTypeRef.Simple(ParserTypeBackRef.BackRef_Instance.name(), N+GN+M));
                 }
                 
                 RegParser Second = null;
@@ -1056,7 +1056,7 @@ public class RPCompiler_ParserTypes {
                 
                 int IT = pThisResult.indexOf("#Type");
                 if(IT != -1) {    // TypeRef with Name
-                    return RPEntry._new(
+                    return RegParserEntry.newParserEntry(
                             N+GN+O+M,
                             (ParserTypeRef)pProvider.type(RPTType .Name).compile(pThisResult, IT, null, pContext, pProvider),
                             null,
@@ -1065,7 +1065,7 @@ public class RPCompiler_ParserTypes {
                 
                 int IE = pThisResult.indexOf("#GroupRegParser");
                 // Named Group
-                return RPEntry._new(
+                return RegParserEntry.newParserEntry(
                         N+GN+O+M,
                         (Checker)pProvider.type(RPTRegParser.Name).compile(pThisResult, IE, null, pContext, pProvider),
                         null,
@@ -1108,7 +1108,7 @@ public class RPCompiler_ParserTypes {
             pThisResult = pThisResult.entryAt(pEntryIndex).subResult();
             
             Vector<RegParser> RPPs = new Vector<RegParser>();
-            Vector<RPEntry>   RPs  = new Vector<RPEntry>();
+            Vector<RegParserEntry>   RPs  = new Vector<RegParserEntry>();
             boolean IsNot     = false;
             boolean IsOR      = false;
             boolean IsDefault = false;
@@ -1141,7 +1141,7 @@ public class RPCompiler_ParserTypes {
                             IsDefault = true;
                         } else {
                             if(RPs.size() > 0) {
-                                Checker NewRP = RegParser.newRegParser((Object[])RPs.toArray(RPEntry.EmptyRPEntryArray));
+                                Checker NewRP = RegParser.newRegParser((Object[])RPs.toArray(RegParserEntry.EmptyRPEntryArray));
                                 RPPs.add((NewRP instanceof RegParser)?(RegParser)NewRP:RegParser.newRegParser(NewRP));
                                 
                                 RPs.clear();
@@ -1160,18 +1160,18 @@ public class RPCompiler_ParserTypes {
                     } else if(PText.equals(")")) {
                     
                     } else {    // A Word
-                        RPs.add(RPEntry.newParserEntry(new WordChecker(pThisResult.textOf(i))));
+                        RPs.add(RegParserEntry.newParserEntry(new WordChecker(pThisResult.textOf(i))));
                         
                     }
                 } else {
 
-                    RPEntry RPI = null;
+                    RegParserEntry RPI = null;
                     if(RPTRegParser.Name.equals(PSE.typeName())) {
-                        RPI = RPEntry.newParserEntry((Checker)this.compile(pThisResult, i, null, pContext, pProvider));
+                        RPI = RegParserEntry.newParserEntry((Checker)this.compile(pThisResult, i, null, pContext, pProvider));
                         
                         if(RPI.getChecker() instanceof RegParser) {
                             var parserEntries = ((RegParser)(RPI.getChecker())).entries();
-                            RPEntry[] Entries = (parserEntries == null) ? null : parserEntries.toArray(RPEntry[]::new);
+                            RegParserEntry[] Entries = (parserEntries == null) ? null : parserEntries.toArray(RegParserEntry[]::new);
                             if(Entries == null) 
                                 RPI = null;
                             else if(Entries.length == 1)
@@ -1179,21 +1179,21 @@ public class RPCompiler_ParserTypes {
                         }
                         
                     } else if("#Item[]".equals(PName)) {    // Process not
-                        RPI = (RPEntry)pProvider.type(RPTRegParserItem.Name).compile(pThisResult, i, null, pContext, pProvider);
+                        RPI = (RegParserEntry)pProvider.type(RPTRegParserItem.Name).compile(pThisResult, i, null, pContext, pProvider);
                         
                     } else {
                         ParseResult Sub = PSE.subResult();
         
-                        RPI = (RPEntry)pProvider.type(RPTRegParserItem.Name).compile(Sub, 0, null, pContext, pProvider);
+                        RPI = (RegParserEntry)pProvider.type(RPTRegParserItem.Name).compile(Sub, 0, null, pContext, pProvider);
     
                         Quantifier Q = Quantifier.One;
                         if(Sub.rawEntryCount() == 2) {
                             Q = (Quantifier)pProvider.type(RPTQuantifier.Name).compile(Sub, 1, null, pContext, pProvider); 
                         }
                         if(Q != Quantifier.One) {
-                            if(RPI.getChecker() != null) RPI = RPEntry._new(RPI.name(), RPI.getChecker(), Q, RPI.secondStage());
-                            if(RPI.typeRef() != null) RPI = RPEntry._new(RPI.name(), RPI.typeRef(), Q, RPI.secondStage());
-                            if(RPI.type()    != null) RPI = RPEntry._new(RPI.name(), RPI.type(),    Q, RPI.secondStage());
+                            if(RPI.getChecker() != null) RPI = RegParserEntry.newParserEntry(RPI.name(), RPI.getChecker(), Q, RPI.secondStage());
+                            if(RPI.typeRef() != null) RPI = RegParserEntry.newParserEntry(RPI.name(), RPI.typeRef(), Q, RPI.secondStage());
+                            if(RPI.type()    != null) RPI = RegParserEntry.newParserEntry(RPI.name(), RPI.type(),    Q, RPI.secondStage());
                         }
                         
                     }
@@ -1203,16 +1203,16 @@ public class RPCompiler_ParserTypes {
                 
                 // Ending
                 if(IsOR) {
-                    Checker NewRP = RegParser.newRegParser((Object[])RPs.toArray(RPEntry.EmptyRPEntryArray));
+                    Checker NewRP = RegParser.newRegParser((Object[])RPs.toArray(RegParserEntry.EmptyRPEntryArray));
                     RPPs.add((NewRP instanceof RegParser)?(RegParser)NewRP:RegParser.newRegParser(NewRP));
-                    RPs = new Vector<RPEntry>();
+                    RPs = new Vector<RegParserEntry>();
                     IsOR  = false;
                 }
             }
             
             // Ending
             if(RPs.size() > 0) {
-                Checker NewRP = RegParser.newRegParser((Object[])RPs.toArray(RPEntry.EmptyRPEntryArray));
+                Checker NewRP = RegParser.newRegParser((Object[])RPs.toArray(RegParserEntry.EmptyRPEntryArray));
                 RPPs.add((NewRP instanceof RegParser)?(RegParser)NewRP:RegParser.newRegParser(NewRP));
             }
 

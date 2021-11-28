@@ -26,19 +26,19 @@ public class TestName {
 	public void test1() {
 		var parser 
 		        = newRegParser(
-		            RPEntry._new("#Name", newRegParser(Alphabet, AlphabetAndDigit, ZeroOrMore)),
+		            RegParserEntry.newParserEntry("#Name", newRegParser(Alphabet, AlphabetAndDigit, ZeroOrMore)),
 		            Blank, ZeroOrMore, 
 		            new CharSingle('['), 
 		            Blank, ZeroOrMore, 
-		            RPEntry._new("#Index", Digit, OneOrMore), 
+		            RegParserEntry.newParserEntry("#Index", Digit, OneOrMore), 
 		            Blank, ZeroOrMore, 
 		            new CharSingle(']'),
 		            Blank, ZeroOrMore,
-		            RPEntry.newParserEntry(
+		            RegParserEntry.newParserEntry(
 		                newRegParser(
 		                    new CharSingle('='),
 		                    Blank, ZeroOrMore,
-		                    RPEntry._new("#Value", newRegParser(Digit, OneOrMore))
+		                    RegParserEntry.newParserEntry("#Value", newRegParser(Digit, OneOrMore))
 		                ),
 		                ZeroOrOne
 		            ),
@@ -68,13 +68,13 @@ public class TestName {
 		        = newRegParser(
 		            new CharSingle('{'), 
 		            Blank, ZeroOrMore,
-		            RPEntry._new("#Value", newRegParser(Digit, OneOrMore)),
+		            RegParserEntry.newParserEntry("#Value", newRegParser(Digit, OneOrMore)),
 		            Blank, ZeroOrMore,
-		            RPEntry.newParserEntry(
+		            RegParserEntry.newParserEntry(
 		                newRegParser(
 		                    new CharSingle(','), 
 		                    Blank, ZeroOrMore,
-		                    RPEntry._new("#Value", newRegParser(Digit, OneOrMore))
+		                    RegParserEntry.newParserEntry("#Value", newRegParser(Digit, OneOrMore))
 		                ), ZeroOrMore
 		            ),
 		            Blank,               ZeroOrMore,
@@ -109,13 +109,13 @@ public class TestName {
 		        = newRegParser(
 		            new CharSingle('{'), 
 		            Blank, ZeroOrMore,
-		            RPEntry._new("#Value", newRegParser(Digit, oneOrTwo)),
+		            RegParserEntry.newParserEntry("#Value", newRegParser(Digit, oneOrTwo)),
 		            Blank, ZeroOrMore,
-		            RPEntry.newParserEntry(
+		            RegParserEntry.newParserEntry(
 		                newRegParser(
 		                    new CharSingle(','), 
 		                    Blank, ZeroOrMore,
-		                    RPEntry._new("#Value", newRegParser(Digit, oneOrTwo), OneOrMore)
+		                    RegParserEntry.newParserEntry("#Value", newRegParser(Digit, oneOrTwo), OneOrMore)
 		                ), ZeroOrMore
 		            ),
 		            Blank,               ZeroOrMore,

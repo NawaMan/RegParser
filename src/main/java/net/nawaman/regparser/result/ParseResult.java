@@ -38,7 +38,7 @@ import net.nawaman.regparser.CompilationContext;
 import net.nawaman.regparser.ParserType;
 import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.ParserTypeRef;
-import net.nawaman.regparser.RPEntry;
+import net.nawaman.regparser.RegParserEntry;
 import net.nawaman.regparser.RegParser;
 import net.nawaman.regparser.result.entry.ParseResultEntry;
 import net.nawaman.regparser.result.entry.ParseResultEntryWithParserEntryAndSubResult;
@@ -71,11 +71,11 @@ abstract public class ParseResult implements Serializable {
 	
 	// == Static utility ==
 	
-	public static String nameOf(RPEntry entry) {
+	public static String nameOf(RegParserEntry entry) {
 		return nameOf(entry, null);
 	}
 	
-	public static String nameOf(RPEntry entry, String defaultValue) {
+	public static String nameOf(RegParserEntry entry, String defaultValue) {
 		return ((entry != null) && (entry.name() != null))
 		        ? entry.name()
 		        : defaultValue;

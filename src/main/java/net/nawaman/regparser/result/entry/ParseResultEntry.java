@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import net.nawaman.regparser.ParserType;
 import net.nawaman.regparser.ParserTypeRef;
-import net.nawaman.regparser.RPEntry;
+import net.nawaman.regparser.RegParserEntry;
 import net.nawaman.regparser.result.ParseResult;
 
 
@@ -21,7 +21,7 @@ public class ParseResultEntry implements Serializable {
 		return new ParseResultEntry(endPosition);
 	}
 	
-	static public ParseResultEntry newEntry(int endPosition, RPEntry entry) {
+	static public ParseResultEntry newEntry(int endPosition, RegParserEntry entry) {
 		return (entry == null)
 		        ? new ParseResultEntry               (endPosition)
 		        : new ParseResultEntryWithParserEntry(endPosition, entry);
@@ -33,7 +33,7 @@ public class ParseResultEntry implements Serializable {
 		        : new ParseResultEntryWithSubResult(endPosition, subResult);
 	}
 	
-	static public ParseResultEntry newEntry(int endPosition, RPEntry entry, ParseResult subResult) {
+	static public ParseResultEntry newEntry(int endPosition, RegParserEntry entry, ParseResult subResult) {
 		if (entry == null) {
 			return (subResult == null)
 			        ? new ParseResultEntry       (endPosition)
@@ -98,7 +98,7 @@ public class ParseResultEntry implements Serializable {
 		return false;
 	}
 	
-	public RPEntry parserEntry() {
+	public RegParserEntry parserEntry() {
 		return null;
 	}
 	

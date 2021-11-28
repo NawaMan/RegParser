@@ -26,7 +26,7 @@ import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.ParserType;
 import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.ParserTypeRef;
-import net.nawaman.regparser.RPEntry;
+import net.nawaman.regparser.RegParserEntry;
 import net.nawaman.regparser.RegParser;
 import net.nawaman.regparser.result.ParseResult;
 
@@ -175,23 +175,23 @@ public class CheckerFixeds implements Checker {
 			
 			Checker checker = null;
 			if (secondStage != null) {
-				RPEntry[] entries;
+				RegParserEntry[] entries;
 				if (secondStage instanceof Checker) {
-					entries = new RPEntry[] { RPEntry._new(name, (Checker)secondStage) };
+					entries = new RegParserEntry[] { RegParserEntry.newParserEntry(name, (Checker)secondStage) };
 				} else if (secondStage instanceof ParserType) {
-					entries = new RPEntry[] { RPEntry._new(name, (ParserType)secondStage) };
+					entries = new RegParserEntry[] { RegParserEntry.newParserEntry(name, (ParserType)secondStage) };
 				} else if (secondStage instanceof ParserTypeRef) {
-					entries = new RPEntry[] { RPEntry._new(name, (ParserTypeRef)secondStage) };
+					entries = new RegParserEntry[] { RegParserEntry.newParserEntry(name, (ParserTypeRef)secondStage) };
 				} else {
 					var errMsg = format("Second stage must be null, Checker, PTypeRef or PType (%s).", secondStage);
 					throw new IllegalArgumentException(errMsg);
 				}
 				checker = new RegParser(entries);
 			}
-			this.entry = RPEntry._new(name, CheckerAny.getCheckerAny(length), null, checker);
+			this.entry = RegParserEntry.newParserEntry(name, CheckerAny.getCheckerAny(length), null, checker);
 		}
 		
-		private final RPEntry entry;
+		private final RegParserEntry entry;
 		
 		public String name() {
 			return entry.name();
@@ -205,7 +205,7 @@ public class CheckerFixeds implements Checker {
 			return entry.secondStage();
 		}
 		
-		public RPEntry entry() {
+		public RegParserEntry entry() {
 			return entry;
 		}
 	}

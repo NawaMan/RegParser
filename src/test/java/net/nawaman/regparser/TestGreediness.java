@@ -7,7 +7,7 @@ import static net.nawaman.regparser.PredefinedCharClasses.Java_Any;
 import static net.nawaman.regparser.Quantifier.ZeroOrMore_Maximum;
 import static net.nawaman.regparser.Quantifier.ZeroOrMore_Minimum;
 import static net.nawaman.regparser.Quantifier.ZeroOrMore_Possessive;
-import static net.nawaman.regparser.RPEntry.newParserEntry;
+import static net.nawaman.regparser.RegParserEntry.newParserEntry;
 import static net.nawaman.regparser.RegParser.newRegParser;
 import static net.nawaman.regparser.TestUtils.validate;
 
