@@ -18,48 +18,26 @@
 
 package net.nawaman.regparser.types;
 
+import java.io.Serializable;
+
 import net.nawaman.regparser.Checker;
-import net.nawaman.regparser.ParserType;
 import net.nawaman.regparser.ParserTypeProvider;
-import net.nawaman.regparser.CheckerProvider;
 import net.nawaman.regparser.result.ParseResult;
 
 /**
- * A simple type (type without a compiler).
+ * The provider of a checker use as a strategy for PType (used with PTSimple and PTComposable).
  * 
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  **/
-public class PTSimple extends ParserType {
-    
-    private static final long serialVersionUID = 5886175272511843777L;
-    
-    protected PTSimple(String pTheName) {
-        this.TheName    = pTheName;
-    }
-    public PTSimple(String pTheName, Checker pTheChecker) {
-        this(pTheName);
-        this.TheChecker = pTheChecker;
-    }
-    public PTSimple(String pTheName, CheckerProvider pTheGetChecker) {
-        this(pTheName);
-        this.TheChecker = pTheGetChecker;
-    }
-    
-    String TheName;
-    Object TheChecker;
-    
-    /**{@inheritDoc}*/ @Override
-    final public String name() { 
-        return this.TheName;
-    }
-
-    /**{@inheritDoc}*/ @Override
-    final public Checker checker(ParseResult pHostResult, String pParam,
-            ParserTypeProvider pProvider) {
-        
-        if(this.TheChecker instanceof CheckerProvider)
-            return ((CheckerProvider)TheChecker).getChecker(pHostResult, pParam, pProvider);
-        
-        return (Checker)TheChecker;
-    }
+@FunctionalInterface
+public interface CheckerProvider extends Serializable {
+	
+	public static CheckerProvider of(Checker checker) {
+		return (hostResult, parameter, typeProvider) -> checker;
+	}
+	
+	
+	/** Returns the checker */
+	public Checker getChecker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider);
+	
 }

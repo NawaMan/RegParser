@@ -16,23 +16,25 @@
  * ---------------------------------------------------------------------------------------------------------------------
  */
 
-package net.nawaman.regparser;
+package net.nawaman.regparser.types;
 
+import net.nawaman.regparser.CompilationContext;
+import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.result.ParseResult;
-import net.nawaman.regparser.types.PTComposable;
 
 /**
- * Regular Parser Verifier to be used with {@link PTComposable}.
+ * Regular Parser Compiler to be used with PTComposable.
  * 
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  **/
-public interface ResultVerifier {
+public interface ResultCompiler {
 	
-	/** Validate the parse result */
-	public boolean validate(
-					ParseResult        hostResult,
+	/** Compiles a ParseResult in to an object with a parameter */
+	public Object compile(
 					ParseResult        thisResult,
+					int                entryIndex,
 					String             parameter,
+					CompilationContext compilationContext,
 					ParserTypeProvider typeProvider);
 	
 }

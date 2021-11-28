@@ -33,9 +33,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.nawaman.regparser.types.PTComposable;
+import net.nawaman.regparser.types.ComposableParserType;
 import net.nawaman.regparser.types.PTJavaChecker;
 import net.nawaman.regparser.types.PTTextCI;
+import net.nawaman.regparser.types.ResultCompiler;
+import net.nawaman.regparser.types.ResultVerifier;
 
 /**
  * Supply types to the parser
@@ -338,7 +340,7 @@ public interface ParserTypeProvider extends Serializable {
 			        ? RegParser.WithDefaultTypeProvider.attachDefaultTypeProvider((RegParser)checker, this)
 			        : RegParser.newRegParser(this, checker);
 			
-			return addType(new PTComposable(name, checker, vertifier, compiler));
+			return addType(new ComposableParserType(name, checker, vertifier, compiler));
 		}
 
 		public boolean addType(String name, String regParser) {
@@ -355,7 +357,7 @@ public interface ParserTypeProvider extends Serializable {
 		
 		public boolean addType(String name, String regParser, ResultVerifier vertifier, ResultCompiler compiler) {
 			var parser = newRegParser(this, regParser);
-			return addType(new PTComposable(name, parser, vertifier, compiler));
+			return addType(new ComposableParserType(name, parser, vertifier, compiler));
 		}
 		
 		public boolean addType(String name, RegParser parser) {
@@ -371,7 +373,7 @@ public interface ParserTypeProvider extends Serializable {
 		}
 		
 		public boolean addType(String name, RegParser parser, ResultVerifier vertifier, ResultCompiler compiler) {
-			var type = new PTComposable(name, parser, vertifier, compiler);
+			var type = new ComposableParserType(name, parser, vertifier, compiler);
 			return addType(type);
 		}
 	}

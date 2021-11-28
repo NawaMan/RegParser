@@ -16,18 +16,48 @@
  * ---------------------------------------------------------------------------------------------------------------------
  */
 
-package net.nawaman.regparser;
+package net.nawaman.regparser.types;
 
+import net.nawaman.regparser.Checker;
+import net.nawaman.regparser.ParserType;
+import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.result.ParseResult;
 
 /**
- * The provider of a checker use as a strategy for PType (used with PTSimple and PTComposable).
+ * A simple type (type without a compiler).
  * 
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  **/
-public interface CheckerProvider {
+public class SimpleParserType extends ParserType {
 	
-	/** Returns the checker */
-	public Checker getChecker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider);
+	private static final long serialVersionUID = 5886175272511843777L;
+	
+	public SimpleParserType(String name, Checker checker) {
+		this(name, CheckerProvider.of(checker));
+	}
+	
+	public SimpleParserType(String name, CheckerProvider checkerProvider) {
+		this.name            = name;
+		this.checkerProvider = checkerProvider;
+	}
+	
+	private final String          name;
+	private final CheckerProvider checkerProvider;
+	
+	/**{@inheritDoc}*/
+	@Override
+	public final String name() {
+		return this.name;
+	}
+	
+	/**{@inheritDoc}*/
+	@Override
+	public final Checker checker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider) {
+		
+		if (this.checkerProvider instanceof CheckerProvider)
+			return ((CheckerProvider)checkerProvider).getChecker(hostResult, parameter, typeProvider);
+		
+		return (Checker)checkerProvider;
+	}
 	
 }

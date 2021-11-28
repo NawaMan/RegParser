@@ -23,14 +23,15 @@ package net.nawaman.regparser;
  *
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-@SuppressWarnings("serial")
-public class RPCompilationException extends RuntimeException {
+public class CompilationException extends RuntimeException {
 	
-	public RPCompilationException() {
+	private static final long serialVersionUID = 3735054998331471045L;
+
+	public CompilationException() {
 		super();
 	}
 	
-	public RPCompilationException(String message) {
+	public CompilationException(String message) {
 		super(message);
 	}
 	

@@ -21,9 +21,6 @@ package net.nawaman.regparser.types;
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.CompilationContext;
 import net.nawaman.regparser.ParserTypeProvider;
-import net.nawaman.regparser.ResultCompiler;
-import net.nawaman.regparser.CheckerProvider;
-import net.nawaman.regparser.ResultVerifier;
 import net.nawaman.regparser.result.ParseResult;
 
 /**
@@ -31,50 +28,46 @@ import net.nawaman.regparser.result.ParseResult;
  * 
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  **/
-public class PTComposable extends PTSimple {
+public class ComposableParserType extends SimpleParserType {
     
     private static final long serialVersionUID = 8825339043204700404L;
     
-    protected PTComposable(String pTheName) {
-        super(pTheName);
-    }
-    
-    public PTComposable(String pTheName, Checker pTheChecker, ResultVerifier pVerifier, ResultCompiler pCompiler) {
+    public ComposableParserType(String pTheName, Checker pTheChecker, ResultVerifier pVerifier, ResultCompiler pCompiler) {
         super(pTheName, pTheChecker);
-        this.Verifier = pVerifier;
-        this.Compiler = pCompiler;
+        this.verifier = pVerifier;
+        this.compiler = pCompiler;
     }
     
-    public PTComposable(String pTheName, CheckerProvider pTheGetChecker, ResultVerifier pVerifier, ResultCompiler pCompiler) {
+    public ComposableParserType(String pTheName, CheckerProvider pTheGetChecker, ResultVerifier pVerifier, ResultCompiler pCompiler) {
         super(pTheName, pTheGetChecker);
-        this.Verifier = pVerifier;
-        this.Compiler = pCompiler;
+        this.verifier = pVerifier;
+        this.compiler = pCompiler;
     }
     
-    ResultVerifier Verifier;
-    ResultCompiler Compiler;
+    private final ResultVerifier verifier;
+    private final ResultCompiler compiler;
     
-    protected boolean setVerifier(ResultVerifier pVerifier) {
-        if (this.Verifier != null)
-            return false;
-        this.Verifier = pVerifier;
-        return true;
-    }
-    
-    protected boolean setCompiler(ResultCompiler pCompiler) {
-        if (this.Compiler != null)
-            return false;
-        this.Compiler = pCompiler;
-        return true;
-    }
+//    protected boolean setVerifier(ResultVerifier pVerifier) {
+//        if (this.Verifier != null)
+//            return false;
+//        this.Verifier = pVerifier;
+//        return true;
+//    }
+//    
+//    protected boolean setCompiler(ResultCompiler pCompiler) {
+//        if (this.Compiler != null)
+//            return false;
+//        this.Compiler = pCompiler;
+//        return true;
+//    }
     
     /**{@inheritDoc}*/
     @Override
     final public boolean doValidate(ParseResult pHostResult, ParseResult pThisResult, String pParam,
             ParserTypeProvider pProvider) {
-        if (this.Verifier == null)
+        if (this.verifier == null)
             return super.validate(pHostResult, pThisResult, pParam, pProvider);
-        return this.Verifier.validate(pHostResult, pThisResult, pParam, pProvider);
+        return this.verifier.validate(pHostResult, pThisResult, pParam, pProvider);
     }
     
     /**{@inheritDoc}*/
@@ -82,10 +75,10 @@ public class PTComposable extends PTSimple {
     final public Object doCompile(ParseResult pThisResult, int pEntryIndex, String pParam, CompilationContext pContext,
             ParserTypeProvider pProvider) {
         Object Return = null;
-        if (this.Compiler == null)
+        if (this.compiler == null)
             Return = pThisResult.textOf(pEntryIndex);
         else
-            Return = this.Compiler.compile(pThisResult, pEntryIndex, pParam, pContext, pProvider);
+            Return = this.compiler.compile(pThisResult, pEntryIndex, pParam, pContext, pProvider);
         return Return;
     }
 }
