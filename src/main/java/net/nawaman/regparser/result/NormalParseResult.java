@@ -27,13 +27,13 @@ import net.nawaman.regparser.result.entry.ParseResultEntry;
  * 
  * @author nawa
  */
-abstract public class PRNormal extends ParseResult {
+abstract public class NormalParseResult extends ParseResult {
 	
 	static private final long serialVersionUID = 4121353565468546546L;
 	
 	private final int startPosition;
 	
-	PRNormal(int startPosition, List<ParseResultEntry> resultEntries) {
+	NormalParseResult(int startPosition, List<ParseResultEntry> resultEntries) {
 		super(resultEntries);
 		this.startPosition = startPosition;
 	}

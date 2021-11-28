@@ -24,18 +24,18 @@ import net.nawaman.regparser.utils.IStream;
 
 
 /** Node Result - For sub result*/
-public final class PRNode extends PRNormal {
+public final class ParseResultNode extends NormalParseResult {
 	
 	static private final long serialVersionUID = 2545684654651635454L;
 	
 	private ParseResult parent;
 	private int         index;
 	
-	PRNode(int startPosition, ParseResult parentResult) {
+	ParseResultNode(int startPosition, ParseResult parentResult) {
 		this(startPosition, parentResult, null);
 	}
 	
-	private PRNode(int startPosition, ParseResult parentResult, List<ParseResultEntry> resultEntries) {
+	private ParseResultNode(int startPosition, ParseResult parentResult, List<ParseResultEntry> resultEntries) {
 		super(startPosition, resultEntries);
 		this.parent = parentResult;
 		
@@ -72,7 +72,7 @@ public final class PRNode extends PRNormal {
 		var duplicate     = parent.duplicate();
 		var entryList     = entryList();
 		
-		var node = new PRNode(startPosition, duplicate, entryList);
+		var node = new ParseResultNode(startPosition, duplicate, entryList);
 		node.index = index;
 		return node;
 	}

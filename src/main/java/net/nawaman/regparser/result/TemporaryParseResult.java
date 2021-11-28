@@ -27,17 +27,17 @@ import net.nawaman.regparser.result.entry.ParseResultEntry;
  * 
  * @author nawa
  */
-public final class PRTemp extends ParseResult {
+public final class TemporaryParseResult extends ParseResult {
 	
 	static private final long serialVersionUID = 3255656565625655652L;
 	
 	private final ParseResult first;
 	
-	PRTemp(ParseResult first) {
+	TemporaryParseResult(ParseResult first) {
 		this(first, null);
 	}
 	
-	private PRTemp(ParseResult first, List<ParseResultEntry> resultEntries) {
+	private TemporaryParseResult(ParseResult first, List<ParseResultEntry> resultEntries) {
 		super(null);
 		this.first = first;
 	}
@@ -50,9 +50,9 @@ public final class PRTemp extends ParseResult {
 	public final int entryCount() {
 		int count  = super.entryCount();
 		var result = this.first;
-		while (result instanceof PRTemp) {
+		while (result instanceof TemporaryParseResult) {
 			count  += result.rawEntryCount();
-			result  = ((PRTemp)result).first;
+			result  = ((TemporaryParseResult)result).first;
 		}
 		return result.entryCount() + count;
 	}
@@ -66,10 +66,10 @@ public final class PRTemp extends ParseResult {
 		if (index < first.entryCount()) {
 			var result = this;
 			while (index < result.first.entryCount()) {
-				if (!(result.first instanceof PRTemp))
+				if (!(result.first instanceof TemporaryParseResult))
 					return result.first.entryAt(index);
 				
-				result = (PRTemp)result.first;
+				result = (TemporaryParseResult)result.first;
 			}
 			return result.entryAt(index);
 		}
@@ -94,20 +94,20 @@ public final class PRTemp extends ParseResult {
 		// This was initially implement using recursive but it was too slow.
 		// The optimization is done by going to the root or the first 'First' part that is not a Temp and then all
 		//     all entries from then down to the current Temp Result.
-		if (!(first instanceof PRTemp)) {
+		if (!(first instanceof TemporaryParseResult)) {
 			var resultEntries  = entryList();
 			var duplicateFirst = first.duplicate();
-			return new PRTemp(duplicateFirst, resultEntries);
+			return new TemporaryParseResult(duplicateFirst, resultEntries);
 		}
 		
-		var firsts = new ArrayList<PRTemp>();
+		var firsts = new ArrayList<TemporaryParseResult>();
 		firsts.add(this);
 		
-		var first = (PRTemp)this.first;
+		var first = (TemporaryParseResult)this.first;
 		firsts.add(first);
 		
-		while (first.first instanceof PRTemp) {
-			first = (PRTemp)first.first;
+		while (first.first instanceof TemporaryParseResult) {
+			first = (TemporaryParseResult)first.first;
 			firsts.add(first);
 		}
 		
@@ -120,7 +120,7 @@ public final class PRTemp extends ParseResult {
 			}
 		}
 		var duplicate = first.first.duplicate();
-		return new PRTemp(duplicate, resultEntries);
+		return new TemporaryParseResult(duplicate, resultEntries);
 	}
 	
 }

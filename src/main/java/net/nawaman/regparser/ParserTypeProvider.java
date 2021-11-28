@@ -82,7 +82,7 @@ public interface ParserTypeProvider extends Serializable {
 			defaultProvider = new ParserTypeProvider.Extensible();
 			defaultProvider.addType(new PTTextCI());
 			defaultProvider.addType(new ParserTypeBackRef());
-			defaultProvider.addType(new ParserTypeBackRefCI());
+			defaultProvider.addType(new ParserTypeBackRefCaseInsensitive());
 			defaultProvider.addType(new PTJavaChecker());
 			return defaultProvider;
 		}

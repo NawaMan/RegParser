@@ -57,16 +57,16 @@ abstract public class ParseResult implements Serializable {
 	private static final long serialVersionUID = 4543543556454654354L;
 	
 	
-	public static PRRoot newResult(int startPosition, CharSequence originalText) {
-		return new PRRoot(startPosition, originalText);
+	public static RootParseResult newResult(int startPosition, CharSequence originalText) {
+		return new RootParseResult(startPosition, originalText);
 	}
 	
-	public static PRTemp newResult(ParseResult first) {
-		return new PRTemp(first);
+	public static TemporaryParseResult newResult(ParseResult first) {
+		return new TemporaryParseResult(first);
 	}
 	
-	public static PRNode newResult(int startPosition, ParseResult parseResult) {
-		return new PRNode(startPosition, parseResult);
+	public static ParseResultNode newResult(int startPosition, ParseResult parseResult) {
+		return new ParseResultNode(startPosition, parseResult);
 	}
 	
 	// == Static utility ==
@@ -1314,7 +1314,7 @@ abstract public class ParseResult implements Serializable {
 	}
 	
 	/** Merge a temporary result with this result */
-	public final void mergeWith(PRTemp tempResult) {
+	public final void mergeWith(TemporaryParseResult tempResult) {
 		if ((tempResult == null)
 		 || (tempResult.entryCount() == 0))
 			return;
@@ -1329,8 +1329,8 @@ abstract public class ParseResult implements Serializable {
 			var entry = entries.get(i);
 			if (entry.hasSubResult()) {
 				var subResult = entry.subResult();
-				if (subResult instanceof PRNode) {
-					var subNode = (PRNode)subResult;
+				if (subResult instanceof ParseResultNode) {
+					var subNode = (ParseResultNode)subResult;
 					subNode.parent(this);
 				}
 			}

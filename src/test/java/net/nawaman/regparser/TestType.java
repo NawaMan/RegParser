@@ -242,7 +242,7 @@ public class TestType {
 	public void testBackReference() {
 		// Add the type
 		defaultTypeProvider.addType(ParserTypeBackRef.BackRef_Instance);
-		defaultTypeProvider.addType(ParserTypeBackRefCI.BackRefCI_Instance);
+		defaultTypeProvider.addType(ParserTypeBackRefCaseInsensitive.BackRefCI_Instance);
 		
 		var regParser = newRegParser(defaultTypeProvider,
 		                    RPEntry._new("#X", new ParserTypeRef.Simple("$byte?")), 
@@ -388,7 +388,7 @@ public class TestType {
 			                                            newRegParser("#SubBlock", new ParserTypeRef.Simple("Tag"))), ZeroOrMore_Minimum,
 			                                    newRegParser("#End", newRegParser(new WordChecker("</"),
 			                                            RPEntry._new("#EndTag",
-			                                                    new ParserTypeRef.Simple(ParserTypeBackRefCI.BackRefCI_Instance.name(),
+			                                                    new ParserTypeRef.Simple(ParserTypeBackRefCaseInsensitive.BackRefCI_Instance.name(),
 			                                                            "$Begin")),
 			                                            new CharSingle('>')))),
 			                            newRegParser(new WordChecker("/>"))));

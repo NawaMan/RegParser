@@ -41,8 +41,8 @@ import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParserItem;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTType;
 import net.nawaman.regparser.checkers.CheckerAlternative;
 import net.nawaman.regparser.checkers.CheckerFixeds;
-import net.nawaman.regparser.result.PRNode;
-import net.nawaman.regparser.result.PRTemp;
+import net.nawaman.regparser.result.ParseResultNode;
+import net.nawaman.regparser.result.TemporaryParseResult;
 import net.nawaman.regparser.result.ParseResult;
 import net.nawaman.regparser.result.entry.ParseResultEntry;
 import net.nawaman.regparser.types.PTIdentifier;
@@ -775,7 +775,7 @@ public class RegParser implements Checker, Serializable {
                 if (IsFPType || IsFPName)
                     pResult.append(newEntry(MaxResult.endPosition(), this.Entries[pIndex]));
                 else
-                    pResult.mergeWith((PRTemp) MaxResult);
+                    pResult.mergeWith((TemporaryParseResult) MaxResult);
             }
             return pResult;
             
@@ -1236,14 +1236,14 @@ public class RegParser implements Checker, Serializable {
                         if (IsFPAlternative) {
                             
                             int             MaxLength = Integer.MIN_VALUE;
-                            PRTemp MaxResult = null;
+                            TemporaryParseResult MaxResult = null;
                             
                             // Not yet
                             CheckerAlternative CA = (CheckerAlternative) FP;
                             for (int c = CA.checkers.length; --c >= 0;) {
                                 Checker C = CA.checkers[c];
                                 // Try the first part
-                                PRTemp TryResult = newResult(pResult);
+                                TemporaryParseResult TryResult = newResult(pResult);
                                 if (this.parseEach_P(pText, pOffset, pIndex, null, null, null, C, TryResult, pProvider,
                                         pTabs) != null) {
                                     // Match
@@ -1340,7 +1340,7 @@ public class RegParser implements Checker, Serializable {
                         if (IsFPAlternative) {
                             
                             int             MinLength = Integer.MAX_VALUE;
-                            PRTemp MinResult = null;
+                            TemporaryParseResult MinResult = null;
                             
                             // Not yet
                             CheckerAlternative CA = (CheckerAlternative) FP;
@@ -1409,7 +1409,7 @@ public class RegParser implements Checker, Serializable {
         if ((pRPType != null) && pRPType.hasValidation() && !pRPType.isSelfContain()) {
             ParseResult PR = pResult.duplicate();
             PR.collapse(pProvider);
-            ParseResult Host = (PR instanceof PRNode) ? ((PRNode) PR).parent() : null;
+            ParseResult Host = (PR instanceof ParseResultNode) ? ((ParseResultNode) PR).parent() : null;
             if (!pRPType.validate(Host, PR, pRPTParam, pProvider))
                 return null;
         }

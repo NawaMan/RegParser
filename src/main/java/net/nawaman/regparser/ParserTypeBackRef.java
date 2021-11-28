@@ -20,9 +20,9 @@ package net.nawaman.regparser;
 
 import net.nawaman.regparser.checkers.CheckerAny;
 import net.nawaman.regparser.checkers.WordChecker;
-import net.nawaman.regparser.result.PRNode;
-import net.nawaman.regparser.result.PRRoot;
-import net.nawaman.regparser.result.PRTemp;
+import net.nawaman.regparser.result.ParseResultNode;
+import net.nawaman.regparser.result.RootParseResult;
+import net.nawaman.regparser.result.TemporaryParseResult;
 import net.nawaman.regparser.result.ParseResult;
 
 /**
@@ -76,10 +76,10 @@ public class ParserTypeBackRef extends ParserType {
 		
 		// Elevate up (in case pHostResult is a node)
 		while (word == null) {
-			if (hostResult instanceof PRTemp) {
-				hostResult = ((PRTemp)hostResult).first();
-			} else if (hostResult instanceof PRNode) {
-				hostResult = ((PRNode)hostResult).parent();
+			if (hostResult instanceof TemporaryParseResult) {
+				hostResult = ((TemporaryParseResult)hostResult).first();
+			} else if (hostResult instanceof ParseResultNode) {
+				hostResult = ((ParseResultNode)hostResult).parent();
 			}
 			
 			if (hostResult == null)
@@ -87,7 +87,7 @@ public class ParserTypeBackRef extends ParserType {
 			
 			var entry = hostResult.lastEntryOf(parameter);
 			if ((entry == null)
-			 && (hostResult instanceof PRRoot))
+			 && (hostResult instanceof RootParseResult))
 				return null;
 			
 			word = hostResult.lastStringOf(parameter);
