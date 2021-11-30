@@ -43,7 +43,7 @@ import net.nawaman.regparser.RegParser;
 import net.nawaman.regparser.result.entry.ParseResultEntry;
 import net.nawaman.regparser.result.entry.ParseResultEntryWithParserEntryAndSubResult;
 import net.nawaman.regparser.result.entry.ParseResultEntryWithSubResult;
-import net.nawaman.regparser.types.PTError;
+import net.nawaman.regparser.types.ErrorParserType;
 import net.nawaman.regparser.utils.IStream;
 import net.nawaman.regparser.utils.Util;
 
@@ -1198,7 +1198,7 @@ abstract public class ParseResult implements Serializable {
 				}
 			}
 			// Found an error type, so there is error
-			if (type instanceof PTError)
+			if (type instanceof ErrorParserType)
 				return false;
 			
 			var name = entry.name();
@@ -1240,7 +1240,7 @@ abstract public class ParseResult implements Serializable {
 					}
 				}
 			}
-			if (type instanceof PTError) {
+			if (type instanceof ErrorParserType) {
 				// The type is an error type - let it solve it own business
 				var parameter = entry.parameter();
 				type.compile(this, i, parameter, compilationContext, typeProvider);
