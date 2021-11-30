@@ -18,7 +18,10 @@
 
 package net.nawaman.regparser;
 
+import static java.util.Objects.requireNonNull;
+
 import java.io.Serializable;
+import java.util.Objects;
 
 import net.nawaman.regparser.checkers.WordChecker;
 
@@ -150,6 +153,87 @@ abstract public class RegParserEntry implements Serializable {
 		return new TwoStage(firstStage, secondStage);
 	}
 	
+	//== Builder =======================================================================================================
+	
+	public static Builder builder() {
+		return new Builder();
+	}
+	
+	public static Builder newParserEntry() {
+		return new Builder();
+	}
+	
+	public static class Builder {
+		
+		private String name;
+		
+		private Quantifier quantifier;
+		
+		private RegParser secondStage;
+		
+		private Object parser;
+		
+		public Builder name(String name) {
+			this.name = requireNonNull(name, "`name` cannot be null.");
+			return this;
+		}
+		
+		public Builder checker(Checker checker) {
+			this.parser = requireNonNull(checker, "`checker` cannot be null.");
+			return this;
+		}
+		
+		public Builder typeRef(ParserTypeRef typeRef) {
+			this.parser = requireNonNull(typeRef, "`typeRef` cannot be null.");
+			return this;
+		}
+		
+		public Builder type(ParserType type) {
+			this.parser = requireNonNull(type, "`type` cannot be null.");
+			return this;
+		}
+		
+		public Builder checkerOrNull(Checker checker) {
+			this.parser = checker;
+			return this;
+		}
+		
+		public Builder typeRefOrNull(ParserTypeRef typeRef) {
+			this.parser = typeRef;
+			return this;
+		}
+		
+		public Builder typeOrNull(ParserType type) {
+			this.parser = type;
+			return this;
+		}
+		
+		public Builder quantifier(Quantifier quantifier) {
+			this.quantifier = requireNonNull(quantifier, "`quantifier` cannot be null.");
+			return this;
+		}
+		
+		public Builder secondStage(RegParser secondStage) {
+			this.secondStage = secondStage;
+			return this;
+		}
+		
+		public RegParserEntry build() {
+			if (parser instanceof ParserType) {
+				return newParserEntry(name, (ParserType)parser, quantifier, secondStage);
+			}
+			if (parser instanceof ParserTypeRef) {
+				return newParserEntry(name, (ParserTypeRef)parser, quantifier, secondStage);
+			}
+			if (parser instanceof Checker) {
+				return newParserEntry(name, (Checker)parser, quantifier, secondStage);
+			}
+			
+			throw new IllegalStateException("Missing parser: " + name);
+		}
+		
+	}
+	
 	//== Constructor ===================================================================================================
 	
 	RegParserEntry() {
@@ -161,7 +245,7 @@ abstract public class RegParserEntry implements Serializable {
 		return null;
 	}
 	
-	public Checker getChecker() {
+	public Checker checker() {
 		return null;
 	}
 	
@@ -173,7 +257,7 @@ abstract public class RegParserEntry implements Serializable {
 		return null;
 	}
 	
-	public Quantifier getQuantifier() {
+	public Quantifier quantifier() {
 		return Quantifier.One;
 	}
 	
@@ -183,65 +267,68 @@ abstract public class RegParserEntry implements Serializable {
 	
 	@Override
 	public String toString() {
-		StringBuffer  SB = new StringBuffer();
-		String        N  = this.name();
-		Checker       C  = this.getChecker();
-		ParserTypeRef TR = this.typeRef();
-		ParserType    T  = this.type();
-		Quantifier    Q  = this.getQuantifier();
+		var buffer     = new StringBuffer();
+		var name       = name();
+		var checker    = checker();
+		var typeRef    = typeRef();
+		var type       = type();
+		var quantifier = quantifier();
 		
-		if (T != null) {
-			SB.append("(");
-			if (N != null)
-				SB.append(N).append(":");
-			SB.append(T);
-			SB.append(")");
-			SB.append(Quantifier.toString(Q));
+		if (type != null) {
+			buffer.append("(");
+			if (name != null) {
+				buffer.append(name).append(":");
+			}
+			buffer.append(type);
+			buffer.append(")");
+			buffer.append(Quantifier.toString(quantifier));
 			
-		} else
-			if (TR != null) {
-				SB.append("(");
-				if (N != null)
-					SB.append(N).append(":");
-				SB.append(TR);
-				SB.append(")");
-				SB.append(Quantifier.toString(Q));
-				
-			} else
-				if (C instanceof RegParser) {
-					SB.append("(");
-					if (N != null)
-						SB.append(N).append(":~");
-					if ((C instanceof WordChecker) && (!Quantifier.One.equals(Q))) {
-						SB.append("(");
-						SB.append(C);
-						SB.append(")");
-					} else
-						SB.append(C);
-					if (N != null)
-						SB.append("~)");
-					else
-						SB.append(")");
-					SB.append(Quantifier.toString(Q));
-					
-				} else
-					if (N != null) {
-						SB.append("(").append(N).append(":~");
-						SB.append(C);
-						SB.append("~)");
-						SB.append(Quantifier.toString(Q));
-						
-					} else {
-						if ((C instanceof WordChecker) && (!Quantifier.One.equals(Q))) {
-							SB.append("(");
-							SB.append(C);
-							SB.append(")");
-						} else
-							SB.append(C);
-						SB.append(Quantifier.toString(Q));
-						
-					}
-		return SB.toString();
+		} else if (typeRef != null) {
+			buffer.append("(");
+			if (name != null) {
+				buffer.append(name).append(":");
+			}
+			buffer.append(typeRef);
+			buffer.append(")");
+			buffer.append(Quantifier.toString(quantifier));
+			
+		} else if (checker instanceof RegParser) {
+			buffer.append("(");
+			if (name != null) {
+				buffer.append(name).append(":~");
+			}
+			if ((checker instanceof WordChecker) && (!Quantifier.One.equals(quantifier))) {
+				buffer.append("(");
+				buffer.append(checker);
+				buffer.append(")");
+			} else {
+				buffer.append(checker);
+			}
+			if (name != null)
+				buffer.append("~)");
+			else {
+				buffer.append(")");
+			}
+			buffer.append(Quantifier.toString(quantifier));
+			
+		} else if (name != null) {
+			buffer.append("(").append(name).append(":~");
+			buffer.append(checker);
+			buffer.append("~)");
+			buffer.append(Quantifier.toString(quantifier));
+			
+		} else {
+			if ((checker instanceof WordChecker) && (!Quantifier.One.equals(quantifier))) {
+				buffer.append("(");
+				buffer.append(checker);
+				buffer.append(")");
+			} else {
+				buffer.append(checker);
+			}
+			buffer.append(Quantifier.toString(quantifier));
+			
+		}
+		return buffer.toString();
 	}
 	
 	//== Sub Class =====================================================================================================
@@ -252,15 +339,18 @@ abstract public class RegParserEntry implements Serializable {
 		
 		static private final long serialVersionUID = 6546356543546354612L;
 		
-		protected Direct(Checker pChecker) {
-			this.TheChecker = (pChecker instanceof RegParser) ? ((RegParser)pChecker).optimize() : pChecker;
+		private final Checker checker;
+		
+		Direct(Checker checker) {
+			this.checker = (checker instanceof RegParser)
+			             ? ((RegParser)checker).optimize()
+			             : checker;
+			Objects.requireNonNull(this.checker, "`checker` cannot be null.");
 		}
 		
-		protected Checker TheChecker = null;
-		
 		@Override
-		public Checker getChecker() {
-			return this.TheChecker;
+		public Checker checker() {
+			return checker;
 		}
 	}
 	
@@ -268,16 +358,16 @@ abstract public class RegParserEntry implements Serializable {
 		
 		static private final long serialVersionUID = 8351352113651352625L;
 		
-		protected DirectWithQuantifier(Checker pChecker, Quantifier pQuantifier) {
-			super(pChecker);
-			this.TheQuantifier = pQuantifier;
+		private final Quantifier quantifier;
+		
+		DirectWithQuantifier(Checker checker, Quantifier quantifier) {
+			super(checker);
+			this.quantifier = quantifier;
 		}
 		
-		protected Quantifier TheQuantifier = null;
-		
 		@Override
-		public Quantifier getQuantifier() {
-			return this.TheQuantifier;
+		public Quantifier quantifier() {
+			return quantifier;
 		}
 	}
 	
@@ -287,16 +377,16 @@ abstract public class RegParserEntry implements Serializable {
 		
 		static private final long serialVersionUID = 2245241556456325624L;
 		
-		protected NamedDirect(String pName, Checker pChecker) {
-			super(pChecker);
-			this.Name = pName;
-		}
+		private final String name;
 		
-		String Name = null;
+		NamedDirect(String name, Checker checker) {
+			super(checker);
+			this.name = Objects.requireNonNull(name);
+		}
 		
 		@Override
 		public String name() {
-			return this.Name;
+			return this.name;
 		}
 	}
 	
@@ -304,16 +394,16 @@ abstract public class RegParserEntry implements Serializable {
 		
 		static private final long serialVersionUID = 1354655635656936565L;
 		
-		protected NamedDirectWithQuantifier(String pName, Checker pChecker, Quantifier pQuantifier) {
-			super(pName, pChecker);
-			this.TheQuantifier = pQuantifier;
+		private final Quantifier quantifier;
+		
+		NamedDirectWithQuantifier(String name, Checker checker, Quantifier quantifier) {
+			super(name, checker);
+			this.quantifier = quantifier;
 		}
 		
-		protected Quantifier TheQuantifier = null;
-		
 		@Override
-		public Quantifier getQuantifier() {
-			return this.TheQuantifier;
+		public Quantifier quantifier() {
+			return quantifier;
 		}
 	}
 	
@@ -323,17 +413,15 @@ abstract public class RegParserEntry implements Serializable {
 		
 		static private final long serialVersionUID = 3565652656351262366L;
 		
-		protected TypeRef(ParserTypeRef pRPTypeRef) {
-			this.TheTypeRef = pRPTypeRef;
-			if (this.TheTypeRef == null)
-				throw new NullPointerException();
-		}
+		private final ParserTypeRef typeRef;
 		
-		ParserTypeRef TheTypeRef = null;
+		TypeRef(ParserTypeRef typeRef) {
+			this.typeRef = Objects.requireNonNull(typeRef);
+		}
 		
 		@Override
 		public ParserTypeRef typeRef() {
-			return this.TheTypeRef;
+			return typeRef;
 		}
 	}
 	
@@ -341,16 +429,16 @@ abstract public class RegParserEntry implements Serializable {
 		
 		static private final long serialVersionUID = 4123563534562456523L;
 		
-		protected TypeRefWithQuantifier(ParserTypeRef pRPTypeRef, Quantifier pQuantifier) {
-			super(pRPTypeRef);
-			this.TheQuantifier = pQuantifier;
+		private final Quantifier quantifier;
+		
+		TypeRefWithQuantifier(ParserTypeRef typeRef, Quantifier quantifier) {
+			super(typeRef);
+			this.quantifier = quantifier;
 		}
 		
-		protected Quantifier TheQuantifier = null;
-		
 		@Override
-		public Quantifier getQuantifier() {
-			return this.TheQuantifier;
+		public Quantifier quantifier() {
+			return quantifier;
 		}
 	}
 	
@@ -358,16 +446,16 @@ abstract public class RegParserEntry implements Serializable {
 		
 		static private final long serialVersionUID = 3456412356352456523L;
 		
-		protected NamedTypeRef(String pName, ParserTypeRef pRPTypeRef) {
-			super(pRPTypeRef);
-			this.Name = pName;
-		}
+		private String name;
 		
-		String Name = null;
+		NamedTypeRef(String name, ParserTypeRef typeRef) {
+			super(typeRef);
+			this.name = name;
+		}
 		
 		@Override
 		public String name() {
-			return this.Name;
+			return name;
 		}
 	}
 	
@@ -375,16 +463,16 @@ abstract public class RegParserEntry implements Serializable {
 		
 		static private final long serialVersionUID = 6312456522334564535L;
 		
-		protected NamedTypeRefWithQuantifier(String pName, ParserTypeRef pRPTypeRef, Quantifier pQuantifier) {
-			super(pName, pRPTypeRef);
-			this.TheQuantifier = pQuantifier;
+		private final Quantifier quantifier;
+		
+		NamedTypeRefWithQuantifier(String name, ParserTypeRef typeRef, Quantifier quantifier) {
+			super(name, typeRef);
+			this.quantifier = quantifier;
 		}
 		
-		protected Quantifier TheQuantifier = null;
-		
 		@Override
-		public Quantifier getQuantifier() {
-			return this.TheQuantifier;
+		public Quantifier quantifier() {
+			return quantifier;
 		}
 	}
 	
@@ -394,17 +482,15 @@ abstract public class RegParserEntry implements Serializable {
 		
 		static private final long serialVersionUID = 4566522331246354535L;
 		
-		protected Typed(ParserType pRPType) {
-			this.TheType = pRPType;
-			if (this.TheType == null)
-				throw new NullPointerException();
-		}
+		private final ParserType type;
 		
-		ParserType TheType = null;
+		Typed(ParserType type) {
+			this.type = Objects.requireNonNull(type);
+		}
 		
 		@Override
 		public ParserType type() {
-			return this.TheType;
+			return type;
 		}
 	}
 	
@@ -412,16 +498,16 @@ abstract public class RegParserEntry implements Serializable {
 		
 		static private final long serialVersionUID = 3125454566463522335L;
 		
-		protected TypedWithQuantifier(ParserType pRPType, Quantifier pQuantifier) {
-			super(pRPType);
-			this.TheQuantifier = pQuantifier;
+		private final Quantifier quantifier;
+		
+		protected TypedWithQuantifier(ParserType type, Quantifier quantifier) {
+			super(type);
+			this.quantifier = quantifier;
 		}
 		
-		protected Quantifier TheQuantifier = null;
-		
 		@Override
-		public Quantifier getQuantifier() {
-			return this.TheQuantifier;
+		public Quantifier quantifier() {
+			return quantifier;
 		}
 	}
 	
@@ -429,16 +515,16 @@ abstract public class RegParserEntry implements Serializable {
 		
 		static private final long serialVersionUID = 6312352354545266435L;
 		
-		protected NamedTyped(String pName, ParserType pRPType) {
-			super(pRPType);
-			this.Name = pName;
-		}
+		private final String name;
 		
-		String Name = null;
+		protected NamedTyped(String name, ParserType type) {
+			super(type);
+			this.name = name;
+		}
 		
 		@Override
 		public String name() {
-			return this.Name;
+			return name;
 		}
 	}
 	
@@ -446,16 +532,16 @@ abstract public class RegParserEntry implements Serializable {
 		
 		static private final long serialVersionUID = 2613235452356436455L;
 		
-		protected NamedTypedWithQuantifier(String pName, ParserType pRPType, Quantifier pQuantifier) {
-			super(pName, pRPType);
-			this.TheQuantifier = pQuantifier;
+		private final Quantifier quantifier;
+		
+		NamedTypedWithQuantifier(String name, ParserType type, Quantifier quantifier) {
+			super(name, type);
+			this.quantifier = quantifier;
 		}
 		
-		protected Quantifier TheQuantifier = null;
-		
 		@Override
-		public Quantifier getQuantifier() {
-			return this.TheQuantifier;
+		public Quantifier quantifier() {
+			return quantifier;
 		}
 	}
 	
@@ -465,42 +551,46 @@ abstract public class RegParserEntry implements Serializable {
 		
 		static private final long serialVersionUID = 2636435413256452355L;
 		
-		TwoStage(RegParserEntry pDelegate, Checker pChecker) {
-			this.Delegate = pDelegate;
-			this.Parser   = (pChecker instanceof RegParser) ? (RegParser)pChecker : RegParser.newRegParser(pChecker);
-		}
+		private final RegParserEntry delegate;
+		private final RegParser      parser;
 		
-		RegParserEntry Delegate;
-		RegParser      Parser;
+		TwoStage(RegParserEntry delegate, Checker checker) {
+			this.delegate = Objects.requireNonNull(delegate);
+			this.parser   = (checker instanceof RegParser)
+			              ? (RegParser)checker
+			              : RegParser.newRegParser(checker);
+			Objects.requireNonNull(this.parser);
+		}
 		
 		@Override
 		public String name() {
-			return this.Delegate.name();
+			return delegate.name();
 		}
 		
 		@Override
-		public Checker getChecker() {
-			return this.Delegate.getChecker();
+		public Checker checker() {
+			return delegate.checker();
 		}
 		
 		@Override
 		public ParserTypeRef typeRef() {
-			return this.Delegate.typeRef();
+			return delegate.typeRef();
 		}
 		
 		@Override
 		public ParserType type() {
-			return this.Delegate.type();
+			return delegate.type();
 		}
 		
 		@Override
-		public Quantifier getQuantifier() {
-			return this.Delegate.getQuantifier();
+		public Quantifier quantifier() {
+			return delegate.quantifier();
 		}
 		
 		@Override
 		public RegParser secondStage() {
-			return this.Parser;
+			return parser;
 		}
 	}
+	
 }

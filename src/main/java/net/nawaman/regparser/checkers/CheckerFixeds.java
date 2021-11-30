@@ -198,7 +198,7 @@ public class CheckerFixeds implements Checker {
 		}
 		
 		public int length() {
-			return ((CheckerAny)entry.getChecker()).length();
+			return ((CheckerAny)entry.checker()).length();
 		}
 		
 		public Checker secondStage() {

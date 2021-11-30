@@ -1078,24 +1078,29 @@ public class RPCompiler_ParserTypes {
     @SuppressWarnings("serial")
     static public class RPTRegParser extends ParserType {
         static public String Name = "RegParser";
+        
+        Checker Checker;
+        
         @Override public String name() { return Name; }
-        Checker Checker = RegParser.newRegParser(
-            new CheckerAlternative(true,
-                RegParser.newRegParser(
-                    "#ItemQuantifier", 
-                    RegParser.newRegParser(
-                        new ParserTypeRef.Simple(RPTRegParserItem.Name),
-                        RegParser.newRegParser("#Ignored[]", PredefinedCharClasses.WhiteSpace, Quantifier.ZeroOrMore),
-                        new ParserTypeRef.Simple(RPTQuantifier.Name)
-                    )
-                ),
-                RegParser.newRegParser("#Comment",   new ParserTypeRef.Simple(RPTComment.Name)),
-                new CheckerAlternative(true,
-                    RegParser.newRegParser("#Item[]",    new ParserTypeRef.Simple(RPTRegParserItem.Name)),
-                    RegParser.newRegParser("#Ignored[]", new CharSet(" \t\n\r\f"))
-                )
-            ), Quantifier.OneOrMore
-        );
+        public RPTRegParser() {
+        	Checker = RegParser.newRegParser(
+	            new CheckerAlternative(true,
+	                RegParser.newRegParser(
+	                    "#ItemQuantifier", 
+	                    RegParser.newRegParser(
+	                        new ParserTypeRef.Simple(RPTRegParserItem.Name),
+	                        RegParser.newRegParser("#Ignored[]", PredefinedCharClasses.WhiteSpace, Quantifier.ZeroOrMore),
+	                        new ParserTypeRef.Simple(RPTQuantifier.Name)
+	                    )
+	                ),
+	                RegParser.newRegParser("#Comment",   new ParserTypeRef.Simple(RPTComment.Name)),
+	                new CheckerAlternative(true,
+	                    RegParser.newRegParser("#Item[]",    new ParserTypeRef.Simple(RPTRegParserItem.Name)),
+	                    RegParser.newRegParser("#Ignored[]", new CharSet(" \t\n\r\f"))
+	                )
+	            ), Quantifier.OneOrMore
+	        );
+        }
         @Override public Checker checker(ParseResult pHostResult, String pParam, ParserTypeProvider pProvider) { return this.Checker; }
         @Override public Object  doCompile(ParseResult pThisResult, int pEntryIndex, String pParam, CompilationContext pContext,
                 ParserTypeProvider pProvider) {
@@ -1169,8 +1174,8 @@ public class RPCompiler_ParserTypes {
                     if(RPTRegParser.Name.equals(PSE.typeName())) {
                         RPI = RegParserEntry.newParserEntry((Checker)this.compile(pThisResult, i, null, pContext, pProvider));
                         
-                        if(RPI.getChecker() instanceof RegParser) {
-                            var parserEntries = ((RegParser)(RPI.getChecker())).entries();
+                        if(RPI.checker() instanceof RegParser) {
+                            var parserEntries = ((RegParser)(RPI.checker())).entries();
                             RegParserEntry[] Entries = (parserEntries == null) ? null : parserEntries.toArray(RegParserEntry[]::new);
                             if(Entries == null) 
                                 RPI = null;
@@ -1191,7 +1196,7 @@ public class RPCompiler_ParserTypes {
                             Q = (Quantifier)pProvider.type(RPTQuantifier.Name).compile(Sub, 1, null, pContext, pProvider); 
                         }
                         if(Q != Quantifier.One) {
-                            if(RPI.getChecker() != null) RPI = RegParserEntry.newParserEntry(RPI.name(), RPI.getChecker(), Q, RPI.secondStage());
+                            if(RPI.checker() != null) RPI = RegParserEntry.newParserEntry(RPI.name(), RPI.checker(), Q, RPI.secondStage());
                             if(RPI.typeRef() != null) RPI = RegParserEntry.newParserEntry(RPI.name(), RPI.typeRef(), Q, RPI.secondStage());
                             if(RPI.type()    != null) RPI = RegParserEntry.newParserEntry(RPI.name(), RPI.type(),    Q, RPI.secondStage());
                         }

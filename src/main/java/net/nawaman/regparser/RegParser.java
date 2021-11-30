@@ -712,7 +712,7 @@ public class RegParser implements Checker, Serializable {
         String   FN  = this.Entries[pIndex].name();
         ParserTypeRef FTR = this.Entries[pIndex].typeRef();
         ParserType    FT  = this.Entries[pIndex].type();
-        Checker  FP  = this.Entries[pIndex].getChecker();
+        Checker  FP  = this.Entries[pIndex].checker();
         
         return this.parseEach_P(pText, pOffset, pIndex, FN, FT, FTR, FP, pResult, pProvider, pTabs);
     }
@@ -720,7 +720,10 @@ public class RegParser implements Checker, Serializable {
     /** Parse an entry possessively */
     protected ParseResult parseEach_P(CharSequence pText, int pOffset, int pIndex, String FN, ParserType FT, ParserTypeRef FTR,
             Checker FP, ParseResult pResult, ParserTypeProvider pProvider, int pTabs) {
-        
+        try {
+    	
+    	
+    	
         boolean IsFPType          = (FT != null) || (FTR != null);
         boolean IsFPName          = (FN != null);
         boolean IsFPAsNode        = ((FN == null) && IsFPType) || ((FN != null) && !FN.startsWith("$"));
@@ -990,6 +993,21 @@ public class RegParser implements Checker, Serializable {
                         }
                     
         return null;
+        
+        } catch (NullPointerException e) {
+        	e.printStackTrace();
+        	System.out.println("pText: "     + pText);
+        	System.out.println("pOffset: "   + pOffset);
+        	System.out.println("pIndex: "    + pIndex);
+        	System.out.println("FN: "        + FN);
+        	System.out.println("FT: "        + FT);
+        	System.out.println("FTR: "       + FTR);
+        	System.out.println("FP: "        + FP);
+        	System.out.println("pResult: "   + pResult);
+        	System.out.println("pProvider: " + pProvider);
+        	System.out.println("pTabs: "     + pTabs);
+        	throw e;
+		}
     }
     
     /** Cache for Tabs */
@@ -1044,7 +1062,7 @@ public class RegParser implements Checker, Serializable {
             if (pOffset < 0)
                 return null;
             
-            Quantifier FPQ = this.Entries[pIndex].getQuantifier();
+            Quantifier FPQ = this.Entries[pIndex].quantifier();
             if (FPQ == null)
                 FPQ = Quantifier.One;
             
@@ -1054,7 +1072,7 @@ public class RegParser implements Checker, Serializable {
                 // If the current multiple matchings end prematurely
                 if (pTimes < FPQ.lowerBound()) {
                     RegParserEntry RPE = this.Entries[pIndex];
-                    Checker C   = RPE.getChecker();
+                    Checker C   = RPE.checker();
                     // If this is a normal checker, return null
                     if (!((C instanceof RegParser) || (C instanceof CheckerAlternative)
                             || ((C == null) && ((RPE.type() != null) || (RPE.typeRef() != null)))))
@@ -1068,8 +1086,8 @@ public class RegParser implements Checker, Serializable {
                     TryLoop: for (int i = (pIndex + 1); i < EntryLength; i++) {
                         RegParserEntry RPE = this.Entries[i];
                         
-                        Checker    C = RPE.getChecker();
-                        Quantifier Q = RPE.getQuantifier();
+                        Checker    C = RPE.checker();
+                        Quantifier Q = RPE.quantifier();
                         // If the rest of the entry is not optional 
                         if ((Q == null) || (Q.lowerBound() != 0)) {
                             // Inside a RegParser or Alternative with Q.LowerBound == 1, there may be a checker with {0}
@@ -1083,7 +1101,7 @@ public class RegParser implements Checker, Serializable {
                                 pIndex = i;
                                 pTimes = 0;
                                 
-                                FPQ = this.Entries[pIndex].getQuantifier();
+                                FPQ = this.Entries[pIndex].quantifier();
                                 if (FPQ == null)
                                     FPQ = Quantifier.One;
                                 
@@ -1157,12 +1175,12 @@ public class RegParser implements Checker, Serializable {
                         
                         // Is it any
                         RegParserEntry RPE = this.Entries[pIndex];
-                        if (RPE.getChecker() == PredefinedCharClasses.Any) {
+                        if (RPE.checker() == PredefinedCharClasses.Any) {
                             if ((RPE.name() == null) && (RPE.typeRef() == null) && (RPE.type() == null)) {
                                 // Is this limited - Match till the limit
-                                int LB = RPE.getQuantifier().lowerBound();
+                                int LB = RPE.quantifier().lowerBound();
                                 if (pOffset + LB <= TextLength) {    // There is enough space for the minimum (the lower bound)
-                                    int UB = RPE.getQuantifier().upperBound();
+                                    int UB = RPE.quantifier().upperBound();
                                     if (UB != -1) {    // With limit
                                         if (pOffset + UB <= TextLength) { // Can it contain the maximum
                                             // Take the minimum
@@ -1228,7 +1246,7 @@ public class RegParser implements Checker, Serializable {
                         
                         ParserType    FT  = this.Entries[pIndex].type();
                         ParserTypeRef FTR = this.Entries[pIndex].typeRef();
-                        Checker  FP  = this.Entries[pIndex].getChecker();
+                        Checker  FP  = this.Entries[pIndex].checker();
                         
                         boolean IsFPAlternative = ((FT == null) && (FTR == null)) && !(FP instanceof RegParser)
                                 && (FP instanceof CheckerAlternative);
@@ -1332,7 +1350,7 @@ public class RegParser implements Checker, Serializable {
                             
                         ParserType    FT  = this.Entries[pIndex].type();
                         ParserTypeRef FTR = this.Entries[pIndex].typeRef();
-                        Checker  FP  = this.Entries[pIndex].getChecker();
+                        Checker  FP  = this.Entries[pIndex].checker();
                         
                         boolean IsFPAlternative = ((FT == null) && (FTR == null)) && !(FP instanceof RegParser)
                                 && (FP instanceof CheckerAlternative);
@@ -1430,31 +1448,43 @@ public class RegParser implements Checker, Serializable {
     /** Return the optimized version of this Checker */
     public Checker optimize() {
         if ((this.Entries.length == 1) && (this.Entries[0].name() == null) && (this.Entries[0].typeRef() == null)
-                && ((this.Entries[0].getQuantifier() == null) || this.Entries[0].getQuantifier().isOne_Possessive())) {
-            return this.Entries[0].getChecker();
+                && ((this.Entries[0].quantifier() == null) || this.Entries[0].quantifier().isOne_Possessive())) {
+            return this.Entries[0].checker();
         }
         
-        RegParserEntry[] RPEs      = new RegParserEntry[this.Entries.length];
-        boolean   IsChanged = false;
-        
-        for (int i = 0; i < this.Entries.length; i++) {
-            RegParserEntry RPE = this.Entries[i];
-            if ((RPE.typeRef() == null) && (RPE.getChecker() instanceof RegParser)) {
-                Checker New = ((RegParser) RPE.getChecker()).optimize();
-                if (New != RPE.getChecker()) {
-                    RPEs[i]   = RegParserEntry.newParserEntry(RPE.name(), New, RPE.getQuantifier());
-                    IsChanged = true;
-                } else {
-                    RPEs[i] = RegParserEntry.newParserEntry(RPE.name(), RPE.getChecker(), RPE.getQuantifier());
-                }
-            } else
-                RPEs[i] = RegParserEntry.newParserEntry(RPE.name(), RPE.getChecker(), RPE.getQuantifier());
-        }
-        
-        if (IsChanged)
-            return RegParser.newRegParser((Object[]) RPEs);
-        return this;
-    }
+		var     newEntries = new RegParserEntry[this.Entries.length];
+		boolean isChanged  = false;
+		
+		for (int i = 0; i < this.Entries.length; i++) {
+			var entry      = this.Entries[i];
+			var checker    = entry.checker();
+			var name       = entry.name();
+			var typeRef    = entry.typeRef();
+			var type       = entry.type();
+			var quantifier = entry.quantifier();
+			if (typeRef != null) {
+				newEntries[i] = RegParserEntry.newParserEntry(name, typeRef, quantifier);
+			} else if (type != null) {
+				newEntries[i] = RegParserEntry.newParserEntry(name, type, quantifier);
+			} else {
+				if (checker instanceof RegParser) {
+					var newParser = ((RegParser)checker).optimize();
+					if (newParser != checker) {
+						newEntries[i] = RegParserEntry.newParserEntry(name, newParser, quantifier);
+						isChanged     = true;
+					} else {
+						newEntries[i] = RegParserEntry.newParserEntry(name, checker, quantifier);
+					}
+				} else if (checker != null) {
+					newEntries[i] = RegParserEntry.newParserEntry(name, checker, quantifier);
+				} else {
+					throw new NullPointerException("`checker` is null.");
+				}
+			}
+		}
+		
+		return isChanged ? newRegParser((Object[])newEntries) : this;
+	}
     
     // To Satisfy Checker ----------------------------------------------------------------------------------------------
     
