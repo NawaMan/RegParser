@@ -5,13 +5,13 @@ import static net.nawaman.regparser.TestUtils.validate;
 
 import org.junit.Test;
 
-import net.nawaman.regparser.types.PTIdentifier;
+import net.nawaman.regparser.types.IdentifierParserType;
 
 public class TestUsages {
 	
 	@Test
 	public void testDeclareVariable() {
-		var typeProvider = new ParserTypeProvider.Extensible(new PTIdentifier());
+		var typeProvider = new ParserTypeProvider.Extensible(new IdentifierParserType());
 		
 		var parser = newRegParser(
 		                typeProvider,
@@ -28,7 +28,7 @@ public class TestUsages {
 	
 	@Test
 	public void testDeclareArray() {
-		var typeProvider = new ParserTypeProvider.Extensible(new PTIdentifier());
+		var typeProvider = new ParserTypeProvider.Extensible(new IdentifierParserType());
 		
 		var parser = newRegParser(typeProvider,
 		        "var"

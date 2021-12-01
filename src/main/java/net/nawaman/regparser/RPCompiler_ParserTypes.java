@@ -34,7 +34,7 @@ import net.nawaman.regparser.checkers.CheckerFirstFound;
 import net.nawaman.regparser.checkers.CheckerNot;
 import net.nawaman.regparser.checkers.WordChecker;
 import net.nawaman.regparser.result.ParseResult;
-import net.nawaman.regparser.types.PTIdentifier;
+import net.nawaman.regparser.types.IdentifierParserType;
 import net.nawaman.regparser.types.PTStrLiteral;
 import net.nawaman.regparser.types.PTTextCI;
 import net.nawaman.regparser.utils.Util;
@@ -421,7 +421,7 @@ public class RPCompiler_ParserTypes {
                 true,
                 RegParser.newRegParser(
                     "#AsText",     new CharSingle('$'),   Quantifier.ZeroOrOne,
-                    "#TypeName",   new ParserTypeRef.Simple(PTIdentifier.Name),
+                    "#TypeName",   IdentifierParserType.typeRef,
                     "#TypeOption", new CharSet("*+"),     Quantifier.ZeroOrOne,
                     "#Validate",   new CharSet("~?"),     Quantifier.ZeroOrOne,
                     "#Collective", new WordChecker("[]"), Quantifier.ZeroOrOne,
@@ -858,7 +858,7 @@ public class RPCompiler_ParserTypes {
                                     new CheckerAlternative(
                                         true,
                                         RegParser.newRegParser(
-                                            "#Group-Name",   new ParserTypeRef.Simple(PTIdentifier.Name),
+                                            "#Group-Name",   IdentifierParserType.typeRef,
                                             "#Group-Option", new CharSet("*+"),     Quantifier.ZeroOrOne,
                                             "#Multiple",     new WordChecker("[]"), Quantifier.ZeroOrOne,
                                             PredefinedCharClasses.WhiteSpace, Quantifier.ZeroOrMore,

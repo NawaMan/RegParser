@@ -24,7 +24,7 @@ import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParser;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParserItem;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTType;
 import net.nawaman.regparser.checkers.CharChecker;
-import net.nawaman.regparser.types.PTIdentifier;
+import net.nawaman.regparser.types.IdentifierParserType;
 import net.nawaman.regparser.types.PTStrLiteral;
 import net.nawaman.regparser.types.PTTextCI;
 
@@ -57,7 +57,7 @@ public class TestRegParserCompiler2 {
 		var typeProvider = new ParserTypeProvider.Extensible();
 		
 		typeProvider.addType(new PTTextCI());
-		typeProvider.addType(new PTIdentifier());
+		typeProvider.addType(new IdentifierParserType());
 		typeProvider.addType(new PTStrLiteral());
 		typeProvider.addType(new RPTComment());
 		typeProvider.addType(new RPTType());
@@ -462,7 +462,7 @@ public class TestRegParserCompiler2 {
 			validate("null", parser.match("Shape",  typeProvider));
 		}
 		{
-			typeProvider.addType(new PTIdentifier());
+			typeProvider.addType(new IdentifierParserType());
 			var parser = newRegParser("(var|int)\\b+!$Identifier!\\b*=\\b*[0-9]+\\b*;");
 			validate(12, parser.match("var V1 = 45;", typeProvider).endPosition());
 			validate(10, parser.match("var V1=45;",   typeProvider).endPosition());

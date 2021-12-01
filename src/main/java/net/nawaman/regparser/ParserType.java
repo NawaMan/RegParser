@@ -34,11 +34,11 @@ abstract public class ParserType implements Serializable {
 	static private final long serialVersionUID = 7148744076563340787L;
 	
 	/** An empty array of RPType */
-	static public final ParserType[] EmptyTypeArray = new ParserType[0];
+	public static final ParserType[] EmptyTypeArray = new ParserType[0];
 	
 	private ParserTypeRef      defaultRef   = null;
-	private int           flags        = 0;
-	private RegParser     parser       = null;
+	private int                flags        = 0;
+	private RegParser          parser       = null;
 	private ParserTypeProvider typeProvider = null;
 	
 	/** Returns the name of the type */

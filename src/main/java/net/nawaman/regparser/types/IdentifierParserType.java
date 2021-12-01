@@ -18,12 +18,15 @@
 
 package net.nawaman.regparser.types;
 
+import static net.nawaman.regparser.PredefinedCharClasses.Alphabet;
+import static net.nawaman.regparser.PredefinedCharClasses.Digit;
+import static net.nawaman.regparser.Quantifier.ZeroOrMore;
+import static net.nawaman.regparser.RegParser.newRegParser;
+
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.ParserType;
 import net.nawaman.regparser.ParserTypeProvider;
-import net.nawaman.regparser.PredefinedCharClasses;
-import net.nawaman.regparser.Quantifier;
-import net.nawaman.regparser.RegParser;
+import net.nawaman.regparser.ParserTypeRef;
 import net.nawaman.regparser.checkers.CharSingle;
 import net.nawaman.regparser.checkers.CharUnion;
 import net.nawaman.regparser.result.ParseResult;
@@ -33,23 +36,30 @@ import net.nawaman.regparser.result.ParseResult;
  * 
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-@SuppressWarnings("serial")
-public class PTIdentifier extends ParserType {
-    
-    static public String Name = "$Identifier";
-    
-    @Override
-    public String name() {
-        return Name;
-    }
-    
-    Checker Checker = RegParser.newRegParser(new CharUnion(PredefinedCharClasses.Alphabet, new CharSingle('_')),
-            new CharUnion(PredefinedCharClasses.Alphabet, new CharSingle('_'), PredefinedCharClasses.Digit),
-            Quantifier.ZeroOrMore);
-    
-    @Override
-    public Checker checker(ParseResult pHostResult, String pParam, ParserTypeProvider pProvider) {
-        return this.Checker;
-    }
-    
+public class IdentifierParserType extends ParserType {
+	
+	private static final long serialVersionUID = -3805785789736448768L;
+	
+	public static String               name     = "$Identifier";
+	public static IdentifierParserType instance = new IdentifierParserType();
+	public static ParserTypeRef        typeRef  = instance.typeRef();
+	
+	private final Checker checker;
+	
+	public IdentifierParserType() {
+		checker = newRegParser(
+		              new CharUnion(Alphabet, new CharSingle('_')),
+		              new CharUnion(Alphabet, new CharSingle('_'), Digit), ZeroOrMore);
+	}
+	
+	@Override
+	public String name() {
+		return name;
+	}
+	
+	@Override
+	public Checker checker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider) {
+		return checker;
+	}
+	
 }

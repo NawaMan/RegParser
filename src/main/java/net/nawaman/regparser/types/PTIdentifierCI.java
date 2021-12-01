@@ -27,7 +27,7 @@ import net.nawaman.regparser.result.ParseResult;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 @SuppressWarnings("serial")
-public class PTIdentifierCI extends PTIdentifier {
+public class PTIdentifierCI extends IdentifierParserType {
     
     static public String Name = "$IdentifierCI";
     
