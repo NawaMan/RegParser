@@ -19,6 +19,7 @@
 package net.nawaman.regparser.types;
 
 import net.nawaman.regparser.ParserTypeProvider;
+import net.nawaman.regparser.ParserTypeRef;
 import net.nawaman.regparser.result.ParseResult;
 
 /**
@@ -26,25 +27,34 @@ import net.nawaman.regparser.result.ParseResult;
  *
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-@SuppressWarnings("serial")
-public class PTIdentifierCI extends IdentifierParserType {
-    
-    static public String Name = "$IdentifierCI";
-    
-    @Override
-    public String name() {
-        return Name;
-    }
-    
-    @Override
-    public boolean doValidate(ParseResult pHostResult, ParseResult pThisResult, String pParam,
-            ParserTypeProvider pProvider) {
-        String S = pThisResult.text();
-        if (S == pParam)
-            return true;
-        if ((S == null) || (pParam == null))
-            return false;
-        return (S.toLowerCase().equals(pParam.toLowerCase()));
-    }
-    
+public class IdentifierCaseInsensitiveParserType extends IdentifierParserType {
+	
+	private static final long serialVersionUID = 1841177503836598215L;
+
+	
+	public static String               name     = "$IdentifierCI";
+	public static IdentifierParserType instance = new IdentifierParserType();
+	public static ParserTypeRef        typeRef  = instance.typeRef();
+	
+	@Override
+	public String name() {
+		return name;
+	}
+	
+	@Override
+	public boolean doValidate(
+					ParseResult        hostResult,
+					ParseResult        thisResult,
+					String             parameter,
+					ParserTypeProvider typeProvider) {
+		var text = thisResult.text();
+		if (text == parameter)
+			return true;
+		
+		if ((text == null) || (parameter == null))
+			return false;
+		
+		return text.toLowerCase().equals(parameter.toLowerCase());
+	}
+	
 }
