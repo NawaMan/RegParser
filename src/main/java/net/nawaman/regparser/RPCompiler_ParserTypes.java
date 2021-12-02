@@ -36,7 +36,7 @@ import net.nawaman.regparser.checkers.WordChecker;
 import net.nawaman.regparser.result.ParseResult;
 import net.nawaman.regparser.types.IdentifierParserType;
 import net.nawaman.regparser.types.StringLiteralParserType;
-import net.nawaman.regparser.types.PTTextCI;
+import net.nawaman.regparser.types.TextCaseInsensitiveParseType;
 import net.nawaman.regparser.utils.Util;
 
 /**
@@ -1014,7 +1014,7 @@ public class RPCompiler_ParserTypes {
                 String Text = pThisResult.textOf(0);
                 // Return as Word if its lower case and upper case is the same
                 if(Text.toUpperCase().equals(Text.toLowerCase())) return RegParserEntry.newParserEntry(new WordChecker(Text));
-                return RegParserEntry.newParserEntry(new ParserTypeRef.Simple(PTTextCI.Name, Text.substring(1, Text.length() - 1)));
+                return RegParserEntry.newParserEntry(new ParserTypeRef.Simple(TextCaseInsensitiveParseType.name, Text.substring(1, Text.length() - 1)));
             }
             
             if(RPTType.Name.equals(PType))

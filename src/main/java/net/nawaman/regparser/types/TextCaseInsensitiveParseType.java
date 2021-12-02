@@ -18,6 +18,8 @@
 
 package net.nawaman.regparser.types;
 
+import static net.nawaman.regparser.RegParser.newRegParser;
+
 // Usage: !text("Text")! will match everything that is equals to "Text" case insensitively
 import java.util.Hashtable;
 
@@ -26,7 +28,6 @@ import net.nawaman.regparser.ParserType;
 import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.PredefinedCharClasses;
 import net.nawaman.regparser.Quantifier;
-import net.nawaman.regparser.RegParser;
 import net.nawaman.regparser.result.ParseResult;
 
 /**
@@ -35,38 +36,42 @@ import net.nawaman.regparser.result.ParseResult;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 @SuppressWarnings("serial")
-public class PTTextCI extends ParserType {
-    
-    static Hashtable<Integer, Checker> Checkers = new Hashtable<Integer, Checker>();
-    
-    static public String Name = "textCI";
-    
-    @Override
-    public String name() {
-        return Name;
-    }
-    
-    @Override
-    public Checker checker(ParseResult pHostResult, String pParam, ParserTypeProvider pProvider) {
-        if (pParam == null)
-            pParam = "";
-        int     L = pParam.length();
-        Checker C = Checkers.get(L);
-        if (C != null)
-            return C;
-        C = RegParser.newRegParser(PredefinedCharClasses.Any, new Quantifier(L, L));
-        Checkers.put(L, C);
-        return C;
-    }
-    
-    @Override
-    public boolean doValidate(ParseResult pHostResult, ParseResult pThisResult, String pParam,
-            ParserTypeProvider pProvider) {
-        String S = pThisResult.text();
-        if (S == pParam)
-            return true;
-        if ((S == null) || (pParam == null))
-            return false;
-        return (S.toLowerCase().equals(pParam.toLowerCase()));
-    }
+public class TextCaseInsensitiveParseType extends ParserType {
+	
+	private static Hashtable<Integer, Checker> checkers = new Hashtable<Integer, Checker>();
+	
+	public static String name = "textCI";
+	
+	@Override
+	public String name() {
+		return name;
+	}
+	
+	@Override
+	public Checker checker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider) {
+		if (parameter == null) {
+			parameter = "";
+		}
+		int length  = parameter.length();
+		return checkers.computeIfAbsent(length, __ ->{
+			return newRegParser(PredefinedCharClasses.Any, new Quantifier(length, length));
+		});
+	}
+	
+	@Override
+	public boolean doValidate(
+					ParseResult        hostResult,
+					ParseResult        thisResult,
+					String             parameter,
+					ParserTypeProvider typeProvider) {
+		var S = thisResult.text();
+		if (S == parameter)
+			return true;
+		
+		if ((S == null)
+		 || (parameter == null))
+			return false;
+		
+		return S.toLowerCase().equals(parameter.toLowerCase());
+	}
 }

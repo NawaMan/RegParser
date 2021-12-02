@@ -26,7 +26,7 @@ import net.nawaman.regparser.RPCompiler_ParserTypes.RPTType;
 import net.nawaman.regparser.checkers.CharChecker;
 import net.nawaman.regparser.types.IdentifierParserType;
 import net.nawaman.regparser.types.StringLiteralParserType;
-import net.nawaman.regparser.types.PTTextCI;
+import net.nawaman.regparser.types.TextCaseInsensitiveParseType;
 
 public class TestRegParserCompiler2 {
 	
@@ -56,7 +56,7 @@ public class TestRegParserCompiler2 {
 	public void setup() {
 		var typeProvider = new ParserTypeProvider.Extensible();
 		
-		typeProvider.addType(new PTTextCI());
+		typeProvider.addType(new TextCaseInsensitiveParseType());
 		typeProvider.addType(new IdentifierParserType());
 		typeProvider.addType(new StringLiteralParserType());
 		typeProvider.addType(new RPTComment());
