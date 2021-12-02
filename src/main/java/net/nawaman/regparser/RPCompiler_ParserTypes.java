@@ -33,6 +33,7 @@ import net.nawaman.regparser.checkers.CheckerAlternative;
 import net.nawaman.regparser.checkers.CheckerFirstFound;
 import net.nawaman.regparser.checkers.CheckerNot;
 import net.nawaman.regparser.checkers.WordChecker;
+import net.nawaman.regparser.compiler.RPCommentParserType;
 import net.nawaman.regparser.result.ParseResult;
 import net.nawaman.regparser.types.IdentifierParserType;
 import net.nawaman.regparser.types.StringLiteralParserType;
@@ -64,27 +65,6 @@ public class RPCompiler_ParserTypes {
     }
     
     // Types -----------------------------------------------------------------------------------------------------------
-    
-    @SuppressWarnings("serial")
-    static public class RPTComment extends ParserType {
-        static public String Name = "Comment";
-        @Override public String name() { return Name; }
-        Checker Checker = null;
-        @Override public Checker checker(ParseResult pHostResult, String pParam, ParserTypeProvider pProvider) {
-            if(this.Checker == null) {
-                this.Checker = new CheckerAlternative(
-                    RegParser.newRegParser(new WordChecker("/*"), new CheckerNot(new WordChecker("*/")), Quantifier.ZeroOrMore, new WordChecker("*/")),
-                    RegParser.newRegParser(new WordChecker("(*"), new CheckerNot(new WordChecker("*)")), Quantifier.ZeroOrMore, new WordChecker("*)")),
-                    RegParser.newRegParser(
-                        new WordChecker("//"),
-                        new CheckerNot(new CheckerAlternative(new WordChecker("\n"), RegParser.newRegParser(PredefinedCharClasses.Any, Quantifier.Zero))), Quantifier.ZeroOrMore,
-                        new CheckerAlternative(new WordChecker("\n"), RegParser.newRegParser(PredefinedCharClasses.Any, Quantifier.Zero))
-                    )
-                );
-            }
-            return this.Checker;
-        }
-    }
     
     @SuppressWarnings("serial")
     static public class RPTEscape extends ParserType {
@@ -1093,7 +1073,7 @@ public class RPCompiler_ParserTypes {
 	                        new ParserTypeRef.Simple(RPTQuantifier.Name)
 	                    )
 	                ),
-	                RegParser.newRegParser("#Comment",   new ParserTypeRef.Simple(RPTComment.Name)),
+	                RegParser.newRegParser("#Comment", RPCommentParserType.typeRef),
 	                new CheckerAlternative(true,
 	                    RegParser.newRegParser("#Item[]",    new ParserTypeRef.Simple(RPTRegParserItem.Name)),
 	                    RegParser.newRegParser("#Ignored[]", new CharSet(" \t\n\r\f"))

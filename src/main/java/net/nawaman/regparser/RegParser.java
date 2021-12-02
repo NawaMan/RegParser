@@ -29,7 +29,6 @@ import java.util.Vector;
 import java.util.stream.Stream;
 
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTCharSetItem;
-import net.nawaman.regparser.RPCompiler_ParserTypes.RPTComment;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTEscape;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTEscapeHex;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTEscapeOct;
@@ -41,9 +40,10 @@ import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParserItem;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTType;
 import net.nawaman.regparser.checkers.CheckerAlternative;
 import net.nawaman.regparser.checkers.CheckerFixeds;
+import net.nawaman.regparser.compiler.RPCommentParserType;
+import net.nawaman.regparser.result.ParseResult;
 import net.nawaman.regparser.result.ParseResultNode;
 import net.nawaman.regparser.result.TemporaryParseResult;
-import net.nawaman.regparser.result.ParseResult;
 import net.nawaman.regparser.result.entry.ParseResultEntry;
 import net.nawaman.regparser.types.IdentifierParserType;
 import net.nawaman.regparser.types.StringLiteralParserType;
@@ -305,15 +305,13 @@ public class RegParser implements Checker, Serializable {
                 if (IsNew) {
                     if (C != null)
                         RPEs.add(RegParserEntry.newParserEntry(N, C, Q));
+                    else if (T != null)
+                        RPEs.add(RegParserEntry.newParserEntry(N, T, Q));
+                    else if (TR != null)
+                        RPEs.add(RegParserEntry.newParserEntry(N, TR, Q));
                     else
-                        if (T != null)
-                            RPEs.add(RegParserEntry.newParserEntry(N, T, Q));
-                        else
-                            if (TR != null)
-                                RPEs.add(RegParserEntry.newParserEntry(N, TR, Q));
-                            else
-                                throw new IllegalArgumentException(
-                                        "Invalid parameters (" + Arrays.toString(pParams) + ").");
+                        throw new IllegalArgumentException(
+                                "Invalid parameters (" + Arrays.toString(pParams) + ").");
                     IsNew = false;
                     N     = null;
                     C     = null;
@@ -325,142 +323,127 @@ public class RegParser implements Checker, Serializable {
                 RPEs.add((RegParserEntry) O);
                 IsSkipped = false;
                 
-            } else
-                if ((O instanceof String) && !IsSkipped) {
-                    if (!((String) O).startsWith("$") && !((String) O).startsWith("#"))
+            } else if ((O instanceof String) && !IsSkipped) {
+                if (!((String) O).startsWith("$") && !((String) O).startsWith("#"))
+                    throw new IllegalArgumentException(
+                            "Name of RegParser entry must start with '$' or '#' (" + ((String) O) + ").");
+                
+                if (IsNew) {
+                    if (C != null)
+                        RPEs.add(RegParserEntry.newParserEntry(N, C, Q));
+                    else if (T != null)
+                        RPEs.add(RegParserEntry.newParserEntry(N, T, Q));
+                    else if (TR != null)
+                        RPEs.add(RegParserEntry.newParserEntry(N, TR, Q));
+                    else
                         throw new IllegalArgumentException(
-                                "Name of RegParser entry must start with '$' or '#' (" + ((String) O) + ").");
-                    
-                    if (IsNew) {
-                        if (C != null)
-                            RPEs.add(RegParserEntry.newParserEntry(N, C, Q));
-                        else
-                            if (T != null)
-                                RPEs.add(RegParserEntry.newParserEntry(N, T, Q));
-                            else
-                                if (TR != null)
-                                    RPEs.add(RegParserEntry.newParserEntry(N, TR, Q));
-                                else
-                                    throw new IllegalArgumentException(
-                                            "Invalid parameters (" + Arrays.toString(pParams) + ").");
-                        IsNew = false;
-                        N     = null;
-                        C     = null;
-                        T     = null;
-                        TR    = null;
-                        Q     = null;
-                    }
-                    
-                    N         = (String) O;
-                    IsSkipped = false;
-                    
-                } else
-                    if (O instanceof Checker) {
-                        if (IsNew) {
-                            if (C != null)
-                                RPEs.add(RegParserEntry.newParserEntry(N, C, Q));
-                            else
-                                if (T != null)
-                                    RPEs.add(RegParserEntry.newParserEntry(N, T, Q));
-                                else
-                                    if (TR != null)
-                                        RPEs.add(RegParserEntry.newParserEntry(N, TR, Q));
-                                    else
-                                        throw new IllegalArgumentException(
-                                                "Invalid parameters (" + Arrays.toString(pParams) + ").");
-                            IsNew = false;
-                            N     = null;
-                            C     = null;
-                            T     = null;
-                            TR    = null;
-                            Q     = null;
-                        }
-                        
-                        IsNew     = true;
-                        C         = (Checker) O;
-                        IsSkipped = false;
-                        
-                    } else
-                        if (O instanceof ParserTypeRef) {
-                            if (IsNew) {
-                                if (C != null)
-                                    RPEs.add(RegParserEntry.newParserEntry(N, C, Q));
-                                else
-                                    if (T != null)
-                                        RPEs.add(RegParserEntry.newParserEntry(N, T, Q));
-                                    else
-                                        if (TR != null)
-                                            RPEs.add(RegParserEntry.newParserEntry(N, TR, Q));
-                                        else
-                                            throw new IllegalArgumentException(
-                                                    "Invalid parameters (" + Arrays.toString(pParams) + ").");
-                                IsNew = false;
-                                N     = null;
-                                C     = null;
-                                T     = null;
-                                TR    = null;
-                                Q     = null;
-                            }
-                            
-                            IsNew     = true;
-                            TR        = (ParserTypeRef) O;
-                            IsSkipped = false;
-                            
-                        } else
-                            if (O instanceof ParserType) {
-                                if (IsNew) {
-                                    if (C != null)
-                                        RPEs.add(RegParserEntry.newParserEntry(N, C, Q));
-                                    else
-                                        if (T != null)
-                                            RPEs.add(RegParserEntry.newParserEntry(N, T, Q));
-                                        else
-                                            if (TR != null)
-                                                RPEs.add(RegParserEntry.newParserEntry(N, TR, Q));
-                                            else
-                                                throw new IllegalArgumentException(
-                                                        "Invalid parameters (" + Arrays.toString(pParams) + ").");
-                                    IsNew = false;
-                                    N     = null;
-                                    C     = null;
-                                    T     = null;
-                                    TR    = null;
-                                    Q     = null;
-                                }
-                                
-                                IsNew     = true;
-                                T         = (ParserType) O;
-                                IsSkipped = false;
-                                
-                            } else
-                                if ((O instanceof Quantifier)
-                                        || ((O == null) && IsNew && ((C != null) || (T != null)))) {
-                                    if (!IsNew || ((C == null) && (T == null) && (TR == null)) || (Q != null))
-                                        throw new IllegalArgumentException(
-                                                "Invalid parameters (" + Arrays.toString(pParams) + ").");
-                                    
-                                    Q         = (Quantifier) O;
-                                    IsSkipped = false;
-                                    
-                                } else {
-                                    if ((O == null) && !IsNew && !IsSkipped)
-                                        IsSkipped = true;    // Skip for Name
-                                    else
-                                        throw new IllegalArgumentException(
-                                                "Invalid parameters (" + Arrays.toString(pParams) + ").");
-                                }
+                                "Invalid parameters (" + Arrays.toString(pParams) + ").");
+                    IsNew = false;
+                    N     = null;
+                    C     = null;
+                    T     = null;
+                    TR    = null;
+                    Q     = null;
+                }
+                
+                N         = (String) O;
+                IsSkipped = false;
+                
+            } else if (O instanceof Checker) {
+                if (IsNew) {
+                    if (C != null)
+                        RPEs.add(RegParserEntry.newParserEntry(N, C, Q));
+                    else if (T != null)
+                        RPEs.add(RegParserEntry.newParserEntry(N, T, Q));
+                    else if (TR != null)
+                        RPEs.add(RegParserEntry.newParserEntry(N, TR, Q));
+                    else
+                        throw new IllegalArgumentException(
+                                "Invalid parameters (" + Arrays.toString(pParams) + ").");
+                    IsNew = false;
+                    N     = null;
+                    C     = null;
+                    T     = null;
+                    TR    = null;
+                    Q     = null;
+                }
+                
+                IsNew     = true;
+                C         = (Checker) O;
+                IsSkipped = false;
+                
+            } else if (O instanceof ParserTypeRef) {
+                if (IsNew) {
+                    if (C != null)
+                        RPEs.add(RegParserEntry.newParserEntry(N, C, Q));
+                    else if (T != null)
+                        RPEs.add(RegParserEntry.newParserEntry(N, T, Q));
+                    else if (TR != null)
+                        RPEs.add(RegParserEntry.newParserEntry(N, TR, Q));
+                    else
+                        throw new IllegalArgumentException(
+                                "Invalid parameters (" + Arrays.toString(pParams) + ").");
+                    IsNew = false;
+                    N     = null;
+                    C     = null;
+                    T     = null;
+                    TR    = null;
+                    Q     = null;
+                }
+                
+                IsNew     = true;
+                TR        = (ParserTypeRef) O;
+                IsSkipped = false;
+                
+            } else if (O instanceof ParserType) {
+                if (IsNew) {
+                    if (C != null)
+                        RPEs.add(RegParserEntry.newParserEntry(N, C, Q));
+                    else if (T != null)
+                        RPEs.add(RegParserEntry.newParserEntry(N, T, Q));
+                    else if (TR != null)
+                        RPEs.add(RegParserEntry.newParserEntry(N, TR, Q));
+                    else
+                        throw new IllegalArgumentException(
+                                "Invalid parameters (" + Arrays.toString(pParams) + ").");
+                    IsNew = false;
+                    N     = null;
+                    C     = null;
+                    T     = null;
+                    TR    = null;
+                    Q     = null;
+                }
+                
+                IsNew     = true;
+                T         = (ParserType) O;
+                IsSkipped = false;
+                
+            } else if ((O instanceof Quantifier)
+                    || ((O == null) && IsNew && ((C != null) || (T != null)))) {
+                if (!IsNew || ((C == null) && (T == null) && (TR == null)) || (Q != null))
+                    throw new IllegalArgumentException(
+                            "Invalid parameters (" + Arrays.toString(pParams) + ").");
+                
+                Q         = (Quantifier) O;
+                IsSkipped = false;
+                
+            } else {
+                if ((O == null) && !IsNew && !IsSkipped)
+                    IsSkipped = true;    // Skip for Name
+                else
+                    throw new IllegalArgumentException(
+                            "Invalid parameters (" + Arrays.toString(pParams) + ").");
+            }
         }
         if (IsNew || (N != null)) {
             if (C != null)
                 RPEs.add(RegParserEntry.newParserEntry(N, C, Q));
+            else if (T != null)
+                RPEs.add(RegParserEntry.newParserEntry(N, T, Q));
+            else if (TR != null)
+                RPEs.add(RegParserEntry.newParserEntry(N, TR, Q));
             else
-                if (T != null)
-                    RPEs.add(RegParserEntry.newParserEntry(N, T, Q));
-                else
-                    if (TR != null)
-                        RPEs.add(RegParserEntry.newParserEntry(N, TR, Q));
-                    else
-                        throw new IllegalArgumentException("Invalid parameters (" + Arrays.toString(pParams) + ").");
+                throw new IllegalArgumentException("Invalid parameters (" + Arrays.toString(pParams) + ").");
         }
         
         RegParser RP = (pTProvider == null)
@@ -505,7 +488,7 @@ public class RegParser implements Checker, Serializable {
                 // Add the type
                 RPTProvider.addType(new IdentifierParserType());
                 RPTProvider.addType(new StringLiteralParserType());
-                RPTProvider.addType(new RPTComment());
+                RPTProvider.addType(new RPCommentParserType());
                 RPTProvider.addType(new RPTType());
                 RPTProvider.addType(new RPTQuantifier());
                 RPTProvider.addType(new RPTRegParserItem());
