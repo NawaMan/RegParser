@@ -22,7 +22,7 @@ import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParser;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParserItem;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTType;
 import net.nawaman.regparser.types.IdentifierParserType;
-import net.nawaman.regparser.types.PTStrLiteral;
+import net.nawaman.regparser.types.StringLiteralParserType;
 import net.nawaman.regparser.types.PTTextCI;
 
 public class TestRegParserCompiler1 {
@@ -38,7 +38,7 @@ public class TestRegParserCompiler1 {
 		typeProvider = new ParserTypeProvider.Extensible();
 		typeProvider.addType(new PTTextCI());
 		typeProvider.addType(new IdentifierParserType());
-		typeProvider.addType(new PTStrLiteral());
+		typeProvider.addType(new StringLiteralParserType());
 		typeProvider.addType(new RPTComment());
 		typeProvider.addType(new RPTType());
 		typeProvider.addType(new RPTQuantifier());

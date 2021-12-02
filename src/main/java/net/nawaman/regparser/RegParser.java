@@ -46,7 +46,7 @@ import net.nawaman.regparser.result.TemporaryParseResult;
 import net.nawaman.regparser.result.ParseResult;
 import net.nawaman.regparser.result.entry.ParseResultEntry;
 import net.nawaman.regparser.types.IdentifierParserType;
-import net.nawaman.regparser.types.PTStrLiteral;
+import net.nawaman.regparser.types.StringLiteralParserType;
 import net.nawaman.regparser.types.PTTextCI;
 import net.nawaman.regparser.utils.Util;
 
@@ -504,7 +504,7 @@ public class RegParser implements Checker, Serializable {
                 RPTProvider.addType(new PTTextCI());
                 // Add the type
                 RPTProvider.addType(new IdentifierParserType());
-                RPTProvider.addType(new PTStrLiteral());
+                RPTProvider.addType(new StringLiteralParserType());
                 RPTProvider.addType(new RPTComment());
                 RPTProvider.addType(new RPTType());
                 RPTProvider.addType(new RPTQuantifier());

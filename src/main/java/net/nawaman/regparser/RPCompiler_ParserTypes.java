@@ -35,7 +35,7 @@ import net.nawaman.regparser.checkers.CheckerNot;
 import net.nawaman.regparser.checkers.WordChecker;
 import net.nawaman.regparser.result.ParseResult;
 import net.nawaman.regparser.types.IdentifierParserType;
-import net.nawaman.regparser.types.PTStrLiteral;
+import net.nawaman.regparser.types.StringLiteralParserType;
 import net.nawaman.regparser.types.PTTextCI;
 import net.nawaman.regparser.utils.Util;
 
@@ -427,7 +427,7 @@ public class RPCompiler_ParserTypes {
                     "#Collective", new WordChecker("[]"), Quantifier.ZeroOrOne,
                     "#Param",      RegParser.newRegParser(
                         new CharSingle('('),
-                        "#ParamValue", new ParserTypeRef.Simple(PTStrLiteral.Name), Quantifier.ZeroOrOne,
+                        "#ParamValue", new ParserTypeRef.Simple(StringLiteralParserType.name), Quantifier.ZeroOrOne,
                         new CharSingle(')')
                     ), Quantifier.ZeroOrOne,
                     new CharSingle('!')

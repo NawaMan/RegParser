@@ -18,11 +18,12 @@
 
 package net.nawaman.regparser.types;
 
+import static net.nawaman.regparser.RegParser.newRegParser;
+
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.ParserType;
 import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.Quantifier;
-import net.nawaman.regparser.RegParser;
 import net.nawaman.regparser.checkers.CharNot;
 import net.nawaman.regparser.checkers.CharSingle;
 import net.nawaman.regparser.checkers.CheckerAlternative;
@@ -34,34 +35,53 @@ import net.nawaman.regparser.result.ParseResult;
  *
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-@SuppressWarnings("serial")
-public class PTStrLiteral extends ParserType {
-    
-    static public String Name = "$StringLiteral";
-    
-    @Override
-    public String name() {
-        return Name;
-    }
-    
-    Checker Checker = RegParser
-            .newRegParser("#String",
-                    new CheckerAlternative(
-                            RegParser.newRegParser(new CharSingle('\"'),
-                                    RegParser.newRegParser(new CheckerAlternative(new CharNot(new CharSingle('\'')),
-                                            new WordChecker("\\\""))),
-                                    Quantifier.ZeroOrMore, new CharSingle('\"')),
-                            RegParser.newRegParser(new CharSingle('\''),
-                                    RegParser.newRegParser(new CheckerAlternative(new CharNot(new CharSingle('\'')),
-                                            new WordChecker("\\\'"))),
-                                    Quantifier.ZeroOrMore, new CharSingle('\'')),
-                            RegParser.newRegParser(new CharSingle('`'), RegParser.newRegParser(
-                                    new CheckerAlternative(new CharNot(new CharSingle('`')), new WordChecker("\\`"))),
-                                    Quantifier.ZeroOrMore, new CharSingle('`'))));
-    
-    @Override
-    public Checker checker(ParseResult pHostResult, String pParam, ParserTypeProvider pProvider) {
-        return this.Checker;
-    }
-    
+public class StringLiteralParserType extends ParserType {
+	
+	private static final long serialVersionUID = -5671933716521874182L;
+
+	public static String name = "$StringLiteral";
+	
+	private final Checker checker;
+	
+	public StringLiteralParserType() {
+		checker
+		    = newRegParser(
+		        "#String",
+		        new CheckerAlternative(
+		            newRegParser(
+		                new CharSingle('\"'),
+		                newRegParser(
+		                    new CheckerAlternative(
+		                        new CharNot(new CharSingle('\'')),
+		                        new WordChecker("\\\""))
+		                ), Quantifier.ZeroOrMore,
+		                new CharSingle('\"')),
+		            newRegParser(
+		                new CharSingle('\''),
+		                newRegParser(
+		                    new CheckerAlternative(
+		                        new CharNot(new CharSingle('\'')),
+		                        new WordChecker("\\\'"))
+		                ), Quantifier.ZeroOrMore,
+		                new CharSingle('\'')),
+		            newRegParser(
+		                new CharSingle('`'),
+		                newRegParser(
+		                    new CheckerAlternative(
+		                        new CharNot(new CharSingle('`')),
+		                        new WordChecker("\\`"))
+		                ), Quantifier.ZeroOrMore,
+		                new CharSingle('`'))));
+	}
+	
+	@Override
+	public String name() {
+		return name;
+	}
+	
+	@Override
+	public Checker checker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider) {
+		return checker;
+	}
+	
 }
