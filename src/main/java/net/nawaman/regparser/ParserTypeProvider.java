@@ -34,7 +34,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.nawaman.regparser.types.ComposableParserType;
-import net.nawaman.regparser.types.PTJavaChecker;
+import net.nawaman.regparser.types.JavaCheckerParserType;
 import net.nawaman.regparser.types.PTTextCI;
 import net.nawaman.regparser.types.ResultCompiler;
 import net.nawaman.regparser.types.ResultVerifier;
@@ -83,7 +83,7 @@ public interface ParserTypeProvider extends Serializable {
 			defaultProvider.addType(new PTTextCI());
 			defaultProvider.addType(new ParserTypeBackRef());
 			defaultProvider.addType(new ParserTypeBackRefCaseInsensitive());
-			defaultProvider.addType(new PTJavaChecker());
+			defaultProvider.addType(new JavaCheckerParserType());
 			return defaultProvider;
 		}
 		
