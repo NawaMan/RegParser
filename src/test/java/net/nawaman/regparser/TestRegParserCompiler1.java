@@ -11,7 +11,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTCharSetItem;
-import net.nawaman.regparser.RPCompiler_ParserTypes.RPTQuantifier;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRange;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParser;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParserItem;
@@ -20,6 +19,7 @@ import net.nawaman.regparser.compiler.RPEscapeHexParserType;
 import net.nawaman.regparser.compiler.RPEscapeOctParserType;
 import net.nawaman.regparser.compiler.RPEscapeParserType;
 import net.nawaman.regparser.compiler.RPEscapeUnicodeParserType;
+import net.nawaman.regparser.compiler.RPQuantifierParserType;
 import net.nawaman.regparser.compiler.RPTypeParserType;
 import net.nawaman.regparser.types.IdentifierParserType;
 import net.nawaman.regparser.types.StringLiteralParserType;
@@ -41,7 +41,7 @@ public class TestRegParserCompiler1 {
 		typeProvider.addType(StringLiteralParserType.instance);
 		typeProvider.addType(RPCommentParserType.instance);
 		typeProvider.addType(RPTypeParserType.instance);
-		typeProvider.addType(new RPTQuantifier());
+		typeProvider.addType(RPQuantifierParserType.instance);
 		typeProvider.addType(new RPTRegParserItem());
 		typeProvider.addType(RPEscapeParserType.instance);
 		typeProvider.addType(RPEscapeOctParserType.instance);
@@ -185,7 +185,7 @@ public class TestRegParserCompiler1 {
 	
 	@Test
 	public void testParseQunatifier() {
-		var parser = newRegParser(new ParserTypeRef.Simple(RPTQuantifier.Name), OneOrMore, Any, ZeroOrMore);
+		var parser = newRegParser(RPQuantifierParserType.typeRef, OneOrMore, Any, ZeroOrMore);
 		validate("(!Quantifier!)+.*", parser);
 		
 		var result = parser.match("?+*{54}{5,}*{,7}+{12,65}{ 1 }{ 4 , }{ , 8}{2,6}*", typeProvider);

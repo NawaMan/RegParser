@@ -38,6 +38,7 @@ import net.nawaman.regparser.compiler.RPEscapeHexParserType;
 import net.nawaman.regparser.compiler.RPEscapeOctParserType;
 import net.nawaman.regparser.compiler.RPEscapeParserType;
 import net.nawaman.regparser.compiler.RPEscapeUnicodeParserType;
+import net.nawaman.regparser.compiler.RPQuantifierParserType;
 import net.nawaman.regparser.compiler.RPTypeParserType;
 import net.nawaman.regparser.result.ParseResult;
 import net.nawaman.regparser.types.IdentifierParserType;
@@ -235,7 +236,7 @@ public class RPCompiler_ParserTypes {
                     RegParser.newRegParser("$NonOctalDigit",       new WordChecker("NonOctDigit")),
                     RegParser.newRegParser("$HexadecimalDigit",    new WordChecker("HexDigit")),
                     RegParser.newRegParser("$NonHexadecimalDigit", new WordChecker("NonHexDigit")),
-    
+                    
                     RegParser.newRegParser("$LowerCaseAlphabet", new WordChecker("LowerCaseAlphabet")),
                     RegParser.newRegParser("$UpperCaseAlphabet", new WordChecker("UpperCaseAlphabet")),
                     RegParser.newRegParser("$ASCII",             new WordChecker("ASCII")),
@@ -299,151 +300,6 @@ public class RPCompiler_ParserTypes {
             try { CC = (CharChecker)F.get(null); CachedPredefineds.put(N, CC); return CC; } catch(Exception E) {}
         }
         return null;
-    }
-    
-    @SuppressWarnings("serial")
-    static public class RPTQuantifier extends ParserType {
-        static public String Name = "Quantifier";
-        @Override public String name() { return Name; }
-        Checker Checker = RegParser.newRegParser(    // ((?|*|+|{\s[\d]*\s}|{\s[\d]*\s,\s}|{\s,\s[\d]*\s}|{\s[\d]*\s,\s[\d]*\s})(*|+)?)?
-                "#Quantifier", new CheckerAlternative(
-                    true,
-                    new CharSet("+*?"),
-                    RegParser.newRegParser(
-                        new CharSingle('{'),
-                        PredefinedCharClasses.Blank, Quantifier.ZeroOrMore,
-                        RegParser.newRegParser("#BothBound", RegParser.newRegParser(PredefinedCharClasses.Digit, Quantifier.OneOrMore)),
-                        PredefinedCharClasses.Blank, Quantifier.ZeroOrMore,
-                        new CharSingle('}')
-                    ),
-                    RegParser.newRegParser(
-                        new CharSingle('{'),
-                        PredefinedCharClasses.Blank, Quantifier.ZeroOrMore,
-                        new CharSingle(','),
-                        PredefinedCharClasses.Blank, Quantifier.ZeroOrMore,
-                        RegParser.newRegParser("#UpperBound",RegParser.newRegParser(PredefinedCharClasses.Digit, Quantifier.OneOrMore)),
-                        PredefinedCharClasses.Blank, Quantifier.ZeroOrMore,
-                        new CharSingle('}')
-                    ),
-                    RegParser.newRegParser(
-                        new CharSingle('{'),         Quantifier.One,
-                        PredefinedCharClasses.Blank, Quantifier.ZeroOrMore,
-                        RegParser.newRegParser("#LowerBound", RegParser.newRegParser(PredefinedCharClasses.Digit, Quantifier.OneOrMore)),
-                        PredefinedCharClasses.Blank, Quantifier.ZeroOrMore,
-                        new CharSingle(','),
-                        PredefinedCharClasses.Blank, Quantifier.ZeroOrMore,
-                        new CharSingle('}')
-                    ),
-                    RegParser.newRegParser(
-                        new CharSingle('{'),
-                        PredefinedCharClasses.Blank, Quantifier.ZeroOrMore,
-                        RegParser.newRegParser("#LowerBound",RegParser.newRegParser(PredefinedCharClasses.Digit, Quantifier.OneOrMore)),
-                        PredefinedCharClasses.Blank, Quantifier.ZeroOrMore,
-                        new CharSingle(','),
-                        PredefinedCharClasses.Blank, Quantifier.ZeroOrMore,
-                        RegParser.newRegParser("#UpperBound",RegParser.newRegParser(PredefinedCharClasses.Digit, Quantifier.OneOrMore)),
-                        PredefinedCharClasses.Blank, Quantifier.ZeroOrMore,
-                        new CharSingle('}')
-                    ),
-                    RegParser.newRegParser(
-                        new CharSingle('{'),
-                        RegParser.newRegParser("#Error[]",RegParser.newRegParser(new CharNot(new CharSingle('}')), Quantifier.ZeroOrMore)),
-                        new CharSingle('}')
-                    )
-                ),
-                "#Greediness", new CharSet("+*"), Quantifier.ZeroOrOne
-            );
-        @Override public Checker checker(ParseResult pHostResult, String pParam, ParserTypeProvider pProvider) { return this.Checker; }
-        @Override public Object  doCompile(ParseResult pThisResult, int pEntryIndex, String pParam, CompilationContext pContext,
-                ParserTypeProvider pProvider) {
-
-            // Ensure type
-            if(!Name.equals(pThisResult.typeNameOf(pEntryIndex)))
-                throw new CompilationException("Mal-formed RegParser quatifier near \""
-                        + pThisResult.originalText().substring(pThisResult.startPosition()) + "\".");
-            
-            pThisResult = pThisResult.entryAt(pEntryIndex).subResult();
-            
-            String Q = pThisResult.lastStringOf("#Quantifier");
-            String G = pThisResult.lastStringOf("#Greediness");
-            
-            switch(Q.charAt(0)) {
-                case '?': {
-                    if(G           == null)                             return Quantifier.ZeroOrOne;
-                    if(G.charAt(0) == Greediness.MaximumSign.charAt(0)) return Quantifier.ZeroOrOne_Maximum;
-                    if(G.charAt(0) == Greediness.MinimumSign.charAt(0)) return Quantifier.ZeroOrOne_Minimum;
-                    break;
-                }
-                case '*': {
-                    if(G           == null)                             return Quantifier.ZeroOrMore;
-                    if(G.charAt(0) == Greediness.MaximumSign.charAt(0)) return Quantifier.ZeroOrMore_Maximum;
-                    if(G.charAt(0) == Greediness.MinimumSign.charAt(0)) return Quantifier.ZeroOrMore_Minimum;
-                    break;
-                }
-                case '+': {
-                    if(G           == null)                             return Quantifier.OneOrMore;
-                    if(G.charAt(0) == Greediness.MaximumSign.charAt(0)) return Quantifier.OneOrMore_Maximum;
-                    if(G.charAt(0) == Greediness.MinimumSign.charAt(0)) return Quantifier.OneOrMore_Minimum;
-                    break;
-                }
-                case '{': {
-                    pThisResult = pThisResult.entryAt(0).subResult(); 
-
-                    String E = pThisResult.lastStringOf("#Error[]");
-                    if(E != null) break;
-                    
-                    String BS = pThisResult.lastStringOf("#BothBound");
-                    int B = -1;
-                    if(BS == null) {
-                        String US = pThisResult.lastStringOf("#UpperBound");
-                        String LS = pThisResult.lastStringOf("#LowerBound");
-                        int U = (US == null)?-1:Integer.parseInt(US);
-                        int L = (LS == null)? 0:Integer.parseInt(LS);
-                        if((U != -1) && (U < L))
-                            throw new CompilationException("Upper bound must not be lower than its lower bound "
-                                    + "near \"" + pThisResult.originalText().substring(pThisResult.startPosition())
-                                    + "\".");
-                        if(U != L) {
-                            if((L == 0) && (L == 1)) {
-                                if(G           == null)                             return Quantifier.ZeroOrOne;
-                                if(G.charAt(0) == Greediness.MaximumSign.charAt(0)) return Quantifier.ZeroOrOne_Maximum;
-                                if(G.charAt(0) == Greediness.MinimumSign.charAt(0)) return Quantifier.ZeroOrOne_Minimum;
-                                break;
-                            }
-                            if((L == 0) && (U == -1)) {
-                                if(G           == null)                             return Quantifier.ZeroOrMore;
-                                if(G.charAt(0) == Greediness.MaximumSign.charAt(0)) return Quantifier.ZeroOrMore_Maximum;
-                                if(G.charAt(0) == Greediness.MinimumSign.charAt(0)) return Quantifier.ZeroOrMore_Minimum;
-                                break;
-                            }
-                            if((L == 1) && (U == -1)) {
-                                if(G           == null)                             return Quantifier.OneOrMore;
-                                if(G.charAt(0) == Greediness.MaximumSign.charAt(0)) return Quantifier.OneOrMore_Maximum;
-                                if(G.charAt(0) == Greediness.MinimumSign.charAt(0)) return Quantifier.OneOrMore_Minimum;
-                                break;
-                            }
-                            if(G           == null)                             return new Quantifier(L, U);
-                            if(G.charAt(0) == Greediness.MaximumSign.charAt(0)) return new Quantifier(L, U, Greediness.Maximum);
-                            if(G.charAt(0) == Greediness.MinimumSign.charAt(0)) return new Quantifier(L, U, Greediness.Minimum);
-                            break;
-                        }
-                        B = L;
-                    } else
-                        B = Integer.parseInt(BS);
-                    
-                    if(G == null)
-                    if(B == 0) return Quantifier.Zero;
-                    if(B == 1) return Quantifier.One;
-                    
-                    if(G           == null)                             return new Quantifier(B, B, Greediness.Possessive);
-                    if(G.charAt(0) == Greediness.MaximumSign.charAt(0)) return new Quantifier(B, B, Greediness.Maximum);
-                    if(G.charAt(0) == Greediness.MinimumSign.charAt(0)) return new Quantifier(B, B, Greediness.Minimum);
-                    break;
-                }
-            }
-            throw new CompilationException("Mal-formed RegParser Type near \""
-                    + pThisResult.originalText().substring(pThisResult.startPosition()) + "\".");
-        }
     }
     
     @SuppressWarnings("serial")
@@ -926,7 +782,7 @@ public class RPCompiler_ParserTypes {
 	                    RegParser.newRegParser(
 	                        new ParserTypeRef.Simple(RPTRegParserItem.Name),
 	                        RegParser.newRegParser("#Ignored[]", PredefinedCharClasses.WhiteSpace, Quantifier.ZeroOrMore),
-	                        new ParserTypeRef.Simple(RPTQuantifier.Name)
+	                        RPQuantifierParserType.typeRef
 	                    )
 	                ),
 	                RegParser.newRegParser("#Comment", RPCommentParserType.typeRef),
@@ -1005,7 +861,7 @@ public class RPCompiler_ParserTypes {
                         
                     }
                 } else {
-
+                	
                     RegParserEntry RPI = null;
                     if(RPTRegParser.Name.equals(PSE.typeName())) {
                         RPI = RegParserEntry.newParserEntry((Checker)this.compile(pThisResult, i, null, pContext, pProvider));
@@ -1024,12 +880,12 @@ public class RPCompiler_ParserTypes {
                         
                     } else {
                         ParseResult Sub = PSE.subResult();
-        
+                        
                         RPI = (RegParserEntry)pProvider.type(RPTRegParserItem.Name).compile(Sub, 0, null, pContext, pProvider);
-    
+                        
                         Quantifier Q = Quantifier.One;
                         if(Sub.rawEntryCount() == 2) {
-                            Q = (Quantifier)pProvider.type(RPTQuantifier.Name).compile(Sub, 1, null, pContext, pProvider); 
+                            Q = (Quantifier)pProvider.type(RPQuantifierParserType.name).compile(Sub, 1, null, pContext, pProvider); 
                         }
                         if(Q != Quantifier.One) {
                             if(RPI.checker() != null) RPI = RegParserEntry.newParserEntry(RPI.name(), RPI.checker(), Q, RPI.secondStage());
