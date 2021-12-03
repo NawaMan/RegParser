@@ -11,7 +11,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTCharSetItem;
-import net.nawaman.regparser.RPCompiler_ParserTypes.RPTEscapeHex;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTEscapeUnicode;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTQuantifier;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRange;
@@ -19,6 +18,7 @@ import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParser;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParserItem;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTType;
 import net.nawaman.regparser.compiler.RPCommentParserType;
+import net.nawaman.regparser.compiler.RPEscapeHexParserType;
 import net.nawaman.regparser.compiler.RPEscapeOctParserType;
 import net.nawaman.regparser.compiler.RPEscapeParserType;
 import net.nawaman.regparser.types.IdentifierParserType;
@@ -45,7 +45,7 @@ public class TestRegParserCompiler1 {
 		typeProvider.addType(new RPTRegParserItem());
 		typeProvider.addType(RPEscapeParserType.instance);
 		typeProvider.addType(RPEscapeOctParserType.instance);
-		typeProvider.addType(new RPTEscapeHex());
+		typeProvider.addType(RPEscapeHexParserType.instance);
 		typeProvider.addType(new RPTEscapeUnicode());
 		typeProvider.addType(new RPTRange());
 		typeProvider.addType(new RPTCharSetItem());

@@ -3,8 +3,8 @@ package net.nawaman.regparser;
 import static net.nawaman.regparser.Greediness.Maximum;
 import static net.nawaman.regparser.Greediness.Minimum;
 import static net.nawaman.regparser.RPCompiler_ParserTypes.getCharClass;
-import static net.nawaman.regparser.RPCompiler_ParserTypes.RPTEscapeHex.HEX;
 import static net.nawaman.regparser.RegParser.newRegParser;
+import static net.nawaman.regparser.compiler.RPEscapeHexParserType.HEX;
 
 import java.util.Random;
 
@@ -13,7 +13,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTCharSetItem;
-import net.nawaman.regparser.RPCompiler_ParserTypes.RPTEscapeHex;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTEscapeUnicode;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTQuantifier;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRange;
@@ -22,6 +21,7 @@ import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParserItem;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTType;
 import net.nawaman.regparser.checkers.CharChecker;
 import net.nawaman.regparser.compiler.RPCommentParserType;
+import net.nawaman.regparser.compiler.RPEscapeHexParserType;
 import net.nawaman.regparser.compiler.RPEscapeOctParserType;
 import net.nawaman.regparser.compiler.RPEscapeParserType;
 import net.nawaman.regparser.types.IdentifierParserType;
@@ -66,7 +66,7 @@ public class TestRegParserCompiler2 {
 		typeProvider.addType(new RPTRegParserItem());
 		typeProvider.addType(RPEscapeParserType.instance);
 		typeProvider.addType(RPEscapeOctParserType.instance);
-		typeProvider.addType(new RPTEscapeHex());
+		typeProvider.addType(RPEscapeHexParserType.instance);
 		typeProvider.addType(new RPTEscapeUnicode());
 		typeProvider.addType(new RPTRange());
 		typeProvider.addType(new RPTCharSetItem());
@@ -105,20 +105,20 @@ public class TestRegParserCompiler2 {
 	
 	@Test
 	public void testEscapeHex() {
-		var typeName = RPTEscapeHex.Name;
+		var typeName = RPEscapeHexParserType.name;
 		
-		var parser = newRegParser(new ParserTypeRef.Simple(typeName));
+		var parser = newRegParser(RPEscapeHexParserType.typeRef);
 		validate("(!EscapeHex!)", parser);
 		
 		char c  = 'm';
-		var result = parser.match("\\x" + RPTEscapeHex.HEX.charAt((c / 16) % 16)
-		                           + "" + RPTEscapeHex.HEX.charAt(c % 16), typeProvider);
+		var result = parser.match("\\x" + HEX.charAt((c / 16) % 16)
+		                           + "" + HEX.charAt(c % 16), typeProvider);
 		//System.out.println((PR == null)?"null":PR.toDetail());
 		validate("" + c, typeProvider.type(typeName).compile(result, null, null, typeProvider));
 		
 		c  = (char) (random.nextInt(126 - 32) + 32);
-		result = parser.match("\\x" + RPTEscapeHex.HEX.charAt((c / 16) % 16)
-		                       + "" + RPTEscapeHex.HEX.charAt(c % 16), typeProvider);
+		result = parser.match("\\x" + HEX.charAt((c / 16) % 16)
+		                       + "" + HEX.charAt(c % 16), typeProvider);
 		//System.out.println((PR == null)?"null":PR.toDetail());
 		validate("" + c, typeProvider.type(typeName).compile(result, null, null, typeProvider));
 	}
@@ -141,10 +141,10 @@ public class TestRegParserCompiler2 {
 		validate("" + c, typeProvider.type(typeName).compile(result, null, null, typeProvider));
 		
 		c  = (char) (random.nextInt('ฮ' - 'ก') + 'ก');
-		result = parser.match("\\u" + RPTEscapeHex.HEX.charAt((c / (16 * 16 * 16)) % 16) + ""
-		                            + RPTEscapeHex.HEX.charAt((c / (16 * 16)) % 16) + "" 
-		                            + RPTEscapeHex.HEX.charAt((c / (16)) % 16) + ""
-		                            + RPTEscapeHex.HEX.charAt(c % 16), typeProvider);
+		result = parser.match("\\u" + HEX.charAt((c / (16 * 16 * 16)) % 16) + ""
+		                            + HEX.charAt((c / (16 * 16)) % 16) + "" 
+		                            + HEX.charAt((c / (16)) % 16) + ""
+		                            + HEX.charAt(c % 16), typeProvider);
 		validate("" + c, typeProvider.type(typeName).compile(result, null, null, typeProvider));
 	}
 	
