@@ -17,56 +17,63 @@
  */
 package net.nawaman.regparser.compiler;
 
-import static net.nawaman.regparser.PredefinedCharClasses.Any;
+import static java.lang.String.format;
+import static net.nawaman.regparser.RPCompiler_ParserTypes.Escapable;
 import static net.nawaman.regparser.RegParser.newRegParser;
 
 import net.nawaman.regparser.Checker;
+import net.nawaman.regparser.CompilationContext;
+import net.nawaman.regparser.CompilationException;
 import net.nawaman.regparser.ParserType;
 import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.ParserTypeRef;
-import net.nawaman.regparser.checkers.CheckerAlternative;
-import net.nawaman.regparser.checkers.CheckerNot;
-import net.nawaman.regparser.checkers.WordChecker;
+import net.nawaman.regparser.checkers.CharSet;
+import net.nawaman.regparser.checkers.CharSingle;
 import net.nawaman.regparser.result.ParseResult;
 
 /**
- * Parser type for RegParser comment.
+ * Parser type for RegParser escapable.
  * 
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-public class RPCommentParserType extends ParserType {
+public class RPEscapeParserType extends ParserType {
 	
-	private static final long serialVersionUID = -3778591162776321408L;
+	private static final long serialVersionUID = -4408409684157875525L;
 	
-	public static String              name     = "Comment";
-	public static RPCommentParserType instance = new RPCommentParserType();
-	public static ParserTypeRef       typeRef  = instance.typeRef();
+	public static String             name     = "Escape";
+	public static RPEscapeParserType instance = new RPEscapeParserType();
+	public static ParserTypeRef      typeRef  = instance.typeRef();
+	
+	private final Checker checker;
+	
+	public RPEscapeParserType() {
+		checker = newRegParser(new CharSingle('\\'), new CharSet(Escapable));
+	}
 	
 	@Override
 	public String name() {
 		return name;
 	}
 	
-	private final Checker checker;
-	
-	public RPCommentParserType() {
-		this.checker = new CheckerAlternative(
-		        newRegParser(
-		            new WordChecker("/*"),
-		            new CheckerNot(new WordChecker("*/")).zeroOrMore(),
-		            new WordChecker("*/")),
-		        newRegParser(
-		            new WordChecker("(*"),
-		            new CheckerNot(new WordChecker("*)")).zeroOrMore(),
-		            new WordChecker("*)")),
-		        newRegParser(
-		            new WordChecker("//"),
-	                new CheckerNot(new CheckerAlternative(new WordChecker("\n"), Any.zero())).zeroOrMore(),
-	                new CheckerAlternative(new WordChecker("\n"), Any.zero())));
-	}
-	
 	@Override
 	public Checker checker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider) {
 		return checker;
+	}
+	
+	@Override
+	public Object doCompile(
+					ParseResult        thisResult,
+					int                entryIndex,
+					String             parameter,
+					CompilationContext compilationContext,
+					ParserTypeProvider typeProvider) {
+		var typeName = thisResult.typeNameOf(entryIndex);
+		if (!name.equals(typeName)) {
+			var nearBy = thisResult.originalText().substring(thisResult.startPosition());
+			var errMsg = format("Mal-formed RegParser Escape near \"%s\".", nearBy);
+			throw new CompilationException(errMsg);
+		}
+		
+		return thisResult.textOf(entryIndex).charAt(1);
 	}
 }

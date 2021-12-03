@@ -34,6 +34,7 @@ import net.nawaman.regparser.checkers.CheckerFirstFound;
 import net.nawaman.regparser.checkers.CheckerNot;
 import net.nawaman.regparser.checkers.WordChecker;
 import net.nawaman.regparser.compiler.RPCommentParserType;
+import net.nawaman.regparser.compiler.RPEscapeParserType;
 import net.nawaman.regparser.result.ParseResult;
 import net.nawaman.regparser.types.IdentifierParserType;
 import net.nawaman.regparser.types.StringLiteralParserType;
@@ -65,24 +66,6 @@ public class RPCompiler_ParserTypes {
     }
     
     // Types -----------------------------------------------------------------------------------------------------------
-    
-    @SuppressWarnings("serial")
-    static public class RPTEscape extends ParserType {
-        static public String Name = "Escape";
-        @Override public String name() { return Name; }
-        Checker Checker = RegParser.newRegParser(new CharSingle('\\'), new CharSet(RPCompiler_ParserTypes.Escapable));
-        @Override public Checker checker(ParseResult pHostResult, String pParam, ParserTypeProvider pProvider) { return this.Checker; }
-        @Override public Object  doCompile(ParseResult pThisResult, int pEntryIndex, String pParam, CompilationContext pContext,
-                ParserTypeProvider pProvider) {
-            
-            // Ensure type
-            if(!Name.equals(pThisResult.typeNameOf(pEntryIndex)))
-                throw new CompilationException("Mal-formed RegParser Escape near \""
-                        + pThisResult.originalText().substring(pThisResult.startPosition()) + "\".");
-            
-            return pThisResult.textOf(pEntryIndex).charAt(1);
-        }
-    }
     
     @SuppressWarnings("serial")
     static public class RPTEscapeOct extends ParserType {
@@ -599,7 +582,7 @@ public class RPCompiler_ParserTypes {
             if(this.TheChecker == null) {
                 Vector<Checker> Cs = new Vector<Checker>();
                 Cs.add(RegParser.newRegParser(new CharNot(new CharSet(RPCompiler_ParserTypes.Escapable + "-"))));
-                Cs.add(RegParser.newRegParser(new ParserTypeRef.Simple(RPTEscape.Name)));
+                Cs.add(RegParser.newRegParser(RPEscapeParserType.typeRef));
                 Cs.add(RegParser.newRegParser(new ParserTypeRef.Simple(RPTEscapeOct.Name)));
                 Cs.add(RegParser.newRegParser(new ParserTypeRef.Simple(RPTEscapeHex.Name)));
                 Cs.add(RegParser.newRegParser(new ParserTypeRef.Simple(RPTEscapeUnicode.Name)));
@@ -644,7 +627,7 @@ public class RPCompiler_ParserTypes {
             if(S.length() > 1) {
                 // Only possibility is that it is an escape
                 ParseResult PS = pThisResult.lastEntryOf("#Start").subResult();
-                SC = (Character)(pProvider.type(RPTEscape.Name).compile(PS, pProvider));
+                SC = (Character)(pProvider.type(RPEscapeParserType.name).compile(PS, pProvider));
             }
             
             String E = pThisResult.lastStringOf("#End");
@@ -661,7 +644,7 @@ public class RPCompiler_ParserTypes {
                 if(E.length() > 1) {
                     // Only possibility is that it is an escape
                     ParseResult PS = pThisResult.lastEntryOf("#End").subResult();
-                    EC = (Character)(pProvider.type(RPTEscape.Name).compile(PS, pProvider));
+                    EC = (Character)(pProvider.type(RPEscapeParserType.name).compile(PS, pProvider));
                 }
                 if(SC > EC)
                     throw new CompilationException("Range starter must not be greater than its ender - near \""
@@ -794,7 +777,7 @@ public class RPCompiler_ParserTypes {
                 Vector<Checker> Cs = new Vector<Checker>();
                 Cs.add(RPCompiler_ParserTypes.PredefinedCheckers);
                 // Escape
-                Cs.add(RegParser.newRegParser(new ParserTypeRef.Simple(RPTEscape.Name)));
+                Cs.add(RegParser.newRegParser(RPEscapeParserType.typeRef));
                 Cs.add(RegParser.newRegParser(new ParserTypeRef.Simple(RPTEscapeOct.Name)));
                 Cs.add(RegParser.newRegParser(new ParserTypeRef.Simple(RPTEscapeHex.Name)));
                 Cs.add(RegParser.newRegParser(new ParserTypeRef.Simple(RPTEscapeUnicode.Name)));
@@ -978,8 +961,8 @@ public class RPCompiler_ParserTypes {
             if(CharClassName.equals(PName)) return RegParserEntry.newParserEntry(getCharClass(pThisResult, 0));
             
             String PType = PSE.typeName();
-            if(RPTEscape.Name.equals(PType))
-                return RegParserEntry.newParserEntry(new CharSingle((Character)pProvider.type(RPTEscape.Name       ).compile(pThisResult, 0, null, pContext, pProvider)));
+            if(RPEscapeParserType.name.equals(PType))
+                return RegParserEntry.newParserEntry(new CharSingle((Character)pProvider.type(RPEscapeParserType.name).compile(pThisResult, 0, null, pContext, pProvider)));
             if(RPTEscapeOct.Name.equals(PType))
                 return RegParserEntry.newParserEntry(new CharSingle((Character)pProvider.type(RPTEscapeOct.Name    ).compile(pThisResult, 0, null, pContext, pProvider)));
             if(RPTEscapeHex.Name.equals(PType))
