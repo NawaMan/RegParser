@@ -18,6 +18,8 @@
 
 package net.nawaman.regparser;
 
+import static net.nawaman.regparser.RegParserEntry.newParserEntry;
+
 import java.io.Serializable;
 
 import net.nawaman.regparser.result.ParseResult;
@@ -30,7 +32,7 @@ import net.nawaman.regparser.result.ParseResult;
  *
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-public interface Checker extends Serializable {
+public interface Checker extends AsChecker, AsRegParserEntry, Quantifiable<RegParserEntry>, Serializable {
 	
 	/** Returns the empty array of Checkers */
 	public static final Checker[] EMPTY_CHECKER_ARRAY = new Checker[0];
@@ -53,6 +55,39 @@ public interface Checker extends Serializable {
 	public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider, ParseResult parseResult);
 	
 	/** Return the optimized version of this Checker */
-	public Checker optimize();
+	public default Checker optimize() {
+		return this;
+	}
+	
+	@Override
+	public default Checker asChecker() {
+		return this;
+	}
+	
+	@Override
+	public default Quantifier quantifier() {
+		return Quantifier.One;
+	}
+	
+	@Override
+	public default RegParserEntry asRegParserEntry() {
+		return newParserEntry(null, this, null);
+	}
+	
+	public default RegParserEntry with(String name, Quantifier quantifier) {
+		return newParserEntry(name, this, quantifier);
+	}
+	
+	public default RegParserEntry with(Quantifier quantifier) {
+		return newParserEntry(null, this, quantifier);
+	}
+	
+	public default RegParserEntry withName(String name) {
+		return newParserEntry(name, this, null);
+	}
+	
+	public default RegParserEntry quantifier(Quantifier quantifier) {
+		return newParserEntry(null, this, quantifier);
+	}
 	
 }

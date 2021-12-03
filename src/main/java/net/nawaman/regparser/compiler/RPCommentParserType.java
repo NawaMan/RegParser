@@ -1,8 +1,6 @@
 package net.nawaman.regparser.compiler;
 
 import static net.nawaman.regparser.PredefinedCharClasses.Any;
-import static net.nawaman.regparser.Quantifier.Zero;
-import static net.nawaman.regparser.Quantifier.ZeroOrMore;
 import static net.nawaman.regparser.RegParser.newRegParser;
 
 import net.nawaman.regparser.Checker;
@@ -33,16 +31,16 @@ public class RPCommentParserType extends ParserType {
 		this.checker = new CheckerAlternative(
 		        newRegParser(
 		            new WordChecker("/*"),
-		            new CheckerNot(new WordChecker("*/")), ZeroOrMore,
+		            new CheckerNot(new WordChecker("*/")).zeroOrMore(),
 		            new WordChecker("*/")),
 		        newRegParser(
 		            new WordChecker("(*"),
-		            new CheckerNot(new WordChecker("*)")), ZeroOrMore,
+		            new CheckerNot(new WordChecker("*)")).zeroOrMore(),
 		            new WordChecker("*)")),
 		        newRegParser(
 		            new WordChecker("//"),
-	                new CheckerNot(new CheckerAlternative(new WordChecker("\n"), newRegParser(Any, Zero))), ZeroOrMore,
-	                new CheckerAlternative(new WordChecker("\n"), newRegParser(Any, Zero))));
+	                new CheckerNot(new CheckerAlternative(new WordChecker("\n"), Any.zero())).zeroOrMore(),
+	                new CheckerAlternative(new WordChecker("\n"), Any.zero())));
 	}
 	
 	@Override

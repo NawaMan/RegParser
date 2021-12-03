@@ -275,7 +275,7 @@ public class RegParser implements Checker, Serializable {
      * the entry has the quantifier of one. 
      **/
     static public RegParser newRegParser(Object... pParams) {
-        return RegParser.newRegParser(null, pParams);
+        return newRegParser(null, pParams);
     }
     
     
@@ -301,6 +301,9 @@ public class RegParser implements Checker, Serializable {
         boolean IsSkipped = false;
         for (int i = 0; i < pParams.length; i++) {
             Object O = pParams[i];
+            if ((O instanceof AsRegParserEntry) && !(O instanceof Checker)) {
+            	O = ((AsRegParserEntry)O).asRegParserEntry();
+            }
             if (O instanceof RegParserEntry) {
                 if (IsNew) {
                     if (C != null)

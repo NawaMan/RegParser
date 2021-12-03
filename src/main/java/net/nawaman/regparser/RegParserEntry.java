@@ -30,7 +30,7 @@ import net.nawaman.regparser.checkers.WordChecker;
  * 
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-abstract public class RegParserEntry implements Serializable {
+abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<RegParserEntry>, Serializable {
 	
 	private static final long serialVersionUID = 2457845545454544122L;
 	
@@ -241,6 +241,10 @@ abstract public class RegParserEntry implements Serializable {
 	
 	//== Functional ====================================================================================================
 	
+	public RegParserEntry asRegParserEntry() {
+		return this;
+	}
+	
 	public String name() {
 		return null;
 	}
@@ -352,6 +356,12 @@ abstract public class RegParserEntry implements Serializable {
 		public Checker checker() {
 			return checker;
 		}
+		
+		public RegParserEntry quantifier(Quantifier quantifier) {
+			return (quantifier == null)
+			        ? this
+			        : new DirectWithQuantifier(checker, quantifier);
+		}
 	}
 	
 	static private class DirectWithQuantifier extends Direct {
@@ -368,6 +378,13 @@ abstract public class RegParserEntry implements Serializable {
 		@Override
 		public Quantifier quantifier() {
 			return quantifier;
+		}
+		
+		public RegParserEntry quantifier(Quantifier quantifier) {
+			var checker = checker();
+			return (quantifier == null)
+			        ? new Direct              (checker)
+			        : new DirectWithQuantifier(checker, quantifier);
 		}
 	}
 	
@@ -386,7 +403,14 @@ abstract public class RegParserEntry implements Serializable {
 		
 		@Override
 		public String name() {
-			return this.name;
+			return name;
+		}
+		
+		public RegParserEntry quantifier(Quantifier quantifier) {
+			var checker = checker();
+			return (quantifier == null)
+			        ? this
+			        : new NamedDirectWithQuantifier(name, checker, quantifier);
 		}
 	}
 	
@@ -404,6 +428,14 @@ abstract public class RegParserEntry implements Serializable {
 		@Override
 		public Quantifier quantifier() {
 			return quantifier;
+		}
+		
+		public RegParserEntry quantifier(Quantifier quantifier) {
+			var name    = name();
+			var checker = checker();
+			return (quantifier == null)
+			        ? new NamedDirect              (name, checker)
+			        : new NamedDirectWithQuantifier(name, checker, quantifier);
 		}
 	}
 	
@@ -423,6 +455,12 @@ abstract public class RegParserEntry implements Serializable {
 		public ParserTypeRef typeRef() {
 			return typeRef;
 		}
+		
+		public RegParserEntry quantifier(Quantifier quantifier) {
+			return (quantifier == null)
+			        ? this
+			        : new TypeRefWithQuantifier(typeRef, quantifier);
+		}
 	}
 	
 	static private class TypeRefWithQuantifier extends TypeRef {
@@ -439,6 +477,13 @@ abstract public class RegParserEntry implements Serializable {
 		@Override
 		public Quantifier quantifier() {
 			return quantifier;
+		}
+		
+		public RegParserEntry quantifier(Quantifier quantifier) {
+			var typeRef = typeRef();
+			return (quantifier == null)
+			        ? new TypeRef              (typeRef)
+			        : new TypeRefWithQuantifier(typeRef, quantifier);
 		}
 	}
 	
@@ -457,6 +502,13 @@ abstract public class RegParserEntry implements Serializable {
 		public String name() {
 			return name;
 		}
+		
+		public RegParserEntry quantifier(Quantifier quantifier) {
+			var typeRef = typeRef();
+			return (quantifier == null)
+			        ? this
+			        : new NamedTypeRefWithQuantifier(name, typeRef, quantifier);
+		}
 	}
 	
 	static private class NamedTypeRefWithQuantifier extends NamedTypeRef {
@@ -473,6 +525,14 @@ abstract public class RegParserEntry implements Serializable {
 		@Override
 		public Quantifier quantifier() {
 			return quantifier;
+		}
+		
+		public RegParserEntry quantifier(Quantifier quantifier) {
+			var name    = name();
+			var typeRef = typeRef();
+			return (quantifier == null)
+			        ? new NamedTypeRef              (name, typeRef)
+			        : new NamedTypeRefWithQuantifier(name, typeRef, quantifier);
 		}
 	}
 	
@@ -492,6 +552,13 @@ abstract public class RegParserEntry implements Serializable {
 		public ParserType type() {
 			return type;
 		}
+		
+		public RegParserEntry quantifier(Quantifier quantifier) {
+			var type = type();
+			return (quantifier == null)
+			        ? this
+			        : new TypedWithQuantifier(type, quantifier);
+		}
 	}
 	
 	static private class TypedWithQuantifier extends Typed {
@@ -508,6 +575,13 @@ abstract public class RegParserEntry implements Serializable {
 		@Override
 		public Quantifier quantifier() {
 			return quantifier;
+		}
+		
+		public RegParserEntry quantifier(Quantifier quantifier) {
+			var type = type();
+			return (quantifier == null)
+			        ? new Typed              (type)
+			        : new TypedWithQuantifier(type, quantifier);
 		}
 	}
 	
@@ -526,6 +600,13 @@ abstract public class RegParserEntry implements Serializable {
 		public String name() {
 			return name;
 		}
+		
+		public RegParserEntry quantifier(Quantifier quantifier) {
+			var type = type();
+			return (quantifier == null)
+			        ? this
+			        : new NamedTypedWithQuantifier(name, type, quantifier);
+		}
 	}
 	
 	static private class NamedTypedWithQuantifier extends NamedTyped {
@@ -542,6 +623,14 @@ abstract public class RegParserEntry implements Serializable {
 		@Override
 		public Quantifier quantifier() {
 			return quantifier;
+		}
+		
+		public RegParserEntry quantifier(Quantifier quantifier) {
+			var name = name();
+			var type = type();
+			return (quantifier == null)
+			        ? new NamedTyped              (name, type)
+			        : new NamedTypedWithQuantifier(name, type, quantifier);
 		}
 	}
 	
@@ -590,6 +679,10 @@ abstract public class RegParserEntry implements Serializable {
 		@Override
 		public RegParser secondStage() {
 			return parser;
+		}
+		
+		public RegParserEntry quantifier(Quantifier quantifier) {
+			return new TwoStage(delegate.quantifier(quantifier), parser);
 		}
 	}
 	

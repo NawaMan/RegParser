@@ -20,6 +20,7 @@ package net.nawaman.regparser.checkers;
 
 import java.util.ArrayList;
 
+import net.nawaman.regparser.AsChecker;
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.RegParser;
@@ -52,18 +53,18 @@ public class CheckerAlternative implements Checker {
 	public final Checker[] checkers;
 	
 	/** Constructs a char set */
-	public CheckerAlternative(Checker... checkers) {
+	public CheckerAlternative(AsChecker... checkers) {
 		this(false, checkers);
 	}
 	
 	/** Constructs a char set */
-	public CheckerAlternative(boolean hasDefault, Checker... checkers) {
+	public CheckerAlternative(boolean hasDefault, AsChecker ... checkers) {
 		// Combine if one of them is alternative
 		
 		var list      = new ArrayList<Checker>();
 		int lastIndex = checkers.length - (hasDefault ? 1 : 0);
 		for (int i = 0; i < lastIndex; i++) {
-			var checker = checkers[i];
+			var checker = checkers[i].asChecker();
 			if (checker == null)
 				continue;
 			
@@ -87,7 +88,7 @@ public class CheckerAlternative implements Checker {
 			this.checkers[i] = checker;
 		}
 		
-		var defaultValue = hasDefault ? checkers[checkers.length - 1] : null;
+		var defaultValue = hasDefault ? checkers[checkers.length - 1].asChecker() : null;
 		if (defaultValue != null) {
 			defaultValue = defaultValue.optimize();
 		}
