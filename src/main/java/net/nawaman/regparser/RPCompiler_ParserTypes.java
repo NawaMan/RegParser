@@ -38,9 +38,9 @@ import net.nawaman.regparser.compiler.RPEscapeHexParserType;
 import net.nawaman.regparser.compiler.RPEscapeOctParserType;
 import net.nawaman.regparser.compiler.RPEscapeParserType;
 import net.nawaman.regparser.compiler.RPEscapeUnicodeParserType;
+import net.nawaman.regparser.compiler.RPTypeParserType;
 import net.nawaman.regparser.result.ParseResult;
 import net.nawaman.regparser.types.IdentifierParserType;
-import net.nawaman.regparser.types.StringLiteralParserType;
 import net.nawaman.regparser.types.TextCaseInsensitiveParserType;
 import net.nawaman.regparser.utils.Util;
 
@@ -299,60 +299,6 @@ public class RPCompiler_ParserTypes {
             try { CC = (CharChecker)F.get(null); CachedPredefineds.put(N, CC); return CC; } catch(Exception E) {}
         }
         return null;
-    }
-    
-    @SuppressWarnings("serial")
-    static public class RPTType extends ParserType {
-        static public String Name = "Type";
-        @Override public String name() { return Name; }
-        Checker Checker = RegParser.newRegParser(
-            new CharSingle('!'),
-            new CheckerAlternative(
-                true,
-                RegParser.newRegParser(
-                    "#AsText",     new CharSingle('$'),   Quantifier.ZeroOrOne,
-                    "#TypeName",   IdentifierParserType.typeRef,
-                    "#TypeOption", new CharSet("*+"),     Quantifier.ZeroOrOne,
-                    "#Validate",   new CharSet("~?"),     Quantifier.ZeroOrOne,
-                    "#Collective", new WordChecker("[]"), Quantifier.ZeroOrOne,
-                    "#Param",      RegParser.newRegParser(
-                        new CharSingle('('),
-                        "#ParamValue", new ParserTypeRef.Simple(StringLiteralParserType.name), Quantifier.ZeroOrOne,
-                        new CharSingle(')')
-                    ), Quantifier.ZeroOrOne,
-                    new CharSingle('!')
-                ),
-                RegParser.newRegParser(
-                    "#Error[]", new CharNot(new CharSingle('!')), Quantifier.ZeroOrMore,
-                    new CharSingle('!')
-                )
-            )
-        );
-        @Override public Checker checker(ParseResult pHostResult, String pParam, ParserTypeProvider pProvider) { return this.Checker; }
-        @Override public Object  doCompile(ParseResult pThisResult, int pEntryIndex, String pParam, CompilationContext pContext,
-                ParserTypeProvider pProvider) {
-            pThisResult = pThisResult.entryAt(pEntryIndex).subResult();
-
-            String N = pThisResult.lastStringOf("#TypeName");
-            if(N == null)
-                throw new CompilationException("Mal-formed RegParser Type near \""
-                        + pThisResult.originalText().substring(pThisResult.startPosition()) + "\".");
-            
-            String T = pThisResult.lastStringOf("#AsText");
-            String O = pThisResult.lastStringOf("#TypeOption");
-            String V = pThisResult.lastStringOf("#Validate");
-            String C = pThisResult.lastStringOf("#Collective");
-            String TName  = ((T == null)?"":T) + N + ((O == null)?"":O) + ((V == null)?"":V) + ((C == null)?"":C);
-            
-            String Param = null;
-            var PE = pThisResult.lastEntryOf("#Param");
-            if((PE != null) && PE.hasSubResult()) {
-                Param = pThisResult.lastEntryOf("#Param").subResult().lastStringOf("#ParamValue");
-                if(Param != null) Param = Util.unescapeText(Param.substring(1, Param.length() - 1)).toString();
-                
-            }
-            return new ParserTypeRef.Simple(TName, Param);
-        }
     }
     
     @SuppressWarnings("serial")
@@ -709,7 +655,7 @@ public class RPCompiler_ParserTypes {
                 Cs.add(RegParser.newRegParser(RPEscapeHexParserType.typeRef));
                 Cs.add(RegParser.newRegParser(RPEscapeUnicodeParserType.typeRef));
                 // CharSet
-                Cs.add(RegParser.newRegParser(new ParserTypeRef.Simple(RPTType.Name)));
+                Cs.add(RegParser.newRegParser(RPTypeParserType.typeRef));
                 // Type
                 Cs.add(RegParser.newRegParser(new ParserTypeRef.Simple(RPTCharSetItem.Name)));
                 
@@ -760,7 +706,7 @@ public class RPCompiler_ParserTypes {
                                                     new CheckerAlternative(
                                                         // Type
                                                         RegParser.newRegParser(
-                                                            "#Type", new ParserTypeRef.Simple(RPTType.Name)
+                                                            "#Type", RPTypeParserType.typeRef
                                                         ),
                                                         // Error of Type
                                                         RegParser.newRegParser(
@@ -791,7 +737,7 @@ public class RPCompiler_ParserTypes {
                                                         new CheckerAlternative(
                                                             // Type
                                                             RegParser.newRegParser(
-                                                                "#Type", new ParserTypeRef.Simple(RPTType.Name)
+                                                                "#Type", RPTypeParserType.typeRef
                                                             ),
                                                             // Error of Type
                                                             RegParser.newRegParser(
@@ -907,8 +853,8 @@ public class RPCompiler_ParserTypes {
                 return RegParserEntry.newParserEntry(new ParserTypeRef.Simple(TextCaseInsensitiveParserType.name, Text.substring(1, Text.length() - 1)));
             }
             
-            if(RPTType.Name.equals(PType))
-                return RegParserEntry.newParserEntry((ParserTypeRef)pProvider.type(RPTType.Name   ).compile(pThisResult, 0, null, pContext, pProvider));
+            if(RPTypeParserType.name.equals(PType))
+                return RegParserEntry.newParserEntry((ParserTypeRef)pProvider.type(RPTypeParserType.name).compile(pThisResult, 0, null, pContext, pProvider));
             
             if("#Group".equals(PName)) {
                 
@@ -936,7 +882,7 @@ public class RPCompiler_ParserTypes {
                     
                     int IT = Sub_Second.indexOf("#Type");
                     if(IT != -1) {    // TypeRef with Name
-                        Second = RegParser.newRegParser((ParserTypeRef)pProvider.type(RPTType .Name).compile(Sub_Second, IT, null, pContext, pProvider));
+                        Second = RegParser.newRegParser((ParserTypeRef)pProvider.type(RPTypeParserType.name).compile(Sub_Second, IT, null, pContext, pProvider));
                     } else {
                         int IE = Sub_Second.indexOf("#GroupRegParser");
                         // Named Group
@@ -948,7 +894,7 @@ public class RPCompiler_ParserTypes {
                 if(IT != -1) {    // TypeRef with Name
                     return RegParserEntry.newParserEntry(
                             N+GN+O+M,
-                            (ParserTypeRef)pProvider.type(RPTType .Name).compile(pThisResult, IT, null, pContext, pProvider),
+                            (ParserTypeRef)pProvider.type(RPTypeParserType.name).compile(pThisResult, IT, null, pContext, pProvider),
                             null,
                             Second);
                 }

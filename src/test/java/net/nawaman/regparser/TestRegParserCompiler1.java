@@ -15,12 +15,12 @@ import net.nawaman.regparser.RPCompiler_ParserTypes.RPTQuantifier;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRange;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParser;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParserItem;
-import net.nawaman.regparser.RPCompiler_ParserTypes.RPTType;
 import net.nawaman.regparser.compiler.RPCommentParserType;
 import net.nawaman.regparser.compiler.RPEscapeHexParserType;
 import net.nawaman.regparser.compiler.RPEscapeOctParserType;
 import net.nawaman.regparser.compiler.RPEscapeParserType;
 import net.nawaman.regparser.compiler.RPEscapeUnicodeParserType;
+import net.nawaman.regparser.compiler.RPTypeParserType;
 import net.nawaman.regparser.types.IdentifierParserType;
 import net.nawaman.regparser.types.StringLiteralParserType;
 import net.nawaman.regparser.types.TextCaseInsensitiveParserType;
@@ -40,7 +40,7 @@ public class TestRegParserCompiler1 {
 		typeProvider.addType(IdentifierParserType.instance);
 		typeProvider.addType(StringLiteralParserType.instance);
 		typeProvider.addType(RPCommentParserType.instance);
-		typeProvider.addType(new RPTType());
+		typeProvider.addType(RPTypeParserType.instance);
 		typeProvider.addType(new RPTQuantifier());
 		typeProvider.addType(new RPTRegParserItem());
 		typeProvider.addType(RPEscapeParserType.instance);
@@ -51,7 +51,7 @@ public class TestRegParserCompiler1 {
 		typeProvider.addType(new RPTCharSetItem());
 		typeProvider.addType(new RPTRegParser());
 		
-		parser = RegParser.newRegParser(typeProvider, new ParserTypeRef.Simple(RPTType.Name));
+		parser = newRegParser(typeProvider, RPTypeParserType.typeRef);
 	}
 	
 	@Test
