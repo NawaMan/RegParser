@@ -30,26 +30,21 @@ import net.nawaman.regparser.ParserTypeRef;
 import net.nawaman.regparser.checkers.WordChecker;
 import net.nawaman.regparser.result.ParseResult;
 
-/**
- * Parser type for RegParser escape for hexadecimal number.
- * 
- * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
- */
-public class RPEscapeHexParserType extends ParserType {
+public class RPEscapeUnicodeParserType extends ParserType {
 	
-	private static final long serialVersionUID = -8357960494054126599L;
+	private static final long serialVersionUID = 534187749649740618L;
 	
-	public static String                name     = "EscapeHex";
-	public static RPEscapeHexParserType instance = new RPEscapeHexParserType();
-	public static ParserTypeRef         typeRef  = instance.typeRef();
+	public static String                    name     = "EscapeUnicode";
+	public static RPEscapeUnicodeParserType instance = new RPEscapeUnicodeParserType();
+	public static ParserTypeRef             typeRef  = instance.typeRef();
 	
-	final public static String HEX = "0123456789ABCDEF";
+	public static final String HEX = "0123456789ABCDEF";
 	
 	private final Checker checker;
 	
-	public RPEscapeHexParserType() {
-		// ~\\x[0-9A-Fa-f][0-9A-Fa-f]~
-		checker = newRegParser(new WordChecker("\\x"), HexadecimalDigit, HexadecimalDigit);
+	public RPEscapeUnicodeParserType() {
+		// ~\\u[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f]~
+		checker = newRegParser(new WordChecker("\\u"), HexadecimalDigit.bound(4, 4));
 	}
 	
 	@Override
@@ -58,8 +53,8 @@ public class RPEscapeHexParserType extends ParserType {
 	}
 	
 	@Override
-	public Checker checker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider) {
-		return checker;
+	public Checker checker(ParseResult pHostResult, String pParam, ParserTypeProvider pProvider) {
+		return this.checker;
 	}
 	
 	@Override
@@ -70,7 +65,6 @@ public class RPEscapeHexParserType extends ParserType {
 					CompilationContext compilationContext,
 					ParserTypeProvider typeProvider) {
 		
-		// Ensure type
 		var typeName = thisResult.typeNameOf(entryIndex);
 		if (!name.equals(typeName)) {
 			var nearBy = thisResult.originalText().substring(thisResult.startPosition());
@@ -79,8 +73,10 @@ public class RPEscapeHexParserType extends ParserType {
 		}
 		
 		var text = thisResult.textOf(entryIndex).toUpperCase();
-		return (char)(HEX.indexOf(text.charAt(2)) * 16
-		            + HEX.indexOf(text.charAt(3)));
+		return (char)(HEX.indexOf(text.charAt(2)) * 16 * 16 * 16
+		            + HEX.indexOf(text.charAt(3)) * 16 * 16
+		            + HEX.indexOf(text.charAt(4)) * 16
+		            + HEX.indexOf(text.charAt(5)));
 	}
 	
 }

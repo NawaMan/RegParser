@@ -37,6 +37,7 @@ import net.nawaman.regparser.compiler.RPCommentParserType;
 import net.nawaman.regparser.compiler.RPEscapeHexParserType;
 import net.nawaman.regparser.compiler.RPEscapeOctParserType;
 import net.nawaman.regparser.compiler.RPEscapeParserType;
+import net.nawaman.regparser.compiler.RPEscapeUnicodeParserType;
 import net.nawaman.regparser.result.ParseResult;
 import net.nawaman.regparser.types.IdentifierParserType;
 import net.nawaman.regparser.types.StringLiteralParserType;
@@ -68,33 +69,6 @@ public class RPCompiler_ParserTypes {
     }
     
     // Types -----------------------------------------------------------------------------------------------------------
-    
-    @SuppressWarnings("serial")
-    static public class RPTEscapeUnicode extends ParserType {
-        static public String Name = "EscapeUnicode";
-        @Override public String name() { return Name; }
-        Checker Checker = RegParser.newRegParser(    // ~\\u[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f]~
-                new WordChecker("\\u"),
-                PredefinedCharClasses.HexadecimalDigit,
-                PredefinedCharClasses.HexadecimalDigit,
-                PredefinedCharClasses.HexadecimalDigit,
-                PredefinedCharClasses.HexadecimalDigit
-            );
-        static final public String HEX = "0123456789ABCDEF";
-        @Override public Checker checker(ParseResult pHostResult, String pParam, ParserTypeProvider pProvider) { return this.Checker; }
-        @Override public Object  doCompile(ParseResult pThisResult, int pEntryIndex, String pParam, CompilationContext pContext,
-                ParserTypeProvider pProvider) {
-            
-            // Ensure type
-            if(!Name.equals(pThisResult.typeNameOf(pEntryIndex)))
-                throw new CompilationException("Mal-formed RegParser Escape near \""
-                        + pThisResult.originalText().substring(pThisResult.startPosition()) + "\".");
-            
-            String Text = pThisResult.textOf(pEntryIndex).toUpperCase();
-            return (char)(HEX.indexOf(Text.charAt(2))*16*16*16 + HEX.indexOf(Text.charAt(3))*16*16
-                        + HEX.indexOf(Text.charAt(4))*16       + HEX.indexOf(Text.charAt(5)));
-        }
-    }
     
     static public final String CharClassName = "#CharClass";
     
@@ -538,7 +512,7 @@ public class RPCompiler_ParserTypes {
                 Cs.add(RegParser.newRegParser(RPEscapeParserType.typeRef));
                 Cs.add(RegParser.newRegParser(RPEscapeOctParserType.typeRef));
                 Cs.add(RegParser.newRegParser(RPEscapeHexParserType.typeRef));
-                Cs.add(RegParser.newRegParser(new ParserTypeRef.Simple(RPTEscapeUnicode.Name)));
+                Cs.add(RegParser.newRegParser(RPEscapeUnicodeParserType.typeRef));
                 
                 // Last
                 Cs.add(RegParser.newRegParser("#Error[]", new CharNot(new CharSingle(']'))));
@@ -733,7 +707,7 @@ public class RPCompiler_ParserTypes {
                 Cs.add(RegParser.newRegParser(RPEscapeParserType.typeRef));
                 Cs.add(RegParser.newRegParser(RPEscapeOctParserType.typeRef));
                 Cs.add(RegParser.newRegParser(RPEscapeHexParserType.typeRef));
-                Cs.add(RegParser.newRegParser(new ParserTypeRef.Simple(RPTEscapeUnicode.Name)));
+                Cs.add(RegParser.newRegParser(RPEscapeUnicodeParserType.typeRef));
                 // CharSet
                 Cs.add(RegParser.newRegParser(new ParserTypeRef.Simple(RPTType.Name)));
                 // Type
@@ -920,8 +894,8 @@ public class RPCompiler_ParserTypes {
                 return RegParserEntry.newParserEntry(new CharSingle((Character)pProvider.type(RPEscapeOctParserType.name).compile(pThisResult, 0, null, pContext, pProvider)));
             if(RPEscapeHexParserType.name.equals(PType))
                 return RegParserEntry.newParserEntry(new CharSingle((Character)pProvider.type(RPEscapeHexParserType.name).compile(pThisResult, 0, null, pContext, pProvider)));
-            if(RPTEscapeUnicode.Name.equals(PType))
-                return RegParserEntry.newParserEntry(new CharSingle((Character)pProvider.type(RPTEscapeUnicode.Name).compile(pThisResult, 0, null, pContext, pProvider)));
+            if(RPEscapeUnicodeParserType.name.equals(PType))
+                return RegParserEntry.newParserEntry(new CharSingle((Character)pProvider.type(RPEscapeUnicodeParserType.name).compile(pThisResult, 0, null, pContext, pProvider)));
             
             if(RPTCharSetItem.Name.equals(PType))
                 return RegParserEntry.newParserEntry((Checker)pProvider.type(RPTCharSetItem.Name  ).compile(pThisResult, 0, null, pContext, pProvider));
