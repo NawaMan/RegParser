@@ -15,32 +15,44 @@
  * more details.
  * ---------------------------------------------------------------------------------------------------------------------
  */
-
-package net.nawaman.regparser.types;
+package net.nawaman.regparser.compiler;
 
 import static net.nawaman.regparser.RegParser.newRegParser;
 
-// Usage: !text("Text")! will match everything that is equals to "Text" case insensitively
-import java.util.Hashtable;
-
 import net.nawaman.regparser.Checker;
+import net.nawaman.regparser.CompilationContext;
+import net.nawaman.regparser.CompilationException;
 import net.nawaman.regparser.ParserType;
 import net.nawaman.regparser.ParserTypeProvider;
-import net.nawaman.regparser.PredefinedCharClasses;
-import net.nawaman.regparser.Quantifier;
+import net.nawaman.regparser.ParserTypeRef;
+import net.nawaman.regparser.checkers.CharRange;
+import net.nawaman.regparser.checkers.WordChecker;
 import net.nawaman.regparser.result.ParseResult;
 
 /**
- * Parser Type for Case-Insensitive Text
- *  
+ * Parser type for RegParser escape for octave number.
+ * 
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-@SuppressWarnings("serial")
-public class TextCaseInsensitiveParseType extends ParserType {
+public class RPEscapeOctParserType extends ParserType {
 	
-	private static Hashtable<Integer, Checker> checkers = new Hashtable<Integer, Checker>();
+	private static final long serialVersionUID = 7092438661222948500L;
 	
-	public static String name = "textCI";
+	public static String                name     = "EscapeOct";
+	public static RPEscapeOctParserType instance = new RPEscapeOctParserType();
+	public static ParserTypeRef         typeRef  = instance.typeRef();
+	
+	private static final String OCT = "01234567";
+	
+	private final Checker checker;
+	
+	public RPEscapeOctParserType() {
+		// ~\\0[0-3]?[0-7]?[0-7]~
+		checker = newRegParser(
+		              new WordChecker("\\0"),
+		              new CharRange('0', '3').zeroOrOne(),
+		              new CharRange('0', '7').bound(1, 2));
+	}
 	
 	@Override
 	public String name() {
@@ -49,29 +61,30 @@ public class TextCaseInsensitiveParseType extends ParserType {
 	
 	@Override
 	public Checker checker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider) {
-		if (parameter == null) {
-			parameter = "";
-		}
-		int length  = parameter.length();
-		return checkers.computeIfAbsent(length, __ ->{
-			return newRegParser(PredefinedCharClasses.Any, new Quantifier(length, length));
-		});
+		return checker;
 	}
 	
 	@Override
-	public boolean doValidate(
-					ParseResult        hostResult,
+	public Object doCompile(
 					ParseResult        thisResult,
+					int                entryIndex,
 					String             parameter,
+					CompilationContext compilationContext,
 					ParserTypeProvider typeProvider) {
-		var S = thisResult.text();
-		if (S == parameter)
-			return true;
 		
-		if ((S == null)
-		 || (parameter == null))
-			return false;
+		var typeName = thisResult.typeNameOf(entryIndex);
+		if (!name.equals(typeName)) {
+			var nearBy = thisResult.originalText().substring(thisResult.startPosition());
+			var errMsg = String.format("Mal-formed RegParser Escape near \"%s\".", nearBy);
+			throw new CompilationException(errMsg);
+		}
 		
-		return S.toLowerCase().equals(parameter.toLowerCase());
+		var text = thisResult.textOf(entryIndex).substring(2);
+		while (text.length() < 3) {
+			text = "0" + text;
+		}
+		return (char)(OCT.indexOf(text.charAt(0)) * 8 * 8
+		            + OCT.indexOf(text.charAt(1)) * 8
+		            + OCT.indexOf(text.charAt(2)));
 	}
 }

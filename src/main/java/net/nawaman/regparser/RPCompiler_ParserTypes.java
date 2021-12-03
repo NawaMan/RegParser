@@ -34,11 +34,12 @@ import net.nawaman.regparser.checkers.CheckerFirstFound;
 import net.nawaman.regparser.checkers.CheckerNot;
 import net.nawaman.regparser.checkers.WordChecker;
 import net.nawaman.regparser.compiler.RPCommentParserType;
+import net.nawaman.regparser.compiler.RPEscapeOctParserType;
 import net.nawaman.regparser.compiler.RPEscapeParserType;
 import net.nawaman.regparser.result.ParseResult;
 import net.nawaman.regparser.types.IdentifierParserType;
 import net.nawaman.regparser.types.StringLiteralParserType;
-import net.nawaman.regparser.types.TextCaseInsensitiveParseType;
+import net.nawaman.regparser.types.TextCaseInsensitiveParserType;
 import net.nawaman.regparser.utils.Util;
 
 /**
@@ -66,31 +67,6 @@ public class RPCompiler_ParserTypes {
     }
     
     // Types -----------------------------------------------------------------------------------------------------------
-    
-    @SuppressWarnings("serial")
-    static public class RPTEscapeOct extends ParserType {
-        static public String Name = "EscapeOct";
-        @Override public String name() { return Name; }
-        Checker Checker = RegParser.newRegParser(    // ~\\0[0-3]?[0-7]?[0-7]~
-                new WordChecker("\\0"),
-                new CharRange('0', '3'), Quantifier.ZeroOrOne,
-                new CharRange('0', '7'), new Quantifier(1, 2)
-            );
-        static final String OCT = "01234567";
-        @Override public Checker checker(ParseResult pHostResult, String pParam, ParserTypeProvider pProvider) { return this.Checker; }
-        @Override public Object  doCompile(ParseResult pThisResult, int pEntryIndex, String pParam, CompilationContext pContext,
-                ParserTypeProvider pProvider) {
-            
-            // Ensure type
-            if(!Name.equals(pThisResult.typeNameOf(pEntryIndex)))
-                throw new CompilationException("Mal-formed RegParser Escape near \""
-                        + pThisResult.originalText().substring(pThisResult.startPosition()) + "\".");
-            
-            String Text = pThisResult.textOf(pEntryIndex).substring(2);
-            while(Text.length() < 3) Text = "0" + Text;
-            return (char)(OCT.indexOf(Text.charAt(0))*8*8 + OCT.indexOf(Text.charAt(1))*8 + OCT.indexOf(Text.charAt(2)));
-        }
-    }
     
     @SuppressWarnings("serial")
     static public class RPTEscapeHex extends ParserType {
@@ -583,7 +559,7 @@ public class RPCompiler_ParserTypes {
                 Vector<Checker> Cs = new Vector<Checker>();
                 Cs.add(RegParser.newRegParser(new CharNot(new CharSet(RPCompiler_ParserTypes.Escapable + "-"))));
                 Cs.add(RegParser.newRegParser(RPEscapeParserType.typeRef));
-                Cs.add(RegParser.newRegParser(new ParserTypeRef.Simple(RPTEscapeOct.Name)));
+                Cs.add(RegParser.newRegParser(RPEscapeOctParserType.typeRef));
                 Cs.add(RegParser.newRegParser(new ParserTypeRef.Simple(RPTEscapeHex.Name)));
                 Cs.add(RegParser.newRegParser(new ParserTypeRef.Simple(RPTEscapeUnicode.Name)));
                 
@@ -778,7 +754,7 @@ public class RPCompiler_ParserTypes {
                 Cs.add(RPCompiler_ParserTypes.PredefinedCheckers);
                 // Escape
                 Cs.add(RegParser.newRegParser(RPEscapeParserType.typeRef));
-                Cs.add(RegParser.newRegParser(new ParserTypeRef.Simple(RPTEscapeOct.Name)));
+                Cs.add(RegParser.newRegParser(RPEscapeOctParserType.typeRef));
                 Cs.add(RegParser.newRegParser(new ParserTypeRef.Simple(RPTEscapeHex.Name)));
                 Cs.add(RegParser.newRegParser(new ParserTypeRef.Simple(RPTEscapeUnicode.Name)));
                 // CharSet
@@ -963,8 +939,8 @@ public class RPCompiler_ParserTypes {
             String PType = PSE.typeName();
             if(RPEscapeParserType.name.equals(PType))
                 return RegParserEntry.newParserEntry(new CharSingle((Character)pProvider.type(RPEscapeParserType.name).compile(pThisResult, 0, null, pContext, pProvider)));
-            if(RPTEscapeOct.Name.equals(PType))
-                return RegParserEntry.newParserEntry(new CharSingle((Character)pProvider.type(RPTEscapeOct.Name    ).compile(pThisResult, 0, null, pContext, pProvider)));
+            if(RPEscapeOctParserType.name.equals(PType))
+                return RegParserEntry.newParserEntry(new CharSingle((Character)pProvider.type(RPEscapeOctParserType.name    ).compile(pThisResult, 0, null, pContext, pProvider)));
             if(RPTEscapeHex.Name.equals(PType))
                 return RegParserEntry.newParserEntry(new CharSingle((Character)pProvider.type(RPTEscapeHex.Name    ).compile(pThisResult, 0, null, pContext, pProvider)));
             if(RPTEscapeUnicode.Name.equals(PType))
@@ -977,7 +953,7 @@ public class RPCompiler_ParserTypes {
                 String Text = pThisResult.textOf(0);
                 // Return as Word if its lower case and upper case is the same
                 if(Text.toUpperCase().equals(Text.toLowerCase())) return RegParserEntry.newParserEntry(new WordChecker(Text));
-                return RegParserEntry.newParserEntry(new ParserTypeRef.Simple(TextCaseInsensitiveParseType.name, Text.substring(1, Text.length() - 1)));
+                return RegParserEntry.newParserEntry(new ParserTypeRef.Simple(TextCaseInsensitiveParserType.name, Text.substring(1, Text.length() - 1)));
             }
             
             if(RPTType.Name.equals(PType))

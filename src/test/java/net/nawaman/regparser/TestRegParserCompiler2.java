@@ -14,7 +14,6 @@ import org.junit.Test;
 
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTCharSetItem;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTEscapeHex;
-import net.nawaman.regparser.RPCompiler_ParserTypes.RPTEscapeOct;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTEscapeUnicode;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTQuantifier;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRange;
@@ -23,10 +22,11 @@ import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParserItem;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTType;
 import net.nawaman.regparser.checkers.CharChecker;
 import net.nawaman.regparser.compiler.RPCommentParserType;
+import net.nawaman.regparser.compiler.RPEscapeOctParserType;
 import net.nawaman.regparser.compiler.RPEscapeParserType;
 import net.nawaman.regparser.types.IdentifierParserType;
 import net.nawaman.regparser.types.StringLiteralParserType;
-import net.nawaman.regparser.types.TextCaseInsensitiveParseType;
+import net.nawaman.regparser.types.TextCaseInsensitiveParserType;
 
 public class TestRegParserCompiler2 {
 	
@@ -56,15 +56,16 @@ public class TestRegParserCompiler2 {
 	public void setup() {
 		var typeProvider = new ParserTypeProvider.Extensible();
 		
-		typeProvider.addType(new TextCaseInsensitiveParseType());
-		typeProvider.addType(new IdentifierParserType());
-		typeProvider.addType(new StringLiteralParserType());
-		typeProvider.addType(new RPCommentParserType());
+		typeProvider.addType(TextCaseInsensitiveParserType.instance);
+		typeProvider.addType(IdentifierParserType.instance);
+		typeProvider.addType(StringLiteralParserType.instance);
+		typeProvider.addType(RPCommentParserType.instance);
 		typeProvider.addType(new RPTType());
 		typeProvider.addType(new RPTQuantifier());
 		typeProvider.addType(new RPTRegParserItem());
-		typeProvider.addType(new RPEscapeParserType());
-		typeProvider.addType(new RPTEscapeOct());
+		typeProvider.addType(new RPTRegParserItem());
+		typeProvider.addType(RPEscapeParserType.instance);
+		typeProvider.addType(RPEscapeOctParserType.instance);
 		typeProvider.addType(new RPTEscapeHex());
 		typeProvider.addType(new RPTEscapeUnicode());
 		typeProvider.addType(new RPTRange());
@@ -87,8 +88,8 @@ public class TestRegParserCompiler2 {
 	
 	@Test
 	public void testEscapeOct() {
-		var typeName = RPTEscapeOct.Name;
-		var parser   = newRegParser(new ParserTypeRef.Simple(typeName));
+		var typeName = RPEscapeOctParserType.name;
+		var parser   = newRegParser(RPEscapeOctParserType.typeRef);
 		validate("(!EscapeOct!)", parser);
 		
 		char c  = 'n';

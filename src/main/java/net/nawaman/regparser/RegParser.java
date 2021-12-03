@@ -30,7 +30,6 @@ import java.util.stream.Stream;
 
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTCharSetItem;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTEscapeHex;
-import net.nawaman.regparser.RPCompiler_ParserTypes.RPTEscapeOct;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTEscapeUnicode;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTQuantifier;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRange;
@@ -40,6 +39,7 @@ import net.nawaman.regparser.RPCompiler_ParserTypes.RPTType;
 import net.nawaman.regparser.checkers.CheckerAlternative;
 import net.nawaman.regparser.checkers.CheckerFixeds;
 import net.nawaman.regparser.compiler.RPCommentParserType;
+import net.nawaman.regparser.compiler.RPEscapeOctParserType;
 import net.nawaman.regparser.compiler.RPEscapeParserType;
 import net.nawaman.regparser.result.ParseResult;
 import net.nawaman.regparser.result.ParseResultNode;
@@ -47,7 +47,7 @@ import net.nawaman.regparser.result.TemporaryParseResult;
 import net.nawaman.regparser.result.entry.ParseResultEntry;
 import net.nawaman.regparser.types.IdentifierParserType;
 import net.nawaman.regparser.types.StringLiteralParserType;
-import net.nawaman.regparser.types.TextCaseInsensitiveParseType;
+import net.nawaman.regparser.types.TextCaseInsensitiveParserType;
 import net.nawaman.regparser.utils.Util;
 
 /**
@@ -487,16 +487,16 @@ public class RegParser implements Checker, Serializable {
             // Try to create one
             if (RPTProvider == null) {
                 RPTProvider = new ParserTypeProvider.Extensible();
-                RPTProvider.addType(new TextCaseInsensitiveParseType());
+                RPTProvider.addType(TextCaseInsensitiveParserType.instance);
                 // Add the type
-                RPTProvider.addType(new IdentifierParserType());
-                RPTProvider.addType(new StringLiteralParserType());
-                RPTProvider.addType(new RPCommentParserType());
+                RPTProvider.addType(IdentifierParserType.instance);
+                RPTProvider.addType(StringLiteralParserType.instance);
+                RPTProvider.addType(RPCommentParserType.instance);
                 RPTProvider.addType(new RPTType());
                 RPTProvider.addType(new RPTQuantifier());
                 RPTProvider.addType(new RPTRegParserItem());
-                RPTProvider.addType(new RPEscapeParserType());
-                RPTProvider.addType(new RPTEscapeOct());
+                RPTProvider.addType(RPEscapeParserType.instance);
+                RPTProvider.addType(RPEscapeOctParserType.instance);
                 RPTProvider.addType(new RPTEscapeHex());
                 RPTProvider.addType(new RPTEscapeUnicode());
                 RPTProvider.addType(new RPTRange());

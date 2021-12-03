@@ -23,6 +23,7 @@ import static net.nawaman.regparser.RegParser.newRegParser;
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.ParserType;
 import net.nawaman.regparser.ParserTypeProvider;
+import net.nawaman.regparser.ParserTypeRef;
 import net.nawaman.regparser.Quantifier;
 import net.nawaman.regparser.checkers.CharNot;
 import net.nawaman.regparser.checkers.CharSingle;
@@ -39,7 +40,9 @@ public class StringLiteralParserType extends ParserType {
 	
 	private static final long serialVersionUID = -5671933716521874182L;
 
-	public static String name = "$StringLiteral";
+	public static String                  name     = "$StringLiteral";
+	public static StringLiteralParserType instance = new StringLiteralParserType();
+	public static ParserTypeRef           typeRef  = instance.typeRef();
 	
 	private final Checker checker;
 	

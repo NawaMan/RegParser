@@ -35,7 +35,7 @@ import java.util.Set;
 
 import net.nawaman.regparser.types.ComposableParserType;
 import net.nawaman.regparser.types.JavaCheckerParserType;
-import net.nawaman.regparser.types.TextCaseInsensitiveParseType;
+import net.nawaman.regparser.types.TextCaseInsensitiveParserType;
 import net.nawaman.regparser.types.ResultCompiler;
 import net.nawaman.regparser.types.ResultVerifier;
 
@@ -80,7 +80,7 @@ public interface ParserTypeProvider extends Serializable {
 				return defaultProvider;
 			
 			defaultProvider = new ParserTypeProvider.Extensible();
-			defaultProvider.addType(new TextCaseInsensitiveParseType());
+			defaultProvider.addType(new TextCaseInsensitiveParserType());
 			defaultProvider.addType(new ParserTypeBackRef());
 			defaultProvider.addType(new ParserTypeBackRefCaseInsensitive());
 			defaultProvider.addType(new JavaCheckerParserType());
