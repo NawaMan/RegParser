@@ -13,7 +13,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTCharSetItem;
-import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRange;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParser;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParserItem;
 import net.nawaman.regparser.checkers.CharChecker;
@@ -23,6 +22,7 @@ import net.nawaman.regparser.compiler.RPEscapeOctParserType;
 import net.nawaman.regparser.compiler.RPEscapeParserType;
 import net.nawaman.regparser.compiler.RPEscapeUnicodeParserType;
 import net.nawaman.regparser.compiler.RPQuantifierParserType;
+import net.nawaman.regparser.compiler.RPRangeParserType;
 import net.nawaman.regparser.compiler.RPTypeParserType;
 import net.nawaman.regparser.types.IdentifierParserType;
 import net.nawaman.regparser.types.StringLiteralParserType;
@@ -68,7 +68,7 @@ public class TestRegParserCompiler2 {
 		typeProvider.addType(RPEscapeOctParserType.instance);
 		typeProvider.addType(RPEscapeHexParserType.instance);
 		typeProvider.addType(RPEscapeUnicodeParserType.instance);
-		typeProvider.addType(new RPTRange());
+		typeProvider.addType(RPRangeParserType.instance);
 		typeProvider.addType(new RPTCharSetItem());
 		typeProvider.addType(new RPTRegParser());
 		
@@ -350,9 +350,9 @@ public class TestRegParserCompiler2 {
 	
 	@Test
 	public void testRange() {
-		var typeName = RPTRange.Name;
+		var typeName = RPRangeParserType.name;
 		var type     = typeProvider.type(typeName);
-		var parser   = RegParser.newRegParser(new ParserTypeRef.Simple(typeName));
+		var parser   = RegParser.newRegParser(RPRangeParserType.typeRef);
 		validate("(!Range!)", parser);
 		
 		var result = parser.match("b-z", typeProvider);

@@ -25,7 +25,6 @@ import java.util.Vector;
 import net.nawaman.regparser.checkers.CharChecker;
 import net.nawaman.regparser.checkers.CharIntersect;
 import net.nawaman.regparser.checkers.CharNot;
-import net.nawaman.regparser.checkers.CharRange;
 import net.nawaman.regparser.checkers.CharSet;
 import net.nawaman.regparser.checkers.CharSingle;
 import net.nawaman.regparser.checkers.CharUnion;
@@ -39,6 +38,7 @@ import net.nawaman.regparser.compiler.RPEscapeOctParserType;
 import net.nawaman.regparser.compiler.RPEscapeParserType;
 import net.nawaman.regparser.compiler.RPEscapeUnicodeParserType;
 import net.nawaman.regparser.compiler.RPQuantifierParserType;
+import net.nawaman.regparser.compiler.RPRangeParserType;
 import net.nawaman.regparser.compiler.RPTypeParserType;
 import net.nawaman.regparser.result.ParseResult;
 import net.nawaman.regparser.types.IdentifierParserType;
@@ -303,87 +303,6 @@ public class RPCompiler_ParserTypes {
     }
     
     @SuppressWarnings("serial")
-    static public class RPTRange extends ParserType {
-        static public String Name = "Range";
-        @Override public String name() { return Name; }
-        Checker TheChecker = null;
-        @Override public Checker checker(ParseResult pHostResult, String pParam, ParserTypeProvider pProvider) {
-            if(this.TheChecker == null) {
-                Vector<Checker> Cs = new Vector<Checker>();
-                Cs.add(RegParser.newRegParser(new CharNot(new CharSet(RPCompiler_ParserTypes.Escapable + "-"))));
-                Cs.add(RegParser.newRegParser(RPEscapeParserType.typeRef));
-                Cs.add(RegParser.newRegParser(RPEscapeOctParserType.typeRef));
-                Cs.add(RegParser.newRegParser(RPEscapeHexParserType.typeRef));
-                Cs.add(RegParser.newRegParser(RPEscapeUnicodeParserType.typeRef));
-                
-                // Last
-                Cs.add(RegParser.newRegParser("#Error[]", new CharNot(new CharSingle(']'))));
-                
-                // Create the checker
-                this.TheChecker = RegParser.newRegParser(
-                    PredefinedCheckers, Quantifier.Zero,
-                    "#Start", new CheckerAlternative(true, Cs.toArray(Checker.EMPTY_CHECKER_ARRAY)),
-                    PredefinedCharClasses.WhiteSpace, Quantifier.ZeroOrMore,
-                    RegParser.newRegParser(
-                        new CharSingle('-'),
-                        PredefinedCheckers, Quantifier.Zero,
-                        PredefinedCharClasses.WhiteSpace, Quantifier.ZeroOrMore,
-                        "#End", new CheckerAlternative(true, Cs.toArray(Checker.EMPTY_CHECKER_ARRAY))
-                    ), Quantifier.ZeroOrOne
-                );
-            }
-            return this.TheChecker;
-        }
-        @Override public Object doCompile(ParseResult pThisResult, int pEntryIndex, String pParam, CompilationContext pContext,
-                ParserTypeProvider pProvider) {
-
-            // Ensure type
-            if(!Name.equals(pThisResult.typeNameOf(pEntryIndex)))
-                throw new CompilationException("Mal-formed RegParser character range near \""
-                        + pThisResult.originalText().substring(pThisResult.startPosition()) + "\".");
-            
-            pThisResult = pThisResult.entryAt(pEntryIndex).subResult();
-            
-            if(pThisResult.lastEntryOf("#Start").hasSubResult()) {
-                if(pThisResult.lastEntryOf("#Start").subResult().hasName("#Error[]")) {
-                    throw new CompilationException("There is an invalid character near \""
-                        + pThisResult.originalText().substring(pThisResult.startPosition()) + "\".");
-                }
-            }
-            
-            String S  = pThisResult.lastStringOf("#Start");
-            char   SC = S.charAt(0);
-            if(S.length() > 1) {
-                // Only possibility is that it is an escape
-                ParseResult PS = pThisResult.lastEntryOf("#Start").subResult();
-                SC = (Character)(pProvider.type(RPEscapeParserType.name).compile(PS, pProvider));
-            }
-            
-            String E = pThisResult.lastStringOf("#End");
-            if(E == null) return new CharSingle(SC);
-            else {
-                if(pThisResult.lastEntryOf("#End").hasSubResult()) {
-                    if(pThisResult.lastEntryOf("#End").subResult().hasName("#Error[]")) {
-                        throw new CompilationException("There is an invalid character near \""
-                        + pThisResult.originalText().substring(pThisResult.startPosition()) + "\".");
-                    }
-                }
-                
-                char EC = E.charAt(0);
-                if(E.length() > 1) {
-                    // Only possibility is that it is an escape
-                    ParseResult PS = pThisResult.lastEntryOf("#End").subResult();
-                    EC = (Character)(pProvider.type(RPEscapeParserType.name).compile(PS, pProvider));
-                }
-                if(SC > EC)
-                    throw new CompilationException("Range starter must not be greater than its ender - near \""
-                        + pThisResult.originalText().substring(pThisResult.startPosition()) + "\".");
-                return new CharRange(SC, EC);
-            }
-        }
-    }
-    
-    @SuppressWarnings("serial")
     static public class RPTCharSetItem extends ParserType {
         static public String Name = "CharSetItem";
         @Override public String name() { return Name; }
@@ -405,7 +324,7 @@ public class RPCompiler_ParserTypes {
                 Cs.add(RegParser.newRegParser("#Ignored[]", PredefinedCharClasses.WhiteSpace, Quantifier.OneOrMore));
                 
                 // The last item
-                Cs.add(RegParser.newRegParser("#Range", new ParserTypeRef.Simple(RPTRange.Name)));
+                Cs.add(RegParser.newRegParser("#Range", RPRangeParserType.typeRef));
                 
                 // Create the checker
                 this.TheChecker = RegParser.newRegParser(
@@ -453,7 +372,7 @@ public class RPCompiler_ParserTypes {
                     CCs.add(getCharClass(pThisResult, i));
                     
                 } else if("#Range".equals(PName)) {    // Extract Range
-                    CharChecker CC = (CharChecker)pProvider.type(RPTRange.Name ).compile(pThisResult, i, null,
+                    CharChecker CC = (CharChecker)pProvider.type(RPRangeParserType.name).compile(pThisResult, i, null,
                             pContext, pProvider);
                     
                     if((CC instanceof CharSingle) && (CCs.size() > 0)) {

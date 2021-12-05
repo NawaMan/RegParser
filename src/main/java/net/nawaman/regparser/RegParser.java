@@ -29,7 +29,6 @@ import java.util.Vector;
 import java.util.stream.Stream;
 
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTCharSetItem;
-import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRange;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParser;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParserItem;
 import net.nawaman.regparser.checkers.CheckerAlternative;
@@ -40,6 +39,7 @@ import net.nawaman.regparser.compiler.RPEscapeOctParserType;
 import net.nawaman.regparser.compiler.RPEscapeParserType;
 import net.nawaman.regparser.compiler.RPEscapeUnicodeParserType;
 import net.nawaman.regparser.compiler.RPQuantifierParserType;
+import net.nawaman.regparser.compiler.RPRangeParserType;
 import net.nawaman.regparser.compiler.RPTypeParserType;
 import net.nawaman.regparser.result.ParseResult;
 import net.nawaman.regparser.result.ParseResultNode;
@@ -499,7 +499,7 @@ public class RegParser implements Checker, Serializable {
                 RPTProvider.addType(RPEscapeOctParserType.instance);
                 RPTProvider.addType(RPEscapeHexParserType.instance);
                 RPTProvider.addType(RPEscapeUnicodeParserType.instance);
-                RPTProvider.addType(new RPTRange());
+                RPTProvider.addType(RPRangeParserType.instance);
                 RPTProvider.addType(new RPTCharSetItem());
                 RPTProvider.addType(new RPTRegParser());
             }
