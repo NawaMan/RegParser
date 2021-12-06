@@ -11,7 +11,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParser;
-import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParserItem;
 import net.nawaman.regparser.compiler.RPCharSetItemParserType;
 import net.nawaman.regparser.compiler.RPCommentParserType;
 import net.nawaman.regparser.compiler.RPEscapeHexParserType;
@@ -20,6 +19,7 @@ import net.nawaman.regparser.compiler.RPEscapeParserType;
 import net.nawaman.regparser.compiler.RPEscapeUnicodeParserType;
 import net.nawaman.regparser.compiler.RPQuantifierParserType;
 import net.nawaman.regparser.compiler.RPRangeParserType;
+import net.nawaman.regparser.compiler.RPRegParserItemParserType;
 import net.nawaman.regparser.compiler.RPTypeParserType;
 import net.nawaman.regparser.types.IdentifierParserType;
 import net.nawaman.regparser.types.StringLiteralParserType;
@@ -42,7 +42,7 @@ public class TestRegParserCompiler1 {
 		typeProvider.addType(RPCommentParserType.instance);
 		typeProvider.addType(RPTypeParserType.instance);
 		typeProvider.addType(RPQuantifierParserType.instance);
-		typeProvider.addType(new RPTRegParserItem());
+		typeProvider.addType(RPRegParserItemParserType.instance);
 		typeProvider.addType(RPEscapeParserType.instance);
 		typeProvider.addType(RPEscapeOctParserType.instance);
 		typeProvider.addType(RPEscapeHexParserType.instance);
@@ -93,7 +93,7 @@ public class TestRegParserCompiler1 {
 	
 	@Test
 	public void testParseCharClass() {
-		var parser = newRegParser(typeProvider, new ParserTypeRef.Simple(RPTRegParserItem.Name), OneOrMore, Any, ZeroOrMore);
+		var parser = newRegParser(typeProvider, RPRegParserItemParserType.typeRef, OneOrMore, Any, ZeroOrMore);
 		
 		var result = parser.match(".\\s\\D[:WhiteSpace:]a\\p{Blank}d", typeProvider);
 		validate("\n"
