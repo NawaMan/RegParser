@@ -12,10 +12,10 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import net.nawaman.regparser.RPCompiler_ParserTypes.RPTCharSetItem;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParser;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParserItem;
 import net.nawaman.regparser.checkers.CharChecker;
+import net.nawaman.regparser.compiler.RPCharSetItemParserType;
 import net.nawaman.regparser.compiler.RPCommentParserType;
 import net.nawaman.regparser.compiler.RPEscapeHexParserType;
 import net.nawaman.regparser.compiler.RPEscapeOctParserType;
@@ -63,13 +63,12 @@ public class TestRegParserCompiler2 {
 		typeProvider.addType(RPTypeParserType.instance);
 		typeProvider.addType(RPQuantifierParserType.instance);
 		typeProvider.addType(new RPTRegParserItem());
-		typeProvider.addType(new RPTRegParserItem());
 		typeProvider.addType(RPEscapeParserType.instance);
 		typeProvider.addType(RPEscapeOctParserType.instance);
 		typeProvider.addType(RPEscapeHexParserType.instance);
 		typeProvider.addType(RPEscapeUnicodeParserType.instance);
 		typeProvider.addType(RPRangeParserType.instance);
-		typeProvider.addType(new RPTCharSetItem());
+		typeProvider.addType(RPCharSetItemParserType.instance);
 		typeProvider.addType(new RPTRegParser());
 		
 		this.typeProvider = typeProvider;
@@ -373,11 +372,11 @@ public class TestRegParserCompiler2 {
 	
 	@Test
 	public void testCharSet() {
-		var typeName = RPTCharSetItem.Name;
+		var typeName = RPCharSetItemParserType.name;
 		var type     = typeProvider.type(typeName);
 		var text     = "[^a-zasdfg[A-Z][0-9].\\s\\jp{Blank}]&&[[:JDigit:]]";
 		
-		var parser = newRegParser(new ParserTypeRef.Simple(typeName));
+		var parser = newRegParser(RPCharSetItemParserType.typeRef);
 		validate("(!CharSetItem!)", parser);
 		
 		var result = parser.match(text, typeProvider);

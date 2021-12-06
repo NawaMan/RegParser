@@ -10,9 +10,9 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import net.nawaman.regparser.RPCompiler_ParserTypes.RPTCharSetItem;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParser;
 import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParserItem;
+import net.nawaman.regparser.compiler.RPCharSetItemParserType;
 import net.nawaman.regparser.compiler.RPCommentParserType;
 import net.nawaman.regparser.compiler.RPEscapeHexParserType;
 import net.nawaman.regparser.compiler.RPEscapeOctParserType;
@@ -48,7 +48,7 @@ public class TestRegParserCompiler1 {
 		typeProvider.addType(RPEscapeHexParserType.instance);
 		typeProvider.addType(RPEscapeUnicodeParserType.instance);
 		typeProvider.addType(RPRangeParserType.instance);
-		typeProvider.addType(new RPTCharSetItem());
+		typeProvider.addType(RPCharSetItemParserType.instance);
 		typeProvider.addType(new RPTRegParser());
 		
 		parser = newRegParser(typeProvider, RPTypeParserType.typeRef);
@@ -247,7 +247,9 @@ public class TestRegParserCompiler1 {
 	
 	@Test
 	public void testParseCharSet() {
-		var parser = newRegParser(new ParserTypeRef.Simple(RPTCharSetItem.Name), OneOrMore, Any, ZeroOrMore);
+		var parser = newRegParser(
+		                 RPCharSetItemParserType.typeRef, OneOrMore,
+		                 Any, ZeroOrMore);
 		validate("(!CharSetItem!)+.*", parser);
 		
 		var result = parser.match("[a-bg-h.gfj\\s\\u0035-c\\s[:Any:][:Digit:]g\\jp{ASCII}]", typeProvider);

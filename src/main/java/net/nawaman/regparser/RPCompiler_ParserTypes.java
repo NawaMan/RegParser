@@ -23,22 +23,20 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import net.nawaman.regparser.checkers.CharChecker;
-import net.nawaman.regparser.checkers.CharIntersect;
 import net.nawaman.regparser.checkers.CharNot;
 import net.nawaman.regparser.checkers.CharSet;
 import net.nawaman.regparser.checkers.CharSingle;
-import net.nawaman.regparser.checkers.CharUnion;
 import net.nawaman.regparser.checkers.CheckerAlternative;
 import net.nawaman.regparser.checkers.CheckerFirstFound;
 import net.nawaman.regparser.checkers.CheckerNot;
 import net.nawaman.regparser.checkers.WordChecker;
+import net.nawaman.regparser.compiler.RPCharSetItemParserType;
 import net.nawaman.regparser.compiler.RPCommentParserType;
 import net.nawaman.regparser.compiler.RPEscapeHexParserType;
 import net.nawaman.regparser.compiler.RPEscapeOctParserType;
 import net.nawaman.regparser.compiler.RPEscapeParserType;
 import net.nawaman.regparser.compiler.RPEscapeUnicodeParserType;
 import net.nawaman.regparser.compiler.RPQuantifierParserType;
-import net.nawaman.regparser.compiler.RPRangeParserType;
 import net.nawaman.regparser.compiler.RPTypeParserType;
 import net.nawaman.regparser.result.ParseResult;
 import net.nawaman.regparser.types.IdentifierParserType;
@@ -303,118 +301,6 @@ public class RPCompiler_ParserTypes {
     }
     
     @SuppressWarnings("serial")
-    static public class RPTCharSetItem extends ParserType {
-        static public String Name = "CharSetItem";
-        @Override public String name() { return Name; }
-        Checker TheChecker = null;
-        @Override public Checker checker(ParseResult pHostResult, String pParam, ParserTypeProvider pProvider) {
-            if(this.TheChecker == null) {
-                Vector<Checker> Cs = new Vector<Checker>();
-                Cs.add(RPCompiler_ParserTypes.PredefinedCheckers);
-                Cs.add(
-                    RegParser.newRegParser(
-                        new ParserTypeRef.Simple(RPTCharSetItem.Name),
-                        RegParser.newRegParser(
-                            "#Intersect", new WordChecker("&&"),
-                            new ParserTypeRef.Simple(RPTCharSetItem.Name)
-                        ), Quantifier.ZeroOrMore
-                    )
-                );
-
-                Cs.add(RegParser.newRegParser("#Ignored[]", PredefinedCharClasses.WhiteSpace, Quantifier.OneOrMore));
-                
-                // The last item
-                Cs.add(RegParser.newRegParser("#Range", RPRangeParserType.typeRef));
-                
-                // Create the checker
-                this.TheChecker = RegParser.newRegParser(
-                        RegParser.newRegParser(
-                            new CharSingle('['),
-                            "#NOT", new CharSingle('^'), Quantifier.ZeroOrOne,
-                            new CharSingle(':'), Quantifier.Zero,
-                            //"#Content", 
-                            new CheckerAlternative(true, Cs.toArray(Checker.EMPTY_CHECKER_ARRAY)), Quantifier.OneOrMore,
-                            new CharSingle(']')
-                        ),
-                        RegParser.newRegParser(
-                            "#Intersect", new WordChecker("&&"),
-                            "#Set", RegParser.newRegParser(
-                                new CharSingle('['),
-                                "#NOT", new CharSingle('^'), Quantifier.ZeroOrOne,
-                                new CharSingle(':'), Quantifier.Zero,
-                                //"#Content", 
-                                new CheckerAlternative(Cs.toArray(Checker.EMPTY_CHECKER_ARRAY)), Quantifier.OneOrMore,
-                                new CharSingle(']')
-                            )
-                        ), Quantifier.ZeroOrMore
-                    );
-            }
-            return this.TheChecker;
-        }
-        @Override public Object doCompile(ParseResult pThisResult, int pEntryIndex, String pParam, CompilationContext pContext,
-                ParserTypeProvider pProvider) {            
-            pThisResult = pThisResult.entryAt(pEntryIndex).subResult();
-            
-            Vector<CharChecker> CCCs = new Vector<CharChecker>();
-            Vector<CharChecker> CCs  = new Vector<CharChecker>();
-            boolean IsNot = false;
-            for(int i = 0; i < pThisResult.rawEntryCount(); i++) {
-                var PSE = pThisResult.entryAt(i);
-                String PName = PSE.name();
-                String PText = pThisResult.textOf(i);
-                String PType = PSE.typeName();
-                if((PName == null) && (PText.equals("["))) continue;
-                
-                if("#NOT".equals(PName)) {    // Process not
-                    IsNot= true;
-                    
-                } else if(CharClassName.equals(PName) || "#Any".equals(PName)) {    // Extract CharClass
-                    CCs.add(getCharClass(pThisResult, i));
-                    
-                } else if("#Range".equals(PName)) {    // Extract Range
-                    CharChecker CC = (CharChecker)pProvider.type(RPRangeParserType.name).compile(pThisResult, i, null,
-                            pContext, pProvider);
-                    
-                    if((CC instanceof CharSingle) && (CCs.size() > 0)) {
-                        CharChecker PCC = CCs.get(CCs.size() - 1);
-                        // Append the previous one if able
-                        if(PCC instanceof CharSingle) {
-                            CC = new CharSet("" + ((CharSingle)PCC).ch + ((CharSingle)CC).ch);
-                            CCs.remove(CCs.size() - 1);
-                        } else if(PCC instanceof CharSet) {
-                            CC = new CharSet("" + ((CharSet)PCC).set + ((CharSingle)CC).ch);
-                            CCs.remove(CCs.size() - 1);
-                        }
-                    }
-                    CCs.add(CC);
-                    
-                } else if("#Set".equals(PName) || RPTCharSetItem.Name.equals(PType)) {    // Extract Nested
-                    CCs.add((CharChecker)this.compile(pThisResult, i, null, pContext, pProvider));
-                    
-                }
-                
-                // Ending and intersect
-                if("#Intersect".equals(PName)) {
-                    CharChecker NewCC = (CCs.size() == 1)?CCs.get(0):new CharUnion(CCs.toArray(CharChecker.EMPTY_CHAR_CHECKER_ARRAY));
-                    if(IsNot) NewCC = new CharNot(NewCC);
-                    CCCs.add(NewCC);
-                    CCs = new Vector<CharChecker>();
-                    IsNot= false;
-                }
-            }
-            
-            if(CCs.size() > 0) {
-                CharChecker NewCC = (CCs.size() == 1)?CCs.get(0):new CharUnion(CCs.toArray(CharChecker.EMPTY_CHAR_CHECKER_ARRAY));
-                if(IsNot) NewCC = new CharNot(NewCC);
-                CCCs.add(NewCC);
-            }
-            
-            if(CCCs.size() == 1) return CCCs.get(0);
-            else                 return new CharIntersect(CCCs.toArray(CharChecker.EMPTY_CHAR_CHECKER_ARRAY));
-        }
-    }
-    
-    @SuppressWarnings("serial")
     static public class RPTRegParserItem extends ParserType {
         static public String Name = "RegParserItem[]";
         @Override public String name() { return Name; }
@@ -432,7 +318,7 @@ public class RPCompiler_ParserTypes {
                 // CharSet
                 Cs.add(RegParser.newRegParser(RPTypeParserType.typeRef));
                 // Type
-                Cs.add(RegParser.newRegParser(new ParserTypeRef.Simple(RPTCharSetItem.Name)));
+                Cs.add(RegParser.newRegParser(new ParserTypeRef.Simple(RPCharSetItemParserType.name)));
                 
                 Cs.add(
                     RegParser.newRegParser(
@@ -618,8 +504,8 @@ public class RPCompiler_ParserTypes {
             if(RPEscapeUnicodeParserType.name.equals(PType))
                 return RegParserEntry.newParserEntry(new CharSingle((Character)pProvider.type(RPEscapeUnicodeParserType.name).compile(pThisResult, 0, null, pContext, pProvider)));
             
-            if(RPTCharSetItem.Name.equals(PType))
-                return RegParserEntry.newParserEntry((Checker)pProvider.type(RPTCharSetItem.Name  ).compile(pThisResult, 0, null, pContext, pProvider));
+            if(RPCharSetItemParserType.name.equals(PType))
+                return RegParserEntry.newParserEntry((Checker)pProvider.type(RPCharSetItemParserType.name).compile(pThisResult, 0, null, pContext, pProvider));
             
             if("$TextCI".equals(PName)) {
                 String Text = pThisResult.textOf(0);
