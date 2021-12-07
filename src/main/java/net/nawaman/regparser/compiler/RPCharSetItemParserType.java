@@ -19,13 +19,13 @@ package net.nawaman.regparser.compiler;
 
 import static net.nawaman.regparser.Checker.EMPTY_CHECKER_ARRAY;
 import static net.nawaman.regparser.PredefinedCharClasses.WhiteSpace;
+import static net.nawaman.regparser.PredefinedCheckers.charClassName;
+import static net.nawaman.regparser.PredefinedCheckers.getCharClass;
+import static net.nawaman.regparser.PredefinedCheckers.predefinedCharChecker;
 import static net.nawaman.regparser.Quantifier.OneOrMore;
 import static net.nawaman.regparser.Quantifier.Zero;
 import static net.nawaman.regparser.Quantifier.ZeroOrMore;
 import static net.nawaman.regparser.Quantifier.ZeroOrOne;
-import static net.nawaman.regparser.RPCompiler_ParserTypes.CharClassName;
-import static net.nawaman.regparser.RPCompiler_ParserTypes.PredefinedCheckers;
-import static net.nawaman.regparser.RPCompiler_ParserTypes.getCharClass;
 import static net.nawaman.regparser.RegParser.newRegParser;
 import static net.nawaman.regparser.checkers.CharChecker.EMPTY_CHAR_CHECKER_ARRAY;
 
@@ -59,7 +59,7 @@ public class RPCharSetItemParserType extends ParserType {
 	public RPCharSetItemParserType() {
 		var typeRef  = new ParserTypeRef.Simple(name);
 		var checkers = new ArrayList<Checker>();
-		checkers.add(PredefinedCheckers);
+		checkers.add(predefinedCharChecker);
 		checkers.add(newRegParser(
 		                 typeRef,
 		                 newRegParser("#Intersect", new WordChecker("&&"), typeRef), ZeroOrMore));
@@ -124,7 +124,7 @@ public class RPCharSetItemParserType extends ParserType {
 			if ("#NOT".equals(name)) { // Process not
 				negate = true;
 				
-			} else if (CharClassName.equals(name) || "#Any".equals(name)) { // Extract CharClass
+			} else if (charClassName.equals(name) || "#Any".equals(name)) { // Extract CharClass
 				eachCheckers.add(getCharClass(thisResult, i));
 				
 			} else if ("#Range".equals(name)) { // Extract Range

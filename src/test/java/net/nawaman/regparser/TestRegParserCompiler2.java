@@ -2,7 +2,7 @@ package net.nawaman.regparser;
 
 import static net.nawaman.regparser.Greediness.Maximum;
 import static net.nawaman.regparser.Greediness.Minimum;
-import static net.nawaman.regparser.RPCompiler_ParserTypes.getCharClass;
+import static net.nawaman.regparser.PredefinedCheckers.getCharClass;
 import static net.nawaman.regparser.RegParser.newRegParser;
 import static net.nawaman.regparser.compiler.RPEscapeHexParserType.HEX;
 
@@ -79,7 +79,7 @@ public class TestRegParserCompiler2 {
 		var parser = newRegParser(RPEscapeParserType.typeRef);
 		validate("(!Escape!)", parser);
 		
-		for (char c : RPCompiler_ParserTypes.Escapable.toCharArray()) {
+		for (char c : RPCompilerHelpers.Escapable.toCharArray()) {
 		    var result = parser.match("\\" + c, typeProvider);
 		    validate("" + c, typeProvider.type(RPEscapeParserType.name).compile(result, null, null, typeProvider));
 		}
@@ -149,7 +149,7 @@ public class TestRegParserCompiler2 {
 	
 	@Test
 	public void testPredefinedCharClasses() {
-		var parser = newRegParser(RPCompiler_ParserTypes.PredefinedCheckers);
+		var parser = newRegParser(PredefinedCheckers.predefinedCharChecker);
 		
 		var result = parser.match("\\jd", typeProvider);
 		validate("\n"

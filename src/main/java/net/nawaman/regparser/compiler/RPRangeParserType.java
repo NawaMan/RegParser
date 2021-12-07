@@ -20,11 +20,11 @@ package net.nawaman.regparser.compiler;
 import static java.lang.String.format;
 import static net.nawaman.regparser.Checker.EMPTY_CHECKER_ARRAY;
 import static net.nawaman.regparser.PredefinedCharClasses.WhiteSpace;
+import static net.nawaman.regparser.PredefinedCheckers.predefinedCharChecker;
 import static net.nawaman.regparser.Quantifier.Zero;
 import static net.nawaman.regparser.Quantifier.ZeroOrMore;
 import static net.nawaman.regparser.Quantifier.ZeroOrOne;
-import static net.nawaman.regparser.RPCompiler_ParserTypes.Escapable;
-import static net.nawaman.regparser.RPCompiler_ParserTypes.PredefinedCheckers;
+import static net.nawaman.regparser.RPCompilerHelpers.Escapable;
 import static net.nawaman.regparser.RegParser.newRegParser;
 
 import java.util.ArrayList;
@@ -65,11 +65,11 @@ public class RPRangeParserType extends ParserType {
 		checkers.add(newRegParser("#Error[]", new CharNot(new CharSingle(']'))));
 		
 		// Create the checker
-		checker = newRegParser(PredefinedCheckers, Quantifier.Zero,
+		checker = newRegParser(predefinedCharChecker, Quantifier.Zero,
 		              "#Start", new CheckerAlternative(true, checkers.toArray(EMPTY_CHECKER_ARRAY)),
 		              WhiteSpace, Quantifier.ZeroOrMore,
 		              newRegParser(
-		                  new CharSingle('-'), PredefinedCheckers, Zero,
+		                  new CharSingle('-'), predefinedCharChecker, Zero,
 		                  WhiteSpace, ZeroOrMore,
 		                  "#End", new CheckerAlternative(true, checkers.toArray(EMPTY_CHECKER_ARRAY))), ZeroOrOne);
 	}

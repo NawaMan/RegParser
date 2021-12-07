@@ -18,7 +18,7 @@
 
 package net.nawaman.regparser.checkers;
 
-import static net.nawaman.regparser.RPCompiler_ParserTypes.escapeOfRegParser;
+import static net.nawaman.regparser.RPCompilerHelpers.escapeOfRegParser;
 
 /**
  * Single character char set

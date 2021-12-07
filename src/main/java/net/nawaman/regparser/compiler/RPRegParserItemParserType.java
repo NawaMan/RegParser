@@ -22,15 +22,14 @@ import static net.nawaman.regparser.ParserTypeBackRef.BackRef_Instance;
 import static net.nawaman.regparser.ParserTypeBackRefCaseInsensitive.BackRefCI_Instance;
 import static net.nawaman.regparser.PredefinedCharClasses.Any;
 import static net.nawaman.regparser.PredefinedCharClasses.WhiteSpace;
+import static net.nawaman.regparser.PredefinedCheckers.getCharClass;
+import static net.nawaman.regparser.PredefinedCheckers.predefinedCharChecker;
 import static net.nawaman.regparser.Quantifier.OneOrMore;
 import static net.nawaman.regparser.Quantifier.OneOrMore_Minimum;
 import static net.nawaman.regparser.Quantifier.Zero;
 import static net.nawaman.regparser.Quantifier.ZeroOrMore;
 import static net.nawaman.regparser.Quantifier.ZeroOrOne;
-import static net.nawaman.regparser.RPCompiler_ParserTypes.CharClassName;
-import static net.nawaman.regparser.RPCompiler_ParserTypes.Escapable;
-import static net.nawaman.regparser.RPCompiler_ParserTypes.PredefinedCheckers;
-import static net.nawaman.regparser.RPCompiler_ParserTypes.getCharClass;
+import static net.nawaman.regparser.RPCompilerHelpers.Escapable;
 import static net.nawaman.regparser.RegParser.newRegParser;
 import static net.nawaman.regparser.RegParserEntry.newParserEntry;
 
@@ -41,6 +40,7 @@ import net.nawaman.regparser.CompilationContext;
 import net.nawaman.regparser.ParserType;
 import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.ParserTypeRef;
+import net.nawaman.regparser.PredefinedCheckers;
 import net.nawaman.regparser.RegParser;
 import net.nawaman.regparser.checkers.CharNot;
 import net.nawaman.regparser.checkers.CharSet;
@@ -63,7 +63,7 @@ public class RPRegParserItemParserType extends ParserType {
 	
 	public RPRegParserItemParserType() {
 		var checkers = new Vector<Checker>();
-		checkers.add(PredefinedCheckers);
+		checkers.add(predefinedCharChecker);
 		// Escape
 		checkers.add(newRegParser(RPEscapeParserType.typeRef));
 		checkers.add(newRegParser(RPEscapeOctParserType.typeRef));
@@ -249,7 +249,7 @@ public class RPRegParserItemParserType extends ParserType {
 		if ("#Any".equals(name))
 			return newParserEntry(Any);
 		
-		if (CharClassName.equals(name))
+		if (PredefinedCheckers.charClassName.equals(name))
 			return newParserEntry(getCharClass(thisResult, 0));
 		
 		var typeName = entry.typeName();

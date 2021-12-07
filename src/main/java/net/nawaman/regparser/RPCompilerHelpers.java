@@ -16,63 +16,32 @@
  * ---------------------------------------------------------------------------------------------------------------------
  */
 
-package net.nawaman.regparser.checkers;
+package net.nawaman.regparser;
 
-import static net.nawaman.regparser.RPCompilerHelpers.escapeOfRegParser;
-
-import java.util.HashSet;
+import net.nawaman.regparser.utils.Util;
 
 /**
- * Checker form a set of character (represented by a string)
- *
+ * Compiler of RegParser language.
+ * 
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-public class CharSet extends CharChecker {
-	
-	private static final long serialVersionUID = 2165464135465416515L;
-	
-	public final String set;
-	
-	public CharSet(String set) {
-		this.set = (set == null)
-		         ? ""
-		         : set;
-	}
-	
-	/** Checks of the char c is in this char checker */
-	@Override
-	public boolean inSet(char c) {
-		return (set.indexOf(c) != -1);
-	}
-	
-	@Override
-	public String toString() {
-		var escapeOfRegParser = escapeOfRegParser(this.set);
-		return "[" + escapeOfRegParser + "]";
-	}
-	
-	@Override
-	public boolean equals(Object O) {
-		if (O == this)
-			return true;
-		
-		if (!(O instanceof CharSet))
-			return false;
-		
-		var chars = new HashSet<Character>();
-		for (var chr : set.toCharArray()) {
-			chars.add(chr);
-		}
-		for (var ch : ((CharSet)O).set.toCharArray()) {
-			if (!chars.contains(ch))
-				return false;
-		}
-		return true;
-	}
-	
-	@Override
-	public int hashCode() {
-		return "CharSet".hashCode() + set.hashCode();
-	}
-	
+public class RPCompilerHelpers {
+    
+    RPCompilerHelpers() {}
+    
+    static final public String Escapable = ".?*-+^&'{}()[]|\\~ \t\n\r\f\u000B\u000C";
+    
+    public static String escapeOfRegParser(String pWord) {
+        if(pWord == null) return null;
+        pWord = Util.escapeText(pWord).toString();
+        
+        StringBuffer SB = new StringBuffer();
+        for(int i = 0; i < pWord.length(); i++)  {
+            char C = pWord.charAt(i);
+            if((C != '\\') && (Escapable.indexOf(C) != -1)) SB.append('\\'); 
+            SB.append(C);
+        }
+        return SB.toString();
+    }
+    
 }

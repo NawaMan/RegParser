@@ -18,7 +18,7 @@
 package net.nawaman.regparser.compiler;
 
 import static java.lang.String.format;
-import static net.nawaman.regparser.RPCompiler_ParserTypes.Escapable;
+import static net.nawaman.regparser.RPCompilerHelpers.Escapable;
 import static net.nawaman.regparser.RegParser.newRegParser;
 
 import net.nawaman.regparser.Checker;

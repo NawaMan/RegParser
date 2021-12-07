@@ -19,7 +19,7 @@
 package net.nawaman.regparser.checkers;
 
 import static java.util.Objects.requireNonNull;
-import static net.nawaman.regparser.RPCompiler_ParserTypes.escapeOfRegParser;
+import static net.nawaman.regparser.RPCompilerHelpers.escapeOfRegParser;
 
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.ParserTypeProvider;
