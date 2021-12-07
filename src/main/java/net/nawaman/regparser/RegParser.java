@@ -28,7 +28,6 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.stream.Stream;
 
-import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParser;
 import net.nawaman.regparser.checkers.CheckerAlternative;
 import net.nawaman.regparser.checkers.CheckerFixeds;
 import net.nawaman.regparser.compiler.RPCharSetItemParserType;
@@ -40,6 +39,7 @@ import net.nawaman.regparser.compiler.RPEscapeUnicodeParserType;
 import net.nawaman.regparser.compiler.RPQuantifierParserType;
 import net.nawaman.regparser.compiler.RPRangeParserType;
 import net.nawaman.regparser.compiler.RPRegParserItemParserType;
+import net.nawaman.regparser.compiler.RPRegParserParserType;
 import net.nawaman.regparser.compiler.RPTypeParserType;
 import net.nawaman.regparser.result.ParseResult;
 import net.nawaman.regparser.result.ParseResultNode;
@@ -258,8 +258,8 @@ public class RegParser implements Checker, Serializable {
         }
         
         RegParser RP = (pTProvider == null)
-                ? new RegParser(RPEs.toArray(RegParserEntry.EmptyRPEntryArray))
-                : new RegParser.WithDefaultTypeProvider(RPEs.toArray(RegParserEntry.EmptyRPEntryArray), pTProvider);
+                ? new RegParser(RPEs.toArray(RegParserEntry.EmptyRegParserEntryArray))
+                : new RegParser.WithDefaultTypeProvider(RPEs.toArray(RegParserEntry.EmptyRegParserEntryArray), pTProvider);
         return RP;
     }
     
@@ -275,6 +275,11 @@ public class RegParser implements Checker, Serializable {
      * the entry has the quantifier of one. 
      **/
     static public RegParser newRegParser(Object... pParams) {
+    	if ((pParams != null)
+    	 && (pParams.length == 1)
+    	 && (pParams[0] instanceof RegParser))
+    		return (RegParser)pParams[0];
+    	
         return newRegParser(null, pParams);
     }
     
@@ -450,8 +455,8 @@ public class RegParser implements Checker, Serializable {
         }
         
         RegParser RP = (pTProvider == null)
-                ? new RegParser(RPEs.toArray(RegParserEntry.EmptyRPEntryArray))
-                : new RegParser.WithDefaultTypeProvider(RPEs.toArray(RegParserEntry.EmptyRPEntryArray), pTProvider);
+                ? new RegParser(RPEs.toArray(RegParserEntry.EmptyRegParserEntryArray))
+                : new RegParser.WithDefaultTypeProvider(RPEs.toArray(RegParserEntry.EmptyRegParserEntryArray), pTProvider);
         return RP;
     }
     
@@ -501,12 +506,12 @@ public class RegParser implements Checker, Serializable {
                 RPTProvider.addType(RPEscapeUnicodeParserType.instance);
                 RPTProvider.addType(RPRangeParserType.instance);
                 RPTProvider.addType(RPCharSetItemParserType.instance);
-                RPTProvider.addType(new RPTRegParser());
+                RPTProvider.addType(RPRegParserParserType.instance);
             }
         } else
             IsToSave = false;
         
-        ParserType     RPT = RPTProvider.type(RPTRegParser.Name);
+        ParserType     RPT = RPTProvider.type(RPRegParserParserType.name);
         RegParser RP  = (RegParser) (RPT.compile(pText, null, null, RPTProvider));
         
         // If have type provider

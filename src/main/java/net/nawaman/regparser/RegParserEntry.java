@@ -34,7 +34,7 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
 	
 	private static final long serialVersionUID = 2457845545454544122L;
 	
-	public static final RegParserEntry[] EmptyRPEntryArray = new RegParserEntry[0];
+	public static final RegParserEntry[] EmptyRegParserEntryArray = new RegParserEntry[0];
 	
 	//== Factory =======================================================================================================
 	

@@ -12,7 +12,6 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParser;
 import net.nawaman.regparser.checkers.CharChecker;
 import net.nawaman.regparser.compiler.RPCharSetItemParserType;
 import net.nawaman.regparser.compiler.RPCommentParserType;
@@ -23,6 +22,7 @@ import net.nawaman.regparser.compiler.RPEscapeUnicodeParserType;
 import net.nawaman.regparser.compiler.RPQuantifierParserType;
 import net.nawaman.regparser.compiler.RPRangeParserType;
 import net.nawaman.regparser.compiler.RPRegParserItemParserType;
+import net.nawaman.regparser.compiler.RPRegParserParserType;
 import net.nawaman.regparser.compiler.RPTypeParserType;
 import net.nawaman.regparser.types.IdentifierParserType;
 import net.nawaman.regparser.types.StringLiteralParserType;
@@ -69,7 +69,7 @@ public class TestRegParserCompiler2 {
 		typeProvider.addType(RPEscapeUnicodeParserType.instance);
 		typeProvider.addType(RPRangeParserType.instance);
 		typeProvider.addType(RPCharSetItemParserType.instance);
-		typeProvider.addType(new RPTRegParser());
+		typeProvider.addType(RPRegParserParserType.instance);
 		
 		this.typeProvider = typeProvider;
 	}
@@ -484,7 +484,7 @@ public class TestRegParserCompiler2 {
 		}
 		
 		{
-			var parser = newRegParser(new ParserTypeRef.Simple(RPTRegParser.Name));
+			var parser = newRegParser(RPRegParserParserType.typeRef);
 			validate("(!RegParser!)", parser);
 			
 			var result = parser.parse("one'Two'three", typeProvider);

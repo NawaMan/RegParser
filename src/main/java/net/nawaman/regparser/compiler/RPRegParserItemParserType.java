@@ -41,7 +41,6 @@ import net.nawaman.regparser.CompilationContext;
 import net.nawaman.regparser.ParserType;
 import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.ParserTypeRef;
-import net.nawaman.regparser.RPCompiler_ParserTypes.RPTRegParser;
 import net.nawaman.regparser.RegParser;
 import net.nawaman.regparser.checkers.CharNot;
 import net.nawaman.regparser.checkers.CharSet;
@@ -312,7 +311,7 @@ public class RPRegParserItemParserType extends ParserType {
 			if (nameValue == null) {
 				var checker
 				        = (Checker) typeProvider
-				        .type(RPTRegParser.Name)
+				        .type(RPRegParserParserType.name)
 				        .compile(thisResult, 0, null, compilationContext, typeProvider);
 				return newParserEntry(checker);
 			}
@@ -355,7 +354,7 @@ public class RPRegParserItemParserType extends ParserType {
 					// Named Group
 					var secondChecker 
 					        = (Checker) typeProvider
-					        .type(RPTRegParser.Name)
+					        .type(RPRegParserParserType.name)
 					        .compile(secondSubResult, parserIndex, null, compilationContext, typeProvider);
 					secondParser = newRegParser(secondChecker);
 				}
@@ -375,7 +374,7 @@ public class RPRegParserItemParserType extends ParserType {
 			// Named Group
 			var groupChecker
 			        = (Checker) typeProvider
-			        .type(RPTRegParser.Name)
+			        .type(RPRegParserParserType.name)
 			        .compile(thisResult, IE, null, compilationContext, typeProvider);
 			return newParserEntry(entryName, groupChecker, null, secondParser);
 		}
