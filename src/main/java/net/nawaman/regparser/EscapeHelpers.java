@@ -25,11 +25,11 @@ import net.nawaman.regparser.utils.Util;
  * 
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-public class RPCompilerHelpers {
+public class EscapeHelpers {
     
-    RPCompilerHelpers() {}
+    EscapeHelpers() {}
     
-    static final public String Escapable = ".?*-+^&'{}()[]|\\~ \t\n\r\f\u000B\u000C";
+    static final public String escapable = ".?*-+^&'{}()[]|\\~ \t\n\r\f\u000B\u000C";
     
     public static String escapeOfRegParser(String pWord) {
         if(pWord == null) return null;
@@ -38,7 +38,7 @@ public class RPCompilerHelpers {
         StringBuffer SB = new StringBuffer();
         for(int i = 0; i < pWord.length(); i++)  {
             char C = pWord.charAt(i);
-            if((C != '\\') && (Escapable.indexOf(C) != -1)) SB.append('\\'); 
+            if((C != '\\') && (escapable.indexOf(C) != -1)) SB.append('\\'); 
             SB.append(C);
         }
         return SB.toString();

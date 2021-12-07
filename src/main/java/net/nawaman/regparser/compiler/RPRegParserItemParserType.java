@@ -29,7 +29,7 @@ import static net.nawaman.regparser.Quantifier.OneOrMore_Minimum;
 import static net.nawaman.regparser.Quantifier.Zero;
 import static net.nawaman.regparser.Quantifier.ZeroOrMore;
 import static net.nawaman.regparser.Quantifier.ZeroOrOne;
-import static net.nawaman.regparser.RPCompilerHelpers.Escapable;
+import static net.nawaman.regparser.EscapeHelpers.escapable;
 import static net.nawaman.regparser.RegParser.newRegParser;
 import static net.nawaman.regparser.RegParserEntry.newParserEntry;
 
@@ -205,7 +205,7 @@ public class RPRegParserItemParserType extends ParserType {
 		);
 		
 		// Other char
-		checkers.add(newRegParser(new CharNot(new CharSet(Escapable)), OneOrMore_Minimum));
+		checkers.add(newRegParser(new CharNot(new CharSet(escapable)), OneOrMore_Minimum));
 		
 		// Create the checker
 		checker = newRegParser(new CheckerAlternative(true, checkers.toArray(EMPTY_CHECKER_ARRAY)));

@@ -24,7 +24,7 @@ import static net.nawaman.regparser.PredefinedCheckers.predefinedCharChecker;
 import static net.nawaman.regparser.Quantifier.Zero;
 import static net.nawaman.regparser.Quantifier.ZeroOrMore;
 import static net.nawaman.regparser.Quantifier.ZeroOrOne;
-import static net.nawaman.regparser.RPCompilerHelpers.Escapable;
+import static net.nawaman.regparser.EscapeHelpers.escapable;
 import static net.nawaman.regparser.RegParser.newRegParser;
 
 import java.util.ArrayList;
@@ -55,7 +55,7 @@ public class RPRangeParserType extends ParserType {
 	
 	RPRangeParserType() {
 		var checkers = new ArrayList<Checker>();
-		checkers.add(newRegParser(new CharNot(new CharSet(Escapable + "-"))));
+		checkers.add(newRegParser(new CharNot(new CharSet(escapable + "-"))));
 		checkers.add(newRegParser(RPEscapeParserType.typeRef));
 		checkers.add(newRegParser(RPEscapeOctParserType.typeRef));
 		checkers.add(newRegParser(RPEscapeHexParserType.typeRef));

@@ -79,7 +79,7 @@ public class TestRegParserCompiler2 {
 		var parser = newRegParser(RPEscapeParserType.typeRef);
 		validate("(!Escape!)", parser);
 		
-		for (char c : RPCompilerHelpers.Escapable.toCharArray()) {
+		for (char c : EscapeHelpers.escapable.toCharArray()) {
 		    var result = parser.match("\\" + c, typeProvider);
 		    validate("" + c, typeProvider.type(RPEscapeParserType.name).compile(result, null, null, typeProvider));
 		}

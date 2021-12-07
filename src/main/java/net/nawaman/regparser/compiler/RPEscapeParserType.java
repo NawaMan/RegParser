@@ -18,7 +18,7 @@
 package net.nawaman.regparser.compiler;
 
 import static java.lang.String.format;
-import static net.nawaman.regparser.RPCompilerHelpers.Escapable;
+import static net.nawaman.regparser.EscapeHelpers.escapable;
 import static net.nawaman.regparser.RegParser.newRegParser;
 
 import net.nawaman.regparser.Checker;
@@ -47,7 +47,7 @@ public class RPEscapeParserType extends ParserType {
 	private final Checker checker;
 	
 	public RPEscapeParserType() {
-		checker = newRegParser(new CharSingle('\\'), new CharSet(Escapable));
+		checker = newRegParser(new CharSingle('\\'), new CharSet(escapable));
 	}
 	
 	@Override
