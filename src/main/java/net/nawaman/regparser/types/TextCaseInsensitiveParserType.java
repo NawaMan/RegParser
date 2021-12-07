@@ -18,6 +18,8 @@
 
 package net.nawaman.regparser.types;
 
+import static net.nawaman.regparser.PredefinedCharClasses.Any;
+import static net.nawaman.regparser.Quantifier.bound;
 import static net.nawaman.regparser.RegParser.newRegParser;
 
 // Usage: !text("Text")! will match everything that is equals to "Text" case insensitively
@@ -27,8 +29,6 @@ import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.ParserType;
 import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.ParserTypeRef;
-import net.nawaman.regparser.PredefinedCharClasses;
-import net.nawaman.regparser.Quantifier;
 import net.nawaman.regparser.result.ParseResult;
 
 /**
@@ -57,7 +57,9 @@ public class TextCaseInsensitiveParserType extends ParserType {
 		}
 		int length  = parameter.length();
 		return checkers.computeIfAbsent(length, __ ->{
-			return newRegParser(PredefinedCharClasses.Any, new Quantifier(length, length));
+			return newRegParser()
+					.entry(Any, bound(length))
+					.build();
 		});
 	}
 	
@@ -67,14 +69,14 @@ public class TextCaseInsensitiveParserType extends ParserType {
 					ParseResult        thisResult,
 					String             parameter,
 					ParserTypeProvider typeProvider) {
-		var S = thisResult.text();
-		if (S == parameter)
+		var text = thisResult.text();
+		if (text == parameter)
 			return true;
 		
-		if ((S == null)
+		if ((text      == null)
 		 || (parameter == null))
 			return false;
 		
-		return S.toLowerCase().equals(parameter.toLowerCase());
+		return text.toLowerCase().equals(parameter.toLowerCase());
 	}
 }

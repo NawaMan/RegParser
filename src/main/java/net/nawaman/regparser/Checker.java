@@ -82,6 +82,14 @@ public interface Checker extends AsChecker, AsRegParserEntry, Quantifiable<RegPa
 		return newParserEntry(null, this, quantifier);
 	}
 	
+	public default RegParserEntry with(int bound) {
+		return newParserEntry(null, this, new Quantifier(bound, bound));
+	}
+	
+	public default RegParserEntry with(int lowerBound, int upperBound) {
+		return newParserEntry(null, this, new Quantifier(lowerBound, upperBound));
+	}
+	
 	public default RegParserEntry withName(String name) {
 		return newParserEntry(name, this, null);
 	}

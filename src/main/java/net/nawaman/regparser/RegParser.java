@@ -15,7 +15,6 @@
  * more details.
  * ---------------------------------------------------------------------------------------------------------------------
  */
-
 package net.nawaman.regparser;
 
 import static net.nawaman.regparser.result.ParseResult.newResult;
@@ -24,6 +23,8 @@ import static net.nawaman.regparser.result.entry.ParseResultEntry.newEntry;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Vector;
 import java.util.stream.Stream;
@@ -66,201 +67,46 @@ public class RegParser implements Checker, Serializable {
     static public PrintStream       DebugPrintStream    = null;
     
     static ParserTypeProvider.Extensible RPTProvider       = null;
-    static String                   RegParserCompiler = "RegParserCompiler." + RegParserTypeExt;
+    static String                        RegParserCompiler = "RegParserCompiler." + RegParserTypeExt;
     
-    // TODO - Should this be like this - Nawa 2021
     public RegParser(RegParserEntry[] entries) {
         this.Entries = entries;
     }
     
-    static public class ConstructionEntry {
-        
-        public ConstructionEntry(Checker pChecker) {
-            this(null, (Object) pChecker, null, null);
-        }
-        
-        public ConstructionEntry(Checker pChecker, Checker pSecondStage) {
-            this(null, (Object) pChecker, null, pSecondStage);
-        }
-        
-        public ConstructionEntry(Checker pChecker, Quantifier pQuantifier) {
-            this(null, (Object) pChecker, pQuantifier, null);
-        }
-        
-        public ConstructionEntry(Checker pChecker, Quantifier pQuantifier, Checker pSecondStage) {
-            this(null, (Object) pChecker, pQuantifier, pSecondStage);
-        }
-        
-        public ConstructionEntry(String pName, Checker pChecker) {
-            this(pName, (Object) pChecker, null, null);
-        }
-        
-        public ConstructionEntry(String pName, Checker pChecker, Checker pSecondStage) {
-            this(pName, (Object) pChecker, null, pSecondStage);
-        }
-        
-        public ConstructionEntry(String pName, Checker pChecker, Quantifier pQuantifier) {
-            this(pName, (Object) pChecker, pQuantifier, null);
-        }
-        
-        public ConstructionEntry(String pName, Checker pChecker, Quantifier pQuantifier, Checker pSecondStage) {
-            this(pName, (Object) pChecker, pQuantifier, pSecondStage);
-        }
-        
-        public ConstructionEntry(ParserType pPType) {
-            this(null, (Object) pPType, null, null);
-        }
-        
-        public ConstructionEntry(ParserType pPType, Checker pSecondStage) {
-            this(null, (Object) pPType, null, pSecondStage);
-        }
-        
-        public ConstructionEntry(ParserType pPType, Quantifier pQuantifier) {
-            this(null, (Object) pPType, pQuantifier, null);
-        }
-        
-        public ConstructionEntry(ParserType pPType, Quantifier pQuantifier, Checker pSecondStage) {
-            this(null, (Object) pPType, pQuantifier, pSecondStage);
-        }
-        
-        public ConstructionEntry(String pName, ParserType pPType) {
-            this(pName, (Object) pPType, null, null);
-        }
-        
-        public ConstructionEntry(String pName, ParserType pPType, Checker pSecondStage) {
-            this(pName, (Object) pPType, null, pSecondStage);
-        }
-        
-        public ConstructionEntry(String pName, ParserType pPType, Quantifier pQuantifier) {
-            this(pName, (Object) pPType, pQuantifier, null);
-        }
-        
-        public ConstructionEntry(String pName, ParserType pPType, Quantifier pQuantifier, Checker pSecondStage) {
-            this(pName, (Object) pPType, pQuantifier, pSecondStage);
-        }
-        
-        public ConstructionEntry(ParserTypeRef pPTypeRef) {
-            this(null, (Object) pPTypeRef, null, null);
-        }
-        
-        public ConstructionEntry(ParserTypeRef pPTypeRef, Checker pSecondStage) {
-            this(null, (Object) pPTypeRef, null, pSecondStage);
-        }
-        
-        public ConstructionEntry(ParserTypeRef pPTypeRef, Quantifier pQuantifier) {
-            this(null, (Object) pPTypeRef, pQuantifier, null);
-        }
-        
-        public ConstructionEntry(ParserTypeRef pPTypeRef, Quantifier pQuantifier, Checker pSecondStage) {
-            this(null, (Object) pPTypeRef, pQuantifier, pSecondStage);
-        }
-        
-        public ConstructionEntry(String pName, ParserTypeRef pPTypeRef) {
-            this(pName, (Object) pPTypeRef, null, null);
-        }
-        
-        public ConstructionEntry(String pName, ParserTypeRef pPTypeRef, Checker pSecondStage) {
-            this(pName, (Object) pPTypeRef, null, pSecondStage);
-        }
-        
-        public ConstructionEntry(String pName, ParserTypeRef pPTypeRef, Quantifier pQuantifier) {
-            this(pName, (Object) pPTypeRef, pQuantifier, null);
-        }
-        
-        public ConstructionEntry(String pName, ParserTypeRef pPTypeRef, Quantifier pQuantifier, Checker pSecondStage) {
-            this(pName, (Object) pPTypeRef, pQuantifier, pSecondStage);
-        }
-        
-        ConstructionEntry(String pName, Object pItem, Quantifier pQuantifier, Checker pSecondStage) {
-            this.Name        = pName;
-            this.Item        = pItem;
-            this.Quantifier  = pQuantifier;
-            this.SecondStage = pSecondStage;
-        }
-        
-        String     Name;
-        Object     Item;
-        Quantifier Quantifier;
-        Checker    SecondStage = null;
-        
-        public String getName() {
-            return this.Name;
-        }
-        
-        public Checker getChecker() {
-            return (this.Item instanceof Checker) ? (Checker) this.Item : null;
-        }
-        
-        public ParserType getType() {
-            return (this.Item instanceof ParserType) ? (ParserType) this.Item : null;
-        }
-        
-        public ParserTypeRef getTypeRef() {
-            return (this.Item instanceof ParserTypeRef) ? (ParserTypeRef) this.Item : null;
-        }
-        
-        public boolean isChecker() {
-            return (this.Item instanceof Checker);
-        }
-        
-        public boolean isType() {
-            return (this.Item instanceof ParserType);
-        }
-        
-        public boolean isTypeRef() {
-            return (this.Item instanceof ParserTypeRef);
-        }
-        
-        public Quantifier getQuantifier() {
-            return this.Quantifier;
-        }
-        
-        public boolean hasSecondStage() {
-            return (this.SecondStage != null);
-        }
-        
-        public Checker getSecondStage() {
-            return this.SecondStage;
-        }
-        
-        /**{@inheritDoc}*/
-        @Override
-        public String toString() {
-            String Format = (this.Name == null) ? "%s%s" : "(" + this.Name + ":%s%s)";
-            return String.format(Format, this.Item, (this.Quantifier == null) ? "" : this.Quantifier);
-        }
+    public static RegParserBuilder newRegParser() {
+    	return new RegParserBuilder();
     }
     
     /** Creates a new RegParser from a series of construction entries */
-    static public RegParser newRegParser(ConstructionEntry... pEntries) {
+    static public RegParser newRegParser(RegParserEntry... pEntries) {
         return RegParser.newRegParser(null, pEntries);
     }
     
     /** Creates a new RegParser from a series of construction entries */
-    static public RegParser newRegParser(ParserTypeProvider pTProvider, ConstructionEntry... pEntries) {
+    static public RegParser newRegParser(ParserTypeProvider pTProvider, RegParserEntry... pEntries) {
         if (pEntries == null)
             throw new NullPointerException();
         
-        Vector<RegParserEntry> RPEs = new Vector<RegParserEntry>();
-        for (int i = 0; i < pEntries.length; i++) {
-            ConstructionEntry CE = pEntries[i];
-            if (CE == null)
-                continue;
-            
-            if (CE.isChecker())
-                RPEs.add(RegParserEntry.newParserEntry(CE.getName(), CE.getChecker(), CE.getQuantifier()));
-            else
-                if (CE.isType())
-                    RPEs.add(RegParserEntry.newParserEntry(CE.getName(), CE.getType(), CE.getQuantifier()));
-                else
-                    if (CE.isTypeRef())
-                        RPEs.add(RegParserEntry.newParserEntry(CE.getName(), CE.getTypeRef(), CE.getQuantifier()));
-        }
+        var entryArray = Stream.of(pEntries).filter(Objects::nonNull).toArray(RegParserEntry[]::new);
+        return (pTProvider == null)
+                ? new RegParser(entryArray)
+                : new RegParser.WithDefaultTypeProvider(entryArray, pTProvider);
+    }
+    
+    /** Creates a new RegParser from a series of construction entries */
+    static public RegParser newRegParser(List<RegParserEntry> pEntries) {
+        return RegParser.newRegParser(null, pEntries);
+    }
+    
+    /** Creates a new RegParser from a series of construction entries */
+    static public RegParser newRegParser(ParserTypeProvider pTProvider, List<RegParserEntry> pEntries) {
+        if (pEntries == null)
+            throw new NullPointerException();
         
-        RegParser RP = (pTProvider == null)
-                ? new RegParser(RPEs.toArray(RegParserEntry.EmptyRegParserEntryArray))
-                : new RegParser.WithDefaultTypeProvider(RPEs.toArray(RegParserEntry.EmptyRegParserEntryArray), pTProvider);
-        return RP;
+        var entryArray = pEntries.stream().filter(Objects::nonNull).toArray(RegParserEntry[]::new);
+        return (pTProvider == null)
+                ? new RegParser(entryArray)
+                : new RegParser.WithDefaultTypeProvider(entryArray, pTProvider);
     }
     
     /**

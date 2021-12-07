@@ -136,7 +136,7 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
 									String     name,
 									ParserType parserType,
 									Quantifier quantifier,
-									RegParser  secondStage) {
+									Checker    secondStage) {
 		if (secondStage == null) {
 			if (name == null) {
 				return (quantifier == null)

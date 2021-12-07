@@ -70,6 +70,27 @@ public final class Quantifier implements Serializable {
 	public static final int NO_UPPERBOUND = -1;
 	
 	/**
+	 * Create a Quantifier for a bound.
+	 * 
+	 * @param  bound  the bound (both lower and upper).
+	 * @return        the quantifier.
+	 */
+	public static Quantifier bound(int bound) {
+		return new Quantifier(bound, bound);
+	}
+	
+	/**
+	 * Create a Quantifier for a bound.
+	 * 
+	 * @param  lowerBound  the lower bound.
+	 * @param  upperBound  the upper bound.
+	 * @return             the quantifier.
+	 */
+	public static Quantifier bound(int lowerBound, int upperBound) {
+		return new Quantifier(lowerBound, upperBound);
+	}
+	
+	/**
 	 * Returns toString for the quantifier or empty string if the given value is null.
 	 * 
 	 * @param quantifier  the quantifier.
