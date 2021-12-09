@@ -60,33 +60,41 @@ public class RPCharSetItemParserType extends ParserType {
 		var typeRef  = new ParserTypeRef.Simple(name);
 		var checkers = new ArrayList<Checker>();
 		checkers.add(predefinedCharChecker);
-		checkers.add(newRegParser(
-		                 typeRef,
-		                 newRegParser("#Intersect", new WordChecker("&&"), typeRef), ZeroOrMore));
+		checkers.add(
+		        newRegParser()
+		        .entry(typeRef)
+		        .entry(newRegParser().entry("#Intersect", new WordChecker("&&")).entry(typeRef), ZeroOrMore)
+		        .build());
 		checkers.add(newRegParser("#Ignored[]", WhiteSpace, OneOrMore));
-		checkers.add(newRegParser("#Range", RPRangeParserType.typeRef));
+		checkers.add(newRegParser("#Range",     RPRangeParserType.typeRef));
 		
 		// Create the checker
-		checker = newRegParser(
-		            newRegParser(
-		                new CharSingle('['),
-		                "#NOT", new CharSingle('^'), ZeroOrOne,
-		                new CharSingle(':'), Zero,
-		                // "#Content",
-		                new CheckerAlternative(true, checkers.toArray(EMPTY_CHECKER_ARRAY)), OneOrMore,
-		                new CharSingle(']')
+		checker = newRegParser()
+		        .entry(
+		            newRegParser()
+		            .entry(new CharSingle('['))
+		            .entry("#NOT", new CharSingle('^'), ZeroOrOne)
+		            .entry(new CharSingle(':'), Zero)
+	                      // "#Content",
+		            .entry(new CheckerAlternative(true, checkers.toArray(EMPTY_CHECKER_ARRAY)), OneOrMore)
+		            .entry(new CharSingle(']'))
+		        )
+		        .entry(
+		            newRegParser()
+		            .entry("#Intersect", new WordChecker("&&"))
+		            .entry(
+		                "#Set",
+		                newRegParser()
+		                .entry(new CharSingle('['))
+		                .entry("#NOT", new CharSingle('^'), ZeroOrOne)
+		                .entry(new CharSingle(':'), Zero)
+		                       // "#Content",
+		                .entry(new CheckerAlternative(checkers.toArray(EMPTY_CHECKER_ARRAY)), OneOrMore)
+		                .entry(new CharSingle(']'))
 		            ),
-		            newRegParser(
-		                "#Intersect", new WordChecker("&&"),
-		                "#Set", newRegParser(
-		                            new CharSingle('['),
-		                            "#NOT", new CharSingle('^'), ZeroOrOne,
-		                            new CharSingle(':'), Zero,
-		                            // "#Content",
-		                            new CheckerAlternative(checkers.toArray(EMPTY_CHECKER_ARRAY)), OneOrMore,
-		                            new CharSingle(']'))
-		            ), ZeroOrMore
-		        );
+		            ZeroOrMore
+		        )
+		        .build();
 	}
 	
 	@Override

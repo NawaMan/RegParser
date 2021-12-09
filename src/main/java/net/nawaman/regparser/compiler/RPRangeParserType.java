@@ -19,12 +19,9 @@ package net.nawaman.regparser.compiler;
 
 import static java.lang.String.format;
 import static net.nawaman.regparser.Checker.EMPTY_CHECKER_ARRAY;
+import static net.nawaman.regparser.EscapeHelpers.escapable;
 import static net.nawaman.regparser.PredefinedCharClasses.WhiteSpace;
 import static net.nawaman.regparser.PredefinedCheckers.predefinedCharChecker;
-import static net.nawaman.regparser.Quantifier.Zero;
-import static net.nawaman.regparser.Quantifier.ZeroOrMore;
-import static net.nawaman.regparser.Quantifier.ZeroOrOne;
-import static net.nawaman.regparser.EscapeHelpers.escapable;
 import static net.nawaman.regparser.RegParser.newRegParser;
 
 import java.util.ArrayList;
@@ -35,7 +32,6 @@ import net.nawaman.regparser.CompilationException;
 import net.nawaman.regparser.ParserType;
 import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.ParserTypeRef;
-import net.nawaman.regparser.Quantifier;
 import net.nawaman.regparser.checkers.CharNot;
 import net.nawaman.regparser.checkers.CharRange;
 import net.nawaman.regparser.checkers.CharSet;
@@ -65,13 +61,17 @@ public class RPRangeParserType extends ParserType {
 		checkers.add(newRegParser("#Error[]", new CharNot(new CharSingle(']'))));
 		
 		// Create the checker
-		checker = newRegParser(predefinedCharChecker, Quantifier.Zero,
-		              "#Start", new CheckerAlternative(true, checkers.toArray(EMPTY_CHECKER_ARRAY)),
-		              WhiteSpace, Quantifier.ZeroOrMore,
-		              newRegParser(
-		                  new CharSingle('-'), predefinedCharChecker, Zero,
-		                  WhiteSpace, ZeroOrMore,
-		                  "#End", new CheckerAlternative(true, checkers.toArray(EMPTY_CHECKER_ARRAY))), ZeroOrOne);
+		checker = newRegParser()
+		        .entry(predefinedCharChecker.zero())
+		        .entry("#Start", new CheckerAlternative(true, checkers.toArray(EMPTY_CHECKER_ARRAY)))
+		        .entry(WhiteSpace.zeroOrMore())
+		        .entry(newRegParser()
+		            .entry(new CharSingle('-'))
+		            .entry(predefinedCharChecker.zero())
+		            .entry(WhiteSpace.zeroOrMore())
+		            .entry("#End", new CheckerAlternative(true, checkers.toArray(EMPTY_CHECKER_ARRAY)))
+		            .zeroOrOne())
+		        .build();
 	}
 	
 	@Override

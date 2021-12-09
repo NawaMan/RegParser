@@ -47,7 +47,10 @@ public class RPEscapeParserType extends ParserType {
 	private final Checker checker;
 	
 	public RPEscapeParserType() {
-		checker = newRegParser(new CharSingle('\\'), new CharSet(escapable));
+		checker = newRegParser()
+		        .entry(new CharSingle('\\'))
+		        .entry(new CharSet(escapable))
+		        .build();
 	}
 	
 	@Override

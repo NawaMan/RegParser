@@ -27,7 +27,9 @@ public interface Quantifiable<SOURCE> {
 	
 	public SOURCE quantifier(Quantifier quantifier);
 	
-	public Quantifier quantifier();
+	public default Quantifier quantifier() {
+		return Quantifier.One;
+	}
 	
 	/** Set the quantifier to lowerBound (Possessive) */
 	public default SOURCE from(int lowerBound) {

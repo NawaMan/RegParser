@@ -17,6 +17,7 @@
  */
 package net.nawaman.regparser;
 
+import static net.nawaman.regparser.RegParser.newRegParser;
 import static net.nawaman.regparser.RegParserEntry.newParserEntry;
 
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ import java.util.List;
  * 
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-public class RegParserBuilder implements AsRegParser {
+public class RegParserBuilder implements AsRegParser, Quantifiable<RegParser> {
 	
 	private ParserTypeProvider typeProvider = null;
 	
@@ -141,12 +142,17 @@ public class RegParserBuilder implements AsRegParser {
 	}
 	
 	public RegParser build() {
-		return RegParser.newRegParser(typeProvider, entries);
+		return newRegParser(typeProvider, entries);
 	}
 
 	@Override
 	public RegParser asRegParser() {
 		return build();
+	}
+	
+	@Override
+	public RegParser quantifier(Quantifier quantifier) {
+		return newRegParser(build().quantifier(quantifier));
 	}
 	
 }

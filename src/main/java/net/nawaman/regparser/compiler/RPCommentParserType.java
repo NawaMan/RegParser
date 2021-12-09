@@ -19,6 +19,7 @@ package net.nawaman.regparser.compiler;
 
 import static net.nawaman.regparser.PredefinedCharClasses.Any;
 import static net.nawaman.regparser.RegParser.newRegParser;
+import static net.nawaman.regparser.checkers.CheckerAlternative.either;
 
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.ParserType;
@@ -50,19 +51,19 @@ public class RPCommentParserType extends ParserType {
 	private final Checker checker;
 	
 	public RPCommentParserType() {
-		this.checker = new CheckerAlternative(
-		        newRegParser(
-		            new WordChecker("/*"),
-		            new CheckerNot(new WordChecker("*/")).zeroOrMore(),
-		            new WordChecker("*/")),
-		        newRegParser(
-		            new WordChecker("(*"),
-		            new CheckerNot(new WordChecker("*)")).zeroOrMore(),
-		            new WordChecker("*)")),
-		        newRegParser(
-		            new WordChecker("//"),
-	                new CheckerNot(new CheckerAlternative(new WordChecker("\n"), Any.zero())).zeroOrMore(),
-	                new CheckerAlternative(new WordChecker("\n"), Any.zero())));
+		checker = either(newRegParser()
+		            .entry(new WordChecker("/*"))
+		            .entry(new CheckerNot(new WordChecker("*/")).zeroOrMore())
+		            .entry(new WordChecker("*/")))
+		        .or(newRegParser()
+		            .entry(new WordChecker("(*"))
+		            .entry(new CheckerNot(new WordChecker("*)")).zeroOrMore())
+		            .entry(new WordChecker("*)")))
+		        .or(newRegParser()
+		            .entry(new WordChecker("//"))
+		            .entry(new CheckerNot(new CheckerAlternative(new WordChecker("\n"), Any.zero())).zeroOrMore())
+		            .entry(new CheckerAlternative(new WordChecker("\n"), Any.zero())))
+		        .build();
 	}
 	
 	@Override

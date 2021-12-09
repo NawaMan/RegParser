@@ -47,9 +47,10 @@ public class IdentifierParserType extends ParserType {
 	private final Checker checker;
 	
 	public IdentifierParserType() {
-		checker = newRegParser(
-		              new CharUnion(Alphabet, new CharSingle('_')),
-		              new CharUnion(Alphabet, new CharSingle('_'), Digit), ZeroOrMore);
+		checker = newRegParser()
+		        .entry(new CharUnion(Alphabet, new CharSingle('_')))
+		        .entry(new CharUnion(Alphabet, new CharSingle('_'), Digit), ZeroOrMore)
+		        .build();
 	}
 	
 	@Override

@@ -48,10 +48,11 @@ public class RPEscapeOctParserType extends ParserType {
 	
 	public RPEscapeOctParserType() {
 		// ~\\0[0-3]?[0-7]?[0-7]~
-		checker = newRegParser(
-		              new WordChecker("\\0"),
-		              new CharRange('0', '3').zeroOrOne(),
-		              new CharRange('0', '7').bound(1, 2));
+		checker = newRegParser()
+		        .entry(new WordChecker("\\0"))
+		        .entry(new CharRange('0', '3').zeroOrOne())
+		        .entry(new CharRange('0', '7').bound(1, 2))
+		        .build();
 	}
 	
 	@Override

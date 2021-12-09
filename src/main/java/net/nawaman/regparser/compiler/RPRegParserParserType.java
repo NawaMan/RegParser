@@ -21,11 +21,11 @@ import static java.lang.String.format;
 import static net.nawaman.regparser.Checker.EMPTY_CHECKER_ARRAY;
 import static net.nawaman.regparser.PredefinedCharClasses.WhiteSpace;
 import static net.nawaman.regparser.Quantifier.One;
-import static net.nawaman.regparser.Quantifier.OneOrMore;
 import static net.nawaman.regparser.Quantifier.ZeroOrMore;
 import static net.nawaman.regparser.RegParser.newRegParser;
 import static net.nawaman.regparser.RegParserEntry.EmptyRegParserEntryArray;
 import static net.nawaman.regparser.RegParserEntry.newParserEntry;
+import static net.nawaman.regparser.checkers.CheckerAlternative.either;
 
 import java.util.ArrayList;
 
@@ -56,24 +56,19 @@ public class RPRegParserParserType extends ParserType {
 	private final Checker checker;
 	
 	public RPRegParserParserType() {
-		checker = newRegParser(
-		            new CheckerAlternative(
-		                true,
-		                newRegParser(
-		                    "#ItemQuantifier", newRegParser(
-		                        RPRegParserItemParserType.typeRef,
-		                        newRegParser("#Ignored[]", WhiteSpace, ZeroOrMore),
-		                        RPQuantifierParserType.typeRef
-		                    )
-		                ),
-		                newRegParser("#Comment", RPCommentParserType.typeRef),
-		                new CheckerAlternative(
-		                    true,
-		                    newRegParser("#Item[]", RPRegParserItemParserType.typeRef),
-		                    newRegParser("#Ignored[]", new CharSet(" \t\n\r\f"))
-		                )
-		            ), OneOrMore
-		        );
+		checker =
+		        either(newRegParser(
+		            "#ItemQuantifier",
+		            newRegParser()
+		            .entry(RPRegParserItemParserType.typeRef)
+		            .entry("#Ignored[]", WhiteSpace, ZeroOrMore)
+		            .entry(RPQuantifierParserType.typeRef)))
+		        .or(newRegParser("#Comment", RPCommentParserType.typeRef))
+		        .orDefault(
+		            either    (newRegParser("#Item[]",    RPRegParserItemParserType.typeRef))
+		            .orDefault(newRegParser("#Ignored[]", new CharSet(" \t\n\r\f"))))
+		        .oneOrMore()
+		        .asChecker();
 	}
 	
 	@Override

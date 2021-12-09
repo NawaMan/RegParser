@@ -5,11 +5,11 @@ import static net.nawaman.regparser.PredefinedCharClasses.Digit;
 import static net.nawaman.regparser.Quantifier.ZeroOrMore_Maximum;
 import static net.nawaman.regparser.RegParser.newRegParser;
 import static net.nawaman.regparser.TestUtils.validate;
+import static net.nawaman.regparser.checkers.CheckerAlternative.either;
 
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import net.nawaman.regparser.checkers.CheckerAlternative;
 import net.nawaman.regparser.result.ParseResult;
 
 
@@ -81,10 +81,9 @@ public class TestSelfContain {
 	private final RegParser regParser 
 	        = newRegParser()
 	        .entry(
-	            new CheckerAlternative(
-	                newRegParser("#ValueLow", Int0To24),
-	                newRegParser("#ValueHigh", Int25To50)
-	            ), ZeroOrMore_Maximum
+	            either(newRegParser("#ValueLow",  Int0To24))
+	            .or   (newRegParser("#ValueHigh", Int25To50)),
+	            ZeroOrMore_Maximum
 	        )
 	        .build();
 	

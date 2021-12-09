@@ -44,7 +44,10 @@ public class RPEscapeUnicodeParserType extends ParserType {
 	
 	public RPEscapeUnicodeParserType() {
 		// ~\\u[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f]~
-		checker = newRegParser(new WordChecker("\\u"), HexadecimalDigit.bound(4, 4));
+		checker = newRegParser()
+		        .entry(new WordChecker("\\u"))
+		        .entry(HexadecimalDigit.bound(4, 4))
+		        .build();
 	}
 	
 	@Override

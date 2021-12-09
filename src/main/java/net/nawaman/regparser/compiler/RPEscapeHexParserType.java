@@ -49,7 +49,11 @@ public class RPEscapeHexParserType extends ParserType {
 	
 	public RPEscapeHexParserType() {
 		// ~\\x[0-9A-Fa-f][0-9A-Fa-f]~
-		checker = newRegParser(new WordChecker("\\x"), HexadecimalDigit, HexadecimalDigit);
+		checker = newRegParser()
+		        .entry(new WordChecker("\\x"))
+		        .entry(HexadecimalDigit)
+		        .entry(HexadecimalDigit)
+		        .build();
 	}
 	
 	@Override
