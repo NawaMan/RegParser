@@ -18,7 +18,9 @@
 package net.nawaman.regparser.compiler;
 
 import static java.lang.String.format;
+import static net.nawaman.regparser.Quantifier.ZeroOrOne;
 import static net.nawaman.regparser.RegParser.newRegParser;
+import static net.nawaman.regparser.checkers.CheckerAlternative.either;
 import static net.nawaman.regparser.utils.Util.unescapeText;
 
 import net.nawaman.regparser.Checker;
@@ -53,25 +55,31 @@ public class RPTypeParserType extends ParserType {
 	}
 	
 	public RPTypeParserType() {
-		checker = newRegParser(
-		            new CharSingle('!'),
-		            new CheckerAlternative(true,
-		                newRegParser(
-		                    "#AsText",     new CharSingle('$'), Quantifier.ZeroOrOne,
-		                    "#TypeName",   IdentifierParserType.typeRef,
-		                    "#TypeOption", new CharSet("*+"), Quantifier.ZeroOrOne,
-		                    "#Validate",   new CharSet("~?"), Quantifier.ZeroOrOne,
-		                    "#Collective", new WordChecker("[]"), Quantifier.ZeroOrOne,
-		                    "#Param",      newRegParser(
-		                                       new CharSingle('('),
-		                                       "#ParamValue", StringLiteralParserType.typeRef, Quantifier.ZeroOrOne,
-		                                       new CharSingle(')')
-		                                   ), Quantifier.ZeroOrOne,
-		                    new CharSingle('!')
-		                ),
-		                newRegParser(
-		                    "#Error[]", new CharNot(new CharSingle('!')), Quantifier.ZeroOrMore,
-		                    new CharSingle('!'))));
+		checker = newRegParser()
+		        .entry(new CharSingle('!'))
+		        .entry(
+		            either(
+		                newRegParser()
+		                .entry("#AsText",     new CharSingle('$'),          ZeroOrOne)
+		                .entry("#TypeName",   IdentifierParserType.typeRef)
+		                .entry("#TypeOption", new CharSet("*+"),            ZeroOrOne)
+		                .entry("#Validate",   new CharSet("~?"),            ZeroOrOne)
+		                .entry("#Collective", new WordChecker("[]"),        ZeroOrOne)
+		                .entry(
+		                    "#Param",
+		                    newRegParser()
+		                    .entry(new CharSingle('('))
+		                    .entry("#ParamValue", StringLiteralParserType.typeRef, ZeroOrOne)
+		                    .entry(new CharSingle(')')),
+		                    ZeroOrOne)
+		                .entry(new CharSingle('!')))
+		            .orDefault(
+		                newRegParser()
+		                .entry("#Error[]", new CharNot(new CharSingle('!')).zeroOrMore())
+		                .entry(new CharSingle('!'))
+		            )
+		        )
+		        .build();
 	}
 	
 	@Override
