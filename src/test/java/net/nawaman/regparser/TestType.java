@@ -10,7 +10,9 @@ import static net.nawaman.regparser.Quantifier.ZeroOrMore;
 import static net.nawaman.regparser.Quantifier.ZeroOrMore_Maximum;
 import static net.nawaman.regparser.Quantifier.ZeroOrMore_Minimum;
 import static net.nawaman.regparser.RegParser.newRegParser;
+import static net.nawaman.regparser.RegParserEntry.newParserEntry;
 import static net.nawaman.regparser.TestUtils.validate;
+import static net.nawaman.regparser.checkers.CheckerAlternative.either;
 
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -39,12 +41,12 @@ public class TestType {
 		
 		static public final RTByte Instance = new RTByte();
 		
+		private final Checker checker = newRegParser(Digit, new Quantifier(1, 3));
+		
 		@Override
 		public String name() {
 			return "$byte?";
 		}
-		
-		Checker checker = newRegParser(Digit, new Quantifier(1, 3));
 		
 		@Override
 		public Checker checker(ParseResult hostResult, String param, ParserTypeProvider provider) {
@@ -67,7 +69,7 @@ public class TestType {
 	
 	@Test
 	public void testBasicType() {
-		var regParser = newRegParser(defaultTypeProvider, RegParserEntry.newParserEntry("#Value", defaultTypeProvider.type("$byte?")));
+		var regParser = newRegParser(defaultTypeProvider, newParserEntry("#Value", defaultTypeProvider.type("$byte?")));
 		var result    = regParser.parse("192");
 		validate("192", result.textOf("#Value"));
 	}
@@ -81,7 +83,7 @@ public class TestType {
 			return "$byte?";
 		}
 		};
-		var regParser = newRegParser(defaultTypeProvider, RegParserEntry.newParserEntry("#Value", refToByte));
+		var regParser = newRegParser(defaultTypeProvider, newParserEntry("#Value", refToByte));
 		var result    = regParser.parse("192");
 		validate("192", result.textOf("#Value"));
 	}
@@ -91,12 +93,13 @@ public class TestType {
 		
 		@SuppressWarnings("serial")
 		var byteType = new ParserType() {
+			
+			private final Checker checker = newRegParser(Digit, new Quantifier(1, 3));
+			
 			@Override
 			public String name() {
 				return "$byte?";
 			}
-			
-			Checker checker = newRegParser(Digit, new Quantifier(1, 3));
 			
 			@Override
 			public Checker checker(ParseResult hostResult, String param, ParserTypeProvider typeProvider) {
@@ -148,7 +151,7 @@ public class TestType {
 				return "$int(5-9)?";
 			}
 			
-			Checker checker = newRegParser(Digit, new Quantifier(1, 1, Maximum));
+			private final Checker checker = newRegParser(Digit, new Quantifier(1, 1, Maximum));
 			
 			@Override
 			public Checker checker(ParseResult hostResult, String param, ParserTypeProvider typeProvider) {
@@ -166,8 +169,7 @@ public class TestType {
 		                    new CheckerAlternative(
 		                            newRegParser("#Value_Low",  int0To4),
 		                            newRegParser("#Value_High", int5To9)
-		                    ),
-		                    ZeroOrMore_Maximum
+		                    ), ZeroOrMore_Maximum
 		                );
 		
 		var result = regParser.parse("3895482565");
@@ -184,13 +186,15 @@ public class TestType {
 				return "block";
 			}
 			
-			Checker checker = newRegParser(    // <([^<]|!block!)*+>
-			                    new CharSingle('<'),
-			                    new CheckerAlternative(
-			                            newRegParser("#Other",    newRegParser(new CharNot(new CharSet("<>")), OneOrMore)),
-			                            newRegParser("#SubBlock", new ParserTypeRef.Simple("block"))
-			                    ), ZeroOrMore_Minimum,
-			                    new CharSingle('>'));
+			private final Checker checker
+			        = newRegParser()    // <([^<]|!block!)*+>
+			        .entry(CharSingle.of('<'))
+			        .entry(new CheckerAlternative(
+			                newRegParser("#Other",    newRegParser(new CharNot(new CharSet("<>")), OneOrMore)),
+			                newRegParser("#SubBlock", ParserTypeRef.of("block"))
+			            ), ZeroOrMore_Minimum)
+			        .entry(CharSingle.of('>'))
+			        .build();
 			
 			@Override
 			public Checker checker(ParseResult hostResult, String param, ParserTypeProvider typeProvider) {
@@ -309,14 +313,17 @@ public class TestType {
 		
 		@SuppressWarnings("serial")
 		var identifierType = new ParserType() {
+			
+			private final Checker checker
+					= newRegParser()
+					.entry(new CharUnion(Alphabet, new CharSingle('_')))
+					.entry(new CharUnion(Alphabet, new CharSingle('_'), Digit), ZeroOrMore)
+					.build();
+			
 			@Override
 			public String name() {
 				return "Identifier";
 			}
-			
-			Checker checker = newRegParser(
-			                        new CharUnion(Alphabet, new CharSingle('_')),
-			                        new CharUnion(Alphabet, new CharSingle('_'), Digit), ZeroOrMore);
 			
 			@Override
 			public Checker checker(ParseResult hostResult, String param, ParserTypeProvider typeProvider) {
@@ -326,21 +333,33 @@ public class TestType {
 		
 		@SuppressWarnings("serial")
 		var stringLiteralType = new ParserType() {
+		
+		final private Checker checker
+				= new CheckerAlternative(
+				        newRegParser()
+				        .entry(new CharSingle('\"'))
+				        .entry(new CheckerAlternative(
+				                new CharNot(new CharSingle('\"')),
+				                new WordChecker("\\\"")
+				            ), ZeroOrMore_Minimum
+				        )
+				        .entry(new CharSingle('\"'))
+				        .build(),
+				        newRegParser()
+				        .entry(new CharSingle('\''))
+				        .entry(new CheckerAlternative(
+				                new CharNot(CharSingle.of('\'')),
+				                new WordChecker("\\\'")
+				            ), ZeroOrMore_Minimum
+				        )
+				        .entry(new CharSingle('\''))
+				        .build()
+				    );
+		
 		@Override
 		public String name() {
 			return "StringValue";
 		}
-		
-		Checker checker = newRegParser(
-		                    new CheckerAlternative(
-		                            newRegParser(new CharSingle('\"'),
-		                                    new CheckerAlternative(new CharNot(new CharSingle('\"')),
-		                                            new WordChecker("\\\"")),
-		                                    Quantifier.ZeroOrMore_Minimum, new CharSingle('\"')),
-		                            RegParser.newRegParser(new CharSingle('\''),
-		                                    new CheckerAlternative(new CharNot(new CharSingle('\'')),
-		                                            new WordChecker("\\\'")),
-		                                    Quantifier.ZeroOrMore_Minimum, new CharSingle('\''))));
 		
 		@Override
 		public Checker checker(ParseResult hostResult, String param, ParserTypeProvider typeProvider) {
@@ -355,11 +374,14 @@ public class TestType {
 				return "Attribute";
 			}
 			
-			Checker checker = newRegParser(
-			                    "#AttrName", new ParserTypeRef.Simple("Identifier"),
-			                    Blank, ZeroOrMore, new CharSingle('='),
-			                    Blank, ZeroOrMore, "#AttrValue",
-			                    new ParserTypeRef.Simple("StringValue"));
+			private final Checker checker
+			        = newRegParser()
+			        .entry("#AttrName", ParserTypeRef.of("Identifier"))
+			        .entry(Blank, ZeroOrMore)
+			        .entry(new CharSingle('='))
+			        .entry(Blank, ZeroOrMore)
+			        .entry("#AttrValue", ParserTypeRef.of("StringValue"))
+			        .build();
 			
 			@Override
 			public Checker checker(ParseResult hostResult, String param, ParserTypeProvider typeProvider) {
@@ -374,24 +396,38 @@ public class TestType {
 				return "Tag";
 			}
 			
-			Checker checker = newRegParser(
-			                    new CharSingle('<'),
-			                    RegParserEntry.newParserEntry("$Begin", newRegParser(new CharUnion(new CharRange('a', 'z'), new CharRange('A', 'Z')), OneOrMore)),
-			                    Blank, ZeroOrMore,
-			                    newRegParser(newRegParser(Blank, ZeroOrMore,
-			                            "$Attr", new ParserTypeRef.Simple("Attribute"), Blank,
-			                            ZeroOrMore), ZeroOrMore),
-			                    new CheckerAlternative(
-			                            newRegParser(new CharSingle('>'),
-			                                    new CheckerAlternative(
-			                                            newRegParser("#Other", newRegParser(new CharNot(new CharSet("<>")), OneOrMore)),
-			                                            newRegParser("#SubBlock", new ParserTypeRef.Simple("Tag"))), ZeroOrMore_Minimum,
-			                                    newRegParser("#End", newRegParser(new WordChecker("</"),
-			                                            RegParserEntry.newParserEntry("#EndTag",
-			                                                    new ParserTypeRef.Simple(ParserTypeBackRefCaseInsensitive.BackRefCI_Instance.name(),
-			                                                            "$Begin")),
-			                                            new CharSingle('>')))),
-			                            newRegParser(new WordChecker("/>"))));
+			private final Checker checker
+			        = newRegParser()
+			        .entry(new CharSingle('<'))
+			        .entry("$Begin", newRegParser(new CharUnion(new CharRange('a', 'z'), new CharRange('A', 'Z')), OneOrMore))
+			        .entry(Blank, ZeroOrMore)
+			        .entry(
+			            newRegParser()
+			            .entry(Blank, ZeroOrMore)
+			            .entry("$Attr", ParserTypeRef.of("Attribute"))
+			            .entry(Blank, ZeroOrMore)
+			            , ZeroOrMore
+			        )
+			        .entry(
+			            either(
+			                newRegParser()
+			                .entry(new CharSingle('>'))
+			                .entry(
+			                    either(newRegParser("#Other", newRegParser(new CharNot(new CharSet("<>")), OneOrMore)))
+			                    .or   (newRegParser("#SubBlock", ParserTypeRef.of("Tag"))),
+			                    ZeroOrMore_Minimum
+			                )
+			                .entry(
+			                    "#End",
+			                    newRegParser()
+			                    .entry(new WordChecker("</"))
+			                    .entry("#EndTag", ParserTypeBackRefCaseInsensitive.of("$Begin"))
+			                    .entry(new CharSingle('>'))
+			                )
+			            )
+			            .or(new WordChecker("/>"))
+			        )
+			        .build();
 			
 			@Override
 			public Checker checker(ParseResult hostResult, String param, ParserTypeProvider typeProvider) {

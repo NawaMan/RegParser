@@ -17,6 +17,7 @@
  */
 package net.nawaman.regparser;
 
+import static net.nawaman.regparser.RegParserEntry.newParserEntry;
 import static net.nawaman.regparser.result.ParseResult.newResult;
 import static net.nawaman.regparser.result.entry.ParseResultEntry.newEntry;
 
@@ -107,6 +108,39 @@ public class RegParser implements Checker, Serializable {
         return (pTProvider == null)
                 ? new RegParser(entryArray)
                 : new RegParser.WithDefaultTypeProvider(entryArray, pTProvider);
+    }
+    
+    /** Creates a new RegParser from a series of construction entries */
+    public static RegParser newRegParser(String name, Checker checker, Quantifier quantifier) {
+        return newRegParser(newParserEntry(name, checker, quantifier));
+    }
+    
+    /** Creates a new RegParser from a series of construction entries */
+    public static RegParser newRegParser(ParserTypeProvider pTProvider, String name, Checker checker, Quantifier quantifier) {
+        return newRegParser(pTProvider, newParserEntry(name, checker, quantifier));
+    }
+    
+    /** Creates a new RegParser from a series of construction entries */
+    public static RegParser newRegParser(Checker checker, Quantifier quantifier) {
+        return newRegParser(newParserEntry(checker, quantifier));
+    }
+    
+    /** Creates a new RegParser from a series of construction entries */
+    public static RegParser newRegParser(ParserTypeProvider pTProvider, Checker checker, Quantifier quantifier) {
+        return newRegParser(pTProvider, newParserEntry(checker, quantifier));
+    }
+    
+    /** Creates a new RegParser from a series of construction entries */
+    public static RegParser newRegParser(Checker checker) {
+    	if (checker instanceof RegParser)
+    		return (RegParser)checker;
+    	
+        return newRegParser(newParserEntry(checker));
+    }
+    
+    /** Creates a new RegParser from a series of construction entries */
+    public static RegParser newRegParser(ParserTypeProvider pTProvider, Checker checker) {
+        return newRegParser(pTProvider, newParserEntry(checker));
     }
     
     /**
@@ -579,12 +613,13 @@ public class RegParser implements Checker, Serializable {
             ParseResult MaxResult = null;
             
             CheckerAlternative CA = (CheckerAlternative) FP;
-            for (int c = CA.checkers.length; --c >= 0;) {
+            var checkers = CA.checkers().toArray(Checker[]::new);
+            for (int c = checkers.length; --c >= 0;) {
                 var TryResult 
                         = IsFPAsNode
                         ? newResult(pOffset, pResult)
                         : newResult(pResult);
-                if (this.parseEach_P(pText, pOffset, pIndex, null, null, null, CA.checkers[c], TryResult, pProvider,
+                if (this.parseEach_P(pText, pOffset, pIndex, null, null, null, checkers[c], TryResult, pProvider,
                         pTabs) == null)
                     continue;
                 
@@ -724,12 +759,13 @@ public class RegParser implements Checker, Serializable {
                                 ParseResult MaxResult = null;
                                 
                                 CheckerAlternative CA = (CheckerAlternative) FP;
-                                for (int c = CA.checkers.length; --c >= 0;) {
+                                var checkers = CA.checkers().toArray(Checker[]::new);
+                                for (int c = checkers.length; --c >= 0;) {
                                     var TryResult
                                             = IsFPAsNode
                                             ? newResult(pOffset, pResult)
                                             : newResult(pResult);
-                                    if (this.parseEach_P(pText, pOffset, pIndex, null, null, null, CA.checkers[c],
+                                    if (this.parseEach_P(pText, pOffset, pIndex, null, null, null, checkers[c],
                                             TryResult, pProvider, pTabs + 1) == null)
                                         continue;
                                     
@@ -1044,11 +1080,6 @@ public class RegParser implements Checker, Serializable {
                         // Check if it reaches the maximum
                         if ((FPQ.hasNoUpperBound()) || (pTimes < FPQ.upperBound())) {    // Not yet
                             int FREC = pResult.rawEntryCount();
-                            if (FREC != pResult.rawEntryCount()) {
-                                int one = pResult.rawEntryCount();
-                                int two = pResult.rawEntryCount();
-                                System.out.println("Wrong! one=" + one + ", two: " + two);
-                            }
                             // Try the first part
                             if (this.parseEach_P(pText, pOffset, pIndex, pResult, pProvider, pTabs) != null) {    // Match
                                 // Only the one that advances the parsing
@@ -1095,8 +1126,9 @@ public class RegParser implements Checker, Serializable {
                             
                             // Not yet
                             CheckerAlternative CA = (CheckerAlternative) FP;
-                            for (int c = CA.checkers.length; --c >= 0;) {
-                                Checker C = CA.checkers[c];
+                            var checkers = CA.checkers().toArray(Checker[]::new);
+                            for (int c = checkers.length; --c >= 0;) {
+                                Checker C = checkers[c];
                                 // Try the first part
                                 TemporaryParseResult TryResult = newResult(pResult);
                                 if (this.parseEach_P(pText, pOffset, pIndex, null, null, null, C, TryResult, pProvider,
@@ -1199,10 +1231,11 @@ public class RegParser implements Checker, Serializable {
                             
                             // Not yet
                             CheckerAlternative CA = (CheckerAlternative) FP;
-                            for (int c = CA.checkers.length; --c >= 0;) {
+                            var checkers = CA.checkers().toArray(Checker[]::new);
+                            for (int c = checkers.length; --c >= 0;) {
                                 // Try the first part
                                 var TryResult = newResult(pResult);
-                                if (this.parseEach_P(pText, pOffset, pIndex, null, null, null, CA.checkers[c],
+                                if (this.parseEach_P(pText, pOffset, pIndex, null, null, null, checkers[c],
                                         TryResult, pProvider, pTabs) != null) {
                                     // Match
                                     // Try the later part, if not match, continue other alternatives

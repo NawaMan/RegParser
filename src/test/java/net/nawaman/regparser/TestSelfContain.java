@@ -78,12 +78,15 @@ public class TestSelfContain {
 		}
 	};
 	
-	private final RegParser regParser = newRegParser(
-	                                 new CheckerAlternative(
-	                                    newRegParser("#ValueLow", Int0To24),
-	                                    newRegParser("#ValueHigh", Int25To50)
-	                                 ), ZeroOrMore_Maximum
-	                             );
+	private final RegParser regParser 
+	        = newRegParser()
+	        .entry(
+	            new CheckerAlternative(
+	                newRegParser("#ValueLow", Int0To24),
+	                newRegParser("#ValueHigh", Int25To50)
+	            ), ZeroOrMore_Maximum
+	        )
+	        .build();
 	
 	@Test
 	public void testValidate() {

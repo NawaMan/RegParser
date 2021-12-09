@@ -31,6 +31,14 @@ abstract public class ParserTypeRef implements Serializable {
 	
 	private static final long serialVersionUID = -2335767886881850411L;
 	
+	public static ParserTypeRef of(String typeName) {
+		return new Simple(typeName, null);
+	}
+	
+	public static ParserTypeRef of(String typeName, String parameter) {
+		return new Simple(typeName, parameter);
+	}
+	
 	abstract public String name();
 	
 	public String parameter() {

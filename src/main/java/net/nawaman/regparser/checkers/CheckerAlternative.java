@@ -19,12 +19,15 @@
 package net.nawaman.regparser.checkers;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 import net.nawaman.regparser.AsChecker;
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.RegParser;
 import net.nawaman.regparser.result.ParseResult;
+import net.nawaman.regparser.utils.IStream;
 
 /**
  * Checker for alternative values.
@@ -49,8 +52,48 @@ public class CheckerAlternative implements Checker {
 	
 	private static final long serialVersionUID = 2146515415886541851L;
 	
-	public final Checker   defaultChecker;
-	public final Checker[] checkers;
+	public static class Builder implements AsChecker {
+		private final List<AsChecker> checkers = new ArrayList<>();
+		
+		public Builder or(AsChecker checker) {
+			checkers.add(checker);
+			return this;
+		}
+		
+		public CheckerAlternative build() {
+			var array = checkers.stream()
+			          .filter(Objects::nonNull)
+			          .toArray(AsChecker[]::new);
+			return new CheckerAlternative(false, array);
+		}
+		
+		public CheckerAlternative orDefault(AsChecker checker) {
+			boolean hasDefault = (checker != null);
+			checkers.add(checker);
+			var array = checkers.stream()
+			          .filter(Objects::nonNull)
+			          .toArray(AsChecker[]::new);
+			return new CheckerAlternative(hasDefault, array);
+		}
+		
+		@Override
+		public Checker asChecker() {
+			return build();
+		}
+	}
+	
+	public static CheckerAlternative.Builder of(AsChecker checker) {
+		return new CheckerAlternative.Builder()
+				.or(checker);
+	}
+	
+	public static CheckerAlternative.Builder either(AsChecker checker) {
+		return new CheckerAlternative.Builder()
+				.or(checker);
+	}
+	
+	private final Checker   defaultChecker;
+	private final Checker[] checkers;
 	
 	/** Constructs a char set */
 	public CheckerAlternative(AsChecker... checkers) {
@@ -119,6 +162,10 @@ public class CheckerAlternative implements Checker {
 	
 	public Checker defaultChecker() {
 		return defaultChecker;
+	}
+	
+	public IStream<Checker> checkers() {
+		return IStream.of(checkers);
 	}
 	
 	// Object ----------------------------------------------------------------------------------------------------------

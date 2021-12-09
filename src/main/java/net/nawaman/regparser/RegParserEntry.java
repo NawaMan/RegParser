@@ -38,27 +38,27 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
 	
 	//== Factory =======================================================================================================
 	
-	static public RegParserEntry newParserEntry(Checker checker) {
+	static public RegParserEntry newParserEntry(AsChecker checker) {
 		return newParserEntry(null, checker, null, null);
 	}
 	
-	static public RegParserEntry newParserEntry(Checker checker, Quantifier quantifier) {
+	static public RegParserEntry newParserEntry(AsChecker checker, Quantifier quantifier) {
 		return newParserEntry(null, checker, quantifier, null);
 	}
 	
-	static public RegParserEntry newParserEntry(String name, Checker checker) {
+	static public RegParserEntry newParserEntry(String name, AsChecker checker) {
 		return newParserEntry(name, checker, null, null);
 	}
 	
-	static public RegParserEntry newParserEntry(String name, Checker checker, Quantifier quantifier) {
+	static public RegParserEntry newParserEntry(String name, AsChecker checker, Quantifier quantifier) {
 		return newParserEntry(name, checker, quantifier, null);
 	}
 	
 	static public RegParserEntry newParserEntry(
 									String     name,
-									Checker    checker,
+									AsChecker  checker,
 									Quantifier quantifier,
-									Checker    secondStage) {
+									AsChecker  secondStage) {
 		if (secondStage == null) {
 			if (name == null) {
 				return (quantifier == null)
@@ -72,7 +72,7 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
 		}
 		
 		var firstStage = newParserEntry(name, checker, quantifier, null);
-		return new TwoStage(firstStage, secondStage);
+		return new TwoStage(firstStage, secondStage.asChecker());
 	}
 	
 	// TypeRef -------------------------------------------------------------------------------------
@@ -97,7 +97,7 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
 									String        name,
 									ParserTypeRef typeRef,
 									Quantifier    quantifier,
-									Checker       secondStage) {
+									AsChecker     secondStage) {
 		if (secondStage == null) {
 			if (name == null) {
 				return (quantifier == null)
@@ -111,7 +111,7 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
 		}
 		
 		var firstStage = newParserEntry(name, typeRef, quantifier, null);
-		return new TwoStage(firstStage, secondStage);
+		return new TwoStage(firstStage, secondStage.asChecker());
 	}
 	
 	// Type ----------------------------------------------------------------------------------------
@@ -136,7 +136,7 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
 									String     name,
 									ParserType parserType,
 									Quantifier quantifier,
-									Checker    secondStage) {
+									AsChecker  secondStage) {
 		if (secondStage == null) {
 			if (name == null) {
 				return (quantifier == null)
@@ -150,7 +150,7 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
 		}
 		
 		var firstStage = newParserEntry(name, parserType, quantifier, null);
-		return new TwoStage(firstStage, secondStage);
+		return new TwoStage(firstStage, secondStage.asChecker());
 	}
 	
 	//== Builder =======================================================================================================
@@ -345,10 +345,10 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
 		
 		private final Checker checker;
 		
-		Direct(Checker checker) {
+		Direct(AsChecker checker) {
 			this.checker = (checker instanceof RegParser)
 			             ? ((RegParser)checker).optimize()
-			             : checker;
+			             : checker.asChecker();
 			Objects.requireNonNull(this.checker, "`checker` cannot be null.");
 		}
 		
@@ -370,7 +370,7 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
 		
 		private final Quantifier quantifier;
 		
-		DirectWithQuantifier(Checker checker, Quantifier quantifier) {
+		DirectWithQuantifier(AsChecker checker, Quantifier quantifier) {
 			super(checker);
 			this.quantifier = quantifier;
 		}
@@ -396,7 +396,7 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
 		
 		private final String name;
 		
-		NamedDirect(String name, Checker checker) {
+		NamedDirect(String name, AsChecker checker) {
 			super(checker);
 			this.name = Objects.requireNonNull(name);
 		}
@@ -420,7 +420,7 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
 		
 		private final Quantifier quantifier;
 		
-		NamedDirectWithQuantifier(String name, Checker checker, Quantifier quantifier) {
+		NamedDirectWithQuantifier(String name, AsChecker checker, Quantifier quantifier) {
 			super(name, checker);
 			this.quantifier = quantifier;
 		}

@@ -29,14 +29,25 @@ public class ParserTypeBackRefCaseInsensitive extends ParserTypeBackRef {
 	
 	private static final long serialVersionUID = 4711433513141637509L;
 	
+	
 	public static final ParserTypeBackRefCaseInsensitive BackRefCI_Instance = new ParserTypeBackRefCaseInsensitive();
+	
+	public static final String name = "$BackRefCI?";
+	
+	public static ParserTypeRef backrefCI(String parameter) {
+		return ParserTypeRef.of(name, parameter);
+	};
+	
+	public static ParserTypeRef of(String parameter) {
+		return ParserTypeRef.of(name, parameter);
+	};
 	
 	ParserTypeBackRefCaseInsensitive() {
 	}
 	
 	@Override
 	public String name() {
-		return "$BackRefCI?";
+		return name;
 	}
 	
 	@Override

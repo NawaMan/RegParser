@@ -30,6 +30,11 @@ public class CharSingle extends CharChecker {
 	
 	private static final long serialVersionUID = 1651564132135121525L;
 	
+	/** Construct a character range */
+	public static CharSingle of(char ch) {
+		return new CharSingle(ch);
+	}
+	
 	public final char ch;
 	
 	/** Construct a character range */
