@@ -20,12 +20,16 @@ public class TestSelfContain {
 	
 	@SuppressWarnings("serial")
 	private ParserType Int0To24 = new ParserType() {
+		
+		private final Checker checker
+				= newRegParser()
+				.entry(Digit, new Quantifier(1, 2, Maximum))
+				.build();
+		
 		@Override
 		public String name() {
 			return "int0To24~";
 		}
-		
-		Checker checker = newRegParser(Digit, new Quantifier(1, 2, Maximum));
 		
 		@Override
 		public Checker checker(ParseResult postResult, String param, ParserTypeProvider typeProvider) {
@@ -46,12 +50,16 @@ public class TestSelfContain {
 	
 	@SuppressWarnings("serial")
 	private ParserType Int25To50 = new ParserType() {
+		
+		private final Checker checker
+				= newRegParser()
+				.entry(Digit, new Quantifier(1, 2, Maximum))
+				.build();
+		
 		@Override
 		public String name() {
 			return "$int25To50~";
 		}
-		
-		Checker checker = RegParser.newRegParser(Digit, new Quantifier(1, 2, Maximum));
 		
 		@Override
 		public Checker checker(ParseResult hostResult, String param, ParserTypeProvider typeProvider) {
@@ -70,11 +78,12 @@ public class TestSelfContain {
 		}
 	};
 	
-	private RegParser regParser = newRegParser(
+	private final RegParser regParser = newRegParser(
 	                                 new CheckerAlternative(
-	                                        newRegParser("#ValueLow", Int0To24),
-	                                        newRegParser("#ValueHigh", Int25To50)),
-	                                 ZeroOrMore_Maximum);
+	                                    newRegParser("#ValueLow", Int0To24),
+	                                    newRegParser("#ValueHigh", Int25To50)
+	                                 ), ZeroOrMore_Maximum
+	                             );
 	
 	@Test
 	public void testValidate() {
