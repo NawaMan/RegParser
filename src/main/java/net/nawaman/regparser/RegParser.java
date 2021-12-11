@@ -84,6 +84,31 @@ public class RegParser implements Checker, Serializable {
     			.build();
     }
     
+    public static RegParser newRegParser(String name, ParserType parserType) {
+    	return new RegParserBuilder()
+    			.entry(name, parserType)
+    			.build();
+    }
+    
+    public static RegParser newRegParser(String name, ParserType parserType, Quantifier quantifier) {
+    	return new RegParserBuilder()
+    			.entry(name, parserType, quantifier)
+    			.build();
+    }
+    
+    public static RegParser newRegParser(String name, ParserTypeRef typeRef) {
+    	return new RegParserBuilder()
+    			.entry(name, typeRef)
+    			.build();
+    }
+    
+    public static RegParser newRegParser(String name, ParserTypeRef typeRef, Quantifier quantifier) {
+    	return new RegParserBuilder()
+    			.entry(name, typeRef, quantifier)
+    			.build();
+    }
+    
+    
     /** Creates a new RegParser from a series of construction entries */
     static public RegParser newRegParser(RegParserEntry... pEntries) {
         return RegParser.newRegParser(null, pEntries);
