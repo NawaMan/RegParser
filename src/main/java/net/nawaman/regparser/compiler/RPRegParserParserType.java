@@ -136,7 +136,7 @@ public class RPRegParserParserType extends ParserType {
 					} else {
 						if (entries.size() > 0) {
 							var newParser = newRegParser((Object[]) entries.toArray(EmptyRegParserEntryArray));
-							parsers.add(newRegParser(newParser));
+							parsers.add(newParser);
 							
 							entries.clear();
 						}
@@ -174,7 +174,7 @@ public class RPRegParserParserType extends ParserType {
 		// Ending
 		if (entries.size() > 0) {
 			var newParser = newRegParser((Object[]) entries.toArray(EmptyRegParserEntryArray));
-			parsers.add(newRegParser(newParser));
+			parsers.add(newParser);
 		}
 		
 		if (parsers.size() == 1) {

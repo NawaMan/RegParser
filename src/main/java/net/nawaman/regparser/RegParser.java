@@ -110,16 +110,20 @@ public class RegParser implements Checker, Serializable {
     
     
     /** Creates a new RegParser from a series of construction entries */
-    static public RegParser newRegParser(RegParserEntry... pEntries) {
+    static public RegParser newRegParser(AsRegParserEntry... pEntries) {
         return RegParser.newRegParser(null, pEntries);
     }
     
     /** Creates a new RegParser from a series of construction entries */
-    static public RegParser newRegParser(ParserTypeProvider pTProvider, RegParserEntry... pEntries) {
+    static public RegParser newRegParser(ParserTypeProvider pTProvider, AsRegParserEntry... pEntries) {
         if (pEntries == null)
             throw new NullPointerException();
         
-        var entryArray = Stream.of(pEntries).filter(Objects::nonNull).toArray(RegParserEntry[]::new);
+        var entryArray 
+				= Stream.of(pEntries)
+				.filter (Objects::nonNull)
+				.map    (AsRegParserEntry::asRegParserEntry)
+				.toArray(RegParserEntry[]::new);
         return (pTProvider == null)
                 ? new RegParser(entryArray)
                 : new RegParser.WithDefaultTypeProvider(entryArray, pTProvider);
@@ -142,36 +146,23 @@ public class RegParser implements Checker, Serializable {
     }
     
     /** Creates a new RegParser from a series of construction entries */
-    public static RegParser newRegParser(String name, Checker checker, Quantifier quantifier) {
+    public static RegParser newRegParser(String name, AsChecker checker, Quantifier quantifier) {
         return newRegParser(newParserEntry(name, checker, quantifier));
     }
     
     /** Creates a new RegParser from a series of construction entries */
-    public static RegParser newRegParser(ParserTypeProvider pTProvider, String name, Checker checker, Quantifier quantifier) {
+    public static RegParser newRegParser(ParserTypeProvider pTProvider, String name, AsChecker checker, Quantifier quantifier) {
         return newRegParser(pTProvider, newParserEntry(name, checker, quantifier));
     }
     
     /** Creates a new RegParser from a series of construction entries */
-    public static RegParser newRegParser(Checker checker, Quantifier quantifier) {
+    public static RegParser newRegParser(AsChecker checker, Quantifier quantifier) {
         return newRegParser(newParserEntry(checker, quantifier));
     }
     
     /** Creates a new RegParser from a series of construction entries */
-    public static RegParser newRegParser(ParserTypeProvider pTProvider, Checker checker, Quantifier quantifier) {
+    public static RegParser newRegParser(ParserTypeProvider pTProvider, AsChecker checker, Quantifier quantifier) {
         return newRegParser(pTProvider, newParserEntry(checker, quantifier));
-    }
-    
-    /** Creates a new RegParser from a series of construction entries */
-    public static RegParser newRegParser(Checker checker) {
-    	if (checker instanceof RegParser)
-    		return (RegParser)checker;
-    	
-        return newRegParser(newParserEntry(checker));
-    }
-    
-    /** Creates a new RegParser from a series of construction entries */
-    public static RegParser newRegParser(ParserTypeProvider pTProvider, Checker checker) {
-        return newRegParser(pTProvider, newParserEntry(checker));
     }
     
     /**
