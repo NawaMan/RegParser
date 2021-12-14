@@ -90,6 +90,18 @@ public class RegParser implements Checker, Serializable {
     			.build();
     }
     
+    public static RegParser newRegParser(ParserType parserType) {
+    	return new RegParserBuilder()
+    			.entry(parserType)
+    			.build();
+    }
+    
+    public static RegParser newRegParser(ParserTypeRef parserTypeRef) {
+    	return new RegParserBuilder()
+    			.entry(parserTypeRef)
+    			.build();
+    }
+    
     public static RegParser newRegParser(String name, ParserType parserType, Quantifier quantifier) {
     	return new RegParserBuilder()
     			.entry(name, parserType, quantifier)
@@ -1375,7 +1387,7 @@ public class RegParser implements Checker, Serializable {
 			}
 		}
 		
-		return isChanged ? newRegParser((Object[])newEntries) : this;
+		return isChanged ? newRegParser((RegParserEntry[])newEntries) : this;
 	}
     
     // To Satisfy Checker ----------------------------------------------------------------------------------------------
