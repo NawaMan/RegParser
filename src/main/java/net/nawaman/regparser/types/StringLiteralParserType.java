@@ -47,34 +47,37 @@ public class StringLiteralParserType extends ParserType {
 	private final Checker checker;
 	
 	public StringLiteralParserType() {
-		checker
-		    = newRegParser(
-		        "#String",
-		        new CheckerAlternative(
-		            newRegParser(
-		                new CharSingle('\"'),
-		                newRegParser(
-		                    new CheckerAlternative(
-		                        new CharNot(new CharSingle('\'')),
-		                        new WordChecker("\\\""))
-		                ), Quantifier.ZeroOrMore,
-		                new CharSingle('\"')),
-		            newRegParser(
-		                new CharSingle('\''),
-		                newRegParser(
-		                    new CheckerAlternative(
-		                        new CharNot(new CharSingle('\'')),
-		                        new WordChecker("\\\'"))
-		                ), Quantifier.ZeroOrMore,
-		                new CharSingle('\'')),
-		            newRegParser(
-		                new CharSingle('`'),
-		                newRegParser(
-		                    new CheckerAlternative(
-		                        new CharNot(new CharSingle('`')),
-		                        new WordChecker("\\`"))
-		                ), Quantifier.ZeroOrMore,
-		                new CharSingle('`'))));
+		var singleQuote
+				= newRegParser()
+				.entry(new CharSingle('\''))
+				.entry(newRegParser(
+						new CheckerAlternative(
+							new CharNot(new CharSingle('\'')),
+							new WordChecker("\\\'"))
+						), Quantifier.ZeroOrMore)
+				.entry(new CharSingle('\''))
+				.build();
+		var doubleQuote
+				= newRegParser()
+				.entry(new CharSingle('\"'))
+				.entry(newRegParser(
+						new CheckerAlternative(
+							new CharNot(new CharSingle('\'')),
+							new WordChecker("\\\""))
+						), Quantifier.ZeroOrMore)
+				.entry(new CharSingle('\"'))
+				.build();
+		var backtick 
+				= newRegParser()
+				.entry(new CharSingle('`'))
+				.entry(newRegParser(
+						new CheckerAlternative(
+							new CharNot(new CharSingle('`')),
+							new WordChecker("\\`"))
+						), Quantifier.ZeroOrMore)
+				.entry(new CharSingle('`'))
+				.build();
+		checker = newRegParser("#String", new CheckerAlternative(doubleQuote, singleQuote, backtick));
 	}
 	
 	@Override

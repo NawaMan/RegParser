@@ -32,6 +32,7 @@ import static net.nawaman.regparser.Quantifier.ZeroOrOne;
 import static net.nawaman.regparser.EscapeHelpers.escapable;
 import static net.nawaman.regparser.RegParser.newRegParser;
 import static net.nawaman.regparser.RegParserEntry.newParserEntry;
+import static net.nawaman.regparser.checkers.CheckerAlternative.either;
 
 import java.util.Vector;
 
@@ -75,133 +76,96 @@ public class RPRegParserItemParserType extends ParserType {
 		checkers.add(newRegParser(new ParserTypeRef.Simple(RPCharSetItemParserType.name)));
 		
 		var regParserTypeRef = new ParserTypeRef.Simple("RegParser");
+		
+		var unnamedGroup 
+				= newRegParser()
+				.entry(new CharSet("#$"), Zero)
+				.entry(
+					either(newRegParser()
+						.entry("#NOT", new CharSingle('^'), ZeroOrOne)
+						.entry(regParserTypeRef, OneOrMore)
+						.entry(newRegParser()
+							.entry("#OR", new CharSingle('|'))
+							.entry(regParserTypeRef, OneOrMore),
+							ZeroOrMore)
+						.entry(newRegParser()
+							.entry("#Default", new WordChecker("||"))
+							.entry(regParserTypeRef, OneOrMore),
+							ZeroOrMore)
+						.entry(new CharSingle(')')))
+					.orDefault(newRegParser()
+						.entry("#Error[]", new CharNot(new CharSet(")")), ZeroOrMore)
+						.entry(new CharSingle(')'))));
+		var definition 
+				= either(newRegParser()
+					.entry("#Defined", new CharSingle(':'))
+					.entry(WhiteSpace, ZeroOrMore)
+					.entry(either(newRegParser("#Type", RPTypeParserType.typeRef))
+							.or(newRegParser("#Error[]", newRegParser(
+									new CharSingle('!'),
+									new CharNot(new CharSet("!)")).zeroOrMore())))
+							.or(newRegParser()
+									.entry(new CharSingle('~'))
+									.entry("#GroupRegParser", regParserTypeRef)
+									.entry(new CharSingle('~')))
+							.or(newRegParser("#Error[]", newRegParser(new CharNot(new CharSet(":!)~")), ZeroOrMore))))
+					.entry(WhiteSpace, ZeroOrMore)
+					.entry("#Second", newRegParser()
+						.entry(new CharSingle(':'))
+						.entry(WhiteSpace, ZeroOrMore)
+						.entry(either(newRegParser("#Type", RPTypeParserType.typeRef)) // Type
+								.or(newRegParser("#Error[]", newRegParser(  // Error of Type
+										new CharSingle('!'),
+										new CharNot(new CharSet("!)")).zeroOrMore())))
+								.or(newRegParser() // Nested-RegParser
+										.entry(new CharSingle('~'))
+										.entry("#GroupRegParser",  regParserTypeRef)
+										.entry(new CharSingle('~')))
+								.or(newRegParser("#Error[]", newRegParser(new CharNot(new CharSet(":!)~")), ZeroOrMore))))
+						.entry(WhiteSpace, ZeroOrMore), ZeroOrOne)
+					.entry(new CharSingle(')')))
+				.or(newRegParser() // BackRef
+					.entry("#BackRefCI", new CharSingle('\''), ZeroOrOne)
+					.entry("#BackRef",   new CharSingle(';'))
+					.entry(WhiteSpace, ZeroOrMore)
+					.entry(either(new CharSingle(')'))
+							.or(newRegParser()
+								.entry("#Error[]", new CharNot(new CharSet(")")), ZeroOrOne)
+								.entry(new CharSingle(')')))))
+				.orDefault(newRegParser()
+					.entry("#Error[]", new CharNot(new CharSet(")")), ZeroOrMore)
+					.entry(new CharSingle(')')));
+		
+		var namedGroup 
+				= newRegParser()
+				.entry("#Name", new CharSet("#$"))
+				.entry(either(newRegParser()
+							.entry("#Group-Name",   IdentifierParserType.typeRef)
+							.entry("#Group-Option", new CharSet("*+"),     ZeroOrOne)
+							.entry("#Multiple",     new WordChecker("[]"), ZeroOrOne)
+							.entry(WhiteSpace.zeroOrMore())
+							.entry(definition))
+						.orDefault(newRegParser()
+							.entry("#Error[]", new CharNot(new CharSet(")")), ZeroOrMore)
+							.entry(new CharSingle(')'))));
 		checkers.add(
-		    newRegParser(
-		        "#Group", newRegParser(
-		            new CharSingle('('),
-		            new CharSingle('*'), Zero,
-		            new CheckerAlternative(
-		                newRegParser(
-		                    new CharSet("#$"), Zero,
-		                    new CheckerAlternative(
-		                        true,
-		                        newRegParser(
-		                            "#NOT", new CharSingle('^'), ZeroOrOne,
-		                            regParserTypeRef, OneOrMore,
-		                            newRegParser(
-		                                "#OR", new CharSingle('|'),
-		                                regParserTypeRef, OneOrMore
-		                            ), ZeroOrMore,
-		                            newRegParser(
-		                                "#Default", new WordChecker("||"),
-		                                regParserTypeRef, OneOrMore
-		                            ), ZeroOrMore,
-		                            new CharSingle(')')
-		                        ),
-		                        newRegParser(
-		                            "#Error[]", new CharNot(new CharSet(")")), ZeroOrMore,
-		                            new CharSingle(')')
-		                        )
-		                    )
-		                ),
-		                newRegParser(
-		                    "#Name", new CharSet("#$"),
-		                    new CheckerAlternative(
-		                        true,
-		                        newRegParser(
-		                            "#Group-Name", IdentifierParserType.typeRef,
-		                            "#Group-Option", new CharSet("*+"), ZeroOrOne,
-		                            "#Multiple", new WordChecker("[]"), ZeroOrOne,
-		                            WhiteSpace, ZeroOrMore,
-		                            new CheckerAlternative(
-		                                true,
-		                                newRegParser(
-		                                    "#Defined", new CharSingle(':'),
-		                                    WhiteSpace, ZeroOrMore,
-		                                    new CheckerAlternative(
-		                                        // Type
-		                                        newRegParser("#Type", RPTypeParserType.typeRef),
-		                                        // Error of Type
-		                                        newRegParser(
-		                                            "#Error[]", newRegParser(
-		                                                new CharSingle('!'),
-		                                                new CharNot(new CharSet("!)")), ZeroOrMore
-		                                            )
-		                                        ),
-		                                        // Nested-RegParser
-		                                        newRegParser(
-		                                            new CharSingle('~'),
-		                                            "#GroupRegParser", regParserTypeRef,
-		                                            new CharSingle('~')
-		                                        ),
-		                                        newRegParser("#Error[]", newRegParser(new CharNot(new CharSet(":!)~")), ZeroOrMore)
-		                                    )
-		                                ),
-		                                WhiteSpace, ZeroOrMore,
-		                                // Second set
-		                                "#Second", newRegParser(
-		                                    new CharSingle(':'),
-		                                    WhiteSpace, ZeroOrMore,
-		                                    new CheckerAlternative(
-		                                        // Type
-		                                        newRegParser("#Type", RPTypeParserType.typeRef),
-		                                        // Error of Type
-		                                        newRegParser(
-		                                            "#Error[]", newRegParser(
-		                                                new CharSingle('!'),
-		                                                new CharNot(new CharSet("!)")), ZeroOrMore
-		                                            )
-		                                        ),
-		                                        // Nested-RegParser
-		                                        newRegParser(
-		                                            new CharSingle('~'),
-		                                            "#GroupRegParser",  regParserTypeRef,
-		                                            new CharSingle('~')
-		                                        ),
-		                                        newRegParser("#Error[]", newRegParser(new CharNot(new CharSet(":!)~")), ZeroOrMore))
-		                                    ),
-		                                    WhiteSpace, ZeroOrMore
-		                                ), ZeroOrOne,
-		                                new CharSingle(')')
-		                            ),
-		                            // BackRef
-		                            newRegParser(
-		                                "#BackRefCI", new CharSingle('\''), ZeroOrOne,
-		                                "#BackRef", new CharSingle(';'),
-		                                WhiteSpace, ZeroOrMore,
-		                                new CheckerAlternative(
-		                                    new CharSingle(')'),
-		                                    newRegParser(
-		                                        "#Error[]", new CharNot(new CharSet(")")), ZeroOrOne,
-		                                        new CharSingle(')')
-		                                    )
-		                                )
-		                            ),
-		                            newRegParser(
-		                                "#Error[]", new CharNot(new CharSet(")")), ZeroOrMore,
-		                                new CharSingle(')')
-		                            )
-		                        )
-		                    ),
-		                    newRegParser(
-		                        "#Error[]", new CharNot(new CharSet(")")), ZeroOrMore,
-		                            new CharSingle(')')
-		                        )
-		                    )
-		                )
-		            )
-		        )
-		    )
+			newRegParser(
+				"#Group",
+				newRegParser()
+				.entry(new CharSingle('('))
+				.entry(new CharSingle('*'), Zero)
+				.entry(either(unnamedGroup).or(namedGroup))
+			)
 		);
 		
 		checkers.add(
-		    newRegParser(
-		        "$TextCI", newRegParser(
-		            new CharSet("'"),
-		            new CharNot(new CharSingle('\'')), ZeroOrMore,
-		            new WordChecker("'")
-		        )
-		    )
+			newRegParser(
+				"$TextCI",
+				newRegParser()
+				.entry(new CharSet("'"))
+				.entry(new CharNot(new CharSingle('\'')), ZeroOrMore)
+				.entry(new WordChecker("'"))
+			)
 		);
 		
 		// Other char

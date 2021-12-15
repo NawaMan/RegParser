@@ -67,44 +67,54 @@ public class RPQuantifierParserType extends ParserType {
 	
 	public RPQuantifierParserType() {
 		// ((?|*|+|{\s[\d]*\s}|{\s[\d]*\s,\s}|{\s,\s[\d]*\s}|{\s[\d]*\s,\s[\d]*\s})(*|+)?)?
-		checker = newRegParser(
-		            "#Quantifier", new CheckerAlternative(true,
-		                               new CharSet("+*?"),
-		                               newRegParser(
-		                                   new CharSingle('{'), Blank, ZeroOrMore,
-		                                   newRegParser("#BothBound", newRegParser(Digit, OneOrMore)),
-		                                   Blank, ZeroOrMore,
-		                                   new CharSingle('}')),
-		                               newRegParser(
-		                                   new CharSingle('{'), Blank, ZeroOrMore,
-		                                   new CharSingle(','), Blank, ZeroOrMore,
-		                                   newRegParser("#UpperBound", newRegParser(Digit, OneOrMore)),
-		                                   Blank, ZeroOrMore,
-		                                   new CharSingle('}')),
-		                               newRegParser(
-		                                   new CharSingle('{'), One,
-		                                   Blank, ZeroOrMore,
-		                                   newRegParser("#LowerBound", newRegParser(Digit, OneOrMore)),
-		                                   Blank, ZeroOrMore,
-		                                   new CharSingle(','),
-		                                   Blank, ZeroOrMore,
-		                                   new CharSingle('}')),
-		                               newRegParser(
-		                                   new CharSingle('{'),
-		                                   Blank, ZeroOrMore,
-		                                   newRegParser("#LowerBound", newRegParser(Digit, OneOrMore)),
-		                                   Blank, ZeroOrMore,
-		                                   new CharSingle(','),
-		                                   Blank, ZeroOrMore,
-		                                   newRegParser("#UpperBound", newRegParser(Digit, OneOrMore)),
-		                                   Blank, ZeroOrMore,
-		                                   new CharSingle('}')),
-		                               newRegParser(
-		                                   new CharSingle('{'),
-		                                   newRegParser("#Error[]", newRegParser(new CharNot(new CharSingle('}')), ZeroOrMore)),
-		                                   new CharSingle('}'))
-		                               ),
-		            "#Greediness", new CharSet("+*"), ZeroOrOne);
+		var bothBound = newRegParser()
+				.entry(new CharSingle('{'))
+				.entry(Blank, ZeroOrMore)
+				.entry("#BothBound", newRegParser(Digit, OneOrMore))
+				.entry(Blank, ZeroOrMore)
+				.entry(new CharSingle('}'));
+		var upperBound = newRegParser()
+				.entry(new CharSingle('{'))
+				.entry(Blank, ZeroOrMore)
+				.entry(new CharSingle(','))
+				.entry(Blank, ZeroOrMore)
+				.entry("#UpperBound", newRegParser(Digit, OneOrMore))
+				.entry(Blank, ZeroOrMore)
+				.entry(new CharSingle('}'));
+		var lowerVount = newRegParser()
+				.entry(new CharSingle('{'), One)
+				.entry(Blank, ZeroOrMore)
+				.entry("#LowerBound", newRegParser(Digit, OneOrMore))
+				.entry(Blank, ZeroOrMore)
+				.entry(new CharSingle(','))
+				.entry(Blank, ZeroOrMore)
+				.entry(new CharSingle('}'));
+		var bothBounds = newRegParser()
+				.entry(new CharSingle('{'))
+				.entry(Blank, ZeroOrMore)
+				.entry("#LowerBound", newRegParser(Digit, OneOrMore))
+				.entry(Blank, ZeroOrMore)
+				.entry(new CharSingle(','))
+				.entry(Blank, ZeroOrMore)
+				.entry("#UpperBound", newRegParser(Digit, OneOrMore))
+				.entry(Blank, ZeroOrMore)
+				.entry(new CharSingle('}'));
+		var error = newRegParser()
+				.entry(new CharSingle('{'))
+				.entry("#Error[]", newRegParser(new CharNot(new CharSingle('}')), ZeroOrMore))
+				.entry(new CharSingle('}'));
+		checker = newRegParser()
+				.entry(
+					"#Quantifier",
+					new CheckerAlternative(true,
+						new CharSet("+*?"),
+						bothBound,
+						upperBound,
+						lowerVount,
+						bothBounds,
+						error))
+				.entry("#Greediness", new CharSet("+*"), ZeroOrOne)
+				.build();
 	}
 	
 	@Override
