@@ -18,16 +18,16 @@
 
 package net.nawaman.regparser.types;
 
+import static net.nawaman.regparser.Quantifier.ZeroOrMore;
 import static net.nawaman.regparser.RegParser.newRegParser;
+import static net.nawaman.regparser.checkers.CheckerAlternative.either;
 
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.ParserType;
 import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.ParserTypeRef;
-import net.nawaman.regparser.Quantifier;
 import net.nawaman.regparser.checkers.CharNot;
 import net.nawaman.regparser.checkers.CharSingle;
-import net.nawaman.regparser.checkers.CheckerAlternative;
 import net.nawaman.regparser.checkers.WordChecker;
 import net.nawaman.regparser.result.ParseResult;
 
@@ -50,34 +50,22 @@ public class StringLiteralParserType extends ParserType {
 		var singleQuote
 				= newRegParser()
 				.entry(new CharSingle('\''))
-				.entry(newRegParser(
-						new CheckerAlternative(
-							new CharNot(new CharSingle('\'')),
-							new WordChecker("\\\'"))
-						), Quantifier.ZeroOrMore)
+				.entry(either(new CharNot(new CharSingle('\''))).or(new WordChecker("\\\'")), ZeroOrMore)
 				.entry(new CharSingle('\''))
 				.build();
 		var doubleQuote
 				= newRegParser()
 				.entry(new CharSingle('\"'))
-				.entry(newRegParser(
-						new CheckerAlternative(
-							new CharNot(new CharSingle('\'')),
-							new WordChecker("\\\""))
-						), Quantifier.ZeroOrMore)
+				.entry(either(new CharNot(new CharSingle('\''))).or(new WordChecker("\\\"")), ZeroOrMore)
 				.entry(new CharSingle('\"'))
 				.build();
 		var backtick 
 				= newRegParser()
 				.entry(new CharSingle('`'))
-				.entry(newRegParser(
-						new CheckerAlternative(
-							new CharNot(new CharSingle('`')),
-							new WordChecker("\\`"))
-						), Quantifier.ZeroOrMore)
+				.entry(either(new CharNot(new CharSingle('`'))).or(new WordChecker("\\`")), ZeroOrMore)
 				.entry(new CharSingle('`'))
 				.build();
-		checker = newRegParser("#String", new CheckerAlternative(doubleQuote, singleQuote, backtick));
+		checker = newRegParser("#String", either(doubleQuote).or(singleQuote).or(backtick));
 	}
 	
 	@Override

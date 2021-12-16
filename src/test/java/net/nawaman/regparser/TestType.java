@@ -23,7 +23,6 @@ import net.nawaman.regparser.checkers.CharRange;
 import net.nawaman.regparser.checkers.CharSet;
 import net.nawaman.regparser.checkers.CharSingle;
 import net.nawaman.regparser.checkers.CharUnion;
-import net.nawaman.regparser.checkers.CheckerAlternative;
 import net.nawaman.regparser.checkers.WordChecker;
 import net.nawaman.regparser.result.ParseResult;
 import net.nawaman.regparser.utils.Util;
@@ -166,11 +165,9 @@ public class TestType {
 			}
 		};
 		var regParser = newRegParser(
-		                    new CheckerAlternative(
-		                            newRegParser("#Value_Low",  int0To4),
-		                            newRegParser("#Value_High", int5To9)
-		                    ), ZeroOrMore_Maximum
-		                );
+							either(newRegParser("#Value_Low",  int0To4))
+							.or(newRegParser("#Value_High", int5To9)),
+							ZeroOrMore_Maximum);
 		
 		var result = regParser.parse("3895482565");
 		validate("[3,4,2]",         Util.toString(result.textsOf("#Value_Low")));
@@ -187,14 +184,13 @@ public class TestType {
 			}
 			
 			private final Checker checker
-			        = newRegParser()    // <([^<]|!block!)*+>
-			        .entry(CharSingle.of('<'))
-			        .entry(new CheckerAlternative(
-			                newRegParser("#Other",    newRegParser(new CharNot(new CharSet("<>")), OneOrMore)),
-			                newRegParser("#SubBlock", ParserTypeRef.of("block"))
-			            ), ZeroOrMore_Minimum)
-			        .entry(CharSingle.of('>'))
-			        .build();
+					= newRegParser()    // <([^<]|!block!)*+>
+					.entry(CharSingle.of('<'))
+					.entry(either(newRegParser("#Other",    newRegParser(new CharNot(new CharSet("<>")), OneOrMore)))
+							.or  (newRegParser("#SubBlock", ParserTypeRef.of("block"))),
+							ZeroOrMore_Minimum)
+					.entry(CharSingle.of('>'))
+					.build();
 			
 			@Override
 			public Checker checker(ParseResult hostResult, String param, ParserTypeProvider typeProvider) {
@@ -335,26 +331,18 @@ public class TestType {
 		var stringLiteralType = new ParserType() {
 		
 		final private Checker checker
-				= new CheckerAlternative(
-				        newRegParser()
-				        .entry(new CharSingle('\"'))
-				        .entry(new CheckerAlternative(
-				                new CharNot(new CharSingle('\"')),
-				                new WordChecker("\\\"")
-				            ), ZeroOrMore_Minimum
-				        )
-				        .entry(new CharSingle('\"'))
-				        .build(),
-				        newRegParser()
-				        .entry(new CharSingle('\''))
-				        .entry(new CheckerAlternative(
-				                new CharNot(CharSingle.of('\'')),
-				                new WordChecker("\\\'")
-				            ), ZeroOrMore_Minimum
-				        )
-				        .entry(new CharSingle('\''))
-				        .build()
-				    );
+				= either(newRegParser()
+					.entry(new CharSingle('\"'))
+					.entry(either(new CharNot(new CharSingle('\"')))
+							.or  (new WordChecker("\\\"")), ZeroOrMore_Minimum)
+					.entry(new CharSingle('\"')))
+				.or(newRegParser()
+					.entry(new CharSingle('\''))
+					.entry(either(new CharNot(CharSingle.of('\'')))
+							.or  (new WordChecker("\\\'")),
+							ZeroOrMore_Minimum)
+					.entry(new CharSingle('\'')))
+				.build();
 		
 		@Override
 		public String name() {

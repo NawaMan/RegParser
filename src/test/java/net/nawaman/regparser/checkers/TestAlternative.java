@@ -1,6 +1,7 @@
 package net.nawaman.regparser.checkers;
 
 import static net.nawaman.regparser.TestUtils.validate;
+import static net.nawaman.regparser.checkers.CheckerAlternative.either;
 
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -14,7 +15,7 @@ public class TestAlternative {
 	
 	@Test
 	public void testWord() {
-		var checker = new CheckerAlternative(new WordChecker("555"), new WordChecker("222"));
+		var checker = either(new WordChecker("555")).or(new WordChecker("222")).build();
 		validate( 3, checker.startLengthOf("555222",   0, null));
 		validate(-1, checker.startLengthOf("555222",   2, null));
 		validate( 3, checker.startLengthOf("222A555",  0, null));

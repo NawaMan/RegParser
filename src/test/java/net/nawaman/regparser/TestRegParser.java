@@ -13,7 +13,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 import net.nawaman.regparser.checkers.CharRange;
-import net.nawaman.regparser.checkers.CheckerAlternative;
 import net.nawaman.regparser.checkers.WordChecker;
 
 public class TestRegParser {
@@ -172,7 +171,7 @@ public class TestRegParser {
 	public void testAlternative() {
 		var parser = newRegParser()
 				.entry(new WordChecker("Col"))
-				.entry(new CheckerAlternative(new WordChecker("o"), new WordChecker("ou")))
+				.entry(either(new WordChecker("o")).or(new WordChecker("ou")))
 				.entry(new WordChecker("ur"))
 				.build();
 		
@@ -184,7 +183,7 @@ public class TestRegParser {
 	public void testAlternative_withQualifer() {
 		var parser = newRegParser()
 				.entry(new WordChecker("Col"))
-				.entry(new CheckerAlternative(new WordChecker("o"), new WordChecker("ou")), OneOrMore)
+				.entry(either(new WordChecker("o")).or(new WordChecker("ou")), OneOrMore)
 				.entry(new WordChecker("r"))
 				.build();
 		
