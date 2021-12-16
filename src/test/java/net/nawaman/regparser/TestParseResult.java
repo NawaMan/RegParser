@@ -1,6 +1,6 @@
 package net.nawaman.regparser;
 
-import static net.nawaman.regparser.RegParser.compileRegParser;
+import static net.nawaman.regparser.RegParser.compile;
 import static net.nawaman.regparser.TestUtils.validate;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -12,7 +12,7 @@ public class TestParseResult {
 	
 	@Test
 	public void testChagnableResult() {
-		var parser = compileRegParser("var[:WhiteSpace:]+($VarName:~[a-zA-Z_]*~)[:WhiteSpace:]*[:=:][:WhiteSpace:]($InvalidExpr:~[^[:;:]]*~)[:;:]");
+		var parser = compile("var[:WhiteSpace:]+($VarName:~[a-zA-Z_]*~)[:WhiteSpace:]*[:=:][:WhiteSpace:]($InvalidExpr:~[^[:;:]]*~)[:;:]");
 		var result = parser.parse("var I = 15+5*2+5a;");
 		validate("\n"
 		        + "00 => [    4] = <NoName>        :<NoType>         = \"var \"\n"
@@ -23,7 +23,7 @@ public class TestParseResult {
 		        result);
 		
 		// Further parse entry #3.
-		var exprParser = compileRegParser("(#ValidExpr:~($Operand:~[0-9]+~)(($Operator:~[[:+:][:*:]]~)($Operand:~[0-9]+~))*~)");
+		var exprParser = compile("(#ValidExpr:~($Operand:~[0-9]+~)(($Operator:~[[:+:][:*:]]~)($Operand:~[0-9]+~))*~)");
 		result.parseEntry(3, exprParser);
 		
 		validate("\n"
@@ -61,7 +61,7 @@ public class TestParseResult {
 	
 	@Test
 	public void testSubAndRoot() {
-		var parser = compileRegParser("var[:WhiteSpace:]+($VarName:~[a-zA-Z_][a-zA-Z0-9_]*~)[:WhiteSpace:]*[:=:][:WhiteSpace:]"
+		var parser = compile("var[:WhiteSpace:]+($VarName:~[a-zA-Z_][a-zA-Z0-9_]*~)[:WhiteSpace:]*[:=:][:WhiteSpace:]"
 		                    + "(#Expr+:~(#Operand:~($BeforeDot:~[0-9]+~)[:.:]($AfterDot:~[0-9]+~)~)(($Operator:~[[:+:][:*:]]~)($Operand:~[0-9]+~))*~)"
 		                    + "[:;:]");
 		var result = parser.parse("var I = 15.0*5;");
@@ -101,7 +101,7 @@ public class TestParseResult {
 	@Test
 	public void testTwoStage() {
 		// The second stage claims some of the spaces.
-		var parser = compileRegParser("(#InvalidValue:~[^0-9]*~:~(#ValidValue:~ABC~)~)");
+		var parser = compile("(#InvalidValue:~[^0-9]*~:~(#ValidValue:~ABC~)~)");
 		var result = parser.parse("ABCD");
 		// ABCD is claimed in the first stage, ABC is claimed for the second step leaving D as still with the first step
 		validate("\n"
@@ -112,7 +112,7 @@ public class TestParseResult {
 	
 	@Test
 	public void testTwoStage_longer() {
-		var parser = compileRegParser(
+		var parser = compile(
 		                "var[:WhiteSpace:]+"
 		              + "($VarName:~[a-zA-Z_][a-zA-Z0-9_]*~)[:WhiteSpace:]*"
 		              + "[:=:][:WhiteSpace:]"

@@ -1,6 +1,6 @@
 package net.nawaman.regparser;
 
-import static net.nawaman.regparser.RegParser.compileRegParser;
+import static net.nawaman.regparser.RegParser.compile;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
@@ -17,7 +17,7 @@ public class TestSpeed {
 		System.out.println("Speed testing ...");
 		
 		long startTime = System.currentTimeMillis();
-		var  parser    = compileRegParser("[^0-9]*");
+		var  parser    = compile("[^0-9]*");
 		long endTime   = System.currentTimeMillis();
 		System.out.println("RegParser:" + (endTime - startTime));
 		

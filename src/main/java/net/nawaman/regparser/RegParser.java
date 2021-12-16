@@ -360,12 +360,22 @@ public class RegParser implements Checker, Serializable {
     }
     
     /** Compiles a new RegParser from a RegParser code */
-    static public RegParser compileRegParser(String pText) {
-        return RegParser.compileRegParser(null, pText);
+    static public RegParser regparser(String pText) {
+        return RegParser.compile(null, pText);
     }
     
     /** Compiles a new RegParser from a RegParser code */
-    static public RegParser compileRegParser(ParserTypeProvider pTProvider, String pText) {
+    static public RegParser regparser(ParserTypeProvider pTProvider, String pText) {
+        return RegParser.compile(pTProvider, pText);
+    }
+    
+    /** Compiles a new RegParser from a RegParser code */
+    static public RegParser compile(String pText) {
+        return RegParser.compile(null, pText);
+    }
+    
+    /** Compiles a new RegParser from a RegParser code */
+    static public RegParser compile(ParserTypeProvider pTProvider, String pText) {
         boolean IsToSave = true;
         
         if (RPTProvider == null) {

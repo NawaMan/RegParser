@@ -1,6 +1,6 @@
 package net.nawaman.regparser.checkers;
 
-import static net.nawaman.regparser.RegParser.compileRegParser;
+import static net.nawaman.regparser.RegParser.compile;
 import static net.nawaman.regparser.TestUtils.validate;
 
 import org.junit.Test;
@@ -48,7 +48,7 @@ public class TestJavaChecker {
 	@Test
 	public void testJavaChecker() {
 		// Point to a static method
-		var parser = compileRegParser("!javaChecker(`net.nawaman.regparser.checkers.TestJavaChecker.DigitChecker->getLengthOf`)!");
+		var parser = compile("!javaChecker(`net.nawaman.regparser.checkers.TestJavaChecker.DigitChecker->getLengthOf`)!");
 		var result = parser.parse("0123456fdgd");
 		validate("\n"
 		       + "00 - => [    7] = <NoName>        :javaChecker      = \"0123456\"\n"
@@ -56,7 +56,7 @@ public class TestJavaChecker {
 		
 		
 		// Point to the class
-		parser = compileRegParser("!javaChecker(`net.nawaman.regparser.checkers.TestJavaChecker.DigitChecker`)!");
+		parser = compile("!javaChecker(`net.nawaman.regparser.checkers.TestJavaChecker.DigitChecker`)!");
 		result = parser.parse("012345fdgd");
 		validate("\n"
 		       + "00 - => [    6] = <NoName>        :javaChecker      = \"012345\"\n"
@@ -64,7 +64,7 @@ public class TestJavaChecker {
 		
 		
 		// Point to the static field
-		parser = compileRegParser("!javaChecker(`net.nawaman.regparser.checkers.TestJavaChecker.DigitChecker::Instance`)!");
+		parser = compile("!javaChecker(`net.nawaman.regparser.checkers.TestJavaChecker.DigitChecker::Instance`)!");
 		result = parser.parse("01234fdgd");
 		validate("\n"
 		       + "00 - => [    5] = <NoName>        :javaChecker      = \"01234\"\n"
@@ -72,7 +72,7 @@ public class TestJavaChecker {
 		
 		
 		// Point to the factory method.
-		parser = compileRegParser("!javaChecker(`net.nawaman.regparser.checkers.TestJavaChecker.DigitChecker::getInstance()`)!");
+		parser = compile("!javaChecker(`net.nawaman.regparser.checkers.TestJavaChecker.DigitChecker::getInstance()`)!");
 		result = parser.parse("0123fdgd");
 		validate("\n"
 		       + "00 - => [    4] = <NoName>        :javaChecker      = \"0123\"\n"

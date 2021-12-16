@@ -4,7 +4,7 @@ import static net.nawaman.regparser.Greediness.Maximum;
 import static net.nawaman.regparser.Greediness.Minimum;
 import static net.nawaman.regparser.PredefinedCheckers.getCharClass;
 import static net.nawaman.regparser.RegParser.newRegParser;
-import static net.nawaman.regparser.RegParser.compileRegParser;
+import static net.nawaman.regparser.RegParser.compile;
 import static net.nawaman.regparser.compiler.RPEscapeHexParserType.HEX;
 
 import java.util.Random;
@@ -439,13 +439,13 @@ public class TestRegParserCompiler2 {
 	@Test
 	public void testRegParser() {
 		{
-			var parser = compileRegParser("abc");
+			var parser = compile("abc");
 			validate("abc",  parser);
 			validate(3,      parser.match("abc", typeProvider).endPosition());
 			validate("null", parser.match("def", typeProvider));
 		}
 		{
-			var parser = compileRegParser("(a|b|c)");
+			var parser = compile("(a|b|c)");
 			validate("(a|b|c)", parser);
 			validate(1,      parser.match("a", typeProvider).endPosition());
 			validate(1,      parser.match("b", typeProvider).endPosition());
@@ -453,7 +453,7 @@ public class TestRegParserCompiler2 {
 			validate("null", parser.match("d", typeProvider));
 		}
 		{
-			var parser = compileRegParser("Col(o|ou)?r");
+			var parser = compile("Col(o|ou)?r");
 			validate("Col(o|ou)?r", parser);
 			validate(4,      parser.match("Colr",   typeProvider).endPosition());
 			validate(5,      parser.match("Color",  typeProvider).endPosition());
@@ -462,7 +462,7 @@ public class TestRegParserCompiler2 {
 		}
 		{
 			typeProvider.addType(new IdentifierParserType());
-			var parser = compileRegParser("(var|int)\\b+!$Identifier!\\b*=\\b*[0-9]+\\b*;");
+			var parser = compile("(var|int)\\b+!$Identifier!\\b*=\\b*[0-9]+\\b*;");
 			validate(12, parser.match("var V1 = 45;", typeProvider).endPosition());
 			validate(10, parser.match("var V1=45;",   typeProvider).endPosition());
 			validate(12, parser.match("var V1 = 5 ;", typeProvider).endPosition());
@@ -473,12 +473,12 @@ public class TestRegParserCompiler2 {
 		typeProvider.addType(ParserTypeBackRefCaseInsensitive.BackRefCI_Instance);
 		
 		{
-			var parser = compileRegParser("(#X:~[:AlphabetAndDigit:]+~)\\-(#X;)\\-(#X;)");
+			var parser = compile("(#X:~[:AlphabetAndDigit:]+~)\\-(#X;)\\-(#X;)");
 			validate(5, parser.match("5-5-5", typeProvider).endPosition());
 		}
 		
 		{
-			var parser = compileRegParser("($X:~[:AlphabetAndDigit:]+~)\\-($X';)\\-($X';)");
+			var parser = compile("($X:~[:AlphabetAndDigit:]+~)\\-($X';)\\-($X';)");
 			validate(5, parser.match("A-A-A", typeProvider).endPosition());
 			validate(5, parser.match("a-A-a", typeProvider).endPosition());
 		}
@@ -498,14 +498,14 @@ public class TestRegParserCompiler2 {
 		}
 		
 		{
-			var parser = compileRegParser("one'Two'three");
+			var parser = compile("one'Two'three");
 			validate("one(!textCI(\"Two\")!)three", parser);
 			validate(11, parser.match("oneTwothree", typeProvider).endPosition());
 			validate(11, parser.match("oneTWOthree", typeProvider).endPosition());
 		}
 		
 		{
-			var parser = compileRegParser("'var'\\b+(#Name:!$Identifier!)\\b*=\\b*(#Value:~[0-9]*~)\\b*;");
+			var parser = compile("'var'\\b+(#Name:!$Identifier!)\\b*=\\b*(#Value:~[0-9]*~)\\b*;");
 			validate("(!textCI(\"var\")!)[\\ \\t]+(#Name:!$Identifier!)[\\ \\t]*=[\\ \\t]*(#Value:~[0-9]*~)[\\ \\t]*;",
 			        parser);
 			
