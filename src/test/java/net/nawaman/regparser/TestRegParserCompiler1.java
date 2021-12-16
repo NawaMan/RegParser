@@ -185,7 +185,10 @@ public class TestRegParserCompiler1 {
 	
 	@Test
 	public void testParseQunatifier() {
-		var parser = newRegParser(RPQuantifierParserType.typeRef, OneOrMore, Any, ZeroOrMore);
+		var parser = newRegParser()
+				.entry(RPQuantifierParserType.typeRef, OneOrMore)
+				.entry(Any, ZeroOrMore)
+				.build();
 		validate("(!Quantifier!)+.*", parser);
 		
 		var result = parser.match("?+*{54}{5,}*{,7}+{12,65}{ 1 }{ 4 , }{ , 8}{2,6}*", typeProvider);
@@ -247,9 +250,10 @@ public class TestRegParserCompiler1 {
 	
 	@Test
 	public void testParseCharSet() {
-		var parser = newRegParser(
-		                 RPCharSetItemParserType.typeRef, OneOrMore,
-		                 Any, ZeroOrMore);
+		var parser = newRegParser()
+				.entry(RPCharSetItemParserType.typeRef, OneOrMore)
+				.entry(Any, ZeroOrMore)
+				.build();
 		validate("(!CharSetItem!)+.*", parser);
 		
 		var result = parser.match("[a-bg-h.gfj\\s\\u0035-c\\s[:Any:][:Digit:]g\\jp{ASCII}]", typeProvider);

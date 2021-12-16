@@ -25,25 +25,23 @@ public class TestName {
 	@Test
 	public void test1() {
 		var parser 
-		        = newRegParser(
-		            RegParserEntry.newParserEntry("#Name", newRegParser(Alphabet, AlphabetAndDigit, ZeroOrMore)),
-		            Blank, ZeroOrMore, 
-		            new CharSingle('['), 
-		            Blank, ZeroOrMore, 
-		            RegParserEntry.newParserEntry("#Index", Digit, OneOrMore), 
-		            Blank, ZeroOrMore, 
-		            new CharSingle(']'),
-		            Blank, ZeroOrMore,
-		            RegParserEntry.newParserEntry(
-		                newRegParser(
-		                    new CharSingle('='),
-		                    Blank, ZeroOrMore,
-		                    RegParserEntry.newParserEntry("#Value", newRegParser(Digit, OneOrMore))
-		                ),
-		                ZeroOrOne
-		            ),
-		            Blank, ZeroOrMore, new CharSingle(';')
-		        );
+				= newRegParser()
+				.entry("#Name", newRegParser(Alphabet, AlphabetAndDigit.zeroOrMore()))
+				.entry(Blank, ZeroOrMore)
+				.entry(new CharSingle('['))
+				.entry(Blank, ZeroOrMore)
+				.entry("#Index", Digit, OneOrMore)
+				.entry(Blank, ZeroOrMore)
+				.entry(new CharSingle(']'))
+				.entry(Blank, ZeroOrMore)
+				.entry(newRegParser()
+					.entry(new CharSingle('='))
+					.entry(Blank, ZeroOrMore)
+					.entry("#Value", newRegParser(Digit, OneOrMore)),
+					ZeroOrOne)
+				.entry(Blank, ZeroOrMore)
+				.entry(new CharSingle(';'))
+				.build();
 		
 		var result = parser.parse("Var[55] = 70;");
 		
@@ -64,25 +62,24 @@ public class TestName {
 	
 	@Test
 	public void test2() {
-		var parser 
-		        = newRegParser(
-		            new CharSingle('{'), 
-		            Blank, ZeroOrMore,
-		            RegParserEntry.newParserEntry("#Value", newRegParser(Digit, OneOrMore)),
-		            Blank, ZeroOrMore,
-		            RegParserEntry.newParserEntry(
-		                newRegParser(
-		                    new CharSingle(','), 
-		                    Blank, ZeroOrMore,
-		                    RegParserEntry.newParserEntry("#Value", newRegParser(Digit, OneOrMore))
-		                ), ZeroOrMore
-		            ),
-		            Blank,               ZeroOrMore,
-		            new CharSingle(','), ZeroOrOne,
-		            Blank,               ZeroOrMore,
-		            new CharSingle('}'),
-		            Blank,               ZeroOrMore,
-		            new CharSingle(';'));
+		var parser
+				= newRegParser()
+				.entry(new CharSingle('{'))
+				.entry(Blank, ZeroOrMore)
+				.entry("#Value", newRegParser(Digit, OneOrMore))
+				.entry(Blank, ZeroOrMore)
+				.entry(newRegParser()
+					.entry(new CharSingle(','))
+					.entry(Blank, ZeroOrMore)
+					.entry("#Value", newRegParser(Digit, OneOrMore)),
+					ZeroOrMore)
+				.entry(Blank,               ZeroOrMore)
+				.entry(new CharSingle(','), ZeroOrOne)
+				.entry(Blank,               ZeroOrMore)
+				.entry(new CharSingle('}'))
+				.entry(Blank,               ZeroOrMore)
+				.entry(new CharSingle(';'))
+				.build();
 		
 		var result = parser.parse("{ 5, 7, 454, 5 };");
 		validate("\n"
@@ -105,25 +102,24 @@ public class TestName {
 	@Test
 	public void test3() {
 		var oneOrTwo = new Quantifier(1, 2, Possessive);
-		var parser 
-		        = newRegParser(
-		            new CharSingle('{'), 
-		            Blank, ZeroOrMore,
-		            RegParserEntry.newParserEntry("#Value", newRegParser(Digit, oneOrTwo)),
-		            Blank, ZeroOrMore,
-		            RegParserEntry.newParserEntry(
-		                newRegParser(
-		                    new CharSingle(','), 
-		                    Blank, ZeroOrMore,
-		                    RegParserEntry.newParserEntry("#Value", newRegParser(Digit, oneOrTwo), OneOrMore)
-		                ), ZeroOrMore
-		            ),
-		            Blank,               ZeroOrMore,
-		            new CharSingle(','), ZeroOrOne,
-		            Blank,               ZeroOrMore,
-		            new CharSingle('}'),
-		            Blank,               ZeroOrMore,
-		            new CharSingle(';'));
+		var parser
+				= newRegParser()
+				.entry(new CharSingle('{'))
+				.entry(Blank, ZeroOrMore)
+				.entry("#Value", newRegParser(Digit, oneOrTwo))
+				.entry(Blank, ZeroOrMore)
+				.entry(newRegParser()
+					.entry(new CharSingle(','))
+					.entry(Blank, ZeroOrMore)
+					.entry("#Value", newRegParser(Digit, oneOrTwo), OneOrMore),
+					ZeroOrMore)
+				.entry(Blank,               ZeroOrMore)
+				.entry(new CharSingle(','), ZeroOrOne)
+				.entry(Blank,               ZeroOrMore)
+				.entry(new CharSingle('}'))
+				.entry(Blank,               ZeroOrMore)
+				.entry(new CharSingle(';'))
+				.build();
 		
 		var result = parser.parse("{ 5, 7, 456, 5 };");
 		validate("\n"

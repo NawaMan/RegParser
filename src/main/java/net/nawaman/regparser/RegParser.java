@@ -102,6 +102,12 @@ public class RegParser implements Checker, Serializable {
     			.build();
     }
     
+    public static RegParser newRegParser(ParserTypeRef parserTypeRef, Quantifier quantifier) {
+    	return new RegParserBuilder()
+    			.entry(parserTypeRef, quantifier)
+    			.build();
+    }
+    
     public static RegParser newRegParser(String name, ParserType parserType, Quantifier quantifier) {
     	return new RegParserBuilder()
     			.entry(name, parserType, quantifier)
@@ -176,27 +182,6 @@ public class RegParser implements Checker, Serializable {
     public static RegParser newRegParser(ParserTypeProvider pTProvider, AsChecker checker, Quantifier quantifier) {
         return newRegParser(pTProvider, newParserEntry(checker, quantifier));
     }
-    
-    /**
-     * Create a new RegParser from a series of objects representing RegParser Entry
-     * 
-     * The entries must be in the following sequence:
-     *         [Name], Checker, [Quantifier]
-     *     OR  [Name], Type,    [Quantifier]
-     *     OR  [Name], TypeRef, [Quantifier]
-     * .
-     * Name and Quantifier can be absent. If the name is absent, that entry has no name. If the quantifier is absent, 
-     * the entry has the quantifier of one. 
-     **/
-    static public RegParser newRegParser(Object... pParams) {
-    	if ((pParams != null)
-    	 && (pParams.length == 1)
-    	 && (pParams[0] instanceof RegParser))
-    		return (RegParser)pParams[0];
-    	
-        return newRegParser(null, pParams);
-    }
-    
     
     /**
      * Create a new RegParser from a series of objects representing RegParser Entry
