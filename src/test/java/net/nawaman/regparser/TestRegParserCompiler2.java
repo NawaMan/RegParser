@@ -4,6 +4,7 @@ import static net.nawaman.regparser.Greediness.Maximum;
 import static net.nawaman.regparser.Greediness.Minimum;
 import static net.nawaman.regparser.PredefinedCheckers.getCharClass;
 import static net.nawaman.regparser.RegParser.newRegParser;
+import static net.nawaman.regparser.RegParser.compileRegParser;
 import static net.nawaman.regparser.compiler.RPEscapeHexParserType.HEX;
 
 import java.util.Random;
@@ -437,101 +438,101 @@ public class TestRegParserCompiler2 {
 	
 	@Test
 	public void testRegParser() {
-//		{
-//		var parser = newRegParser("abc");
-//		validate("abc",  parser);
-//		validate(3,      parser.match("abc", typeProvider).endPosition());
-//		validate("null", parser.match("def", typeProvider));
-//		}
-//		{
-//			var parser = newRegParser("(a|b|c)");
-//			validate("(a|b|c)", parser);
-//			validate(1,      parser.match("a", typeProvider).endPosition());
-//			validate(1,      parser.match("b", typeProvider).endPosition());
-//			validate(1,      parser.match("c", typeProvider).endPosition());
-//			validate("null", parser.match("d", typeProvider));
-//		}
 		{
-			var parser = newRegParser("Col(o|ou)?r");
+			var parser = compileRegParser("abc");
+			validate("abc",  parser);
+			validate(3,      parser.match("abc", typeProvider).endPosition());
+			validate("null", parser.match("def", typeProvider));
+		}
+		{
+			var parser = compileRegParser("(a|b|c)");
+			validate("(a|b|c)", parser);
+			validate(1,      parser.match("a", typeProvider).endPosition());
+			validate(1,      parser.match("b", typeProvider).endPosition());
+			validate(1,      parser.match("c", typeProvider).endPosition());
+			validate("null", parser.match("d", typeProvider));
+		}
+		{
+			var parser = compileRegParser("Col(o|ou)?r");
 			validate("Col(o|ou)?r", parser);
 			validate(4,      parser.match("Colr",   typeProvider).endPosition());
 			validate(5,      parser.match("Color",  typeProvider).endPosition());
 			validate(6,      parser.match("Colour", typeProvider).endPosition());
 			validate("null", parser.match("Shape",  typeProvider));
 		}
-//		{
-//			typeProvider.addType(new IdentifierParserType());
-//			var parser = newRegParser("(var|int)\\b+!$Identifier!\\b*=\\b*[0-9]+\\b*;");
-//			validate(12, parser.match("var V1 = 45;", typeProvider).endPosition());
-//			validate(10, parser.match("var V1=45;",   typeProvider).endPosition());
-//			validate(12, parser.match("var V1 = 5 ;", typeProvider).endPosition());
-//			validate(11, parser.match("int V1 = 5;",  typeProvider).endPosition());
-//		}
-//		
-//		typeProvider.addType(ParserTypeBackRef.BackRef_Instance);
-//		typeProvider.addType(ParserTypeBackRefCaseInsensitive.BackRefCI_Instance);
-//		
-//		{
-//		var parser = newRegParser("(#X:~[:AlphabetAndDigit:]+~)\\-(#X;)\\-(#X;)");
-//		validate(5, parser.match("5-5-5", typeProvider).endPosition());
-//		}
-//		
-//		{
-//			var parser = newRegParser("($X:~[:AlphabetAndDigit:]+~)\\-($X';)\\-($X';)");
-//			validate(5, parser.match("A-A-A", typeProvider).endPosition());
-//			validate(5, parser.match("a-A-a", typeProvider).endPosition());
-//		}
-//		
-//		{
-//			var parser = newRegParser(RPRegParserParserType.typeRef);
-//			validate("(!RegParser!)", parser);
-//			
-//			var result = parser.parse("one'Two'three", typeProvider);
-//			validate("\n"
-//			        + "00 - - => [   13] = <NoName>        :RegParser        = \"one\\'Two\\'three\"\n"
-//			        + ". 00 - => [    3] = #Item[]         :RegParserItem[]  = \"one\"\n"
-//			        + ". 01 - => [    8] = #Item[]         :RegParserItem[]  = \"\\'Two\\'\"\n"
-//			        + ". . 00 => [    8] = $TextCI         :<NoType>         = \"\\'Two\\'\"\n"
-//			        + ". 02 - => [   13] = #Item[]         :RegParserItem[]  = \"three\"",
-//			        result);
-//		}
-//		
-//		{
-//			var parser = newRegParser("one'Two'three");
-//			validate("one(!textCI(\"Two\")!)three", parser);
-//			validate(11, parser.match("oneTwothree", typeProvider).endPosition());
-//			validate(11, parser.match("oneTWOthree", typeProvider).endPosition());
-//		}
-//		
-//		{
-//			var parser = newRegParser("'var'\\b+(#Name:!$Identifier!)\\b*=\\b*(#Value:~[0-9]*~)\\b*;");
-//			validate("(!textCI(\"var\")!)[\\ \\t]+(#Name:!$Identifier!)[\\ \\t]*=[\\ \\t]*(#Value:~[0-9]*~)[\\ \\t]*;",
-//			        parser);
-//			
-//			var result = parser.match("var V1 = 50;", typeProvider);
-//			validate("\n"
-//			        + "00 => [    3] = <NoName>        :textCI           = \"var\"\n"
-//			        + "01 => [    4] = <NoName>        :<NoType>         = \" \"\n"
-//			        + "02 => [    6] = #Name           :$Identifier      = \"V1\"\n"
-//			        + "03 => [    9] = <NoName>        :<NoType>         = \" = \"\n"
-//			        + "04 => [   11] = #Value          :<NoType>         = \"50\"\n"
-//			        + "05 => [   12] = <NoName>        :<NoType>         = \";\"",
-//			        result);
-//			validate("V1", result.textOf("#Name"));
-//			validate("50", result.textOf("#Value"));
-//			
-//			result = parser.match("Var V2 = 750;", typeProvider);
-//			validate("\n"
-//			        + "00 => [    3] = <NoName>        :textCI           = \"Var\"\n"
-//			        + "01 => [    4] = <NoName>        :<NoType>         = \" \"\n"
-//			        + "02 => [    6] = #Name           :$Identifier      = \"V2\"\n"
-//			        + "03 => [    9] = <NoName>        :<NoType>         = \" = \"\n"
-//			        + "04 => [   12] = #Value          :<NoType>         = \"750\"\n"
-//			        + "05 => [   13] = <NoName>        :<NoType>         = \";\"",
-//			        result);
-//			validate("V2", result.textOf("#Name"));
-//			validate("750", result.textOf("#Value"));
-//		}
+		{
+			typeProvider.addType(new IdentifierParserType());
+			var parser = compileRegParser("(var|int)\\b+!$Identifier!\\b*=\\b*[0-9]+\\b*;");
+			validate(12, parser.match("var V1 = 45;", typeProvider).endPosition());
+			validate(10, parser.match("var V1=45;",   typeProvider).endPosition());
+			validate(12, parser.match("var V1 = 5 ;", typeProvider).endPosition());
+			validate(11, parser.match("int V1 = 5;",  typeProvider).endPosition());
+		}
+		
+		typeProvider.addType(ParserTypeBackRef.BackRef_Instance);
+		typeProvider.addType(ParserTypeBackRefCaseInsensitive.BackRefCI_Instance);
+		
+		{
+			var parser = compileRegParser("(#X:~[:AlphabetAndDigit:]+~)\\-(#X;)\\-(#X;)");
+			validate(5, parser.match("5-5-5", typeProvider).endPosition());
+		}
+		
+		{
+			var parser = compileRegParser("($X:~[:AlphabetAndDigit:]+~)\\-($X';)\\-($X';)");
+			validate(5, parser.match("A-A-A", typeProvider).endPosition());
+			validate(5, parser.match("a-A-a", typeProvider).endPosition());
+		}
+		
+		{
+			var parser = newRegParser(RPRegParserParserType.typeRef);
+			validate("(!RegParser!)", parser);
+			
+			var result = parser.parse("one'Two'three", typeProvider);
+			validate("\n"
+			        + "00 - - => [   13] = <NoName>        :RegParser        = \"one\\'Two\\'three\"\n"
+			        + ". 00 - => [    3] = #Item[]         :RegParserItem[]  = \"one\"\n"
+			        + ". 01 - => [    8] = #Item[]         :RegParserItem[]  = \"\\'Two\\'\"\n"
+			        + ". . 00 => [    8] = $TextCI         :<NoType>         = \"\\'Two\\'\"\n"
+			        + ". 02 - => [   13] = #Item[]         :RegParserItem[]  = \"three\"",
+			        result);
+		}
+		
+		{
+			var parser = compileRegParser("one'Two'three");
+			validate("one(!textCI(\"Two\")!)three", parser);
+			validate(11, parser.match("oneTwothree", typeProvider).endPosition());
+			validate(11, parser.match("oneTWOthree", typeProvider).endPosition());
+		}
+		
+		{
+			var parser = compileRegParser("'var'\\b+(#Name:!$Identifier!)\\b*=\\b*(#Value:~[0-9]*~)\\b*;");
+			validate("(!textCI(\"var\")!)[\\ \\t]+(#Name:!$Identifier!)[\\ \\t]*=[\\ \\t]*(#Value:~[0-9]*~)[\\ \\t]*;",
+			        parser);
+			
+			var result = parser.match("var V1 = 50;", typeProvider);
+			validate("\n"
+			        + "00 => [    3] = <NoName>        :textCI           = \"var\"\n"
+			        + "01 => [    4] = <NoName>        :<NoType>         = \" \"\n"
+			        + "02 => [    6] = #Name           :$Identifier      = \"V1\"\n"
+			        + "03 => [    9] = <NoName>        :<NoType>         = \" = \"\n"
+			        + "04 => [   11] = #Value          :<NoType>         = \"50\"\n"
+			        + "05 => [   12] = <NoName>        :<NoType>         = \";\"",
+			        result);
+			validate("V1", result.textOf("#Name"));
+			validate("50", result.textOf("#Value"));
+			
+			result = parser.match("Var V2 = 750;", typeProvider);
+			validate("\n"
+			        + "00 => [    3] = <NoName>        :textCI           = \"Var\"\n"
+			        + "01 => [    4] = <NoName>        :<NoType>         = \" \"\n"
+			        + "02 => [    6] = #Name           :$Identifier      = \"V2\"\n"
+			        + "03 => [    9] = <NoName>        :<NoType>         = \" = \"\n"
+			        + "04 => [   12] = #Value          :<NoType>         = \"750\"\n"
+			        + "05 => [   13] = <NoName>        :<NoType>         = \";\"",
+			        result);
+			validate("V2", result.textOf("#Name"));
+			validate("750", result.textOf("#Value"));
+		}
 	}
 
 }

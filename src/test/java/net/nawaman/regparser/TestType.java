@@ -9,6 +9,7 @@ import static net.nawaman.regparser.Quantifier.OneOrMore;
 import static net.nawaman.regparser.Quantifier.ZeroOrMore;
 import static net.nawaman.regparser.Quantifier.ZeroOrMore_Maximum;
 import static net.nawaman.regparser.Quantifier.ZeroOrMore_Minimum;
+import static net.nawaman.regparser.RegParser.compileRegParser;
 import static net.nawaman.regparser.RegParser.newRegParser;
 import static net.nawaman.regparser.RegParserEntry.newParserEntry;
 import static net.nawaman.regparser.TestUtils.validate;
@@ -480,7 +481,7 @@ public class TestType {
 	
 	@Test
 	public void testTextCaseInsensitive() {
-		var parser = newRegParser("!textCI(`Te\\\"st`)!");
+		var parser = compileRegParser("!textCI(`Te\\\"st`)!");
 		var result = parser.parse("te\"st");
 		validate("\n"
 		       + "00 => [    5] = <NoName>        :textCI           = \"te\\\"st\"", result);

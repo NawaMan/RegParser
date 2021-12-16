@@ -18,7 +18,7 @@
 
 package net.nawaman.regparser;
 
-import static net.nawaman.regparser.RegParser.newRegParser;
+import static net.nawaman.regparser.RegParser.compileRegParser;
 import static net.nawaman.regparser.utils.Util.loadObjectsFromStream;
 import static net.nawaman.regparser.utils.Util.saveObjectsToStream;
 
@@ -356,7 +356,7 @@ public interface ParserTypeProvider extends Serializable {
 		}
 		
 		public boolean addType(String name, String regParser, ResultVerifier vertifier, ResultCompiler compiler) {
-			var parser = newRegParser(this, regParser);
+			var parser = compileRegParser(this, regParser);
 			return addType(new ComposableParserType(name, parser, vertifier, compiler));
 		}
 		

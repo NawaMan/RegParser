@@ -1,6 +1,6 @@
 package net.nawaman.regparser;
 
-import static net.nawaman.regparser.RegParser.newRegParser;
+import static net.nawaman.regparser.RegParser.compileRegParser;
 import static net.nawaman.regparser.TestUtils.validate;
 
 import org.junit.Test;
@@ -13,7 +13,7 @@ public class TestUsages {
 	public void testDeclareVariable() {
 		var typeProvider = new ParserTypeProvider.Extensible(new IdentifierParserType());
 		
-		var parser = newRegParser(
+		var parser = compileRegParser(
 		                typeProvider,
 		                "var[:WhiteSpace:]+($Name:!$Identifier!)[:WhiteSpace:]+[:=:][:WhiteSpace:]+($Value:~[0-9]+~)[:;:]");
 		var result = parser.parse("var v = 5;");
@@ -30,7 +30,7 @@ public class TestUsages {
 	public void testDeclareArray() {
 		var typeProvider = new ParserTypeProvider.Extensible(new IdentifierParserType());
 		
-		var parser = newRegParser(typeProvider,
+		var parser = compileRegParser(typeProvider,
 		        "var"
 		        + "[:WhiteSpace:]+($Name:!$Identifier!)"
 		        + "[:WhiteSpace:]*[:=:]"
