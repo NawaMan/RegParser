@@ -169,20 +169,6 @@ public class RegParser implements Checker, Serializable {
 				.build();
 	}
 	
-	public static RegParser newRegParser(ParserTypeRef parserTypeRef, Quantifier quantifier) {
-		return new RegParserBuilder()
-				.entry(parserTypeRef, quantifier)
-				.build();
-	}
-	
-	public static RegParser newRegParser(
-								ParserTypeProvider typeProvider,
-								String             name,
-								AsChecker          checker,
-								Quantifier         quantifier) {
-		return newRegParser(typeProvider, newParserEntry(name, checker, quantifier));
-	}
-	
 	/** Compiles a new RegParser from a RegParser code */
 	public static RegParser compileRegParser(String regParserText) {
 		return RegParser.compile(null, regParserText);
@@ -227,8 +213,7 @@ public class RegParser implements Checker, Serializable {
 		return this.Entries[pIndex];
 	}
 	
-	// Default TypePackage
-	// ---------------------------------------------------------------------------------------------
+	// Default TypePackage ---------------------------------------------------------------------------------------------
 	
 	ParserTypeProvider getDefaultTypeProvider() {
 		return null;

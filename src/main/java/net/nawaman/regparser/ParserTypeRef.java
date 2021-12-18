@@ -18,6 +18,7 @@
 
 package net.nawaman.regparser;
 
+import static net.nawaman.regparser.RegParserEntry.newParserEntry;
 import static net.nawaman.regparser.utils.Util.escapeText;
 
 import java.io.Serializable;
@@ -27,7 +28,7 @@ import java.io.Serializable;
  *
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-abstract public class ParserTypeRef implements Serializable {
+abstract public class ParserTypeRef implements Quantifiable<RegParserEntry>, Serializable {
 	
 	private static final long serialVersionUID = -2335767886881850411L;
 	
@@ -43,6 +44,10 @@ abstract public class ParserTypeRef implements Serializable {
 	
 	public String parameter() {
 		return null;
+	}
+	
+	public RegParserEntry quantifier(Quantifier quantifier) {
+		return newParserEntry(this, quantifier);
 	}
 	
 	static public class Simple extends ParserTypeRef {
