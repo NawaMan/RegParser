@@ -41,9 +41,19 @@ public interface Quantifiable<SOURCE> {
 		return quantifier(new Quantifier(-1, upperBound, Greediness.Possessive));
 	}
 	
+	/** Set the quantifier to the given quantifier */
+	public default SOURCE bound(Quantifier quantifier) {
+		return quantifier(quantifier);
+	}
+	
 	/** Set the quantifier to lowerBound,upperBound (Possessive) */
 	public default SOURCE bound(int lowerBound, int upperBound) {
 		return quantifier(new Quantifier(lowerBound, upperBound, Greediness.Possessive));
+	}
+	
+	/** Set the quantifier to lowerBound,upperBound with greediness */
+	public default SOURCE bound(int lowerBound, int upperBound, Greediness greediness) {
+		return quantifier(new Quantifier(lowerBound, upperBound, greediness));
 	}
 	
 	/** Set the quantifier to Zero (Possessive) */

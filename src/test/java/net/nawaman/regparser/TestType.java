@@ -5,9 +5,7 @@ import static net.nawaman.regparser.PredefinedCharClasses.Alphabet;
 import static net.nawaman.regparser.PredefinedCharClasses.Any;
 import static net.nawaman.regparser.PredefinedCharClasses.Blank;
 import static net.nawaman.regparser.PredefinedCharClasses.Digit;
-import static net.nawaman.regparser.Quantifier.OneOrMore;
 import static net.nawaman.regparser.Quantifier.ZeroOrMore;
-import static net.nawaman.regparser.Quantifier.ZeroOrMore_Maximum;
 import static net.nawaman.regparser.Quantifier.ZeroOrMore_Minimum;
 import static net.nawaman.regparser.RegParser.compile;
 import static net.nawaman.regparser.RegParser.newRegParser;
@@ -41,7 +39,7 @@ public class TestType {
 		
 		static public final RTByte Instance = new RTByte();
 		
-		private final Checker checker = newRegParser(Digit, new Quantifier(1, 3));
+		private final Checker checker = newRegParser(Digit.bound(1, 3));
 		
 		@Override
 		public String name() {
@@ -94,7 +92,7 @@ public class TestType {
 		@SuppressWarnings("serial")
 		var byteType = new ParserType() {
 			
-			private final Checker checker = newRegParser(Digit, new Quantifier(1, 3));
+			private final Checker checker = newRegParser(Digit.bound(1, 3));
 			
 			@Override
 			public String name() {
@@ -129,7 +127,7 @@ public class TestType {
 				return "$int(0-4)?";
 			}
 			
-			Checker checker = newRegParser(Digit, new Quantifier(1, 1, Maximum));
+			Checker checker = newRegParser(Digit.bound(1, 1, Maximum));
 			
 			@Override
 			public Checker checker(ParseResult hostResult, String param, ParserTypeProvider provider) {
@@ -151,7 +149,7 @@ public class TestType {
 				return "$int(5-9)?";
 			}
 			
-			private final Checker checker = newRegParser(Digit, new Quantifier(1, 1, Maximum));
+			private final Checker checker = newRegParser(Digit.bound(1, 1, Maximum));
 			
 			@Override
 			public Checker checker(ParseResult hostResult, String param, ParserTypeProvider typeProvider) {
@@ -167,8 +165,9 @@ public class TestType {
 		};
 		var regParser = newRegParser(
 							either(newRegParser("#Value_Low",  int0To4))
-							.or(newRegParser("#Value_High", int5To9)),
-							ZeroOrMore_Maximum);
+							.or(newRegParser("#Value_High", int5To9))
+							.build()
+							.zeroOrMore().maximum());
 		
 		var result = regParser.parse("3895482565");
 		validate("[3,4,2]",         Util.toString(result.textsOf("#Value_Low")));
@@ -187,7 +186,7 @@ public class TestType {
 			private final Checker checker
 					= newRegParser()    // <([^<]|!block!)*+>
 					.entry(CharSingle.of('<'))
-					.entry(either(newRegParser("#Other",    newRegParser(new CharNot(new CharSet("<>")), OneOrMore)))
+					.entry(either(newRegParser("#Other",    newRegParser(new CharNot(new CharSet("<>")).oneOrMore())))
 							.or  (newRegParser("#SubBlock", ParserTypeRef.of("block"))),
 							ZeroOrMore_Minimum)
 					.entry(CharSingle.of('>'))
@@ -396,7 +395,7 @@ public class TestType {
 			private final Checker checker
 			        = newRegParser()
 			        .entry(new CharSingle('<'))
-			        .entry("$Begin", newRegParser(new CharUnion(new CharRange('a', 'z'), new CharRange('A', 'Z')), OneOrMore))
+			        .entry("$Begin", newRegParser(new CharUnion(new CharRange('a', 'z'), new CharRange('A', 'Z')).oneOrMore()))
 			        .entry(Blank, ZeroOrMore)
 			        .entry(
 			            newRegParser()
@@ -410,7 +409,7 @@ public class TestType {
 			                newRegParser()
 			                .entry(new CharSingle('>'))
 			                .entry(
-			                    either(newRegParser("#Other", newRegParser(new CharNot(new CharSet("<>")), OneOrMore)))
+			                    either(newRegParser("#Other", newRegParser(new CharNot(new CharSet("<>")).oneOrMore())))
 			                    .or   (newRegParser("#SubBlock", ParserTypeRef.of("Tag"))),
 			                    ZeroOrMore_Minimum
 			                )

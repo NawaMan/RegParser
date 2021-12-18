@@ -18,6 +18,7 @@
 package net.nawaman.regparser.compiler;
 
 import static net.nawaman.regparser.Checker.EMPTY_CHECKER_ARRAY;
+import static net.nawaman.regparser.EscapeHelpers.escapable;
 import static net.nawaman.regparser.ParserTypeBackRef.BackRef_Instance;
 import static net.nawaman.regparser.ParserTypeBackRefCaseInsensitive.BackRefCI_Instance;
 import static net.nawaman.regparser.PredefinedCharClasses.Any;
@@ -25,11 +26,9 @@ import static net.nawaman.regparser.PredefinedCharClasses.WhiteSpace;
 import static net.nawaman.regparser.PredefinedCheckers.getCharClass;
 import static net.nawaman.regparser.PredefinedCheckers.predefinedCharChecker;
 import static net.nawaman.regparser.Quantifier.OneOrMore;
-import static net.nawaman.regparser.Quantifier.OneOrMore_Minimum;
 import static net.nawaman.regparser.Quantifier.Zero;
 import static net.nawaman.regparser.Quantifier.ZeroOrMore;
 import static net.nawaman.regparser.Quantifier.ZeroOrOne;
-import static net.nawaman.regparser.EscapeHelpers.escapable;
 import static net.nawaman.regparser.RegParser.newRegParser;
 import static net.nawaman.regparser.RegParserEntry.newParserEntry;
 import static net.nawaman.regparser.checkers.CheckerAlternative.either;
@@ -108,7 +107,7 @@ public class RPRegParserItemParserType extends ParserType {
 									.entry(new CharSingle('~'))
 									.entry("#GroupRegParser", regParserTypeRef)
 									.entry(new CharSingle('~')))
-							.or(newRegParser("#Error[]", newRegParser(new CharNot(new CharSet(":!)~")), ZeroOrMore))))
+							.or(newRegParser("#Error[]", newRegParser(new CharNot(new CharSet(":!)~")).zeroOrMore()))))
 					.entry(WhiteSpace, ZeroOrMore)
 					.entry("#Second", newRegParser()
 						.entry(new CharSingle(':'))
@@ -121,7 +120,7 @@ public class RPRegParserItemParserType extends ParserType {
 										.entry(new CharSingle('~'))
 										.entry("#GroupRegParser",  regParserTypeRef)
 										.entry(new CharSingle('~')))
-								.or(newRegParser("#Error[]", newRegParser(new CharNot(new CharSet(":!)~")), ZeroOrMore))))
+								.or(newRegParser("#Error[]", newRegParser(new CharNot(new CharSet(":!)~")).zeroOrMore()))))
 						.entry(WhiteSpace, ZeroOrMore), ZeroOrOne)
 					.entry(new CharSingle(')')))
 				.or(newRegParser() // BackRef
@@ -169,7 +168,7 @@ public class RPRegParserItemParserType extends ParserType {
 		);
 		
 		// Other char
-		checkers.add(newRegParser(new CharNot(new CharSet(escapable)), OneOrMore_Minimum));
+		checkers.add(newRegParser(new CharNot(new CharSet(escapable)).oneOrMore().minimum()));
 		
 		// Create the checker
 		checker = newRegParser(new CheckerAlternative(true, checkers.toArray(EMPTY_CHECKER_ARRAY)));

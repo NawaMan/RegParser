@@ -17,7 +17,6 @@
  */
 package net.nawaman.regparser;
 
-import static net.nawaman.regparser.RegParserEntry.newParserEntry;
 import static net.nawaman.regparser.result.ParseResult.newResult;
 import static net.nawaman.regparser.result.entry.ParseResultEntry.newEntry;
 import static net.nawaman.regparser.utils.Util.prependArray;
@@ -153,10 +152,6 @@ public class RegParser implements Checker, Serializable {
 		return new RegParserBuilder()
 				.entry(name, typeRef, quantifier)
 				.build();
-	}
-	
-	public static RegParser newRegParser(AsChecker checker, Quantifier quantifier) {
-		return newRegParser(newParserEntry(checker, quantifier));
 	}
 	
 	/** Compiles a new RegParser from a RegParser code */

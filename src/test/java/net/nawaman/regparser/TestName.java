@@ -37,7 +37,7 @@ public class TestName {
 				.entry(newRegParser()
 					.entry(new CharSingle('='))
 					.entry(Blank, ZeroOrMore)
-					.entry("#Value", newRegParser(Digit, OneOrMore)),
+					.entry("#Value", newRegParser(Digit.oneOrMore())),
 					ZeroOrOne)
 				.entry(Blank, ZeroOrMore)
 				.entry(new CharSingle(';'))
@@ -66,12 +66,12 @@ public class TestName {
 				= newRegParser()
 				.entry(new CharSingle('{'))
 				.entry(Blank, ZeroOrMore)
-				.entry("#Value", newRegParser(Digit, OneOrMore))
+				.entry("#Value", newRegParser(Digit.oneOrMore()))
 				.entry(Blank, ZeroOrMore)
 				.entry(newRegParser()
 					.entry(new CharSingle(','))
 					.entry(Blank, ZeroOrMore)
-					.entry("#Value", newRegParser(Digit, OneOrMore)),
+					.entry("#Value", newRegParser(Digit.oneOrMore())),
 					ZeroOrMore)
 				.entry(Blank,               ZeroOrMore)
 				.entry(new CharSingle(','), ZeroOrOne)
@@ -106,12 +106,12 @@ public class TestName {
 				= newRegParser()
 				.entry(new CharSingle('{'))
 				.entry(Blank, ZeroOrMore)
-				.entry("#Value", newRegParser(Digit, oneOrTwo))
+				.entry("#Value", newRegParser(Digit.bound(oneOrTwo)))
 				.entry(Blank, ZeroOrMore)
 				.entry(newRegParser()
 					.entry(new CharSingle(','))
 					.entry(Blank, ZeroOrMore)
-					.entry("#Value", newRegParser(Digit, oneOrTwo), OneOrMore),
+					.entry("#Value", newRegParser(Digit.bound(oneOrTwo)), OneOrMore),
 					ZeroOrMore)
 				.entry(Blank,               ZeroOrMore)
 				.entry(new CharSingle(','), ZeroOrOne)
