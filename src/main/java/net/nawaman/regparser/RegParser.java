@@ -92,12 +92,6 @@ public class RegParser implements Checker, Serializable {
 				: new RegParser.WithDefaultTypeProvider(entryArray, typeProvider);
 	}
 	
-	public static RegParser newRegParser(ParserType parserType) {
-		return new RegParserBuilder()
-				.entry(parserType)
-				.build();
-	}
-	
 	public static RegParser newRegParser(ParserTypeProvider typeProvider, ParserType parserType) {
 		return new RegParserBuilder()
 				.typeProvider(typeProvider)

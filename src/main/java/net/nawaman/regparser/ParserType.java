@@ -29,7 +29,7 @@ import net.nawaman.regparser.result.ParseResult;
  * 
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-abstract public class ParserType implements Serializable {
+abstract public class ParserType implements AsRegParser, Serializable {
 	
 	static private final long serialVersionUID = 7148744076563340787L;
 	
@@ -47,6 +47,11 @@ abstract public class ParserType implements Serializable {
 	/** Returns the checker for parsing the type */
 	abstract public Checker checker(ParseResult hostResult, String param, ParserTypeProvider typeProvider);
 	
+	public RegParser asRegParser() {
+		return new RegParserBuilder()
+				.entry(this)
+				.build();
+	}
 	
 	/** Return the default TypeRef of this type */
 	public final ParserTypeRef typeRef() {
@@ -159,7 +164,7 @@ abstract public class ParserType implements Serializable {
 	/** Returns the RegParser wrapping this type */
 	public final RegParser parser() {
 		if (parser == null) {
-			parser = newRegParser(this);
+			parser = this.asRegParser();
 		}
 		return parser;
 	}
@@ -277,7 +282,7 @@ abstract public class ParserType implements Serializable {
 	
 	/** Compiles a ParseResult in to an object */
 	public final Object compile(String text) {
-		var thisResult = newRegParser(this).match(text);
+		var thisResult = this.asRegParser().match(text);
 		if (thisResult == null)
 			return null;
 		
@@ -286,7 +291,7 @@ abstract public class ParserType implements Serializable {
 	
 	/** Compiles a ParseResult in to an object */
 	public final Object compile(String text, ParserTypeProvider typeProvider) {
-		var thisResult = newRegParser(this).match(text, typeProvider);
+		var thisResult = this.match(text, typeProvider);
 		if (thisResult == null)
 			return null;
 		
@@ -307,7 +312,7 @@ abstract public class ParserType implements Serializable {
 		RegParser regParser = null;
 		
 		if (parameter == null) {
-			regParser = newRegParser(this);
+			regParser = this.parser();
 		} else {
 			// The provide does not hold this type
 			if (typeProvider.type(name()) == null) {
