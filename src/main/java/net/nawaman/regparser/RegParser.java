@@ -20,6 +20,7 @@ package net.nawaman.regparser;
 import static net.nawaman.regparser.RegParserEntry.newParserEntry;
 import static net.nawaman.regparser.result.ParseResult.newResult;
 import static net.nawaman.regparser.result.entry.ParseResultEntry.newEntry;
+import static net.nawaman.regparser.utils.Util.prependArray;
 
 import java.io.PrintStream;
 import java.io.Serializable;
@@ -59,294 +60,165 @@ import net.nawaman.regparser.utils.Util;
  */
 public class RegParser implements Checker, Serializable {
 	
-	static private final long serialVersionUID = 5789453645656854655L;
+	private static final long serialVersionUID = 5789453645656854655L;
 	
 	/** Returns the empty array of RegParsers */
-	static public final RegParser[] EmptyRegParserArray = new RegParser[0];
-	static public final String      RegParserTypeExt    = "rpt";
-	static public boolean           DebugMode           = false;
-	static public PrintStream       DebugPrintStream    = null;
+	public static final RegParser[] EmptyRegParserArray = new RegParser[0];
+	public static final String      RegParserTypeExt    = "rpt";
+	public static boolean           DebugMode           = false;
+	public static PrintStream       DebugPrintStream    = null;
 	
-	static ParserTypeProvider.Extensible RPTProvider       = null;
-	static String                        RegParserCompiler = "RegParserCompiler." + RegParserTypeExt;
-	
-	public RegParser(RegParserEntry[] entries) {
-		this.Entries = entries;
-	}
+	private static ParserTypeProvider.Extensible RPTProvider       = null;
+	private static String                        RegParserCompiler = "RegParserCompiler." + RegParserTypeExt;
 	
 	public static RegParserBuilder newRegParser() {
 		return new RegParserBuilder();
 	}
 	
-	public static RegParser newRegParser(String name, AsChecker checker) {
-		return new RegParserBuilder().entry(name, checker).build();
+	public static RegParser newRegParser(AsRegParserEntry[] entries) {
+		return newRegParser((ParserTypeProvider)null, entries);
 	}
 	
-	public static RegParser newRegParser(String name, ParserType parserType) {
-		return new RegParserBuilder().entry(name, parserType).build();
+	public static RegParser newRegParser(AsRegParserEntry entry, AsRegParserEntry... moreEntries) {
+		var array = prependArray(AsRegParserEntry.class, entry, moreEntries);
+		return newRegParser((ParserTypeProvider)null, array);
+	}
+	
+	public static RegParser newRegParser(ParserTypeProvider typeProvider, AsRegParserEntry... entries) {
+		if (entries == null)
+			throw new NullPointerException();
+		
+		var entryArray
+				= Stream.of(entries)
+				.filter(Objects::nonNull)
+				.map(AsRegParserEntry::asRegParserEntry)
+				.toArray(RegParserEntry[]::new);
+		return (typeProvider == null)
+				? new RegParser(entryArray)
+				: new RegParser.WithDefaultTypeProvider(entryArray, typeProvider);
+	}
+	
+	public static RegParser newRegParser(List<RegParserEntry> entries) {
+		return RegParser.newRegParser(null, entries);
+	}
+	
+	public static RegParser newRegParser(ParserTypeProvider typeProvider, List<RegParserEntry> entries) {
+		var entryArray 
+				= entries.stream()
+				.filter(Objects::nonNull)
+				.toArray(RegParserEntry[]::new);
+		return (typeProvider == null)
+				? new RegParser(entryArray)
+				: new RegParser.WithDefaultTypeProvider(entryArray, typeProvider);
 	}
 	
 	public static RegParser newRegParser(ParserType parserType) {
-		return new RegParserBuilder().entry(parserType).build();
+		return new RegParserBuilder()
+				.entry(parserType)
+				.build();
+	}
+	
+	public static RegParser newRegParser(ParserTypeProvider typeProvider, ParserType parserType) {
+		return new RegParserBuilder()
+				.typeProvider(typeProvider)
+				.entry(parserType)
+				.build();
 	}
 	
 	public static RegParser newRegParser(ParserTypeRef parserTypeRef) {
-		return new RegParserBuilder().entry(parserTypeRef).build();
+		return new RegParserBuilder()
+				.entry(parserTypeRef)
+				.build();
 	}
 	
-	public static RegParser newRegParser(ParserTypeRef parserTypeRef, Quantifier quantifier) {
-		return new RegParserBuilder().entry(parserTypeRef, quantifier).build();
+	public static RegParser newRegParser(ParserTypeProvider typeProvider, ParserTypeRef parserTypeRef) {
+		return new RegParserBuilder()
+				.typeProvider(typeProvider)
+				.entry(parserTypeRef)
+				.build();
 	}
 	
-	public static RegParser newRegParser(String name, ParserType parserType, Quantifier quantifier) {
-		return new RegParserBuilder().entry(name, parserType, quantifier).build();
+	public static RegParser newRegParser(String name, AsChecker checker) {
+		return new RegParserBuilder()
+				.entry(name, checker)
+				.build();
+	}
+	
+	public static RegParser newRegParser(String name, ParserType parserType) {
+		return new RegParserBuilder().
+				entry(name, parserType)
+				.build();
 	}
 	
 	public static RegParser newRegParser(String name, ParserTypeRef typeRef) {
-		return new RegParserBuilder().entry(name, typeRef).build();
+		return new RegParserBuilder()
+				.entry(name, typeRef)
+				.build();
+	}
+	
+	public static RegParser newRegParser(String name, AsChecker checker, Quantifier quantifier) {
+		return new RegParserBuilder()
+				.entry(name, checker, quantifier)
+				.build();
+	}
+	
+	public static RegParser newRegParser(String name, ParserType parserType, Quantifier quantifier) {
+		return new RegParserBuilder()
+				.entry(name, parserType, quantifier)
+				.build();
 	}
 	
 	public static RegParser newRegParser(String name, ParserTypeRef typeRef, Quantifier quantifier) {
-		return new RegParserBuilder().entry(name, typeRef, quantifier).build();
+		return new RegParserBuilder()
+				.entry(name, typeRef, quantifier)
+				.build();
 	}
 	
-	/** Creates a new RegParser from a series of construction entries */
-	static public RegParser newRegParser(AsRegParserEntry... pEntries) {
-		return RegParser.newRegParser(null, pEntries);
-	}
-	
-	/** Creates a new RegParser from a series of construction entries */
-	static public RegParser newRegParser(ParserTypeProvider pTProvider, AsRegParserEntry... pEntries) {
-		if (pEntries == null)
-			throw new NullPointerException();
-		
-		var entryArray = Stream.of(pEntries).filter(Objects::nonNull).map(AsRegParserEntry::asRegParserEntry)
-		        .toArray(RegParserEntry[]::new);
-		return (pTProvider == null) ? new RegParser(entryArray)
-		        : new RegParser.WithDefaultTypeProvider(entryArray, pTProvider);
-	}
-	
-	/** Creates a new RegParser from a series of construction entries */
-	static public RegParser newRegParser(List<RegParserEntry> pEntries) {
-		return RegParser.newRegParser(null, pEntries);
-	}
-	
-	/** Creates a new RegParser from a series of construction entries */
-	static public RegParser newRegParser(ParserTypeProvider pTProvider, List<RegParserEntry> pEntries) {
-		if (pEntries == null)
-			throw new NullPointerException();
-		
-		var entryArray = pEntries.stream().filter(Objects::nonNull).toArray(RegParserEntry[]::new);
-		return (pTProvider == null) ? new RegParser(entryArray)
-		        : new RegParser.WithDefaultTypeProvider(entryArray, pTProvider);
-	}
-	
-	/** Creates a new RegParser from a series of construction entries */
-	public static RegParser newRegParser(String name, AsChecker checker, Quantifier quantifier) {
-		return newRegParser(newParserEntry(name, checker, quantifier));
-	}
-	
-	/** Creates a new RegParser from a series of construction entries */
-	public static RegParser newRegParser(ParserTypeProvider pTProvider, String name, AsChecker checker,
-	        Quantifier quantifier) {
-		return newRegParser(pTProvider, newParserEntry(name, checker, quantifier));
-	}
-	
-	/** Creates a new RegParser from a series of construction entries */
 	public static RegParser newRegParser(AsChecker checker, Quantifier quantifier) {
 		return newRegParser(newParserEntry(checker, quantifier));
 	}
 	
-	/** Creates a new RegParser from a series of construction entries */
-	public static RegParser newRegParser(ParserTypeProvider pTProvider, AsChecker checker, Quantifier quantifier) {
-		return newRegParser(pTProvider, newParserEntry(checker, quantifier));
+	public static RegParser newRegParser(ParserTypeProvider typeProvider, AsChecker checker, Quantifier quantifier) {
+		return newRegParser(typeProvider, newParserEntry(checker, quantifier));
 	}
 	
-	/**
-	 * Create a new RegParser from a series of objects representing RegParser Entry
-	 * 
-	 * The entries must be in the following sequence: [Name], Checker, [Quantifier].
-	 * Name and Quantifier can be absent. If the name is absent, that entry has no
-	 * name. If the quantifier is absent, the entry has the quantifier of one.
-	 **/
-	static public RegParser newRegParser(ParserTypeProvider pTProvider, Object... pParams) {
-		if (pParams == null)
-			throw new NullPointerException();
-		Vector<RegParserEntry> RPEs = new Vector<RegParserEntry>();
-		
-		boolean       IsNew = false;
-		String        N     = null;
-		Checker       C     = null;
-		ParserTypeRef TR    = null;
-		ParserType    T     = null;
-		Quantifier    Q     = null;
-		
-		boolean IsSkipped = false;
-		for (int i = 0; i < pParams.length; i++) {
-			Object O = pParams[i];
-			if ((O instanceof AsRegParserEntry) && !(O instanceof Checker)) {
-				O = ((AsRegParserEntry) O).asRegParserEntry();
-			}
-			if (O instanceof RegParserEntry) {
-				if (IsNew) {
-					if (C != null)
-						RPEs.add(RegParserEntry.newParserEntry(N, C, Q));
-					else if (T != null)
-						RPEs.add(RegParserEntry.newParserEntry(N, T, Q));
-					else if (TR != null)
-						RPEs.add(RegParserEntry.newParserEntry(N, TR, Q));
-					else
-						throw new IllegalArgumentException("Invalid parameters (" + Arrays.toString(pParams) + ").");
-					IsNew = false;
-					N     = null;
-					C     = null;
-					T     = null;
-					TR    = null;
-					Q     = null;
-				}
-				
-				RPEs.add((RegParserEntry) O);
-				IsSkipped = false;
-				
-			} else if ((O instanceof String) && !IsSkipped) {
-				if (!((String) O).startsWith("$") && !((String) O).startsWith("#"))
-					throw new IllegalArgumentException(
-					        "Name of RegParser entry must start with '$' or '#' (" + ((String) O) + ").");
-				
-				if (IsNew) {
-					if (C != null)
-						RPEs.add(RegParserEntry.newParserEntry(N, C, Q));
-					else if (T != null)
-						RPEs.add(RegParserEntry.newParserEntry(N, T, Q));
-					else if (TR != null)
-						RPEs.add(RegParserEntry.newParserEntry(N, TR, Q));
-					else
-						throw new IllegalArgumentException("Invalid parameters (" + Arrays.toString(pParams) + ").");
-					IsNew = false;
-					N     = null;
-					C     = null;
-					T     = null;
-					TR    = null;
-					Q     = null;
-				}
-				
-				N         = (String) O;
-				IsSkipped = false;
-				
-			} else if (O instanceof Checker) {
-				if (IsNew) {
-					if (C != null)
-						RPEs.add(RegParserEntry.newParserEntry(N, C, Q));
-					else if (T != null)
-						RPEs.add(RegParserEntry.newParserEntry(N, T, Q));
-					else if (TR != null)
-						RPEs.add(RegParserEntry.newParserEntry(N, TR, Q));
-					else
-						throw new IllegalArgumentException("Invalid parameters (" + Arrays.toString(pParams) + ").");
-					IsNew = false;
-					N     = null;
-					C     = null;
-					T     = null;
-					TR    = null;
-					Q     = null;
-				}
-				
-				IsNew     = true;
-				C         = (Checker) O;
-				IsSkipped = false;
-				
-			} else if (O instanceof ParserTypeRef) {
-				if (IsNew) {
-					if (C != null)
-						RPEs.add(RegParserEntry.newParserEntry(N, C, Q));
-					else if (T != null)
-						RPEs.add(RegParserEntry.newParserEntry(N, T, Q));
-					else if (TR != null)
-						RPEs.add(RegParserEntry.newParserEntry(N, TR, Q));
-					else
-						throw new IllegalArgumentException("Invalid parameters (" + Arrays.toString(pParams) + ").");
-					IsNew = false;
-					N     = null;
-					C     = null;
-					T     = null;
-					TR    = null;
-					Q     = null;
-				}
-				
-				IsNew     = true;
-				TR        = (ParserTypeRef) O;
-				IsSkipped = false;
-				
-			} else if (O instanceof ParserType) {
-				if (IsNew) {
-					if (C != null)
-						RPEs.add(RegParserEntry.newParserEntry(N, C, Q));
-					else if (T != null)
-						RPEs.add(RegParserEntry.newParserEntry(N, T, Q));
-					else if (TR != null)
-						RPEs.add(RegParserEntry.newParserEntry(N, TR, Q));
-					else
-						throw new IllegalArgumentException("Invalid parameters (" + Arrays.toString(pParams) + ").");
-					IsNew = false;
-					N     = null;
-					C     = null;
-					T     = null;
-					TR    = null;
-					Q     = null;
-				}
-				
-				IsNew     = true;
-				T         = (ParserType) O;
-				IsSkipped = false;
-				
-			} else if ((O instanceof Quantifier) || ((O == null) && IsNew && ((C != null) || (T != null)))) {
-				if (!IsNew || ((C == null) && (T == null) && (TR == null)) || (Q != null))
-					throw new IllegalArgumentException("Invalid parameters (" + Arrays.toString(pParams) + ").");
-				
-				Q         = (Quantifier) O;
-				IsSkipped = false;
-				
-			} else {
-				if ((O == null) && !IsNew && !IsSkipped)
-					IsSkipped = true; // Skip for Name
-				else
-					throw new IllegalArgumentException("Invalid parameters (" + Arrays.toString(pParams) + ").");
-			}
-		}
-		if (IsNew || (N != null)) {
-			if (C != null)
-				RPEs.add(RegParserEntry.newParserEntry(N, C, Q));
-			else if (T != null)
-				RPEs.add(RegParserEntry.newParserEntry(N, T, Q));
-			else if (TR != null)
-				RPEs.add(RegParserEntry.newParserEntry(N, TR, Q));
-			else
-				throw new IllegalArgumentException("Invalid parameters (" + Arrays.toString(pParams) + ").");
-		}
-		
-		RegParser RP = (pTProvider == null) ? new RegParser(RPEs.toArray(RegParserEntry.EmptyRegParserEntryArray))
-		        : new RegParser.WithDefaultTypeProvider(RPEs.toArray(RegParserEntry.EmptyRegParserEntryArray),
-		                pTProvider);
-		return RP;
+	public static RegParser newRegParser(ParserType parserType, Quantifier quantifier) {
+		return new RegParserBuilder()
+				.entry(parserType, quantifier)
+				.build();
+	}
+	
+	public static RegParser newRegParser(ParserTypeRef parserTypeRef, Quantifier quantifier) {
+		return new RegParserBuilder()
+				.entry(parserTypeRef, quantifier)
+				.build();
+	}
+	
+	public static RegParser newRegParser(
+								ParserTypeProvider typeProvider,
+								String             name,
+								AsChecker          checker,
+								Quantifier         quantifier) {
+		return newRegParser(typeProvider, newParserEntry(name, checker, quantifier));
 	}
 	
 	/** Compiles a new RegParser from a RegParser code */
-	static public RegParser compileRegParser(String pText) {
-		return RegParser.compile(null, pText);
+	public static RegParser compileRegParser(String regParserText) {
+		return RegParser.compile(null, regParserText);
 	}
 	
 	/** Compiles a new RegParser from a RegParser code */
-	static public RegParser compileRegParser(ParserTypeProvider pTProvider, String pText) {
-		return RegParser.compile(pTProvider, pText);
+	public static RegParser compileRegParser(ParserTypeProvider typeProvider, String regParserText) {
+		return RegParser.compile(typeProvider, regParserText);
 	}
 	
 	/** Compiles a new RegParser from a RegParser code */
-	static public RegParser compile(String pText) {
-		return RegParser.compile(null, pText);
+	public static RegParser compile(String regParserText) {
+		return RegParser.compile(null, regParserText);
 	}
 	
 	/** Compiles a new RegParser from a RegParser code */
-	static public RegParser compile(ParserTypeProvider pTProvider, String pText) {
+	public static RegParser compile(ParserTypeProvider typeProvider, String regParserText) {
 		boolean IsToSave = true;
 		
 		if (RPTProvider == null) {
@@ -393,12 +265,12 @@ public class RegParser implements Checker, Serializable {
 			IsToSave = false;
 		
 		ParserType RPT = RPTProvider.type(RPRegParserParserType.name);
-		RegParser  RP  = (RegParser) (RPT.compile(pText, null, null, RPTProvider));
+		RegParser  RP  = (RegParser) (RPT.compile(regParserText, null, null, RPTProvider));
 		
 		// If have type provider
-		if ((RP != null) && (pTProvider != null)) {
+		if ((RP != null) && (typeProvider != null)) {
 			RegParserEntry[] Es = RP.Entries;
-			RP = new RegParser.WithDefaultTypeProvider(Es, pTProvider);
+			RP = new RegParser.WithDefaultTypeProvider(Es, typeProvider);
 		}
 		
 		if (IsToSave) {
@@ -423,6 +295,10 @@ public class RegParser implements Checker, Serializable {
 	// ------------------------------------------------------------------------------------------------------------
 	
 	private final RegParserEntry[] Entries;
+	
+	private RegParser(RegParserEntry[] entries) {
+		this.Entries = entries;
+	}
 	
 	public Stream<RegParserEntry> entries() {
 		// TODO - Rethink this.

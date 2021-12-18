@@ -93,7 +93,12 @@ public class TestRegParserCompiler1 {
 	
 	@Test
 	public void testParseCharClass() {
-		var parser = newRegParser(typeProvider, RPRegParserItemParserType.typeRef, OneOrMore, Any, ZeroOrMore);
+		var parser
+				= newRegParser()
+				.typeProvider(typeProvider)
+				.entry(RPRegParserItemParserType.typeRef, OneOrMore)
+				.entry(Any, ZeroOrMore)
+				.build();
 		
 		var result = parser.match(".\\s\\D[:WhiteSpace:]a\\p{Blank}d", typeProvider);
 		validate("\n"

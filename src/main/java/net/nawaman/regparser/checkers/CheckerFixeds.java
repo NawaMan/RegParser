@@ -19,6 +19,7 @@
 package net.nawaman.regparser.checkers;
 
 import static java.lang.String.format;
+import static net.nawaman.regparser.RegParser.newRegParser;
 
 import java.util.ArrayList;
 
@@ -27,7 +28,6 @@ import net.nawaman.regparser.ParserType;
 import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.ParserTypeRef;
 import net.nawaman.regparser.RegParserEntry;
-import net.nawaman.regparser.RegParser;
 import net.nawaman.regparser.result.ParseResult;
 
 /**
@@ -186,7 +186,7 @@ public class CheckerFixeds implements Checker {
 					var errMsg = format("Second stage must be null, Checker, PTypeRef or PType (%s).", secondStage);
 					throw new IllegalArgumentException(errMsg);
 				}
-				checker = new RegParser(entries);
+				checker = newRegParser(entries);
 			}
 			this.entry = RegParserEntry.newParserEntry(name, CheckerAny.getCheckerAny(length), null, checker);
 		}

@@ -19,6 +19,7 @@
 package net.nawaman.regparser.utils;
 
 import static java.lang.String.format;
+import static java.lang.reflect.Array.newInstance;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -677,5 +678,14 @@ public class Util {
 			exception.printStackTrace();
 			return null;
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static <T> T[] prependArray(Class<T> clazz, T first, T[] rest) {
+		int newLength = (rest == null) ? 1 : rest.length + 1;
+		var array     = (T[])newInstance(clazz, newLength);
+		System.arraycopy(rest, 0, array, 1, rest.length);
+		Array.set(array, 0, first);
+		return (T[])array;
 	}
 }

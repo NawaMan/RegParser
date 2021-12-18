@@ -268,16 +268,24 @@ public class TestType {
 		// Add the type
 		var typeProvider = new ParserTypeProvider.Simple(ParserTypeBackRef.BackRef_Instance);
 		
-		var parser = newRegParser(typeProvider, 
-		                new CharSingle('<'),
-		                RegParserEntry.newParserEntry("Begin", newRegParser(typeProvider, new CharUnion(new CharRange('a', 'z'), new CharRange('A', 'Z')), OneOrMore)),
-		                Blank, ZeroOrMore,
-		                new CharSingle('>'),
-		                Any, ZeroOrMore_Minimum,
-		                newRegParser(typeProvider, "#End",
-		                        newRegParser(typeProvider, new WordChecker("</"),
-		                                RegParserEntry.newParserEntry("#EndTag", new ParserTypeRef.Simple(ParserTypeBackRef.BackRef_Instance.name(), "Begin")),
-		                                new CharSingle('>'))));
+		var parser
+				= newRegParser()
+				.typeProvider(typeProvider)
+				.entry(new CharSingle('<'))
+				.entry("Begin", newRegParser(typeProvider, new CharUnion(new CharRange('a', 'z'), new CharRange('A', 'Z')), OneOrMore))
+				.entry(Blank, ZeroOrMore)
+				.entry(new CharSingle('>'))
+				.entry(Any, ZeroOrMore_Minimum)
+				.entry(newRegParser()
+					.typeProvider(typeProvider)
+					.entry("#End", newRegParser()
+						.typeProvider(typeProvider)
+						.entry(new WordChecker("</"))
+						.entry("#EndTag", new ParserTypeRef.Simple(ParserTypeBackRef.BackRef_Instance.name(), "Begin"))
+						.entry(new CharSingle('>'))
+					)
+				)
+				.build();
 		
 		validate(
 		        "[<](Begin:~[[a-z][A-Z]]+~)[\\ \\t]*[>].**((#End:~</(#EndTag:!$BackRef?(\"Begin\")!)[>]~))",
