@@ -65,7 +65,7 @@ public class RPCharSetItemParserType extends ParserType {
 		        .entry(typeRef)
 		        .entry(newRegParser().entry("#Intersect", new WordChecker("&&")).entry(typeRef), ZeroOrMore)
 		        .build());
-		checkers.add(newRegParser("#Ignored[]", WhiteSpace, OneOrMore));
+		checkers.add(newRegParser("#Ignored[]", WhiteSpace.oneOrMore()));
 		checkers.add(newRegParser("#Range",     RPRangeParserType.typeRef));
 		
 		// Create the checker
