@@ -272,7 +272,9 @@ public class TestType {
 				= newRegParser()
 				.typeProvider(typeProvider)
 				.entry(new CharSingle('<'))
-				.entry("Begin", newRegParser(typeProvider, new CharUnion(new CharRange('a', 'z'), new CharRange('A', 'Z')), OneOrMore))
+				.entry("Begin", newRegParser()
+					.typeProvider(typeProvider)
+					.entry(new CharUnion(new CharRange('a', 'z'), new CharRange('A', 'Z')).oneOrMore()))
 				.entry(Blank, ZeroOrMore)
 				.entry(new CharSingle('>'))
 				.entry(Any, ZeroOrMore_Minimum)
@@ -282,9 +284,7 @@ public class TestType {
 						.typeProvider(typeProvider)
 						.entry(new WordChecker("</"))
 						.entry("#EndTag", new ParserTypeRef.Simple(ParserTypeBackRef.BackRef_Instance.name(), "Begin"))
-						.entry(new CharSingle('>'))
-					)
-				)
+						.entry(new CharSingle('>'))))
 				.build();
 		
 		validate(
