@@ -18,8 +18,6 @@
 
 package net.nawaman.regparser;
 
-import static net.nawaman.regparser.RegParser.newRegParser;
-
 import java.io.Serializable;
 
 import net.nawaman.regparser.result.ParseResult;
@@ -323,7 +321,7 @@ abstract public class ParserType implements AsRegParser, Serializable {
 				typeProvider = newLibrary;
 			}
 			var typeRef = new ParserTypeRef.Simple(name(), parameter);
-			regParser = newRegParser(typeRef);
+			regParser = typeRef.asRegParser();
 		}
 		
 		var thisResult = regParser.match(text, typeProvider);

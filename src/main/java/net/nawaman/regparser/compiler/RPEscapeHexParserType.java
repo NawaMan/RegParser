@@ -27,6 +27,7 @@ import net.nawaman.regparser.CompilationException;
 import net.nawaman.regparser.ParserType;
 import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.ParserTypeRef;
+import net.nawaman.regparser.RegParser;
 import net.nawaman.regparser.checkers.WordChecker;
 import net.nawaman.regparser.result.ParseResult;
 
@@ -42,6 +43,7 @@ public class RPEscapeHexParserType extends ParserType {
 	public static String                name     = "EscapeHex";
 	public static RPEscapeHexParserType instance = new RPEscapeHexParserType();
 	public static ParserTypeRef         typeRef  = instance.typeRef();
+	public static RegParser             parser   = instance.typeRef().asRegParser();
 	
 	final public static String HEX = "0123456789ABCDEF";
 	

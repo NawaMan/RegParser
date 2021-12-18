@@ -77,7 +77,7 @@ public class TestRegParserCompiler2 {
 	
 	@Test
 	public void testEscapeChars() {
-		var parser = newRegParser(RPEscapeParserType.typeRef);
+		var parser = newRegParser().entry(RPEscapeParserType.typeRef).build();
 		validate("(!Escape!)", parser);
 		
 		for (char c : EscapeHelpers.escapable.toCharArray()) {
@@ -89,7 +89,7 @@ public class TestRegParserCompiler2 {
 	@Test
 	public void testEscapeOct() {
 		var typeName = RPEscapeOctParserType.name;
-		var parser   = newRegParser(RPEscapeOctParserType.typeRef);
+		var parser   = newRegParser().entry(RPEscapeOctParserType.typeRef).build();
 		validate("(!EscapeOct!)", parser);
 		
 		char c  = 'n';
@@ -107,7 +107,7 @@ public class TestRegParserCompiler2 {
 	public void testEscapeHex() {
 		var typeName = RPEscapeHexParserType.name;
 		
-		var parser = newRegParser(RPEscapeHexParserType.typeRef);
+		var parser = newRegParser().entry(RPEscapeHexParserType.typeRef).build();
 		validate("(!EscapeHex!)", parser);
 		
 		char c  = 'm';
@@ -127,7 +127,7 @@ public class TestRegParserCompiler2 {
 	public void testEscapeUnicode() {
 		var typeName = RPEscapeUnicodeParserType.name;
 		
-		var parser = newRegParser(RPEscapeUnicodeParserType.typeRef);
+		var parser = newRegParser().entry(RPEscapeUnicodeParserType.typeRef).build();
 		validate("(!EscapeUnicode!)", parser);
 		
 		char c  = 'm';
@@ -257,7 +257,7 @@ public class TestRegParserCompiler2 {
 		var typeName = RPTypeParserType.name;
 		var type  = typeProvider.type(typeName);
 		
-		var parser = newRegParser(RPTypeParserType.typeRef);
+		var parser = newRegParser().entry(RPTypeParserType.typeRef).build();
 		validate("(!Type!)", parser);
 		
 		var result = parser.match("!Text!", typeProvider);
@@ -296,7 +296,7 @@ public class TestRegParserCompiler2 {
 		var typeName = RPQuantifierParserType.name;
 		var type  = typeProvider.type(typeName);
 		
-		var parser = newRegParser(RPQuantifierParserType.typeRef);
+		var parser = RPQuantifierParserType.typeRef.asRegParser();
 		validate("(!Quantifier!)", parser);
 		
 		var result = parser.match("{5,10}*", typeProvider);
@@ -351,7 +351,7 @@ public class TestRegParserCompiler2 {
 	public void testRange() {
 		var typeName = RPRangeParserType.name;
 		var type     = typeProvider.type(typeName);
-		var parser   = RegParser.newRegParser(RPRangeParserType.typeRef);
+		var parser   = RPRangeParserType.typeRef.asRegParser();
 		validate("(!Range!)", parser);
 		
 		var result = parser.match("b-z", typeProvider);
@@ -376,7 +376,7 @@ public class TestRegParserCompiler2 {
 		var type     = typeProvider.type(typeName);
 		var text     = "[^a-zasdfg[A-Z][0-9].\\s\\jp{Blank}]&&[[:JDigit:]]";
 		
-		var parser = newRegParser(RPCharSetItemParserType.typeRef);
+		var parser = RPCharSetItemParserType.typeRef.asRegParser();
 		validate("(!CharSetItem!)", parser);
 		
 		var result = parser.match(text, typeProvider);
@@ -484,7 +484,7 @@ public class TestRegParserCompiler2 {
 		}
 		
 		{
-			var parser = newRegParser(RPRegParserParserType.typeRef);
+			var parser = RPRegParserParserType.typeRef.asRegParser();
 			validate("(!RegParser!)", parser);
 			
 			var result = parser.parse("one'Two'three", typeProvider);

@@ -28,7 +28,7 @@ import java.io.Serializable;
  *
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-abstract public class ParserTypeRef implements Quantifiable<RegParserEntry>, Serializable {
+abstract public class ParserTypeRef implements AsRegParser, Quantifiable<RegParserEntry>, Serializable {
 	
 	private static final long serialVersionUID = -2335767886881850411L;
 	
@@ -49,6 +49,17 @@ abstract public class ParserTypeRef implements Quantifiable<RegParserEntry>, Ser
 	public RegParserEntry quantifier(Quantifier quantifier) {
 		return newParserEntry(this, quantifier);
 	}
+	
+	public RegParser asRegParser() {
+		return new RegParserBuilder()
+				.entry(this)
+				.build();
+	}
+	
+	public RegParserEntry asRegParserEntry() {
+		return RegParserEntry.newParserEntry(this);
+	}
+	
 	
 	static public class Simple extends ParserTypeRef {
 		

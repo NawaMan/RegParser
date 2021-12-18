@@ -25,6 +25,7 @@ import net.nawaman.regparser.CompilationException;
 import net.nawaman.regparser.ParserType;
 import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.ParserTypeRef;
+import net.nawaman.regparser.RegParser;
 import net.nawaman.regparser.checkers.CharRange;
 import net.nawaman.regparser.checkers.WordChecker;
 import net.nawaman.regparser.result.ParseResult;
@@ -41,6 +42,7 @@ public class RPEscapeOctParserType extends ParserType {
 	public static String                name     = "EscapeOct";
 	public static RPEscapeOctParserType instance = new RPEscapeOctParserType();
 	public static ParserTypeRef         typeRef  = instance.typeRef();
+	public static RegParser             parser   = instance.typeRef().asRegParser();
 	
 	private static final String OCT = "01234567";
 	

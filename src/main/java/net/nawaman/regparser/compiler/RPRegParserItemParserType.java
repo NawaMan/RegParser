@@ -65,14 +65,14 @@ public class RPRegParserItemParserType extends ParserType {
 		var checkers = new Vector<Checker>();
 		checkers.add(predefinedCharChecker);
 		// Escape
-		checkers.add(newRegParser(RPEscapeParserType.typeRef));
-		checkers.add(newRegParser(RPEscapeOctParserType.typeRef));
-		checkers.add(newRegParser(RPEscapeHexParserType.typeRef));
-		checkers.add(newRegParser(RPEscapeUnicodeParserType.typeRef));
+		checkers.add(RPEscapeParserType.typeRef.asRegParser());
+		checkers.add(RPEscapeOctParserType.typeRef.asRegParser());
+		checkers.add(RPEscapeHexParserType.typeRef.asRegParser());
+		checkers.add(RPEscapeUnicodeParserType.typeRef.asRegParser());
 		// CharSet
-		checkers.add(newRegParser(RPTypeParserType.typeRef));
+		checkers.add(RPTypeParserType.typeRef.asRegParser());
 		// Type
-		checkers.add(newRegParser(new ParserTypeRef.Simple(RPCharSetItemParserType.name)));
+		checkers.add(RPCharSetItemParserType.typeRef.asRegParser());
 		
 		var regParserTypeRef = new ParserTypeRef.Simple("RegParser");
 		
@@ -311,7 +311,7 @@ public class RPRegParserItemParserType extends ParserType {
 					        = (ParserTypeRef) typeProvider
 					        .type(RPTypeParserType.name)
 					        .compile(secondSubResult, typeIndex, null, compilationContext, typeProvider);
-					secondParser = newRegParser(secondTypeRef);
+					secondParser = secondTypeRef.asRegParser();
 				} else {
 					int parserIndex = secondSubResult.indexOf("#GroupRegParser");
 					// Named Group

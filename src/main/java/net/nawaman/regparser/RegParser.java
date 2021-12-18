@@ -99,12 +99,6 @@ public class RegParser implements Checker, Serializable {
 				.build();
 	}
 	
-	public static RegParser newRegParser(ParserTypeRef parserTypeRef) {
-		return new RegParserBuilder()
-				.entry(parserTypeRef)
-				.build();
-	}
-	
 	public static RegParser newRegParser(ParserTypeProvider typeProvider, ParserTypeRef parserTypeRef) {
 		return new RegParserBuilder()
 				.typeProvider(typeProvider)

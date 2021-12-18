@@ -52,10 +52,10 @@ public class RPRangeParserType extends ParserType {
 	RPRangeParserType() {
 		var checkers = new ArrayList<Checker>();
 		checkers.add(newRegParser(new CharNot(new CharSet(escapable + "-"))));
-		checkers.add(newRegParser(RPEscapeParserType.typeRef));
-		checkers.add(newRegParser(RPEscapeOctParserType.typeRef));
-		checkers.add(newRegParser(RPEscapeHexParserType.typeRef));
-		checkers.add(newRegParser(RPEscapeUnicodeParserType.typeRef));
+		checkers.add(RPEscapeParserType.parser);
+		checkers.add(RPEscapeOctParserType.parser);
+		checkers.add(RPEscapeHexParserType.parser);
+		checkers.add(RPEscapeUnicodeParserType.parser);
 		
 		// Last
 		checkers.add(newRegParser("#Error[]", new CharNot(new CharSingle(']'))));
