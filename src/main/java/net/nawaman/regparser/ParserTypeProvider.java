@@ -337,7 +337,7 @@ public interface ParserTypeProvider extends Serializable {
 				return false;
 			
 			checker = (checker instanceof RegParser)
-			        ? RegParser.WithDefaultTypeProvider.attachDefaultTypeProvider((RegParser)checker, this)
+			        ? ((RegParser)checker).attachDefaultTypeProvider(this)
 			        : RegParser.newRegParser(this, checker);
 			
 			return addType(new ComposableParserType(name, checker, vertifier, compiler));

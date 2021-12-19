@@ -75,7 +75,7 @@ public class RegParser implements Checker, Serializable {
 				.toArray(RegParserEntry[]::new);
 		return (typeProvider == null)
 				? new RegParser(entryArray)
-				: new RegParser.WithDefaultTypeProvider(entryArray, typeProvider);
+				: new RegParserWithDefaultTypeProvider(entryArray, typeProvider);
 	}
 	
 	public static RegParser newRegParser(List<RegParserEntry> entries) {
@@ -89,7 +89,7 @@ public class RegParser implements Checker, Serializable {
 				.toArray(RegParserEntry[]::new);
 		return (typeProvider == null)
 				? new RegParser(entryArray)
-				: new RegParser.WithDefaultTypeProvider(entryArray, typeProvider);
+				: new RegParserWithDefaultTypeProvider(entryArray, typeProvider);
 	}
 	
 	public static RegParser newRegParser(ParserTypeProvider typeProvider, ParserType parserType) {
@@ -148,7 +148,7 @@ public class RegParser implements Checker, Serializable {
 	
 	private final RegParserEntry[] Entries;
 	
-	private RegParser(RegParserEntry[] entries) {
+	RegParser(RegParserEntry[] entries) {
 		this.Entries = entries;
 	}
 	
@@ -168,64 +168,17 @@ public class RegParser implements Checker, Serializable {
 		return this.Entries[pIndex];
 	}
 	
+	public RegParser attachDefaultTypeProvider(ParserTypeProvider typeProvider) {
+		return RegParserWithDefaultTypeProvider.attachDefaultTypeProvider(this, typeProvider);
+	}
+	
 	// Default TypePackage ---------------------------------------------------------------------------------------------
 	
 	ParserTypeProvider getDefaultTypeProvider() {
 		return null;
 	}
 	
-	/** TypeProvider with Default Type */
-	static public class WithDefaultTypeProvider extends RegParser {
-		
-		private static final long serialVersionUID = -7904907723214116873L;
-		
-		static public RegParser attachDefaultTypeProvider(RegParser pRegParser, ParserTypeProvider pTProvider) {
-			if ((pRegParser == null) || (pTProvider == null))
-				return pRegParser;
-			
-			ParserTypeProvider PTProvider = pRegParser.getDefaultTypeProvider();
-			if ((pRegParser instanceof WithDefaultTypeProvider) && (PTProvider instanceof ParserTypeProvider.Library))
-				((ParserTypeProvider.Library) PTProvider).addProvider(pTProvider);
-			else {
-				var parserEntries = ((RegParser) (pRegParser)).entries();
-				var entries       = (parserEntries == null) ? null : parserEntries.toArray(RegParserEntry[]::new);
-				var TProvider     = ((PTProvider != null) && (PTProvider != pTProvider)) ? null
-				        : new ParserTypeProvider.Library(pTProvider, PTProvider);
-				pRegParser = new WithDefaultTypeProvider(entries, TProvider);
-			}
-			return pRegParser;
-		}
-		
-		WithDefaultTypeProvider(RegParserEntry[] Entries, ParserTypeProvider pTProvider) {
-			super(Entries);
-			this.TProvider = pTProvider;
-		}
-		
-		ParserTypeProvider TProvider = null;
-		
-		@Override
-		ParserTypeProvider getDefaultTypeProvider() {
-			return this.TProvider;
-		}
-		
-		// Parse
-		
-		/** {@inheritDoc} */
-		@Override
-		/**
-		 * Returns the length of the match if the text is start with a match or -1 if
-		 * not
-		 */
-		protected ParseResult parse(CharSequence pText, int pOffset, int pIndex, int pTimes, ParseResult pResult,
-		        ParserTypeProvider pProvider, ParserType pRPType, String pRPTParam, int pTabs) {
-			ParserTypeProvider TP = ParserTypeProvider.Library.either(pProvider, this.TProvider);
-			return super.parse(pText, pOffset, pIndex, pTimes, pResult, TP, pRPType, pRPTParam, pTabs);
-		}
-		
-	}
-	
-	// Public services
-	// -------------------------------------------------------------------------------------------------
+	// Public services -------------------------------------------------------------------------------------------------
 	
 	// Parse - as far as it can go.
 	

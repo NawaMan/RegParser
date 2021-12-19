@@ -47,7 +47,7 @@ class RegParserCompiler {
 					= compilerParser
 					.entries()
 					.toArray(RegParserEntry[]::new);
-			compilerParser = new RegParser.WithDefaultTypeProvider(entries, typeProvider);
+			compilerParser = new RegParserWithDefaultTypeProvider(entries, typeProvider);
 		}
 		
 		return compilerParser;
