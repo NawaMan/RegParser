@@ -1,7 +1,11 @@
 package net.nawaman.regparser;
 
+import static net.nawaman.regparser.utils.Util.loadObjectsFromFile;
+import static net.nawaman.regparser.utils.Util.loadObjectsFromStream;
+import static net.nawaman.regparser.utils.Util.saveObjectsToFile;
+
 import java.io.Serializable;
-import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 import net.nawaman.regparser.compiler.RPCharSetItemParserType;
 import net.nawaman.regparser.compiler.RPCommentParserType;
@@ -17,86 +21,85 @@ import net.nawaman.regparser.compiler.RPTypeParserType;
 import net.nawaman.regparser.types.IdentifierParserType;
 import net.nawaman.regparser.types.StringLiteralParserType;
 import net.nawaman.regparser.types.TextCaseInsensitiveParserType;
-import net.nawaman.regparser.utils.Util;
 
-public class RegParserCompiler {
+class RegParserCompiler {
 
-	public static final String RegParserTypeExt = "rpt";
+	public  static final String regParserTypeFileExt  = "rpt";
+	private static final String regParserCompilerFile = "RegParserCompiler." + regParserTypeFileExt;
 	
-	private static ParserTypeProvider.Extensible RPTProvider       = null;
-	private static String                        RegParserCompiler = "RegParserCompiler." + RegParserTypeExt;
+	private static AtomicReference<ParserTypeProvider> regParserTypeProvider = new AtomicReference<>(null);
 
 	/** Compiles a new RegParser from a RegParser code */
 	public static RegParser compile(ParserTypeProvider typeProvider, String regParserText) {
-		boolean IsToSave = true;
+		var compilerTypeProvider = regParserTypeProvider.updateAndGet(provider -> {
+			if (provider == null) {
+				provider = prepareTypeProvider();
+			}
+			return provider;
+		});
 		
-		if (RPTProvider == null) {
-			// Try to load from Resource
-			try {
-				ParserTypeProvider PT = (ParserTypeProvider.Extensible) (Util
-				        .loadObjectsFromStream(ClassLoader.getSystemResourceAsStream(RegParserCompiler))[0]);
-				RPTProvider = (ParserTypeProvider.Extensible) PT;
-				IsToSave    = false;
-			} catch (Exception E) {
-			}
-			
-			// Try to load from local file
-			if (RPTProvider == null) {
-				try {
-					ParserTypeProvider PT = (ParserTypeProvider.Extensible) Util
-					        .loadObjectsFromFile(RegParserCompiler)[0];
-					RPTProvider = (ParserTypeProvider.Extensible) PT;
-					IsToSave    = false;
-				} catch (Exception E) {
-				}
-			}
-			
-			// Try to create one
-			if (RPTProvider == null) {
-				RPTProvider = new ParserTypeProvider.Extensible();
-				RPTProvider.addType(TextCaseInsensitiveParserType.instance);
-				// Add the type
-				RPTProvider.addType(IdentifierParserType.instance);
-				RPTProvider.addType(StringLiteralParserType.instance);
-				RPTProvider.addType(RPCommentParserType.instance);
-				RPTProvider.addType(RPTypeParserType.instance);
-				RPTProvider.addType(RPQuantifierParserType.instance);
-				RPTProvider.addType(RPRegParserItemParserType.instance);
-				RPTProvider.addType(RPEscapeParserType.instance);
-				RPTProvider.addType(RPEscapeOctParserType.instance);
-				RPTProvider.addType(RPEscapeHexParserType.instance);
-				RPTProvider.addType(RPEscapeUnicodeParserType.instance);
-				RPTProvider.addType(RPRangeParserType.instance);
-				RPTProvider.addType(RPCharSetItemParserType.instance);
-				RPTProvider.addType(RPRegParserParserType.instance);
-			}
-		} else
-			IsToSave = false;
-		
-		ParserType RPT = RPTProvider.type(RPRegParserParserType.name);
-		RegParser  RP  = (RegParser) (RPT.compile(regParserText, null, null, RPTProvider));
+		var compilerType   = compilerTypeProvider.type(RPRegParserParserType.name);
+		var compilerParser = (RegParser)compilerType.compile(regParserText, null, null, compilerTypeProvider);
 		
 		// If have type provider
-		if ((RP != null) && (typeProvider != null)) {
-			RegParserEntry[] Es = RP.entries().toArray(RegParserEntry[]::new);
-			RP = new RegParser.WithDefaultTypeProvider(Es, typeProvider);
+		if ((compilerParser != null) && (typeProvider != null)) {
+			var entries
+					= compilerParser
+					.entries()
+					.toArray(RegParserEntry[]::new);
+			compilerParser = new RegParser.WithDefaultTypeProvider(entries, typeProvider);
 		}
 		
-		if (IsToSave) {
-			// Try to get checker of every all type in the provider so that when it is saved
-			Set<String> Ns = RPTProvider.typeNames();
-			for (String N : Ns) {
-				ParserType RPType = RPTProvider.type(N);
-				RPType.checker(null, null, RPTProvider);
-			}
-			
-			// Save for later use
-			try {
-				Util.saveObjectsToFile(RegParserCompiler, new Serializable[] { RPTProvider });
-			} catch (Exception E) {
-			}
+		return compilerParser;
+	}
+	
+	private static ParserTypeProvider prepareTypeProvider() {
+		// Try to load from Resource
+		try {
+			var resource = ClassLoader.getSystemResourceAsStream(regParserCompilerFile);
+			var objects  = loadObjectsFromStream(resource);
+			return (ParserTypeProvider.Extensible) objects[0];
+		} catch (Exception E) {
 		}
 		
-		return RP;
+		// Try to load from local file
+		try {
+			var objects = loadObjectsFromFile(regParserCompilerFile);
+			return (ParserTypeProvider.Extensible) objects[0];
+		} catch (Exception E) {
+		}
+		
+		// Create one
+		var provider = new ParserTypeProvider.Extensible();
+		provider.addType(TextCaseInsensitiveParserType.instance);
+		// Add the type
+		provider.addType(IdentifierParserType.instance);
+		provider.addType(StringLiteralParserType.instance);
+		provider.addType(RPCommentParserType.instance);
+		provider.addType(RPTypeParserType.instance);
+		provider.addType(RPQuantifierParserType.instance);
+		provider.addType(RPRegParserItemParserType.instance);
+		provider.addType(RPEscapeParserType.instance);
+		provider.addType(RPEscapeOctParserType.instance);
+		provider.addType(RPEscapeHexParserType.instance);
+		provider.addType(RPEscapeUnicodeParserType.instance);
+		provider.addType(RPRangeParserType.instance);
+		provider.addType(RPCharSetItemParserType.instance);
+		provider.addType(RPRegParserParserType.instance);
+		
+		// Try to get checker of every all type in the provider so that when it is saved
+		var names = provider.typeNames();
+		for (var name : names) {
+			var type = provider.type(name);
+			type.checker(null, null, provider);
+		}
+		
+		// Save for later use
+		try {
+			saveObjectsToFile(regParserCompilerFile, new Serializable[] { provider });
+		} catch (Exception E) {
+		}
+		
+		return provider;
 	}
 }
