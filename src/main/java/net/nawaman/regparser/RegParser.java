@@ -573,10 +573,7 @@ public class RegParser implements Checker, Serializable {
 	/** Cache for Tabs */
 	static Vector<String> Tabs = new Vector<String>();
 	
-	/**
-	 * Returns the length of the match if the text is start with a match or -1 if
-	 * not
-	 */
+	/** Returns the length of the match if the text is start with a match or -1 if not */
 	protected ParseResult parse(CharSequence pText, int pOffset, int pIndex, int pTimes, ParseResult pResult,
 	        ParserTypeProvider pProvider, ParserType pRPType, String pRPTParam, int pTabs) {
 		

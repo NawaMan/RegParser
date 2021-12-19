@@ -38,8 +38,8 @@ import net.nawaman.regparser.CompilationContext;
 import net.nawaman.regparser.ParserType;
 import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.ParserTypeRef;
-import net.nawaman.regparser.RegParserEntry;
 import net.nawaman.regparser.RegParser;
+import net.nawaman.regparser.RegParserEntry;
 import net.nawaman.regparser.result.entry.ParseResultEntry;
 import net.nawaman.regparser.result.entry.ParseResultEntryWithParserEntryAndSubResult;
 import net.nawaman.regparser.result.entry.ParseResultEntryWithSubResult;
@@ -48,7 +48,9 @@ import net.nawaman.regparser.utils.IStream;
 import net.nawaman.regparser.utils.Util;
 
 /**
- * The result of the parsing
+ * The result of the parsing.
+ * 
+ * This object is not thread-safe.
  *
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
@@ -100,6 +102,7 @@ abstract public class ParseResult implements Serializable {
 	
 	//== Instance ==
 	
+	private boolean                hasCollapsed = false;
 	private List<ParseResultEntry> entries;
 	
 	/** Constructor */
@@ -1339,185 +1342,197 @@ abstract public class ParseResult implements Serializable {
 	
 	/** Collapse the result so entry with $ and [] will be combine */
 	public final void collapse(ParserTypeProvider typeProvider) {
-		if (this.entries == null)
+		if (hasCollapsed)
 			return;
 		
-		if (this.entries.size() == 0)
+		if (this.entries == null) {
+			hasCollapsed = true;
 			return;
-		
-		int     entrySize          = entries.size();
-		var     lastEntry          = entries.get(entrySize - 1);
-		boolean lastEntryHasNoName = (lastEntry.name()    == null)
-		                          && (lastEntry.type()    == null)
-		                          && (lastEntry.typeRef() == null);
-		
-		// Basic collapse of the no name and no type
-		for (int i = (entries.size() - 1); --i >= 0;) {
-			var     entry          = entries.get(i);
-			boolean entryHasNoName = ((entry.name()    == null)
-			                       && (entry.type()    == null)
-			                       && (entry.typeRef() == null));
-			// If both has no name, collapse
-			if (entryHasNoName && lastEntryHasNoName) {
-				entries.remove(i);
-			}
-			
-			lastEntryHasNoName = entryHasNoName;
-			lastEntry          = entry;
 		}
 		
-		// Collapse sub entry that does not have name or type
-		// Remove the entry without sub/type then replace it with the one with out a sub
-		for (int i = entries.size(); --i >= 0;) {
-			var thisEntry = entries.get(i);
+		if (this.entries.size() == 0) {
+			hasCollapsed = true;
+			return;
+		}
+		
+		synchronized (this) {
+			if (hasCollapsed)
+				return;
 			
-			if (thisEntry.hasSubResult()
-			&& !thisEntry.subResult().hasNames()
-			&& !thisEntry.subResult().hasTypes()) {
-				int thisEndPosition = thisEntry.endPosition();
-				if (thisEntry instanceof ParseResultEntryWithSubResult) {
+			int     entrySize          = entries.size();
+			var     lastEntry          = entries.get(entrySize - 1);
+			boolean lastEntryHasNoName = (lastEntry.name()    == null)
+			                          && (lastEntry.type()    == null)
+			                          && (lastEntry.typeRef() == null);
+			
+			// Basic collapse of the no name and no type
+			for (int i = (entries.size() - 1); --i >= 0;) {
+				var     entry          = entries.get(i);
+				boolean entryHasNoName = ((entry.name()    == null)
+				                       && (entry.type()    == null)
+				                       && (entry.typeRef() == null));
+				// If both has no name, collapse
+				if (entryHasNoName && lastEntryHasNoName) {
 					entries.remove(i);
-					
-					var newEntry = newEntry(thisEndPosition);
-					entries.add(i, newEntry);
-				} else
-					if (thisEntry instanceof ParseResultEntryWithParserEntryAndSubResult) {
+				}
+				
+				lastEntryHasNoName = entryHasNoName;
+				lastEntry          = entry;
+			}
+			
+			// Collapse sub entry that does not have name or type
+			// Remove the entry without sub/type then replace it with the one with out a sub
+			for (int i = entries.size(); --i >= 0;) {
+				var thisEntry = entries.get(i);
+				
+				if (thisEntry.hasSubResult()
+				&& !thisEntry.subResult().hasNames()
+				&& !thisEntry.subResult().hasTypes()) {
+					int thisEndPosition = thisEntry.endPosition();
+					if (thisEntry instanceof ParseResultEntryWithSubResult) {
 						entries.remove(i);
 						
-						var thisParseEntry = thisEntry.parserEntry();
-						var newEntry       = newEntry(thisEndPosition, thisParseEntry);
+						var newEntry = newEntry(thisEndPosition);
 						entries.add(i, newEntry);
-					}
+					} else
+						if (thisEntry instanceof ParseResultEntryWithParserEntryAndSubResult) {
+							entries.remove(i);
+							
+							var thisParseEntry = thisEntry.parserEntry();
+							var newEntry       = newEntry(thisEndPosition, thisParseEntry);
+							entries.add(i, newEntry);
+						}
+				}
+				
+				if (!thisEntry.hasSubResult())
+					continue;
+				
+				thisEntry
+					.subResult()
+					.collapse(typeProvider);
 			}
 			
-			if (!thisEntry.hasSubResult())
-				continue;
-			
-			thisEntry
-				.subResult()
-				.collapse(typeProvider);
-		}
-		
-		// Collapse entry that its sub does not contain any named or typed entry
-		for (int i = entries.size(); --i >= 0;) {
-			var thisEntry = entries.get(i);
-			if (!thisEntry.hasSubResult())
-				continue;
-			
-			if (thisEntry.subResult().hasNames())
-				continue;
-			
-			if (thisEntry.subResult().hasTypes())
-				continue;
-			
-			entries.remove(i);
-			
-			int thisEndPosition = thisEntry.endPosition();
-			var thisParseEntry  = thisEntry.parserEntry();
-			var newEntry        = newEntry(thisEndPosition, thisParseEntry);
-			entries.add(i, newEntry);
-		}
-		
-		// Collapse the same type and same name that end with '[]'
-		lastEntry = entries.get(entries.size() - 1);
-		ParserType    LatestType = lastEntry.type();
-		ParserTypeRef LatestTRef = lastEntry.typeRef();
-		String   LatestName = lastEntry.name();
-		
-		for (int i = (entries.size() - 1); --i >= 0;) {
-			var thisEntry   = entries.get(i);
-			var thisType    = thisEntry.type();
-			var thisTypeRef = thisEntry.typeRef();
-			var thisName    = thisEntry.name();
-			
-			if (!lastEntry.hasSubResult()
-			 && !thisEntry.hasSubResult()
-			 && Objects.equals(LatestType, thisType)
-			 && Objects.equals(LatestTRef, thisTypeRef)
-			 && Objects.equals(LatestName, thisName)
-			 && (((thisName    != null) && thisName          .endsWith("[]"))
-			  || ((thisType    != null) && thisType   .name().endsWith("[]"))
-			  || ((thisTypeRef != null) && thisTypeRef.name().endsWith("[]")))) {
+			// Collapse entry that its sub does not contain any named or typed entry
+			for (int i = entries.size(); --i >= 0;) {
+				var thisEntry = entries.get(i);
+				if (!thisEntry.hasSubResult())
+					continue;
+				
+				if (thisEntry.subResult().hasNames())
+					continue;
+				
+				if (thisEntry.subResult().hasTypes())
+					continue;
+				
 				entries.remove(i);
+				
+				int thisEndPosition = thisEntry.endPosition();
+				var thisParseEntry  = thisEntry.parserEntry();
+				var newEntry        = newEntry(thisEndPosition, thisParseEntry);
+				entries.add(i, newEntry);
 			}
-			lastEntry  = thisEntry;
-			LatestType = thisType;
-			LatestTRef = thisTypeRef;
-			LatestName = thisName;
-		}
-		
-		// Process Second Stage Entry
-		for (int i = entries.size(); --i >= 0;) {
-			var thisEntry   = entries.get(i);
-			var parserEntry = thisEntry.parserEntry();
-			if (parserEntry == null)
-				continue;
 			
-			var secondStage = parserEntry.secondStage();
-			if (secondStage == null)
-				continue;
+			// Collapse the same type and same name that end with '[]'
+			lastEntry = entries.get(entries.size() - 1);
+			ParserType    LatestType = lastEntry.type();
+			ParserTypeRef LatestTRef = lastEntry.typeRef();
+			String   LatestName = lastEntry.name();
 			
-			parseEntry(i, secondStage, typeProvider);
-		}
-		
-		if (RegParser.DebugMode) {
-			RegParser.DebugPrintStream.println("Before Flating:------------------------------------------------------");
-			RegParser.DebugPrintStream.println(toString());
-		}
-		
-		// Collapse auto skip name that end with '*'
-		for (int i = 0; i < entries.size(); i++) {
-			var entry = entries.get(i);
-			if (!entry.hasSubResult())
-				continue;
+			for (int i = (entries.size() - 1); --i >= 0;) {
+				var thisEntry   = entries.get(i);
+				var thisType    = thisEntry.type();
+				var thisTypeRef = thisEntry.typeRef();
+				var thisName    = thisEntry.name();
+				
+				if (!lastEntry.hasSubResult()
+				 && !thisEntry.hasSubResult()
+				 && Objects.equals(LatestType, thisType)
+				 && Objects.equals(LatestTRef, thisTypeRef)
+				 && Objects.equals(LatestName, thisName)
+				 && (((thisName    != null) && thisName          .endsWith("[]"))
+				  || ((thisType    != null) && thisType   .name().endsWith("[]"))
+				  || ((thisTypeRef != null) && thisTypeRef.name().endsWith("[]")))) {
+					entries.remove(i);
+				}
+				lastEntry  = thisEntry;
+				LatestType = thisType;
+				LatestTRef = thisTypeRef;
+				LatestName = thisName;
+			}
 			
-			var name = entry.name();
-			var type = entry.typeName();
-			if (((name == null) || !name.contains("*"))
-			 && ((type == null) || !type.contains("*")))
-				continue;
+			// Process Second Stage Entry
+			for (int i = entries.size(); --i >= 0;) {
+				var thisEntry   = entries.get(i);
+				var parserEntry = thisEntry.parserEntry();
+				if (parserEntry == null)
+					continue;
+				
+				var secondStage = parserEntry.secondStage();
+				if (secondStage == null)
+					continue;
+				
+				parseEntry(i, secondStage, typeProvider);
+			}
 			
 			if (RegParser.DebugMode) {
-				RegParser.DebugPrintStream
-				        .printf("Flating '%s':'%s' START:----------------------------------------------\n", name, type);
+				RegParser.DebugPrintStream.println("Before Flating:------------------------------------------------------");
+				RegParser.DebugPrintStream.println(toString());
 			}
-			flatEntry(i);
-			if (RegParser.DebugMode) {
-				RegParser.DebugPrintStream
-				        .printf("Flating '%s':'%s' END:------------------------------------------------\n", name, type);
-			}
-			i--;
-		}
-		
-		// Collapse auto skip name that end with '+', has sub and only one entry
-		for (int i = 0; i < entries.size(); i++) {
-			var entry = entries.get(i);
-			if (!entry.hasSubResult())
-				continue;
 			
-			if (entry.subResult().entryCount() != 1)
-				continue;
+			// Collapse auto skip name that end with '*'
+			for (int i = 0; i < entries.size(); i++) {
+				var entry = entries.get(i);
+				if (!entry.hasSubResult())
+					continue;
+				
+				var name = entry.name();
+				var type = entry.typeName();
+				if (((name == null) || !name.contains("*"))
+				 && ((type == null) || !type.contains("*")))
+					continue;
+				
+				if (RegParser.DebugMode) {
+					RegParser.DebugPrintStream
+					        .printf("Flating '%s':'%s' START:----------------------------------------------\n", name, type);
+				}
+				flatEntry(i);
+				if (RegParser.DebugMode) {
+					RegParser.DebugPrintStream
+					        .printf("Flating '%s':'%s' END:------------------------------------------------\n", name, type);
+				}
+				i--;
+			}
+			
+			// Collapse auto skip name that end with '+', has sub and only one entry
+			for (int i = 0; i < entries.size(); i++) {
+				var entry = entries.get(i);
+				if (!entry.hasSubResult())
+					continue;
+				
+				if (entry.subResult().entryCount() != 1)
+					continue;
 
-			var name = entry.name();
-			var type = entry.typeName();
-			if (((name == null) || !name.contains("+"))
-			 && ((type == null) || !type.contains("+")))
-				continue;
+				var name = entry.name();
+				var type = entry.typeName();
+				if (((name == null) || !name.contains("+"))
+				 && ((type == null) || !type.contains("+")))
+					continue;
+				
+				if (RegParser.DebugMode) {
+					RegParser.DebugPrintStream
+					        .printf("Flating '%s':'%s' START:----------------------------------------------\n", name, type);
+				}
+				flatEntry(i);
+				if (RegParser.DebugMode) {
+					RegParser.DebugPrintStream
+					        .printf("Flating '%s':'%s' END:------------------------------------------------\n", name, type);
+				}
+				i--;
+			}
 			
 			if (RegParser.DebugMode) {
-				RegParser.DebugPrintStream
-				        .printf("Flating '%s':'%s' START:----------------------------------------------\n", name, type);
+				RegParser.DebugPrintStream.println("End Flating:---------------------------------------------------------");
 			}
-			flatEntry(i);
-			if (RegParser.DebugMode) {
-				RegParser.DebugPrintStream
-				        .printf("Flating '%s':'%s' END:------------------------------------------------\n", name, type);
-			}
-			i--;
-		}
-		
-		if (RegParser.DebugMode) {
-			RegParser.DebugPrintStream.println("End Flating:---------------------------------------------------------");
 		}
 	}
 	
