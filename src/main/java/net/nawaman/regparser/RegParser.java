@@ -17,6 +17,7 @@
  */
 package net.nawaman.regparser;
 
+import static java.util.Objects.requireNonNullElse;
 import static net.nawaman.regparser.result.ParseResult.newResult;
 import static net.nawaman.regparser.result.entry.ParseResultEntry.newEntry;
 import static net.nawaman.regparser.utils.Util.prependArray;
@@ -149,22 +150,22 @@ public class RegParser implements Checker, Serializable {
 	private final RegParserEntry[] entries;
 	
 	RegParser(RegParserEntry[] entries) {
-		this.entries = entries;
+		this.entries = requireNonNullElse(entries, RegParserEntry.EmptyRegParserEntryArray);
 	}
 	
 	public Stream<RegParserEntry> entries() {
-		// TODO - Rethink this.
-		return (entries == null) ? null : Stream.of(entries);
+		return Stream.of(entries);
 	}
 	
 	/** Returns the number of RegParser entry this RegParser composes of */
 	public int getEntryCount() {
-		return (this.entries == null) ? 0 : this.entries.length;
+		return this.entries.length;
 	}
 	
 	public RegParserEntry getEntryAt(int pIndex) {
 		if ((pIndex < 0) || (pIndex >= this.getEntryCount()))
 			return null;
+		
 		return this.entries[pIndex];
 	}
 	
