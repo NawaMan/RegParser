@@ -25,23 +25,25 @@ public class RegParserWithDefaultTypeProvider extends RegParser {
 	private static final long serialVersionUID = -7904907723214116873L;
 	
 	public static RegParser attachDefaultTypeProvider(RegParser regParser, ParserTypeProvider typeProvider) {
-		if ((regParser == null) || (typeProvider == null))
+		if ((regParser    == null)
+		 || (typeProvider == null))
 			return regParser;
 		
 		var originalProvider = regParser.getDefaultTypeProvider();
 		if ((regParser instanceof RegParserWithDefaultTypeProvider)
 		 && (originalProvider instanceof ParserTypeProvider.Library)) {
 			((ParserTypeProvider.Library) originalProvider).addProvider(typeProvider);
+			
 		} else {
 			var parserEntries   = ((RegParser)regParser).entries();
-			var entries         = (parserEntries == null) ? null : parserEntries.toArray(RegParserEntry[]::new);
-			var newTypeProvider = ((originalProvider != null) && (originalProvider != typeProvider))
-			                    ? null
-			                    : new ParserTypeProvider.Library(typeProvider, originalProvider);
+			var entries         = parserEntries.toArray(RegParserEntry[]::new);
+			var newTypeProvider = new ParserTypeProvider.Library(typeProvider, originalProvider);
 			regParser = new RegParserWithDefaultTypeProvider(entries, newTypeProvider);
 		}
 		return regParser;
 	}
+	
+	private ParserTypeProvider typeProvider = null;
 	
 	RegParserWithDefaultTypeProvider(RegParserEntry[] entries, ParserTypeProvider typeProvider) {
 		super(entries);
@@ -53,8 +55,6 @@ public class RegParserWithDefaultTypeProvider extends RegParser {
 		this.typeProvider = typeProvider;
 	}
 	
-	private ParserTypeProvider typeProvider = null;
-	
 	@Override
 	ParserTypeProvider getDefaultTypeProvider() {
 		return this.typeProvider;
@@ -62,12 +62,8 @@ public class RegParserWithDefaultTypeProvider extends RegParser {
 	
 	// Parse
 	
-	/** {@inheritDoc} */
 	@Override
-	/**
-	 * Returns the length of the match if the text is start with a match or -1 if
-	 * not
-	 */
+	/** Returns the length of the match if the text is start with a match or -1 if not */
 	ParseResult parse(
 			CharSequence       text,
 			int                offset,
