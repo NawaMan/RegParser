@@ -184,41 +184,52 @@ public class RegParser implements Checker, Serializable {
 	// Parse - as far as it can go.
 	
 	/** Returns the the match if the text is start with a match or -1 if not */
-	public ParseResult parse(CharSequence pText) {
-		ParseResult PR = this.parse(pText, 0, 0, 0, null, null, null, null, 0);
-		if (PR != null)
-			PR.collapse(null);
-		return PR;
+	public ParseResult parse(CharSequence text) {
+		if (text == null)
+			return null;
+		
+		var parseResult = parse(text, 0, 0, 0, null, null, null, null, 0);
+		if (parseResult == null)
+			return null;
+		
+		parseResult.collapse(null);
+		return parseResult;
 	}
 	
-	/**
-	 * Returns the match if the text is start with a match (from pOffset on) or -1
-	 * if not
-	 */
-	public ParseResult parse(CharSequence pText, int pOffset) {
-		ParseResult PR = this.parse(pText, pOffset, 0, 0, null, null, null, null, 0);
-		if (PR != null)
-			PR.collapse(null);
-		return PR;
+	/** Returns the match if the text is start with a match (from pOffset on) or -1 if not */
+	public ParseResult parse(CharSequence text, int offset) {
+		if (text == null)
+			return null;
+		
+		var parseResult = parse(text, offset, 0, 0, null, null, null, null, 0);
+		if (parseResult == null)
+			return null;
+		
+		parseResult.collapse(null);
+		return parseResult;
 	}
 	
 	/** Returns the the match if the text is start with a match or -1 if not */
-	public ParseResult parse(CharSequence pText, ParserTypeProvider pProvider) {
-		ParseResult PR = this.parse(pText, 0, 0, 0, null, pProvider, null, null, 0);
-		if (PR != null)
-			PR.collapse(pProvider);
-		return PR;
+	public ParseResult parse(CharSequence text, ParserTypeProvider typeProvider) {
+		var parseResult = parse(text, 0, 0, 0, null, typeProvider, null, null, 0);
+		if (parseResult == null)
+			return null;
+		
+		parseResult.collapse(typeProvider);
+		return parseResult;
 	}
 	
-	/**
-	 * Returns the match if the text is start with a match (from pOffset on) or -1
-	 * if not
-	 */
-	public ParseResult parse(CharSequence pText, int pOffset, ParserTypeProvider pProvider) {
-		ParseResult PR = this.parse(pText, pOffset, 0, 0, null, pProvider, null, null, 0);
-		if (PR != null)
-			PR.collapse(pProvider);
-		return PR;
+	/** Returns the match if the text is start with a match (from pOffset on) or -1 if not */
+	public ParseResult parse(CharSequence text, int offset, ParserTypeProvider typeProvider) {
+		if (text == null)
+			return null;
+		
+		var parseResult = this.parse(text, offset, 0, 0, null, typeProvider, null, null, 0);
+		if (parseResult == null)
+			return null;
+		
+		parseResult.collapse(typeProvider);
+		return parseResult;
 	}
 	
 	// Match - to the end or fail.
