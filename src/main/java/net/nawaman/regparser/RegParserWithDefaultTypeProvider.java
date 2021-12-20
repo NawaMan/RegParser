@@ -68,7 +68,7 @@ public class RegParserWithDefaultTypeProvider extends RegParser {
 	 * Returns the length of the match if the text is start with a match or -1 if
 	 * not
 	 */
-	protected ParseResult parse(
+	ParseResult parse(
 			CharSequence       text,
 			int                offset,
 			int                index,

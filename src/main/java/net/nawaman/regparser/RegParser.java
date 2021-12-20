@@ -308,8 +308,11 @@ public class RegParser implements Checker, Serializable {
 	
 	// Internal --------------------------------------------------------------------------------------------------------
 	
+	/** Cache for Tabs */
+	private static Vector<String> Tabs = new Vector<String>();
+	
 	/** Parse an entry at the index pIndex possessively */
-	protected ParseResult parseEach_P(CharSequence pText, int pOffset, int pIndex, ParseResult pResult,
+	private ParseResult parseEach_P(CharSequence pText, int pOffset, int pIndex, ParseResult pResult,
 	        ParserTypeProvider pProvider, int pTabs) {
 		String        FN  = this.entries[pIndex].name();
 		ParserTypeRef FTR = this.entries[pIndex].typeRef();
@@ -320,7 +323,7 @@ public class RegParser implements Checker, Serializable {
 	}
 	
 	/** Parse an entry possessively */
-	protected ParseResult parseEach_P(CharSequence pText, int pOffset, int pIndex, String FN, ParserType FT,
+	private ParseResult parseEach_P(CharSequence pText, int pOffset, int pIndex, String FN, ParserType FT,
 	        ParserTypeRef FTR, Checker FP, ParseResult pResult, ParserTypeProvider pProvider, int pTabs) {
 		try {
 			
@@ -596,11 +599,8 @@ public class RegParser implements Checker, Serializable {
 		}
 	}
 	
-	/** Cache for Tabs */
-	static Vector<String> Tabs = new Vector<String>();
-	
 	/** Returns the length of the match if the text is start with a match or -1 if not */
-	protected ParseResult parse(CharSequence pText, int pOffset, int pIndex, int pTimes, ParseResult pResult,
+	ParseResult parse(CharSequence pText, int pOffset, int pIndex, int pTimes, ParseResult pResult,
 	        ParserTypeProvider pProvider, ParserType pRPType, String pRPTParam, int pTabs) {
 		
 		// If the entry has a name, ask it to parse with a new parse result
