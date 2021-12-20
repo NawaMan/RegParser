@@ -1065,65 +1065,68 @@ public class RegParser implements Checker, Serializable {
 	// To Satisfy Checker ----------------------------------------------------------------------------------------------
 	
 	/**
-	 * Returns the length of the match if the string S starts with this
-	 * checker.<br />
+	 * Returns the length of the match if the string S starts with this checker.
+	 * <br />
 	 * 
-	 * @param S       is the string to be parse
-	 * @param pOffset the starting point of the checking
-	 * @return the length of the match or -1 if the string S does not start with
-	 *         this checker
+	 * @param  text    is the string to be parse
+	 * @param  offset  the starting point of the checking
+	 * @return         the length of the match or -1 if the string S does not start with this checker
 	 */
-	public int startLengthOf(CharSequence S, int pOffset, ParserTypeProvider pProvider) {
-		return this.startLengthOf(S, pOffset, pProvider, null);
+	public int startLengthOf(CharSequence text, int offset, ParserTypeProvider provider) {
+		return this.startLengthOf(text, offset, provider, null);
 	}
 	
 	/**
 	 * Returns the length of the match if the string S starts with this
 	 * checker.<br />
 	 * 
-	 * @param S       is the string to be parse
-	 * @param pOffset the starting point of the checking
-	 * @param pResult the parse result of the current parsing. This is only
-	 *                available when this checker is called from a RegParser
-	 * @return the length of the match or -1 if the string S does not start with
-	 *         this checker
+	 * @param  text    is the string to be parse
+	 * @param  offset  the starting point of the checking
+	 * @param  result  the parse result of the current parsing.
+	 *                   This is only available when this checker is called from a RegParser
+	 * @return  the length of the match or -1 if the string S does not start with this checker
 	 */
 	@Override
-	public int startLengthOf(CharSequence S, int pOffset, ParserTypeProvider pProvider, ParseResult pResult) {
-		if (pResult == null) {
-			ParseResult PR = this.parse(S.toString(), pOffset, pProvider);
-			if (PR == null)
+	public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider, ParseResult result) {
+		if (result == null) {
+			var parseResult = parse(text, offset, 0, 0, null, typeProvider, null, null, 0);
+			if (parseResult == null)
 				return -1;
-			return PR.endPosition() - pOffset;
+			
+			int endPosition = parseResult.endPosition();
+			return endPosition - offset;
 		}
 		
-		int REC = pResult.rawEntryCount();
-		if ((this.parse(S, pOffset, 0, 0, pResult, pProvider, null, null, 0)) == null) {
+		var attemptResult = parse(text, offset, 0, 0, result, typeProvider, null, null, 0);
+		if (attemptResult == null) {
+			int rawEntryCount = result.rawEntryCount();
 			// Recover what may have been added in the fail attempt
-			pResult.reset(REC);
+			result.reset(rawEntryCount);
 			return -1;
 		}
-		return pResult.endPosition() - pOffset;
+		
+		int endPosition = result.endPosition();
+		return endPosition - offset;
 	}
 	
 	@Override
 	public String toString() {
-		StringBuffer SB = new StringBuffer();
-		// SB.append("(");
-		for (int i = 0; i < this.entries.length; i++) {
-			SB.append(this.entries[i].toString());
+		var buffer = new StringBuffer();
+		for (var entry : entries) {
+			buffer.append(entry.toString());
 		}
-		// SB.append(")");
-		return SB.toString();
+		return buffer.toString();
 	}
 	
 	@Override
-	public boolean equals(Object O) {
-		if (O == this)
+	public boolean equals(Object other) {
+		if (other == this)
 			return true;
-		if (!(O instanceof RegParser))
-			return false;
-		return Arrays.equals(this.entries, ((RegParser) O).entries);
 		
+		if (!(other instanceof RegParser))
+			return false;
+		
+		return Arrays.equals(this.entries, ((RegParser)other).entries);
 	}
+	
 }
