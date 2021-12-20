@@ -247,10 +247,18 @@ class RegParserSolver {
 		return parseResult;
 	}
 	
-	private static ParseResult parseType(final RegParserEntry[] entries, final CharSequence text, final int offset,
-	        final int index, final String name, ParserType type, final ParserTypeRef typeRef,
-	        Checker checker, final ParseResult parseResult, final ParserTypeProvider typeProvider,
-	        final int indentation) {
+	private static ParseResult parseType(
+			RegParserEntry[]   entries,
+			CharSequence       text,
+			int                offset,
+			int                index,
+			String             name,
+			ParserType         type,
+			ParserTypeRef      typeRef,
+			Checker            checker,
+			ParseResult        parseResult,
+			ParserTypeProvider typeProvider,
+			int                indentation) {
 		// RegParser with a type or a type ref
 		// parse it then validate and record separately from the current result
 		
@@ -388,21 +396,28 @@ class RegParserSolver {
 		return parseResult;
 	}
 	
-	private static ParseResult parseGroup(final CharSequence text, final int offset, Checker checker,
-	        final ParseResult parseResult) {
-		CheckerFixeds CG = ((CheckerFixeds) checker);
+	private static ParseResult parseGroup(
+			CharSequence text,
+			int          offset,
+			Checker      checker,
+			ParseResult  parseResult) {
+		var checkerFixeds = ((CheckerFixeds) checker);
 		// There is not enough space for it
-		if (text.length() < (offset + CG.neededLength()))
+		if (text.length() < (offset + checkerFixeds.neededLength()))
 			return null;
 		
-		int EndPosition = offset;
-		for (int i = 0; i < CG.entryCount(); i++) {
-			int l = CG.entry(i).length();
-			if (l != -1)
-				EndPosition += l;
-			else
-				EndPosition = text.length();
-			parseResult.append(newEntry(EndPosition, CG.entry(i).entry()));
+		int endPosition = offset;
+		for (int i = 0; i < checkerFixeds.entryCount(); i++) {
+			int length = checkerFixeds.entry(i).length();
+			if (length != -1) {
+				endPosition += length;
+			} else {
+				endPosition = text.length();
+			}
+			
+			var parserEntry = checkerFixeds.entry(i).entry();
+			var resultEntry = newEntry(endPosition, parserEntry);
+			parseResult.append(resultEntry);
 		}
 		
 		// Return the result
