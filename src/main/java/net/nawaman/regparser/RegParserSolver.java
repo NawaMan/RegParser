@@ -50,15 +50,15 @@ class RegParserSolver {
 			ParseResult        parseResult,
 			ParserTypeProvider typeProvider,
 			int                indentation) {
-		boolean isType        = (type != null) || (typeRef != null);
-		boolean isRegParser   = (!isType && (checker instanceof RegParser));
-		boolean isAlternative = (!isType && !isRegParser && (checker instanceof CheckerAlternative));
+		boolean isTyped       = (type != null) || (typeRef != null);
+		boolean isRegParser   = (!isTyped && (checker instanceof RegParser));
+		boolean isAlternative = (!isTyped && !isRegParser && (checker instanceof CheckerAlternative));
 		
 		if (isAlternative)
 			return parseAlternative(entries, text, offset, index, name, type, typeRef, checker, parseResult, typeProvider, indentation);
 		
-		boolean isGroup   = (!isType && !isRegParser && !isAlternative && (checker instanceof CheckerFixeds));
-		boolean isChecker =  !isType && !isRegParser && !isAlternative && !isAlternative && !isGroup;
+		boolean isGroup   = (!isTyped && !isRegParser && !isAlternative && (checker instanceof CheckerFixeds));
+		boolean isChecker =  !isTyped && !isRegParser && !isAlternative && !isAlternative && !isGroup;
 		
 		if (isChecker)
 			return parserChecker(entries, text, offset, index, name, checker, parseResult, typeProvider);
@@ -67,7 +67,7 @@ class RegParserSolver {
 			return parseRegParser(entries, text, offset, index, name, type, typeRef, checker,
 					parseResult, typeProvider, indentation);
 			
-		if (isType)
+		if (isTyped)
 			return parseType(entries, text, offset, index, name, type, typeRef, checker, parseResult,
 			        typeProvider, indentation);
 			
@@ -103,9 +103,9 @@ class RegParserSolver {
 			int                indentation) {
 		// find the longest match
 		
-		boolean isType   = (type != null) || (typeRef != null);
+		boolean isTyped  = (type != null) || (typeRef != null);
 		boolean isNamed  = (name != null);
-		boolean isAsNode = ((name == null) && isType) || ((name != null) && !name.startsWith("$"));
+		boolean isAsNode = ((name == null) && isTyped) || ((name != null) && !name.startsWith("$"));
 		
 		var maxEndRef    = new int[] { Integer.MIN_VALUE };
 		var maxResultRef = new ParseResult[] { null };
@@ -147,11 +147,13 @@ class RegParserSolver {
 			int endPosition = maxResult.endPosition();
 			var resultEntry = newEntry(endPosition, parserEntry, maxResult);
 			parseResult.append(resultEntry);
-		} else if (isType || isNamed) {
+			
+		} else if (isTyped || isNamed) {
 			var parserEntry = entries[index];
 			int endPosition = maxResult.endPosition();
 			var resultEntry = newEntry(endPosition, parserEntry);
 			parseResult.append(resultEntry);
+			
 		} else {
 			parseResult.mergeWith((TemporaryParseResult) maxResult);
 		}
@@ -174,57 +176,75 @@ class RegParserSolver {
 		if (offset >= text.length())
 			return null;
 			
-		int REC      = parseResult.rawEntryCount();
-		int LengthFP = checker.startLengthOf(text, offset, typeProvider, parseResult);
-		if (LengthFP == -1) {
+		int entryCount  = parseResult.rawEntryCount();
+		int foundLength = checker.startLengthOf(text, offset, typeProvider, parseResult);
+		if (foundLength == -1) {
 			// Recover what may have been added in the fail attempt
-			parseResult.reset(REC);
+			parseResult.reset(entryCount);
 			return null;
 		}
-		if (isNamed)
-			parseResult.append(newEntry(offset + LengthFP, entries[index]));
-		else
-			parseResult.append(newEntry(offset + LengthFP));
+		
+		var resultEntry
+				= isNamed
+				? newEntry(offset + foundLength, entries[index])
+				: newEntry(offset + foundLength);
+		parseResult.append(resultEntry);
 		
 		return parseResult;
 	}
 	
-	private static ParseResult parseRegParser(final RegParserEntry[] entries, final CharSequence text, final int offset,
-	        final int index, String name, ParserType type, ParserTypeRef typeRef,
-	        Checker checker, final ParseResult parseResult, final ParserTypeProvider typeProvider, final int indentation) {
+	private static ParseResult parseRegParser(
+			RegParserEntry[]   entries,
+			CharSequence       text, 
+			int                offset,
+			int                index,
+			String             name,
+			ParserType         type,
+			ParserTypeRef      typeRef,
+			Checker            checker,
+			ParseResult        parseResult,
+			ParserTypeProvider typeProvider,
+			int indentation) {
 		// parse it and record within the current result
 		
-		final boolean IsFPType          = (type != null) || (typeRef != null);
-		final boolean IsFPName          = (name != null);
-		final boolean IsFPAsNode        = ((name == null) && IsFPType) || ((name != null) && !name.startsWith("$"));
+		boolean isTyped  = (type != null) || (typeRef != null);
+		boolean isNamed  = (name != null);
+		boolean isAsNode = ((name == null) && isTyped) || ((name != null) && !name.startsWith("$"));
 		
-		if (IsFPName) {
-			ParseResult TryResult = newResult(offset, parseResult);
-			if ((((RegParser) checker).parse(text, offset, 0, 0, TryResult, typeProvider, null, null,
-			        indentation + 1)) == null)
+		if (isNamed) {
+			var tryResult = newResult(offset, parseResult);
+			var thisResult = ((RegParser) checker).parse(text, offset, 0, 0, tryResult, typeProvider, null, null, indentation + 1);
+			if (thisResult == null)
 				return null;
 			
 			// Merge the result
-			if (IsFPAsNode) {
-				parseResult.append(newEntry(TryResult.endPosition(), entries[index], TryResult));
+			int endPosition = tryResult.endPosition();
+			var parserEntry = entries[index];
+			var resultEntry = (ParseResultEntry)null;
+			if (isAsNode) {
+				resultEntry = newEntry(endPosition, parserEntry, tryResult);
+				
+			} else if (isTyped || isNamed) {
+				resultEntry = newEntry(endPosition, parserEntry);
+				
 			} else {
-				if (IsFPType || IsFPName)
-					parseResult.append(newEntry(TryResult.endPosition(), entries[index]));
-				else
-					parseResult.append(newEntry(TryResult.endPosition()));
+				resultEntry = newEntry(endPosition);
 			}
-			return parseResult;
 			
-		} else {
-			int REC = parseResult.rawEntryCount();
-			if ((((RegParser) checker).parse(text, offset, 0, 0, parseResult, typeProvider, null, null, indentation)) == null) {
-				// Recover what may have been added in the fail attempt
-				parseResult.reset(REC);
-				return null;
-			}
+			parseResult.append(resultEntry);
 			return parseResult;
 			
 		}
+		
+		int entryCount = parseResult.rawEntryCount();
+		var thisResult = ((RegParser)checker).parse(text, offset, 0, 0, parseResult, typeProvider, null, null, indentation);
+		if (thisResult == null) {
+			// Recover what may have been added in the fail attempt
+			parseResult.reset(entryCount);
+			return null;
+		}
+		
+		return parseResult;
 	}
 	
 	private static ParseResult parseType(final RegParserEntry[] entries, final CharSequence text, final int offset,
