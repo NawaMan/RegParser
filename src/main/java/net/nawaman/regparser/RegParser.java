@@ -224,7 +224,7 @@ public class RegParser implements Checker, Serializable {
 		if (text == null)
 			return null;
 		
-		var parseResult = this.parse(text, offset, 0, 0, null, typeProvider, null, null, 0);
+		var parseResult = parse(text, offset, 0, 0, null, typeProvider, null, null, 0);
 		if (parseResult == null)
 			return null;
 		
@@ -234,64 +234,71 @@ public class RegParser implements Checker, Serializable {
 	
 	// Match - to the end or fail.
 	
-	/**
-	 * Returns the match if the text is start with a match (from start to the end)
-	 * or -1 if not
-	 */
-	public ParseResult match(CharSequence pText) {
-		ParseResult PR = this.parse(pText, 0, 0, 0, null, null, null, null, 0);
-		if ((PR != null) && (pText != null)) {
-			if (PR.endPosition() != pText.length())
-				return null;
-			PR.collapse(null);
-		}
-		return PR;
+	/** Returns the match if the text is start with a match (from start to the end) or -1 if not */
+	public ParseResult match(CharSequence text) {
+		if (text == null)
+			return null;
+		
+		var parseResult = parse(text, 0, 0, 0, null, null, null, null, 0);
+		if (parseResult == null)
+			return null;
+		
+		if (parseResult.endPosition() != text.length())
+			return null;
+		
+		parseResult.collapse(null);
+		return parseResult;
 	}
 	
-	/**
-	 * Returns the match if the text is start with a match (from start to the
-	 * pEndPosition) or -1 if not
-	 */
-	public ParseResult match(CharSequence pText, int pOffset, int pEndPosition) {
-		ParseResult PR = this.parse(pText, pOffset, 0, 0, null, null, null, null, 0);
-		if ((PR != null) && (pText != null)) {
-			if (PR.endPosition() != pEndPosition)
-				return null;
-			PR.collapse(null);
-		}
-		return PR;
+	/** Returns the match if the text is start with a match (from start to the endPosition) or -1 if not */
+	public ParseResult match(CharSequence text, int offset, int endPosition) {
+		if (text == null)
+			return null;
+		
+		var parseResult = parse(text, offset, 0, 0, null, null, null, null, 0);
+		if (parseResult == null)
+			return null;
+		
+		if (parseResult.endPosition() != text.length())
+			return null;
+		
+		parseResult.collapse(null);
+		return parseResult;
 	}
 	
-	/**
-	 * Returns the match if the text is start with a match (from start to the end)
-	 * or -1 if not
-	 */
-	public ParseResult match(CharSequence pText, ParserTypeProvider pProvider) {
-		ParseResult PR = this.parse(pText, 0, 0, 0, null, pProvider, null, null, 0);
-		if ((PR != null) && (pText != null)) {
-			if (PR.endPosition() != pText.length())
-				return null;
-			PR.collapse(pProvider);
-		}
-		return PR;
+	/** Returns the match if the text is start with a match (from start to the end) or -1 if not */
+	public ParseResult match(CharSequence text, ParserTypeProvider typeProvider) {
+		if (text == null)
+			return null;
+		
+		var parseResult = parse(text, 0, 0, 0, null, typeProvider, null, null, 0);
+		if (parseResult == null)
+			return null;
+		
+		if (parseResult.endPosition() != text.length())
+			return null;
+		
+		parseResult.collapse(typeProvider);
+		return parseResult;
 	}
 	
-	/**
-	 * Returns the match if the text is start with a match (from start to the
-	 * pEndPosition) or -1 if not
-	 */
-	public ParseResult match(CharSequence pText, int pOffset, int pEndPosition, ParserTypeProvider pProvider) {
-		ParseResult PR = this.parse(pText, pOffset, 0, 0, null, pProvider, null, null, 0);
-		if ((PR != null) && (pText != null)) {
-			if (PR.endPosition() != pEndPosition)
-				return null;
-			PR.collapse(pProvider);
-		}
-		return PR;
+	/** Returns the match if the text is start with a match (from start to the endPosition) or -1 if not */
+	public ParseResult match(CharSequence text, int offset, int endPosition, ParserTypeProvider typeProvider) {
+		if (text == null)
+			return null;
+		
+		var parseResult = parse(text, offset, 0, 0, null, typeProvider, null, null, 0);
+		if (parseResult == null)
+			return null;
+		
+		if (parseResult.endPosition() != text.length())
+			return null;
+		
+		parseResult.collapse(typeProvider);
+		return parseResult;
 	}
 	
-	// Internal
-	// --------------------------------------------------------------------------------------------------------
+	// Internal --------------------------------------------------------------------------------------------------------
 	
 	/** Parse an entry at the index pIndex possessively */
 	protected ParseResult parseEach_P(CharSequence pText, int pOffset, int pIndex, ParseResult pResult,
@@ -1055,8 +1062,7 @@ public class RegParser implements Checker, Serializable {
 		return isChanged ? newRegParser((RegParserEntry[]) newEntries) : this;
 	}
 	
-	// To Satisfy Checker
-	// ----------------------------------------------------------------------------------------------
+	// To Satisfy Checker ----------------------------------------------------------------------------------------------
 	
 	/**
 	 * Returns the length of the match if the string S starts with this
