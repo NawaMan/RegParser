@@ -21,13 +21,13 @@ class RegParserSolver {
 	
 	/** Parse an entry at the index index possessively */
 	private static ParseResult parseEach(
-								final RegParserEntry[]   entries,
-								final CharSequence       text,
-								final int                offset,
-								final int                index,
-								final ParseResult        parseResult,
-								final ParserTypeProvider typeProvider,
-								final int                indentation) {
+			RegParserEntry[]   entries,
+			CharSequence       text,
+			int                offset,
+			int                index,
+			ParseResult        parseResult,
+			ParserTypeProvider typeProvider,
+			int                indentation) {
 		var entry   = entries[index];
 		var name    = entry.name();
 		var typeRef = entry.typeRef();
@@ -39,230 +39,140 @@ class RegParserSolver {
 	
 	/** Parse an entry possessively */
 	private static ParseResult parseEach(
-								final RegParserEntry[]   entries,
-								final CharSequence       text,
-								final int                offset,
-								final int                index,
-								final String             name,
-								      ParserType         type,
-								final ParserTypeRef      typeRef,
-								      Checker            checker,
-								final ParseResult        parseResult,
-								final ParserTypeProvider typeProvider,
-								final int                indentation) {
-		final boolean IsFPType          = (type != null) || (typeRef != null);
-		final boolean IsFPName          = (name != null);
-		      boolean IsFPAsNode        = ((name == null) && IsFPType) || ((name != null) && !name.startsWith("$"));
-		final boolean IsFPRegParser     = (!IsFPType && (checker instanceof RegParser));
-		final boolean IsFPAlternative   = (!IsFPType && !IsFPRegParser && (checker instanceof CheckerAlternative));
-		final boolean IsFPGroup         = (!IsFPType && !IsFPRegParser && !IsFPAlternative
-		                         && (checker instanceof CheckerFixeds));
-		final boolean IsFPNormalChecker = !IsFPType && !IsFPRegParser && !IsFPAlternative && !IsFPAlternative
-		                         && !IsFPGroup;
+			RegParserEntry[]   entries,
+			CharSequence       text,
+			int                offset,
+			int                index,
+			String             name,
+			ParserType         type,
+			ParserTypeRef      typeRef,
+			Checker            checker,
+			ParseResult        parseResult,
+			ParserTypeProvider typeProvider,
+			int                indentation) {
+		boolean isType        = (type != null) || (typeRef != null);
+		boolean isRegParser   = (!isType && (checker instanceof RegParser));
+		boolean isAlternative = (!isType && !isRegParser && (checker instanceof CheckerAlternative));
 		
-		// NOTE: If FPType or named, parse it then validate and record separately from
-		// the current result
-		// NOTE: If FPRegParser, parse it and record within the current result
-		// NOTE: If FPNormalChecker, getLengthOfStartOf then recored it with in the
-		// current result
-		// NOTE: If Alternative, find the longest match
+		if (isAlternative)
+			return parseAlternative(entries, text, offset, index, name, type, typeRef, checker, parseResult, typeProvider, indentation);
 		
-		if (IsFPAlternative) {
-			return parseAlternative(entries, text, offset, index, checker, parseResult, typeProvider, indentation,
-			        IsFPType, IsFPName, IsFPAsNode);
+		boolean isGroup   = (!isType && !isRegParser && !isAlternative && (checker instanceof CheckerFixeds));
+		boolean isChecker =  !isType && !isRegParser && !isAlternative && !isAlternative && !isGroup;
+		
+		if (isChecker)
+			return parserChecker(entries, text, offset, index, name, checker, parseResult, typeProvider);
 			
-		} else if (IsFPNormalChecker) {
-			return parserChecker(entries, text, offset, index, checker, parseResult, typeProvider, IsFPName);
+		if (isRegParser)
+			return parseRegParser(entries, text, offset, index, name, type, typeRef, checker,
+					parseResult, typeProvider, indentation);
 			
-		} else if (IsFPRegParser) { // RegParser
-			return parseRegParser(entries, text, offset, index, checker, parseResult, typeProvider, indentation,
-			        IsFPType, IsFPName, IsFPAsNode);
+		if (isType)
+			return parseType(entries, text, offset, index, name, type, typeRef, checker, parseResult,
+			        typeProvider, indentation);
 			
-		} else if (IsFPType) { // RegParser with a type or a type ref
-			
-			int         EndPosition = -1;
-			ParseResult ThisResult  = null;
-			
-			String Param = null;
-			
-			if (typeRef != null) {
-				Param = typeRef.parameter();
-				// Get type from the ref
-				if (typeProvider != null) {
-					// Get from the given provider
-					type = typeProvider.type(typeRef.name());
-				}
-				if (type == null) {
-					// Get from the default
-					type = ParserTypeProvider.Simple.defaultProvider().type(typeRef.name());
-					if (type == null) {
-						throw new ParsingException("RegParser type named '" + typeRef.name() + "' is not found.");
-					}
-				}
-			}
-			
-			// Extract a type
-			if (type != null) {
-				checker = type.checker(parseResult, Param, typeProvider);
-				if (checker == null)
-					throw new ParsingException("RegParser type named '" + typeRef + "' has no checker.");
-			}
-			
-			// If type is a text, FP is not a node
-			if (type.isText())
-				IsFPAsNode = false;
-			
-			if (checker instanceof RegParser) {
-				// The type contain a RegParser
-				ParseResult TryResult = newResult(offset, parseResult);
-				TryResult = ((RegParser) checker).parse(text, offset, 0, 0, TryResult, typeProvider,
-				        ((type != null) && type.isSelfContain()) ? null : type,
-				        ((type != null) && type.isSelfContain()) ? null : Param, indentation + 1);
-				if (TryResult == null)
-					return null;
-				
-				EndPosition = TryResult.endPosition();
-				ThisResult  = TryResult;
-				
-			} else if (checker instanceof CheckerAlternative) {
-				// The type contain a alternative checker
-				int         MaxEnd    = Integer.MIN_VALUE;
-				ParseResult MaxResult = null;
-				
-				CheckerAlternative CA       = (CheckerAlternative) checker;
-				var                checkers = CA.checkers().toArray(Checker[]::new);
-				for (int c = checkers.length; --c >= 0;) {
-					var TryResult = IsFPAsNode ? newResult(offset, parseResult) : newResult(parseResult);
-					if (parseEach(entries, text, offset, index, null, null, null, checkers[c], TryResult,
-					        typeProvider, indentation + 1) == null)
-						continue;
-					
-					// Find the longest length
-					if (MaxEnd >= TryResult.endPosition())
-						continue;
-					MaxResult = TryResult;
-					MaxEnd    = TryResult.endPosition();
-				}
-				if (MaxResult == null) {
-					if (!CA.hasDefault())
-						return null;
-					
-					var TryResult = IsFPAsNode ? newResult(offset, parseResult) : newResult(parseResult);
-					if (parseEach(entries, text, offset, index, null, null, null, CA.defaultChecker(), TryResult,
-					        typeProvider, indentation + 1) == null)
-						return null;
-					
-					MaxResult = TryResult;
-					MaxEnd    = TryResult.endPosition();
-				}
-				EndPosition = MaxEnd;
-				ThisResult  = MaxResult;
-			} else if (checker instanceof CheckerFixeds) {
-				CheckerFixeds CG = ((CheckerFixeds) checker);
-				// Check if there enough space for it
-				if (text.length() >= (offset + CG.neededLength())) {
-					EndPosition = offset;
-					ThisResult  = newResult(offset, parseResult);
-					for (int i = 0; i < CG.entryCount(); i++) {
-						int l = CG.entry(i).length();
-						if (l != -1)
-							EndPosition += l;
-						else
-							EndPosition = text.length();
-						ThisResult.append(newEntry(EndPosition, CG.entry(i).entry()));
-					}
-				}
-			} else {
-				// The type contain a checker
-				int REC      = parseResult.rawEntryCount();
-				int LengthFP = checker.startLengthOf(text, offset, typeProvider, parseResult);
-				if (LengthFP == -1) {
-					// Recover what may have been added in the fail attempt
-					parseResult.reset(REC);
-					return null;
-				}
-				
-				EndPosition = offset + LengthFP;
-				ThisResult  = newResult(offset, parseResult);
-				ThisResult.append(newEntry(offset + LengthFP, entries[index]));
-				
-			}
-			
-			if ((type != null) && type.hasValidation() && type.isSelfContain()) {
-				ParseResult PR = ThisResult.duplicate();
-				PR.collapse(typeProvider);
-				// In case of type, do validation
-				if (!type.validate(parseResult, PR, Param, typeProvider))
-					return null;
-			}
-			
-			// Append the result
-			if (IsFPAsNode) {
-				parseResult.append(newEntry(EndPosition, entries[index], ThisResult));
-			} else {
-				if (IsFPType || IsFPName)
-					parseResult.append(newEntry(EndPosition, entries[index]));
-				else
-					parseResult.append(newEntry(EndPosition));
-			}
-			
-			// Return the result
-			return parseResult;
-		} else if (IsFPGroup) {
+		if (isGroup)
 			return parseGroup(text, offset, checker, parseResult);
-		}
 		
+		System.err.println("Parser is in an unexpected state: ");
+		System.err.println(" = entries: " + entries);
+		System.err.println(" = text: " + text);
+		System.err.println(" = offset: " + offset);
+		System.err.println(" = index: " + index);
+		System.err.println(" = name: " + name);
+		System.err.println(" = type: " + type);
+		System.err.println(" = typeRef: " + typeRef);
+		System.err.println(" = checker: " + checker);
+		System.err.println(" = parseResult: " + parseResult);
+		System.err.println(" = typeProvider: " + typeProvider);
+		System.err.println(" = indentation: " + indentation);
 		return null;
 	}
 	
-	private static ParseResult parseAlternative(RegParserEntry[] entries, CharSequence text, int offset, int index,
-	        Checker checker, ParseResult parseResult, ParserTypeProvider typeProvider, int indentation,
-	        boolean IsFPType, boolean IsFPName, boolean IsFPAsNode) {
-		int         MaxEnd    = Integer.MIN_VALUE;
-		ParseResult MaxResult = null;
+	private static ParseResult parseAlternative(
+			RegParserEntry[]   entries,
+			CharSequence       text,
+			int                offset,
+			int                index,
+			String             name,
+			ParserType         type,
+			ParserTypeRef      typeRef,
+			Checker            checker,
+			ParseResult        parseResult,
+			ParserTypeProvider typeProvider,
+			int                indentation) {
+		// find the longest match
 		
-		CheckerAlternative CA       = (CheckerAlternative) checker;
-		var                checkers = CA.checkers().toArray(Checker[]::new);
-		for (int c = checkers.length; --c >= 0;) {
-			var TryResult = IsFPAsNode ? newResult(offset, parseResult) : newResult(parseResult);
-			if (parseEach(entries, text, offset, index, null, null, null, checkers[c], TryResult, typeProvider,
-			        indentation) == null)
-				continue;
+		boolean isType   = (type != null) || (typeRef != null);
+		boolean isNamed  = (name != null);
+		boolean isAsNode = ((name == null) && isType) || ((name != null) && !name.startsWith("$"));
+		
+		var maxEndRef    = new int[] { Integer.MIN_VALUE };
+		var maxResultRef = new ParseResult[] { null };
+		
+		final var alternatives = (CheckerAlternative)checker;
+		alternatives
+		.forEachInReverse(alternative -> {
+			var tryResult  = isAsNode
+			               ? newResult(offset, parseResult)
+			               : newResult(parseResult);
+			var eachResult = parseEach(entries, text, offset, index, null, null, null, alternative, tryResult, typeProvider, indentation);
+			if (eachResult == null)
+				return;
 			
 			// Find the longest length
-			if (MaxEnd >= TryResult.endPosition())
-				continue;
-			MaxResult = TryResult;
-			MaxEnd    = TryResult.endPosition();
-		}
-		if (MaxResult == null) {
-			if (!CA.hasDefault())
+			if (maxEndRef[0] >= tryResult.endPosition())
+				return;
+			
+			maxResultRef[0] = tryResult;
+			maxEndRef[0]    = tryResult.endPosition();
+		});
+		
+		var maxResult = maxResultRef[0];
+		if (maxResult == null) {
+			if (!alternatives.hasDefault())
 				return null;
 			
-			var TryResult = IsFPAsNode ? newResult(offset, parseResult) : newResult(parseResult);
-			if (parseEach(entries, text, offset, index, null, null, null, CA.defaultChecker(), TryResult,
-			        typeProvider, indentation) == null)
+			var tryResult      = isAsNode ? newResult(offset, parseResult) : newResult(parseResult);
+			var defaultChecker = alternatives.defaultChecker();
+			var eachResult     = parseEach(entries, text, offset, index, null, null, null, defaultChecker, tryResult, typeProvider, indentation);
+			if (eachResult == null)
 				return null;
 			
-			MaxResult = TryResult;
-			MaxEnd    = TryResult.endPosition();
+			maxResult = tryResult;
 		}
-		if (IsFPAsNode) {
-			parseResult.append(newEntry(MaxResult.endPosition(), entries[index], MaxResult));
+		
+		if (isAsNode) {
+			var parserEntry = entries[index];
+			int endPosition = maxResult.endPosition();
+			var resultEntry = newEntry(endPosition, parserEntry, maxResult);
+			parseResult.append(resultEntry);
+		} else if (isType || isNamed) {
+			var parserEntry = entries[index];
+			int endPosition = maxResult.endPosition();
+			var resultEntry = newEntry(endPosition, parserEntry);
+			parseResult.append(resultEntry);
 		} else {
-			if (IsFPType || IsFPName)
-				parseResult.append(newEntry(MaxResult.endPosition(), entries[index]));
-			else
-				parseResult.mergeWith((TemporaryParseResult) MaxResult);
+			parseResult.mergeWith((TemporaryParseResult) maxResult);
 		}
 		return parseResult;
 	}
 	
-	private static ParseResult parserChecker(final RegParserEntry[] entries, final CharSequence text, final int offset,
-	        final int index, Checker checker, final ParseResult parseResult, final ParserTypeProvider typeProvider,
-	        final boolean IsFPName) {
+	private static ParseResult parserChecker(
+			RegParserEntry[]   entries,
+			CharSequence       text,
+			int                offset,
+			int                index,
+			String             name,
+			Checker            checker,
+			ParseResult        parseResult,
+			ParserTypeProvider typeProvider) {
+		// getLengthOfStartOf then recored it with in the current result
+		
+		boolean isNamed = (name != null);
+		
 		if (offset >= text.length())
-			return null; // pResult;
+			return null;
 			
 		int REC      = parseResult.rawEntryCount();
 		int LengthFP = checker.startLengthOf(text, offset, typeProvider, parseResult);
@@ -271,7 +181,7 @@ class RegParserSolver {
 			parseResult.reset(REC);
 			return null;
 		}
-		if (IsFPName)
+		if (isNamed)
 			parseResult.append(newEntry(offset + LengthFP, entries[index]));
 		else
 			parseResult.append(newEntry(offset + LengthFP));
@@ -280,8 +190,14 @@ class RegParserSolver {
 	}
 	
 	private static ParseResult parseRegParser(final RegParserEntry[] entries, final CharSequence text, final int offset,
-	        final int index, Checker checker, final ParseResult parseResult, final ParserTypeProvider typeProvider,
-	        final int indentation, final boolean IsFPType, final boolean IsFPName, boolean IsFPAsNode) {
+	        final int index, String name, ParserType type, ParserTypeRef typeRef,
+	        Checker checker, final ParseResult parseResult, final ParserTypeProvider typeProvider, final int indentation) {
+		// parse it and record within the current result
+		
+		final boolean IsFPType          = (type != null) || (typeRef != null);
+		final boolean IsFPName          = (name != null);
+		final boolean IsFPAsNode        = ((name == null) && IsFPType) || ((name != null) && !name.startsWith("$"));
+		
 		if (IsFPName) {
 			ParseResult TryResult = newResult(offset, parseResult);
 			if ((((RegParser) checker).parse(text, offset, 0, 0, TryResult, typeProvider, null, null,
@@ -309,6 +225,147 @@ class RegParserSolver {
 			return parseResult;
 			
 		}
+	}
+	
+	private static ParseResult parseType(final RegParserEntry[] entries, final CharSequence text, final int offset,
+	        final int index, final String name, ParserType type, final ParserTypeRef typeRef,
+	        Checker checker, final ParseResult parseResult, final ParserTypeProvider typeProvider,
+	        final int indentation) {
+		// RegParser with a type or a type ref
+		// parse it then validate and record separately from the current result
+		
+		boolean IsFPType   = (type != null) || (typeRef != null);
+		boolean IsFPName   = (name != null);
+		boolean IsFPAsNode = ((name == null) && IsFPType) || ((name != null) && !name.startsWith("$"));
+		
+		int         EndPosition = -1;
+		ParseResult ThisResult  = null;
+		
+		String Param = null;
+		
+		if (typeRef != null) {
+			Param = typeRef.parameter();
+			// Get type from the ref
+			if (typeProvider != null) {
+				// Get from the given provider
+				type = typeProvider.type(typeRef.name());
+			}
+			if (type == null) {
+				// Get from the default
+				type = ParserTypeProvider.Simple.defaultProvider().type(typeRef.name());
+				if (type == null) {
+					throw new ParsingException("RegParser type named '" + typeRef.name() + "' is not found.");
+				}
+			}
+		}
+		
+		// Extract a type
+		if (type != null) {
+			checker = type.checker(parseResult, Param, typeProvider);
+			if (checker == null)
+				throw new ParsingException("RegParser type named '" + typeRef + "' has no checker.");
+		}
+		
+		// If type is a text, FP is not a node
+		if (type.isText())
+			IsFPAsNode = false;
+		
+		if (checker instanceof RegParser) {
+			// The type contain a RegParser
+			ParseResult TryResult = newResult(offset, parseResult);
+			TryResult = ((RegParser) checker).parse(text, offset, 0, 0, TryResult, typeProvider,
+			        ((type != null) && type.isSelfContain()) ? null : type,
+			        ((type != null) && type.isSelfContain()) ? null : Param, indentation + 1);
+			if (TryResult == null)
+				return null;
+			
+			EndPosition = TryResult.endPosition();
+			ThisResult  = TryResult;
+			
+		} else if (checker instanceof CheckerAlternative) {
+			// The type contain a alternative checker
+			int         MaxEnd    = Integer.MIN_VALUE;
+			ParseResult MaxResult = null;
+			
+			CheckerAlternative CA       = (CheckerAlternative) checker;
+			var                checkers = CA.checkers().toArray(Checker[]::new);
+			for (int c = checkers.length; --c >= 0;) {
+				var TryResult = IsFPAsNode ? newResult(offset, parseResult) : newResult(parseResult);
+				if (parseEach(entries, text, offset, index, null, null, null, checkers[c], TryResult,
+				        typeProvider, indentation + 1) == null)
+					continue;
+				
+				// Find the longest length
+				if (MaxEnd >= TryResult.endPosition())
+					continue;
+				MaxResult = TryResult;
+				MaxEnd    = TryResult.endPosition();
+			}
+			if (MaxResult == null) {
+				if (!CA.hasDefault())
+					return null;
+				
+				var TryResult = IsFPAsNode ? newResult(offset, parseResult) : newResult(parseResult);
+				if (parseEach(entries, text, offset, index, null, null, null, CA.defaultChecker(), TryResult,
+				        typeProvider, indentation + 1) == null)
+					return null;
+				
+				MaxResult = TryResult;
+				MaxEnd    = TryResult.endPosition();
+			}
+			EndPosition = MaxEnd;
+			ThisResult  = MaxResult;
+		} else if (checker instanceof CheckerFixeds) {
+			CheckerFixeds CG = ((CheckerFixeds) checker);
+			// Check if there enough space for it
+			if (text.length() >= (offset + CG.neededLength())) {
+				EndPosition = offset;
+				ThisResult  = newResult(offset, parseResult);
+				for (int i = 0; i < CG.entryCount(); i++) {
+					int l = CG.entry(i).length();
+					if (l != -1)
+						EndPosition += l;
+					else
+						EndPosition = text.length();
+					ThisResult.append(newEntry(EndPosition, CG.entry(i).entry()));
+				}
+			}
+		} else {
+			// The type contain a checker
+			int REC      = parseResult.rawEntryCount();
+			int LengthFP = checker.startLengthOf(text, offset, typeProvider, parseResult);
+			if (LengthFP == -1) {
+				// Recover what may have been added in the fail attempt
+				parseResult.reset(REC);
+				return null;
+			}
+			
+			EndPosition = offset + LengthFP;
+			ThisResult  = newResult(offset, parseResult);
+			ThisResult.append(newEntry(offset + LengthFP, entries[index]));
+			
+		}
+		
+		if ((type != null) && type.hasValidation() && type.isSelfContain()) {
+			ParseResult PR = ThisResult.duplicate();
+			PR.collapse(typeProvider);
+			// In case of type, do validation
+			if (!type.validate(parseResult, PR, Param, typeProvider))
+				return null;
+		}
+		
+		// Append the result
+		if (IsFPAsNode) {
+			parseResult.append(newEntry(EndPosition, entries[index], ThisResult));
+		} else {
+			if (IsFPType || IsFPName)
+				parseResult.append(newEntry(EndPosition, entries[index]));
+			else
+				parseResult.append(newEntry(EndPosition));
+		}
+		
+		// Return the result
+		return parseResult;
 	}
 	
 	private static ParseResult parseGroup(final CharSequence text, final int offset, Checker checker,

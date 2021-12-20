@@ -21,6 +21,7 @@ package net.nawaman.regparser.checkers;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 import net.nawaman.regparser.AsChecker;
 import net.nawaman.regparser.Checker;
@@ -166,6 +167,13 @@ public class CheckerAlternative implements Checker {
 	
 	public IStream<Checker> checkers() {
 		return IStream.of(checkers);
+	}
+	
+	public void forEachInReverse(Consumer<Checker> action) {
+		for (int i = checkers.length; --i >= 0;) {
+			var checker = checkers[i];
+			action.accept(checker );
+		}
 	}
 	
 	// Object ----------------------------------------------------------------------------------------------------------
