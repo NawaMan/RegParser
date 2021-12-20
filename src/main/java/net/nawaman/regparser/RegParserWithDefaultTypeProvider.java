@@ -48,6 +48,11 @@ public class RegParserWithDefaultTypeProvider extends RegParser {
 		this.typeProvider = typeProvider;
 	}
 	
+	RegParserWithDefaultTypeProvider(boolean isOptimized, RegParserEntry[] entries, ParserTypeProvider typeProvider) {
+		super(isOptimized, entries);
+		this.typeProvider = typeProvider;
+	}
+	
 	private ParserTypeProvider typeProvider = null;
 	
 	@Override

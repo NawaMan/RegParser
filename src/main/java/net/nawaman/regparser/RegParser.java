@@ -149,8 +149,16 @@ public class RegParser implements Checker, Serializable {
 	
 	private final RegParserEntry[] entries;
 	
+	private boolean isOptimized = false;
+	
 	RegParser(RegParserEntry[] entries) {
 		this.entries = requireNonNullElse(entries, RegParserEntry.EmptyRegParserEntryArray);
+		this.isOptimized = false;
+	}
+	
+	RegParser(boolean isOptimized, RegParserEntry[] entries) {
+		this.entries     = requireNonNullElse(entries, RegParserEntry.EmptyRegParserEntryArray);
+		this.isOptimized = true;;
 	}
 	
 	public Stream<RegParserEntry> entries() {
@@ -1023,43 +1031,19 @@ public class RegParser implements Checker, Serializable {
 	
 	/** Return the optimized version of this Checker */
 	public Checker optimize() {
-		if ((this.entries.length == 1) && (this.entries[0].name() == null) && (this.entries[0].typeRef() == null)
-		        && ((this.entries[0].quantifier() == null) || this.entries[0].quantifier().isOne_Possessive())) {
-			return this.entries[0].checker();
-		}
+		if (isOptimized)
+			return this;
 		
-		var     newEntries = new RegParserEntry[this.entries.length];
-		boolean isChanged  = false;
-		
-		for (int i = 0; i < this.entries.length; i++) {
-			var entry      = this.entries[i];
-			var checker    = entry.checker();
-			var name       = entry.name();
-			var typeRef    = entry.typeRef();
-			var type       = entry.type();
-			var quantifier = entry.quantifier();
-			if (typeRef != null) {
-				newEntries[i] = RegParserEntry.newParserEntry(name, typeRef, quantifier);
-			} else if (type != null) {
-				newEntries[i] = RegParserEntry.newParserEntry(name, type, quantifier);
-			} else {
-				if (checker instanceof RegParser) {
-					var newParser = ((RegParser) checker).optimize();
-					if (newParser != checker) {
-						newEntries[i] = RegParserEntry.newParserEntry(name, newParser, quantifier);
-						isChanged     = true;
-					} else {
-						newEntries[i] = RegParserEntry.newParserEntry(name, checker, quantifier);
-					}
-				} else if (checker != null) {
-					newEntries[i] = RegParserEntry.newParserEntry(name, checker, quantifier);
-				} else {
-					throw new NullPointerException("`checker` is null.");
-				}
+		if (entries.length == 1) {
+			var entry = entries[0];
+			if ((entry.name() == null)
+			 && (entry.typeRef() == null)
+			 && ((entry.quantifier() == null) || entry.quantifier().isOne_Possessive())) {
+				return entry.checker();
 			}
 		}
 		
-		return isChanged ? newRegParser((RegParserEntry[]) newEntries) : this;
+		return RegParserOptimizer.optimize(this);
 	}
 	
 	// To Satisfy Checker ----------------------------------------------------------------------------------------------
