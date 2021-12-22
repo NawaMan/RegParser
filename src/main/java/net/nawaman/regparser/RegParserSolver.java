@@ -447,14 +447,23 @@ class RegParserSolver {
 	}
 	
 	/** Returns the length of the match if the text is start with a match or -1 if not */
-	static ParseResult parse(RegParserEntry[] entries, CharSequence pText, int pOffset, int pIndex, int pTimes, ParseResult pResult,
-	        ParserTypeProvider pProvider, ParserType pRPType, String pRPTParam, int pTabs) {
+	static ParseResult parse(
+			RegParserEntry[]   entries,
+			CharSequence       text,
+			int                offset,
+			int                index,
+			int                times,
+			ParseResult        parseResult,
+			ParserTypeProvider typeProvider,
+			ParserType         type,
+			String             parameter,
+			int                indentation) {
 		
-		// If the entry has a name, ask it to parse with a new parse result
-		if (pResult == null)
-			pResult = ParseResult.newResult(pOffset, pText);
-		if (pText == null)
-			return pResult;
+		if (parseResult == null)
+			parseResult = ParseResult.newResult(offset, text);
+		
+		if (text == null)
+			return parseResult;
 			
 		// NOTE: If Zero, The first must not match and the later must match
 		// NOTE: If Possessive, Try to match first until not match or limit then match
@@ -465,13 +474,13 @@ class RegParserSolver {
 		// NOTE: If Minimum, Check first match until reaching the lower bound, the try
 		// the full length until match.
 		
-		int LastEntryIndex = entries.length - 1;
-		int EntryLength    = entries.length;
-		int TextLength     = pText.length();
+		int entryCount     = entries.length;
+		int lastEntryIndex = entryCount - 1;
+		int textLength     = text.length();
 		
 		String StrTabs = "";
 		if (RegParser.DebugMode) {
-			while (pTabs >= tabs.size()) {
+			while (indentation >= tabs.size()) {
 				if (tabs.size() == 0)
 					tabs.add("");
 				if (StrTabs == "")
@@ -480,10 +489,10 @@ class RegParserSolver {
 				tabs.add(StrTabs);
 			}
 			
-			if (pTabs <= tabs.size())
-				StrTabs = tabs.get(pTabs);
+			if (indentation <= tabs.size())
+				StrTabs = tabs.get(indentation);
 			else {
-				for (int i = pTabs; --i >= 0;)
+				for (int i = indentation; --i >= 0;)
 					StrTabs += "  ";
 				tabs.add(StrTabs);
 			}
@@ -491,68 +500,31 @@ class RegParserSolver {
 		
 		MainLoop: while (true) {
 			
-			if (pIndex > LastEntryIndex)
+			// Check if there is no more entry to check.
+			if (index > lastEntryIndex)
 				break MainLoop;
 			
-			pOffset = pResult.endPosition();
-			if (pOffset < 0)
+			// Advance or stop
+			offset = parseResult.endPosition();
+			if (offset < 0)
 				return null;
 			
-			Quantifier FPQ = entries[pIndex].quantifier();
-			if (FPQ == null)
-				FPQ = Quantifier.One;
 			
-			// Premature ending by hitting the end of the text
-			if (pOffset >= TextLength) {
-				boolean ToTry = false;
-				// If the current multiple matchings end prematurely
-				if (pTimes < FPQ.lowerBound()) {
-					RegParserEntry RPE = entries[pIndex];
-					Checker        C   = RPE.checker();
-					// If this is a normal checker, return null
-					if (!((C instanceof RegParser) || (C instanceof CheckerAlternative)
-					        || ((C == null) && ((RPE.type() != null) || (RPE.typeRef() != null)))))
-						return null;
-					
-					ToTry = true;
-				}
+			// Found the end of the text but there is more parse entry,
+			//   this only work if the rest of the entry are optional.
+			if (offset >= textLength) {
+				var skipToIndex = findSkipToIndex(entries, index, times, entryCount);
 				
-				if (!ToTry) {
-					// Check the rest of the Entry
-					TryLoop: for (int i = (pIndex + 1); i < EntryLength; i++) {
-						RegParserEntry RPE = entries[i];
-						
-						Checker    C = RPE.checker();
-						Quantifier Q = RPE.quantifier();
-						// If the rest of the entry is not optional
-						if ((Q == null) || (Q.lowerBound() != 0)) {
-							// Inside a RegParser or Alternative with Q.LowerBound == 1, there may be a
-							// checker with {0}
-							// Inside.
-							if (((Q == null) || (Q.lowerBound() == 1))
-							        && ((C instanceof RegParser) || (C instanceof CheckerAlternative)
-							                || ((C == null) && ((RPE.type() != null) || (RPE.typeRef() != null))))) {
-								ToTry = true;
-								
-								// Try the entry i
-								pIndex = i;
-								pTimes = 0;
-								
-								FPQ = entries[pIndex].quantifier();
-								if (FPQ == null)
-									FPQ = Quantifier.One;
-								
-								break TryLoop;
-							}
-							
-							return null;
-						}
-					}
-				}
+				// There are entry that cannot be skipped.
+				if (skipToIndex == null)
+					return null;
 				
 				// There are more to parse but they all optional
-				if (!ToTry)
+				if (skipToIndex == -1)
 					break MainLoop;
+				
+				index = skipToIndex;
+				times = 0;
 			}
 			
 			// TOHIDE
@@ -561,77 +533,78 @@ class RegParserSolver {
 				if (RegParser.DebugPrintStream == null) {
 					RegParser.DebugPrintStream = System.out;
 				}
-				RegParser.DebugPrintStream.println(StrTabs + pResult.toString(pTabs, 0));
+				RegParser.DebugPrintStream.println(StrTabs + parseResult.toString(indentation, 0));
 				RegParser.DebugPrintStream.println(
 				        StrTabs + "----------------------------------------------------------------------------------");
 				String T = null;
-				if (TextLength >= 50)
-					T = pText.subSequence(pOffset, ((pOffset + 50) >= TextLength) ? TextLength : (pOffset + 50))
+				if (textLength >= 50)
+					T = text.subSequence(offset, ((offset + 50) >= textLength) ? textLength : (offset + 50))
 					        .toString() + "...";
 				else
-					T = pText.subSequence(pOffset, TextLength).toString();
+					T = text.subSequence(offset, textLength).toString();
 				
 				RegParser.DebugPrintStream.println(StrTabs + "`" + Util.escapeText(T) + "` ~ "
-				        + ((pRPType != null) ? pRPType + "(" + pRPTParam + ") ~ " : "") + entries[pIndex]
-				        + ((pTimes != 0) ? "(" + pTimes + ")" : ""));
+				        + ((type != null) ? type + "(" + parameter + ") ~ " : "") + entries[index]
+				        + ((times != 0) ? "(" + times + ")" : ""));
 			}
 			/* */
 			
-			if (FPQ.isPossessive()) {
+			var quantifier = entries[index].quantifier();
+			if (quantifier.isPossessive()) {
 				
-				if (FPQ.isOne_Possessive()) { // Match one
-					int REC = pResult.rawEntryCount();
-					if (parseEach(entries, pText, pOffset, pIndex, pResult, pProvider, pTabs) == null) {
+				if (quantifier.isOne_Possessive()) { // Match one
+					int REC = parseResult.rawEntryCount();
+					if (parseEach(entries, text, offset, index, parseResult, typeProvider, indentation) == null) {
 						// Recover what may have been added in the fail attempt
-						pResult.reset(REC);
+						parseResult.reset(REC);
 						return null;
 					}
 					
 					// To the next entry, so restart the repeat
-					pIndex++;
-					pTimes = 0;
+					index++;
+					times = 0;
 					continue;
 					
-				} else if (FPQ.isZero()) { // Match Zero
-					int REC = pResult.rawEntryCount();
-					if (parseEach(entries, pText, pOffset, pIndex, pResult, pProvider, pTabs) != null) {
+				} else if (quantifier.isZero()) { // Match Zero
+					int REC = parseResult.rawEntryCount();
+					if (parseEach(entries, text, offset, index, parseResult, typeProvider, indentation) != null) {
 						// Recover what may have been added in the fail attempt
-						pResult.reset(REC);
+						parseResult.reset(REC);
 						return null;
 					}
 					// Append an empty entry when found zero (if named or typed)
-					if ((entries[pIndex].name() != null) || (entries[pIndex].type() != null)
-					        || (entries[pIndex].typeRef() != null))
-						pResult.append(ParseResultEntry.newEntry(pOffset, entries[pIndex]));
+					if ((entries[index].name() != null) || (entries[index].type() != null)
+					        || (entries[index].typeRef() != null))
+						parseResult.append(ParseResultEntry.newEntry(offset, entries[index]));
 					
 					// To the next entry, so change the entry index and restart the repeat
-					pIndex++;
-					pTimes = 0;
+					index++;
+					times = 0;
 					continue;
 					
 				} else {
 					
 					// Is it any
-					RegParserEntry RPE = entries[pIndex];
+					RegParserEntry RPE = entries[index];
 					if (RPE.checker() == PredefinedCharClasses.Any) {
 						if ((RPE.name() == null) && (RPE.typeRef() == null) && (RPE.type() == null)) {
 							// Is this limited - Match till the limit
 							int LB = RPE.quantifier().lowerBound();
-							if (pOffset + LB <= TextLength) { // There is enough space for the minimum (the lower bound)
+							if (offset + LB <= textLength) { // There is enough space for the minimum (the lower bound)
 								int UB = RPE.quantifier().upperBound();
 								if (UB != -1) { // With limit
-									if (pOffset + UB <= TextLength) { // Can it contain the maximum
+									if (offset + UB <= textLength) { // Can it contain the maximum
 										// Take the minimum
-										pResult.append(newEntry(pOffset + UB));
+										parseResult.append(newEntry(offset + UB));
 									} else { // Take what it can
-										pResult.append(newEntry(TextLength));
+										parseResult.append(newEntry(textLength));
 									}
 								} else { // Is no limit - Match till the end
-									pResult.append(newEntry(TextLength));
+									parseResult.append(newEntry(textLength));
 								}
 								// To the next entry, so change the entry index and restart the repeat
-								pIndex++;
-								pTimes = 0;
+								index++;
+								times = 0;
 								continue;
 							} else { // Need more, return as not match
 								// Recover what may have been added in the fail attempt
@@ -640,45 +613,45 @@ class RegParserSolver {
 						}
 					}
 					
-					int REC = pResult.rawEntryCount();
+					int REC = parseResult.rawEntryCount();
 					
 					// Check if it reaches the maximum
-					if ((FPQ.hasNoUpperBound()) || (pTimes < FPQ.upperBound())) { // Not yet
-						int FREC = pResult.rawEntryCount();
+					if ((quantifier.hasNoUpperBound()) || (times < quantifier.upperBound())) { // Not yet
+						int FREC = parseResult.rawEntryCount();
 						// Try the first part
-						if (parseEach(entries, pText, pOffset, pIndex, pResult, pProvider, pTabs) != null) { // Match
+						if (parseEach(entries, text, offset, index, parseResult, typeProvider, indentation) != null) { // Match
 							// Only the one that advances the parsing
-							if ((FREC != pResult.rawEntryCount()) && (pOffset != pResult.endPosition())) {
-								pTimes++;
+							if ((FREC != parseResult.rawEntryCount()) && (offset != parseResult.endPosition())) {
+								times++;
 								continue;
 							}
 						}
 						// Recover what may have been added in the fail attempt
-						pResult.reset(FREC);
+						parseResult.reset(FREC);
 						
 					}
 					// Check if it fail to reach the minimum, return as not found
-					if (pTimes < FPQ.lowerBound()) {
+					if (times < quantifier.lowerBound()) {
 						// Recover what may have been added in the fail attempt
-						pResult.reset(REC);
+						parseResult.reset(REC);
 						return null;
 					}
 					
 					// To the next entry, so change the entry index and restart the repeat
-					pIndex++;
-					pTimes = 0;
+					index++;
+					times = 0;
 					continue;
 					
 				}
 				
-			} else if (FPQ.isMaximum()) {
+			} else if (quantifier.isMaximum()) {
 				
 				// Check if it reaches the maximum
-				if ((FPQ.hasNoUpperBound()) || (pTimes < FPQ.upperBound())) { // Not yet
+				if ((quantifier.hasNoUpperBound()) || (times < quantifier.upperBound())) { // Not yet
 					
-					ParserType    FT  = entries[pIndex].type();
-					ParserTypeRef FTR = entries[pIndex].typeRef();
-					Checker       FP  = entries[pIndex].checker();
+					ParserType    FT  = entries[index].type();
+					ParserTypeRef FTR = entries[index].typeRef();
+					Checker       FP  = entries[index].checker();
 					
 					boolean IsFPAlternative = ((FT == null) && (FTR == null)) && !(FP instanceof RegParser)
 					        && (FP instanceof CheckerAlternative);
@@ -694,13 +667,13 @@ class RegParserSolver {
 						for (int c = checkers.length; --c >= 0;) {
 							Checker C = checkers[c];
 							// Try the first part
-							TemporaryParseResult TryResult = newResult(pResult);
-							if (parseEach(entries, pText, pOffset, pIndex, null, null, null, C, TryResult, pProvider,
-							        pTabs) != null) {
+							TemporaryParseResult TryResult = newResult(parseResult);
+							if (parseEach(entries, text, offset, index, null, null, null, C, TryResult, typeProvider,
+							        indentation) != null) {
 								// Match
 								// Try the later part, if not match, continue other alternatives
-								if (parse(entries, pText, TryResult.endPosition(), pIndex, pTimes + 1, TryResult, pProvider,
-								        pRPType, pRPTParam, pTabs) == null)
+								if (parse(entries, text, TryResult.endPosition(), index, times + 1, TryResult, typeProvider,
+								        type, parameter, indentation) == null)
 									continue;
 									
 								// Match, so record as max
@@ -710,62 +683,62 @@ class RegParserSolver {
 								MaxResult = TryResult;
 								MaxLength = TryResult.endPosition();
 								
-								if ((MaxLength + pOffset) >= TextLength)
+								if ((MaxLength + offset) >= textLength)
 									break;
 							}
 						}
 						
 						if (MaxResult != null) {
 							// Merge the result if found.
-							pResult.mergeWith(MaxResult);
+							parseResult.mergeWith(MaxResult);
 							break MainLoop;
 						}
 						
 						if (CA.hasDefault()) {
-							int REC = pResult.rawEntryCount();
-							if (parseEach(entries, pText, pOffset, pIndex, null, null, null, CA.defaultChecker(), pResult,
-							        pProvider, pTabs) != null) {
+							int REC = parseResult.rawEntryCount();
+							if (parseEach(entries, text, offset, index, null, null, null, CA.defaultChecker(), parseResult,
+							        typeProvider, indentation) != null) {
 								// Found the match.
 								break MainLoop;
 							}
 							// Recover what may have been added in the fail attempt
-							pResult.reset(REC);
+							parseResult.reset(REC);
 						}
 						
 					} else {
-						int REC = pResult.rawEntryCount();
+						int REC = parseResult.rawEntryCount();
 						// Try the first part
-						if (parseEach(entries, pText, pOffset, pIndex, pResult, pProvider, pTabs) != null) {
+						if (parseEach(entries, text, offset, index, parseResult, typeProvider, indentation) != null) {
 							// Try the first part again. If match, return
-							if (parse(entries, pText, pResult.endPosition(), pIndex, pTimes + 1, pResult, pProvider,
-							        pRPType, pRPTParam, pTabs) != null) {
+							if (parse(entries, text, parseResult.endPosition(), index, times + 1, parseResult, typeProvider,
+							        type, parameter, indentation) != null) {
 								// Found the match.
 								break MainLoop;
 							}
 						}
 						// Recover what may have been added in the fail attempt
-						pResult.reset(REC);
+						parseResult.reset(REC);
 						// If not found any, try to parse the last part
 					}
 				}
 				// Check if it fail to reach the minimum, return as not found
-				if (pTimes < FPQ.lowerBound())
+				if (times < quantifier.lowerBound())
 					return null;
 				
 				// To the next entry, so change the entry index and restart the repeat
-				pIndex++;
-				pTimes = 0;
+				index++;
+				times = 0;
 				continue;
 				
-			} else if (FPQ.isMinimum()) {
+			} else if (quantifier.isMinimum()) {
 				
 				// Check if it has reach the minimum
-				if (pTimes >= FPQ.lowerBound()) {
+				if (times >= quantifier.lowerBound()) {
 					// Try the last part
-					int REC = pResult.rawEntryCount();
+					int REC = parseResult.rawEntryCount();
 					// Parse the last part. If match, return
-					if (parse(entries, pText, pOffset, pIndex + 1, 0, pResult, pProvider, pRPType, pRPTParam,
-					        pTabs) != null) {
+					if (parse(entries, text, offset, index + 1, 0, parseResult, typeProvider, type, parameter,
+					        indentation) != null) {
 						// Found the match.
 						break MainLoop;
 					}
@@ -773,16 +746,16 @@ class RegParserSolver {
 					// Else continue, the next loop
 					
 					// Recover what may have been added in the fail attempt
-					pResult.reset(REC);
+					parseResult.reset(REC);
 				}
 				
 				// Check it reach the maximum
-				if ((FPQ.hasUpperBound()) && (pTimes >= FPQ.upperBound()))
+				if ((quantifier.hasUpperBound()) && (times >= quantifier.upperBound()))
 					return null; // Yes
 					
-				ParserType    FT  = entries[pIndex].type();
-				ParserTypeRef FTR = entries[pIndex].typeRef();
-				Checker       FP  = entries[pIndex].checker();
+				ParserType    FT  = entries[index].type();
+				ParserTypeRef FTR = entries[index].typeRef();
+				Checker       FP  = entries[index].checker();
 				
 				boolean IsFPAlternative = ((FT == null) && (FTR == null)) && !(FP instanceof RegParser)
 				        && (FP instanceof CheckerAlternative);
@@ -797,13 +770,13 @@ class RegParserSolver {
 					var                checkers = CA.checkers().toArray(Checker[]::new);
 					for (int c = checkers.length; --c >= 0;) {
 						// Try the first part
-						var TryResult = newResult(pResult);
-						if (parseEach(entries, pText, pOffset, pIndex, null, null, null, checkers[c], TryResult,
-						        pProvider, pTabs) != null) {
+						var TryResult = newResult(parseResult);
+						if (parseEach(entries, text, offset, index, null, null, null, checkers[c], TryResult,
+						        typeProvider, indentation) != null) {
 							// Match
 							// Try the later part, if not match, continue other alternatives
-							if (parse(entries, pText, TryResult.endPosition(), pIndex, pTimes + 1, TryResult, pProvider,
-							        pRPType, pRPTParam, pTabs) == null)
+							if (parse(entries, text, TryResult.endPosition(), index, times + 1, TryResult, typeProvider,
+							        type, parameter, indentation) == null)
 								continue;
 								
 							// Match, so record as max
@@ -813,41 +786,41 @@ class RegParserSolver {
 							MinResult = TryResult;
 							MinLength = TryResult.endPosition();
 							
-							if ((MinLength + pOffset) >= pOffset)
+							if ((MinLength + offset) >= offset)
 								break;
 						}
 					}
 					
 					if (MinResult != null) {
 						// Merge the best result if found.
-						pResult.mergeWith(MinResult);
+						parseResult.mergeWith(MinResult);
 						break MainLoop;
 					}
 					
 					if (CA.hasDefault()) {
-						int REC = pResult.rawEntryCount();
-						if (parseEach(entries, pText, pOffset, pIndex, null, null, null, CA.defaultChecker(), pResult,
-						        pProvider, pTabs) != null) {
+						int REC = parseResult.rawEntryCount();
+						if (parseEach(entries, text, offset, index, null, null, null, CA.defaultChecker(), parseResult,
+						        typeProvider, indentation) != null) {
 							// Found the match.
 							break MainLoop;
 						}
 						// Recover what may have been added in the fail attempt
-						pResult.reset(REC);
+						parseResult.reset(REC);
 						// Not found, return as not found
 						return null;
 					}
 					return null;
 					
 				} else {
-					int REC = pResult.rawEntryCount();
+					int REC = parseResult.rawEntryCount();
 					// Try the first part
-					if (parseEach(entries, pText, pOffset, pIndex, pResult, pProvider, pTabs) != null) {
-						pTimes++;
+					if (parseEach(entries, text, offset, index, parseResult, typeProvider, indentation) != null) {
+						times++;
 						continue;
 						
 					}
 					// Recover what may have been added in the fail attempt
-					pResult.reset(REC);
+					parseResult.reset(REC);
 					// Not found, return as not found
 					return null;
 				}
@@ -857,11 +830,11 @@ class RegParserSolver {
 		}
 		
 		// Validate the value here
-		if ((pRPType != null) && pRPType.hasValidation() && !pRPType.isSelfContain()) {
-			ParseResult PR = pResult.duplicate();
-			PR.collapse(pProvider);
+		if ((type != null) && type.hasValidation() && !type.isSelfContain()) {
+			ParseResult PR = parseResult.duplicate();
+			PR.collapse(typeProvider);
 			ParseResult Host = (PR instanceof ParseResultNode) ? ((ParseResultNode) PR).parent() : null;
-			if (!pRPType.validate(Host, PR, pRPTParam, pProvider))
+			if (!type.validate(Host, PR, parameter, typeProvider))
 				return null;
 		}
 		
@@ -871,12 +844,47 @@ class RegParserSolver {
 			if (RegParser.DebugPrintStream == null) {
 				RegParser.DebugPrintStream = System.out;
 			}
-			RegParser.DebugPrintStream.println(StrTabs + pResult.toString(pTabs, 0));
+			RegParser.DebugPrintStream.println(StrTabs + parseResult.toString(indentation, 0));
 			RegParser.DebugPrintStream.println(
 			        StrTabs + "----------------------------------------------------------------------------------");
 		}
 		/* */
-		return pResult;
+		return parseResult;
+	}
+	
+	private static Integer findSkipToIndex(RegParserEntry[] entries, int index, int times, int entryCount) {
+		// If the current multiple matchings end prematurely
+		var quantifier = entries[index].quantifier();
+		if (times < quantifier.lowerBound()) {
+			var entry   = entries[index];
+			var checker = entry.checker();
+			// If this is a normal checker, return null
+			boolean isOptionalChecker = isOptionalChecker(entry, checker);
+			return isOptionalChecker ? index : null;
+		}
+		
+		// Check the rest of the Entry
+		for (int i = (index + 1); i < entryCount; i++) {
+			var tryEntry      = entries[i];
+			var tryChecker    = tryEntry.checker();
+			var tryQuantifier = tryEntry.quantifier();
+			// If the rest of the entry is not optional
+			if (tryQuantifier.lowerBound() == 0)
+				continue;
+			
+			// Inside a RegParser or Alternative with Q.LowerBound == 1,
+			//   there may be a checker with {0} inside.
+			boolean isOne = (tryQuantifier.lowerBound() == 1);
+			boolean isOptionalChecker = isOptionalChecker(tryEntry, tryChecker);
+			return (isOne && isOptionalChecker) ? i : null;
+		}
+		return -1;
+	}
+	
+	private static boolean isOptionalChecker(RegParserEntry tryEntry, Checker tryChecker) {
+		return (tryChecker instanceof RegParser)
+		    || (tryChecker instanceof CheckerAlternative)
+		    || ((tryChecker == null) && ((tryEntry.type() != null) || (tryEntry.typeRef() != null)));
 	}
 	
 }
