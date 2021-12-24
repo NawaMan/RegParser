@@ -298,9 +298,17 @@ public class RegParser implements Checker, Serializable {
 	}
 	
 	/** Returns the length of the match if the text is start with a match or -1 if not */
-	ParseResult parse(CharSequence pText, int pOffset, int pIndex, int pTimes, ParseResult pResult,
-	        ParserTypeProvider pProvider, ParserType pRPType, String pRPTParam, int pTabs) {
-		return RegParserSolver.parse(entries , pText, pOffset, pIndex, pTimes, pResult, pProvider, pRPType, pRPTParam, pTabs);
+	ParseResult parse(
+			CharSequence       text,
+			int                offset,
+			int                index,
+			int                times,
+			ParseResult        result,
+			ParserTypeProvider typeProvider,
+			ParserType         type,
+			String             parameter,
+			int                tabCount) {
+		return RegParserSolver.parse(entries , text, offset, index, times, result, typeProvider, type, parameter, tabCount);
 	}
 	
 	/** Return the optimized version of this Checker */
@@ -346,6 +354,9 @@ public class RegParser implements Checker, Serializable {
 	 */
 	@Override
 	public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider, ParseResult result) {
+		if (text == null)
+			return -1;
+		
 		if (result == null) {
 			var parseResult = parse(text, offset, 0, 0, null, typeProvider, null, null, 0);
 			if (parseResult == null)

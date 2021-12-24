@@ -1,10 +1,14 @@
 package net.nawaman.regparser;
 
+import static java.lang.String.format;
+import static net.nawaman.regparser.RegParser.DebugMode;
+import static net.nawaman.regparser.RegParser.DebugPrintStream;
 import static net.nawaman.regparser.result.ParseResult.newResult;
 import static net.nawaman.regparser.result.entry.ParseResultEntry.newEntry;
+import static net.nawaman.regparser.utils.Util.escapeText;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import net.nawaman.regparser.checkers.CheckerAlternative;
 import net.nawaman.regparser.checkers.CheckerFixeds;
@@ -12,12 +16,11 @@ import net.nawaman.regparser.result.ParseResult;
 import net.nawaman.regparser.result.ParseResultNode;
 import net.nawaman.regparser.result.TemporaryParseResult;
 import net.nawaman.regparser.result.entry.ParseResultEntry;
-import net.nawaman.regparser.utils.Util;
 
 class RegParserSolver {
 
 	/** Cache for Tabs */
-	private static List<String> tabs = new ArrayList<String>();
+	private static Map<Integer, String> tabs = new HashMap<Integer, String>();
 	
 	/** Parse an entry at the index index possessively */
 	private static ParseResult parseEach(
@@ -27,13 +30,13 @@ class RegParserSolver {
 			int                index,
 			ParseResult        parseResult,
 			ParserTypeProvider typeProvider,
-			int                indentation) {
+			int                tabCount) {
 		var entry   = entries[index];
 		var name    = entry.name();
 		var typeRef = entry.typeRef();
 		var type    = entry.type();
 		var checker = entry.checker();
-		var result  = parseEach(entries, text, offset, index, name, type, typeRef, checker, parseResult, typeProvider, indentation);
+		var result  = parseEach(entries, text, offset, index, name, type, typeRef, checker, parseResult, typeProvider, tabCount);
 		return result;
 	}
 	
@@ -49,13 +52,13 @@ class RegParserSolver {
 			Checker            checker,
 			ParseResult        parseResult,
 			ParserTypeProvider typeProvider,
-			int                indentation) {
+			int                tabCount) {
 		boolean isTyped       = (type != null) || (typeRef != null);
 		boolean isRegParser   = (!isTyped && (checker instanceof RegParser));
 		boolean isAlternative = (!isTyped && !isRegParser && (checker instanceof CheckerAlternative));
 		
 		if (isAlternative)
-			return parseAlternative(entries, text, offset, index, name, type, typeRef, checker, parseResult, typeProvider, indentation);
+			return parseAlternative(entries, text, offset, index, name, type, typeRef, checker, parseResult, typeProvider, tabCount);
 		
 		boolean isGroup   = (!isTyped && !isRegParser && !isAlternative && (checker instanceof CheckerFixeds));
 		boolean isChecker =  !isTyped && !isRegParser && !isAlternative && !isAlternative && !isGroup;
@@ -64,12 +67,10 @@ class RegParserSolver {
 			return parserChecker(entries, text, offset, index, name, checker, parseResult, typeProvider);
 			
 		if (isRegParser)
-			return parseRegParser(entries, text, offset, index, name, type, typeRef, checker,
-					parseResult, typeProvider, indentation);
+			return parseRegParser(entries, text, offset, index, name, type, typeRef, checker, parseResult, typeProvider, tabCount);
 			
 		if (isTyped)
-			return parseType(entries, text, offset, index, name, type, typeRef, checker, parseResult,
-			        typeProvider, indentation);
+			return parseType(entries, text, offset, index, name, type, typeRef, checker, parseResult, typeProvider, tabCount);
 			
 		if (isGroup)
 			return parseGroup(text, offset, checker, parseResult);
@@ -85,7 +86,7 @@ class RegParserSolver {
 		System.err.println(" = checker: " + checker);
 		System.err.println(" = parseResult: " + parseResult);
 		System.err.println(" = typeProvider: " + typeProvider);
-		System.err.println(" = indentation: " + indentation);
+		System.err.println(" = indentation: " + tabCount);
 		return null;
 	}
 	
@@ -100,7 +101,7 @@ class RegParserSolver {
 			Checker            checker,
 			ParseResult        parseResult,
 			ParserTypeProvider typeProvider,
-			int                indentation) {
+			int                tabCount) {
 		// find the longest match
 		
 		boolean isTyped  = (type != null) || (typeRef != null);
@@ -116,7 +117,7 @@ class RegParserSolver {
 			var tryResult  = isAsNode
 			               ? newResult(offset, parseResult)
 			               : newResult(parseResult);
-			var eachResult = parseEach(entries, text, offset, index, null, null, null, alternative, tryResult, typeProvider, indentation);
+			var eachResult = parseEach(entries, text, offset, index, null, null, null, alternative, tryResult, typeProvider, tabCount);
 			if (eachResult == null)
 				return;
 			
@@ -135,7 +136,7 @@ class RegParserSolver {
 			
 			var tryResult      = isAsNode ? newResult(offset, parseResult) : newResult(parseResult);
 			var defaultChecker = alternatives.defaultChecker();
-			var eachResult     = parseEach(entries, text, offset, index, null, null, null, defaultChecker, tryResult, typeProvider, indentation);
+			var eachResult     = parseEach(entries, text, offset, index, null, null, null, defaultChecker, tryResult, typeProvider, tabCount);
 			if (eachResult == null)
 				return null;
 			
@@ -258,7 +259,7 @@ class RegParserSolver {
 			Checker            checker,
 			ParseResult        parseResult,
 			ParserTypeProvider typeProvider,
-			int                indentation) {
+			int                tabCount) {
 		// RegParser with a type or a type ref
 		// parse it then validate and record separately from the current result
 		
@@ -295,7 +296,7 @@ class RegParserSolver {
 			isAsNode = false;
 		}
 		
-		var tryResult = parseCheckerInType(entries, text, offset, index, type, checker, parseResult, typeProvider, indentation, isAsNode, parameter);
+		var tryResult = parseCheckerInType(entries, text, offset, index, type, checker, parseResult, typeProvider, tabCount, isAsNode, parameter);
 		
 		if (tryResult == null)
 			return null;
@@ -446,6 +447,12 @@ class RegParserSolver {
 		return parseResult;
 	}
 	
+	static enum PossessiveReturn {
+		ReturnNull,
+		IndexPlusPlusTimeZeroContinue,
+		TimePlusPlusContinue;
+	}
+	
 	/** Returns the length of the match if the text is start with a match or -1 if not */
 	static ParseResult parse(
 			RegParserEntry[]   entries,
@@ -457,10 +464,10 @@ class RegParserSolver {
 			ParserTypeProvider typeProvider,
 			ParserType         type,
 			String             parameter,
-			int                indentation) {
+			int                tabCount) {
 		
 		if (parseResult == null)
-			parseResult = ParseResult.newResult(offset, text);
+			parseResult = newResult(offset, text);
 		
 		if (text == null)
 			return parseResult;
@@ -477,26 +484,7 @@ class RegParserSolver {
 		int entryCount     = entries.length;
 		int lastEntryIndex = entryCount - 1;
 		int textLength     = text.length();
-		
-		String StrTabs = "";
-		if (RegParser.DebugMode) {
-			while (indentation >= tabs.size()) {
-				if (tabs.size() == 0)
-					tabs.add("");
-				if (StrTabs == "")
-					StrTabs = tabs.get(tabs.size() - 1);
-				StrTabs += "  ";
-				tabs.add(StrTabs);
-			}
-			
-			if (indentation <= tabs.size())
-				StrTabs = tabs.get(indentation);
-			else {
-				for (int i = indentation; --i >= 0;)
-					StrTabs += "  ";
-				tabs.add(StrTabs);
-			}
-		}
+		var indentation    = DebugMode ? indentation(tabCount) : "";
 		
 		MainLoop: while (true) {
 			
@@ -527,124 +515,26 @@ class RegParserSolver {
 				times = 0;
 			}
 			
-			// TOHIDE
-			/* */
 			if (RegParser.DebugMode) {
-				if (RegParser.DebugPrintStream == null) {
-					RegParser.DebugPrintStream = System.out;
-				}
-				RegParser.DebugPrintStream.println(StrTabs + parseResult.toString(indentation, 0));
-				RegParser.DebugPrintStream.println(
-				        StrTabs + "----------------------------------------------------------------------------------");
-				String T = null;
-				if (textLength >= 50)
-					T = text.subSequence(offset, ((offset + 50) >= textLength) ? textLength : (offset + 50))
-					        .toString() + "...";
-				else
-					T = text.subSequence(offset, textLength).toString();
-				
-				RegParser.DebugPrintStream.println(StrTabs + "`" + Util.escapeText(T) + "` ~ "
-				        + ((type != null) ? type + "(" + parameter + ") ~ " : "") + entries[index]
-				        + ((times != 0) ? "(" + times + ")" : ""));
+				mainLoopDebug(entries, text, offset, index, times, parseResult, type, parameter, tabCount, textLength, indentation);
 			}
-			/* */
 			
 			var quantifier = entries[index].quantifier();
 			if (quantifier.isPossessive()) {
-				
-				if (quantifier.isOne_Possessive()) { // Match one
-					int REC = parseResult.rawEntryCount();
-					if (parseEach(entries, text, offset, index, parseResult, typeProvider, indentation) == null) {
-						// Recover what may have been added in the fail attempt
-						parseResult.reset(REC);
-						return null;
-					}
-					
-					// To the next entry, so restart the repeat
+				var possessiveReturn = parsePossessive(entries, text, offset, index, times, parseResult, typeProvider, tabCount, textLength, quantifier);
+				if (possessiveReturn == PossessiveReturn.IndexPlusPlusTimeZeroContinue) {
 					index++;
 					times = 0;
 					continue;
-					
-				} else if (quantifier.isZero()) { // Match Zero
-					int REC = parseResult.rawEntryCount();
-					if (parseEach(entries, text, offset, index, parseResult, typeProvider, indentation) != null) {
-						// Recover what may have been added in the fail attempt
-						parseResult.reset(REC);
-						return null;
-					}
-					// Append an empty entry when found zero (if named or typed)
-					if ((entries[index].name() != null) || (entries[index].type() != null)
-					        || (entries[index].typeRef() != null))
-						parseResult.append(ParseResultEntry.newEntry(offset, entries[index]));
-					
-					// To the next entry, so change the entry index and restart the repeat
-					index++;
-					times = 0;
+				} else if (possessiveReturn == PossessiveReturn.ReturnNull) {
+					return null;
+				} else if (possessiveReturn == PossessiveReturn.TimePlusPlusContinue) {
+					times++;
 					continue;
-					
-				} else {
-					
-					// Is it any
-					RegParserEntry RPE = entries[index];
-					if (RPE.checker() == PredefinedCharClasses.Any) {
-						if ((RPE.name() == null) && (RPE.typeRef() == null) && (RPE.type() == null)) {
-							// Is this limited - Match till the limit
-							int LB = RPE.quantifier().lowerBound();
-							if (offset + LB <= textLength) { // There is enough space for the minimum (the lower bound)
-								int UB = RPE.quantifier().upperBound();
-								if (UB != -1) { // With limit
-									if (offset + UB <= textLength) { // Can it contain the maximum
-										// Take the minimum
-										parseResult.append(newEntry(offset + UB));
-									} else { // Take what it can
-										parseResult.append(newEntry(textLength));
-									}
-								} else { // Is no limit - Match till the end
-									parseResult.append(newEntry(textLength));
-								}
-								// To the next entry, so change the entry index and restart the repeat
-								index++;
-								times = 0;
-								continue;
-							} else { // Need more, return as not match
-								// Recover what may have been added in the fail attempt
-								return null;
-							}
-						}
-					}
-					
-					int REC = parseResult.rawEntryCount();
-					
-					// Check if it reaches the maximum
-					if ((quantifier.hasNoUpperBound()) || (times < quantifier.upperBound())) { // Not yet
-						int FREC = parseResult.rawEntryCount();
-						// Try the first part
-						if (parseEach(entries, text, offset, index, parseResult, typeProvider, indentation) != null) { // Match
-							// Only the one that advances the parsing
-							if ((FREC != parseResult.rawEntryCount()) && (offset != parseResult.endPosition())) {
-								times++;
-								continue;
-							}
-						}
-						// Recover what may have been added in the fail attempt
-						parseResult.reset(FREC);
-						
-					}
-					// Check if it fail to reach the minimum, return as not found
-					if (times < quantifier.lowerBound()) {
-						// Recover what may have been added in the fail attempt
-						parseResult.reset(REC);
-						return null;
-					}
-					
-					// To the next entry, so change the entry index and restart the repeat
-					index++;
-					times = 0;
-					continue;
-					
 				}
-				
-			} else if (quantifier.isMaximum()) {
+			}
+			
+			if (quantifier.isMaximum()) {
 				
 				// Check if it reaches the maximum
 				if ((quantifier.hasNoUpperBound()) || (times < quantifier.upperBound())) { // Not yet
@@ -669,11 +559,11 @@ class RegParserSolver {
 							// Try the first part
 							TemporaryParseResult TryResult = newResult(parseResult);
 							if (parseEach(entries, text, offset, index, null, null, null, C, TryResult, typeProvider,
-							        indentation) != null) {
+							        tabCount) != null) {
 								// Match
 								// Try the later part, if not match, continue other alternatives
 								if (parse(entries, text, TryResult.endPosition(), index, times + 1, TryResult, typeProvider,
-								        type, parameter, indentation) == null)
+								        type, parameter, tabCount) == null)
 									continue;
 									
 								// Match, so record as max
@@ -697,7 +587,7 @@ class RegParserSolver {
 						if (CA.hasDefault()) {
 							int REC = parseResult.rawEntryCount();
 							if (parseEach(entries, text, offset, index, null, null, null, CA.defaultChecker(), parseResult,
-							        typeProvider, indentation) != null) {
+							        typeProvider, tabCount) != null) {
 								// Found the match.
 								break MainLoop;
 							}
@@ -708,10 +598,10 @@ class RegParserSolver {
 					} else {
 						int REC = parseResult.rawEntryCount();
 						// Try the first part
-						if (parseEach(entries, text, offset, index, parseResult, typeProvider, indentation) != null) {
+						if (parseEach(entries, text, offset, index, parseResult, typeProvider, tabCount) != null) {
 							// Try the first part again. If match, return
 							if (parse(entries, text, parseResult.endPosition(), index, times + 1, parseResult, typeProvider,
-							        type, parameter, indentation) != null) {
+							        type, parameter, tabCount) != null) {
 								// Found the match.
 								break MainLoop;
 							}
@@ -730,7 +620,8 @@ class RegParserSolver {
 				times = 0;
 				continue;
 				
-			} else if (quantifier.isMinimum()) {
+			}
+			if (quantifier.isMinimum()) {
 				
 				// Check if it has reach the minimum
 				if (times >= quantifier.lowerBound()) {
@@ -738,7 +629,7 @@ class RegParserSolver {
 					int REC = parseResult.rawEntryCount();
 					// Parse the last part. If match, return
 					if (parse(entries, text, offset, index + 1, 0, parseResult, typeProvider, type, parameter,
-					        indentation) != null) {
+					        tabCount) != null) {
 						// Found the match.
 						break MainLoop;
 					}
@@ -772,11 +663,11 @@ class RegParserSolver {
 						// Try the first part
 						var TryResult = newResult(parseResult);
 						if (parseEach(entries, text, offset, index, null, null, null, checkers[c], TryResult,
-						        typeProvider, indentation) != null) {
+						        typeProvider, tabCount) != null) {
 							// Match
 							// Try the later part, if not match, continue other alternatives
 							if (parse(entries, text, TryResult.endPosition(), index, times + 1, TryResult, typeProvider,
-							        type, parameter, indentation) == null)
+							        type, parameter, tabCount) == null)
 								continue;
 								
 							// Match, so record as max
@@ -800,7 +691,7 @@ class RegParserSolver {
 					if (CA.hasDefault()) {
 						int REC = parseResult.rawEntryCount();
 						if (parseEach(entries, text, offset, index, null, null, null, CA.defaultChecker(), parseResult,
-						        typeProvider, indentation) != null) {
+						        typeProvider, tabCount) != null) {
 							// Found the match.
 							break MainLoop;
 						}
@@ -814,7 +705,7 @@ class RegParserSolver {
 				} else {
 					int REC = parseResult.rawEntryCount();
 					// Try the first part
-					if (parseEach(entries, text, offset, index, parseResult, typeProvider, indentation) != null) {
+					if (parseEach(entries, text, offset, index, parseResult, typeProvider, tabCount) != null) {
 						times++;
 						continue;
 						
@@ -844,12 +735,55 @@ class RegParserSolver {
 			if (RegParser.DebugPrintStream == null) {
 				RegParser.DebugPrintStream = System.out;
 			}
-			RegParser.DebugPrintStream.println(StrTabs + parseResult.toString(indentation, 0));
+			RegParser.DebugPrintStream.println(indentation + parseResult.toString(tabCount, 0));
 			RegParser.DebugPrintStream.println(
-			        StrTabs + "----------------------------------------------------------------------------------");
+			        indentation + "----------------------------------------------------------------------------------");
 		}
 		/* */
 		return parseResult;
+	}
+	
+	private static String indentation(int tabCount) {
+		if (tabCount < tabs.size()) {
+			return tabs.get(tabCount);
+		}
+		
+		if (tabCount == 0) {
+			tabs.put(tabCount, "");
+		}
+		
+		var indentation = "  " + indentation(tabCount - 1);
+		tabs.put(tabCount, indentation);
+		return indentation;
+	}
+	
+	private static void mainLoopDebug(
+			RegParserEntry[] entries,
+			CharSequence     text,
+			int              offset,
+			int              index,
+			int              times,
+			ParseResult      parseResult,
+			ParserType       type,
+			String           parameter,
+			int              tabCount,
+			int              textLength,
+			String           indentation) {
+		if (DebugPrintStream == null) {
+			DebugPrintStream = System.out;
+		}
+		DebugPrintStream.println(indentation + parseResult.toString(tabCount, 0));
+		DebugPrintStream.println(indentation + "----------------------------------------------------------------------------------");
+		
+		int endPosition = ((textLength >= 50) || ((offset + 50) >= textLength) ? textLength : (offset + 50));
+		var suffix      =  (textLength >= 50)                                  ? "..."      : "";
+		var displayText = text.subSequence(offset, endPosition).toString() + suffix;
+		var escapeText  = escapeText(displayText);
+		var entry       = entries[index];
+		var typeString  = (type  == null) ? "" : type + "(" + parameter + ")" + " ~ ";
+		var timesString = (times ==    0) ? "" :        "(" + times     + ")";
+		var logMessage  = format("%s`%s` ~ %s%s%s", indentation, escapeText, typeString + entry + timesString);
+		DebugPrintStream.println(logMessage);
 	}
 	
 	private static Integer findSkipToIndex(RegParserEntry[] entries, int index, int times, int entryCount) {
@@ -885,6 +819,104 @@ class RegParserSolver {
 		return (tryChecker instanceof RegParser)
 		    || (tryChecker instanceof CheckerAlternative)
 		    || ((tryChecker == null) && ((tryEntry.type() != null) || (tryEntry.typeRef() != null)));
+	}
+	
+	private static PossessiveReturn parsePossessive(
+			RegParserEntry[]   entries,
+			CharSequence       text,
+			int                offset,
+			int                index,
+			int                times,
+			ParseResult        parseResult,
+			ParserTypeProvider typeProvider,
+			int                tabCount,
+			int                textLength,
+			Quantifier         quantifier) {
+		if (quantifier.isOne_Possessive()) { // Match one
+			int currentEntry = parseResult.rawEntryCount();
+			var eachResult   = parseEach(entries, text, offset, index, parseResult, typeProvider, tabCount);
+			if (eachResult == null) {
+				// Recover what may have been added in the fail attempt
+				parseResult.reset(currentEntry);
+				return PossessiveReturn.ReturnNull;
+			} else {
+				// To the next entry, so restart the repeat
+				return PossessiveReturn.IndexPlusPlusTimeZeroContinue;
+			}
+		} else if (quantifier.isZero()) { // Match Zero
+			int currentEntry = parseResult.rawEntryCount();
+			var eachResult   = parseEach(entries, text, offset, index, parseResult, typeProvider, tabCount);
+			if (eachResult != null) {
+				// Recover what may have been added in the fail attempt
+				parseResult.reset(currentEntry);
+				return PossessiveReturn.ReturnNull;
+			} else {
+				// Append an empty entry when found zero (if named or typed)
+				var entry = entries[index];
+				if ((entry.name() != null) || (entry.type() != null) || (entry.typeRef() != null)) {
+					parseResult.append(ParseResultEntry.newEntry(offset, entries[index]));
+				}
+				
+				// To the next entry, so change the entry index and restart the repeat
+				return PossessiveReturn.IndexPlusPlusTimeZeroContinue;
+			}
+		} else {
+			
+			// Is it any
+			var entry = entries[index];
+			if (entry.checker() == PredefinedCharClasses.Any) {
+				if ((entry.name() == null) && (entry.typeRef() == null) && (entry.type() == null)) {
+					// Is this limited - Match till the limit
+					int LB = entry.quantifier().lowerBound();
+					if (offset + LB <= textLength) { // There is enough space for the minimum (the lower bound)
+						int UB = entry.quantifier().upperBound();
+						if (UB != -1) { // With limit
+							if (offset + UB <= textLength) { // Can it contain the maximum
+								// Take the minimum
+								parseResult.append(newEntry(offset + UB));
+							} else { // Take what it can
+								parseResult.append(newEntry(textLength));
+							}
+						} else { // Is no limit - Match till the end
+							parseResult.append(newEntry(textLength));
+						}
+						
+						// To the next entry, so change the entry index and restart the repeat
+						return PossessiveReturn.IndexPlusPlusTimeZeroContinue;
+					}
+					
+					// Need more, return as not match
+					return PossessiveReturn.ReturnNull;
+				}
+			}
+			
+			int REC = parseResult.rawEntryCount();
+			
+			// Check if it reaches the maximum
+			if ((quantifier.hasNoUpperBound()) || (times < quantifier.upperBound())) { // Not yet
+				int FREC = parseResult.rawEntryCount();
+				// Try the first part
+				if (parseEach(entries, text, offset, index, parseResult, typeProvider, tabCount) != null) { // Match
+					// Only the one that advances the parsing
+					if ((FREC != parseResult.rawEntryCount()) && (offset != parseResult.endPosition())) {
+						return PossessiveReturn.TimePlusPlusContinue;
+					}
+				}
+				
+				// Recover what may have been added in the fail attempt
+				parseResult.reset(FREC);
+			}
+			
+			// Check if it fail to reach the minimum, return as not found
+			if (times < quantifier.lowerBound()) {
+				// Recover what may have been added in the fail attempt
+				parseResult.reset(REC);
+				return PossessiveReturn.ReturnNull;
+			}
+			
+			// To the next entry, so change the entry index and restart the repeat
+			return PossessiveReturn.IndexPlusPlusTimeZeroContinue;
+		}
 	}
 	
 }
