@@ -308,7 +308,7 @@ public class RegParser implements Checker, Serializable {
 			ParserType         type,
 			String             parameter,
 			int                tabCount) {
-		return RegParserSolver.parse(entries , text, offset, index, times, result, typeProvider, type, parameter, tabCount);
+		return RegParserSolver.startParse(entries , text, offset, index, times, result, typeProvider, type, parameter, tabCount);
 	}
 	
 	/** Return the optimized version of this Checker */
