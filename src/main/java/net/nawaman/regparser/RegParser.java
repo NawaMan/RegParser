@@ -40,7 +40,7 @@ public class RegParser implements Checker, Serializable {
 	
 	/** Returns the empty array of RegParsers */
 	public static final RegParser[] EmptyRegParserArray = new RegParser[0];
-	public static boolean           DebugMode           = false;
+	public static boolean           isDebugMode           = false;
 	public static PrintStream       DebugPrintStream    = null;
 	
 	public static RegParserBuilder newRegParser() {

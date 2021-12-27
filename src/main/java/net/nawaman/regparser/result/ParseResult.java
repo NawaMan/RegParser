@@ -1474,7 +1474,7 @@ abstract public class ParseResult implements Serializable {
 				parseEntry(i, secondStage, typeProvider);
 			}
 			
-			if (RegParser.DebugMode) {
+			if (RegParser.isDebugMode) {
 				RegParser.DebugPrintStream.println("Before Flating:------------------------------------------------------");
 				RegParser.DebugPrintStream.println(toString());
 			}
@@ -1491,12 +1491,12 @@ abstract public class ParseResult implements Serializable {
 				 && ((type == null) || !type.contains("*")))
 					continue;
 				
-				if (RegParser.DebugMode) {
+				if (RegParser.isDebugMode) {
 					RegParser.DebugPrintStream
 					        .printf("Flating '%s':'%s' START:----------------------------------------------\n", name, type);
 				}
 				flatEntry(i);
-				if (RegParser.DebugMode) {
+				if (RegParser.isDebugMode) {
 					RegParser.DebugPrintStream
 					        .printf("Flating '%s':'%s' END:------------------------------------------------\n", name, type);
 				}
@@ -1518,19 +1518,19 @@ abstract public class ParseResult implements Serializable {
 				 && ((type == null) || !type.contains("+")))
 					continue;
 				
-				if (RegParser.DebugMode) {
+				if (RegParser.isDebugMode) {
 					RegParser.DebugPrintStream
 					        .printf("Flating '%s':'%s' START:----------------------------------------------\n", name, type);
 				}
 				flatEntry(i);
-				if (RegParser.DebugMode) {
+				if (RegParser.isDebugMode) {
 					RegParser.DebugPrintStream
 					        .printf("Flating '%s':'%s' END:------------------------------------------------\n", name, type);
 				}
 				i--;
 			}
 			
-			if (RegParser.DebugMode) {
+			if (RegParser.isDebugMode) {
 				RegParser.DebugPrintStream.println("End Flating:---------------------------------------------------------");
 			}
 		}

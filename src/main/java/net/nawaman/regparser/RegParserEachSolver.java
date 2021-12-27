@@ -100,7 +100,7 @@ class RegParserEachSolver {
 		var maxEndRef    = new int[] { Integer.MIN_VALUE };
 		var maxResultRef = new ParseResult[] { null };
 		
-		final var alternatives = (CheckerAlternative)checker;
+		var alternatives = (CheckerAlternative)checker;
 		alternatives
 		.forEachInReverse(alternative -> {
 			var tryResult  = isAsNode
