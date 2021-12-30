@@ -42,41 +42,23 @@ class RegParserEachSolver {
 			ParseResult        parseResult,
 			ParserTypeProvider typeProvider,
 			int                tabCount) {
-		boolean isTyped       = (type != null) || (typeRef != null);
-		boolean isRegParser   = (!isTyped && (checker instanceof RegParser));
-		boolean isAlternative = (!isTyped && !isRegParser && (checker instanceof CheckerAlternative));
+		boolean isTyped = (type != null) || (typeRef != null);
+		if (isTyped)
+			return parseType(entries, text, offset, index, name, type, typeRef, checker, parseResult, typeProvider, tabCount);
 		
+		boolean isRegParser = (checker instanceof RegParser);
+		if (isRegParser)
+			return parseRegParser(entries, text, offset, index, name, type, typeRef, checker, parseResult, typeProvider, tabCount);
+		
+		boolean isAlternative = (checker instanceof CheckerAlternative);
 		if (isAlternative)
 			return parseAlternative(entries, text, offset, index, name, type, typeRef, checker, parseResult, typeProvider, tabCount);
 		
-		boolean isGroup   = (!isTyped && !isRegParser && !isAlternative && (checker instanceof CheckerFixeds));
-		boolean isChecker =  !isTyped && !isRegParser && !isAlternative && !isAlternative && !isGroup;
+		boolean isCheckerFixed = (checker instanceof CheckerFixeds);
+		if (isCheckerFixed)
+			return parseCheckerFixed(text, offset, checker, parseResult);
 		
-		if (isChecker)
-			return parserChecker(entries, text, offset, index, name, checker, parseResult, typeProvider);
-			
-		if (isRegParser)
-			return parseRegParser(entries, text, offset, index, name, type, typeRef, checker, parseResult, typeProvider, tabCount);
-			
-		if (isTyped)
-			return parseType(entries, text, offset, index, name, type, typeRef, checker, parseResult, typeProvider, tabCount);
-			
-		if (isGroup)
-			return parseGroup(text, offset, checker, parseResult);
-		
-		System.err.println("Parser is in an unexpected state: ");
-		System.err.println(" = entries: " + entries);
-		System.err.println(" = text: " + text);
-		System.err.println(" = offset: " + offset);
-		System.err.println(" = index: " + index);
-		System.err.println(" = name: " + name);
-		System.err.println(" = type: " + type);
-		System.err.println(" = typeRef: " + typeRef);
-		System.err.println(" = checker: " + checker);
-		System.err.println(" = parseResult: " + parseResult);
-		System.err.println(" = typeProvider: " + typeProvider);
-		System.err.println(" = indentation: " + tabCount);
-		return null;
+		return parserChecker(entries, text, offset, index, name, checker, parseResult, typeProvider);
 	}
 	
 	private static ParseResult parseAlternative(
@@ -408,7 +390,7 @@ class RegParserEachSolver {
 		return thisResult;
 	}
 	
-	private static ParseResult parseGroup(
+	private static ParseResult parseCheckerFixed(
 			CharSequence text,
 			int          offset,
 			Checker      checker,
