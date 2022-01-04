@@ -35,7 +35,7 @@ public class TestRegParserCompiler2 {
 	public static TimeRecordRule timeRecordRule = TimeRecordRule.instance;
 	
 	private ParserTypeProvider.Extensible typeProvider;
-	private Random                   random = new Random();
+	private Random                        random = new Random();
 	
 	static void validate(CharChecker expectedCharChecker, Object actual) {
 		validate(expectedCharChecker.toString(), actual);
