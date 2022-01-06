@@ -44,7 +44,6 @@ import net.nawaman.regparser.result.entry.ParseResultEntry;
 import net.nawaman.regparser.result.entry.ParseResultEntryWithParserEntryAndSubResult;
 import net.nawaman.regparser.result.entry.ParseResultEntryWithSubResult;
 import net.nawaman.regparser.types.ErrorParserType;
-import net.nawaman.regparser.utils.IStream;
 import net.nawaman.regparser.utils.Util;
 
 /**
@@ -572,9 +571,9 @@ abstract public class ParseResult implements Serializable {
 	}
 	
 	/** Returns names of all result entries */
-	public IStream<String> names() {
+	public Stream<String> names() {
 		if (entries == null)
-			return IStream.empty();
+			return Stream.empty();
 		
 		var names = new HashSet<String>();
 		entries
@@ -587,7 +586,7 @@ abstract public class ParseResult implements Serializable {
 				}
 			}
 		});
-		return IStream.forStream(names.stream());
+		return names.stream();
 	}
 	
 	//-- SubResult -----------------------------------------------------------------------------------------------------

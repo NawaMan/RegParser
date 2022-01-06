@@ -22,13 +22,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import net.nawaman.regparser.AsChecker;
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.RegParser;
 import net.nawaman.regparser.result.ParseResult;
-import net.nawaman.regparser.utils.IStream;
 
 /**
  * Checker for alternative values.
@@ -165,8 +165,8 @@ public class CheckerAlternative implements Checker {
 		return defaultChecker;
 	}
 	
-	public IStream<Checker> checkers() {
-		return IStream.of(checkers);
+	public Stream<Checker> checkers() {
+		return Stream.of(checkers);
 	}
 	
 	public void forEachInReverse(Consumer<Checker> action) {

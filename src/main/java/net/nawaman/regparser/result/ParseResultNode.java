@@ -18,9 +18,9 @@
 package net.nawaman.regparser.result;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import net.nawaman.regparser.result.entry.ParseResultEntry;
-import net.nawaman.regparser.utils.IStream;
 
 
 /** Node Result - For sub result*/
@@ -80,9 +80,9 @@ public final class ParseResultNode extends NormalParseResult {
 	// Get Element by name -----------------------------------------------------------------------
 	
 	@Override
-	public final IStream<String> names() {
+	public final Stream<String> names() {
 		var names = super.names();
-		return names.concatWith((parent == null) ? null : parent.names());
+		return (parent == null) ? names : Stream.concat(names, parent.names());
 	}
 	
 	/**{@inheritDoc}*/
