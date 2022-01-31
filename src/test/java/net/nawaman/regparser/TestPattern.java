@@ -180,7 +180,7 @@ public class TestPattern {
 	
 	@Test
 	public void testComment_slashStar() {
-		// We comment out the work `not `.
+		// We comment out the `not `.
 		var parser = compileRegParser("Orange[: :]is[: :]/*not[: :]*/a[: :]color.");
 		validate("\n"
 				+ "00 => [   18] = <NoName>        :<NoType>         = \"Orange is a color.\"",
