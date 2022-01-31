@@ -5,14 +5,26 @@ As it was inspired by RegEx, RegParser inherits number of similar characteristic
 The concept such as character class, quantifier and greediness still applies.
 Beyond that here are some of RegParser's unique features.
 
-1. Name group
-2. Tree result
+1. Named group with flat result
+2. Named group with tree result
 3. Pattern Type
 4. Two-stage parsing
 5. Java parser
 5. Validation
 6. Compile
 
+Whitespace
+Negative group
+Recursive
+BackRef
+Comment
+
+## IMPORTANT DIFFERENCES
+
+Important difference between RegEx and RegParser that users should look for are:
+
+- Possessive by default -- Possessive greediness is a greediness strategy that make the parser aggressively consume the 
+    text without backtracking.
 
 ## GPL 2.0
 

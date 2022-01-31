@@ -1664,8 +1664,8 @@ abstract public class ParseResult implements Serializable {
 				var typeName     = typeNameOf(entry, "<NoType>");
 				var subResult    = entry.subResult();
 				var showPosition = spaces(5 - textWidth(endPosition)) + endPosition;
-				var showName     = entryName + spaces(16 - entryName.length());
-				var showType     = typeName + spaces(16 - typeName.length());
+				var showName     = entryName + spaces(Math.max(0, 16 - entryName.length()));
+				var showType     = typeName  + spaces(Math.max(0, 16 - typeName.length()));
 				var text         = orgText.subSequence(startPosition, endPosition);
 				text = (text == null) ? "null" : "\"" + Util.escapeText(this.textOf(i)) + "\"";
 				

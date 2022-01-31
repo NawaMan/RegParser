@@ -510,6 +510,7 @@ class RegParserSolver {
 		
 		if (tabCount == 0) {
 			tabs.put(tabCount, "");
+			return "";
 		}
 		
 		var indentation = "  " + indentation(tabCount - 1);
@@ -543,7 +544,7 @@ class RegParserSolver {
 		var entry        = entries[index];
 		var typeString   = (type  == null) ? "" : type + "(" + parameter + ")" + " ~ ";
 		var timesString  = (times ==    0) ? "" :        "(" + times     + ")";
-		var logMessage   = format("%s`%s` ~ %s%s%s", indentation, escapeText, typeString + entry + timesString);
+		var logMessage   = format("%s`%s` ~ %s", indentation, escapeText, typeString + entry + timesString);
 		DebugPrintStream.println(logMessage);
 	}
 	
