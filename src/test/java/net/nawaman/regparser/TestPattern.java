@@ -21,6 +21,30 @@ public class TestPattern {
 	}
 	
 	@Test
+	public void testTextCI() {// "!textCI(`Te\\\"st`)!"
+		var parser = compileRegParser("!textCI(`shape`)!");
+		validate("\n"
+				+ "00 => [    5] = <NoName>        :textCI           = \"Shape\"",
+				parser.parse("Shape"));
+		
+		validate("\n"
+				+ "00 => [    5] = <NoName>        :textCI           = \"shape\"",
+				parser.parse("shape"));
+		
+		validate("\n"
+				+ "00 => [    5] = <NoName>        :textCI           = \"SHAPE\"",
+				parser.parse("SHAPE"));
+	}
+	
+	@Test
+	public void testTextCI_escape() {
+		var parser = compileRegParser("!textCI(`this is a \"test\".`)!");
+		validate("\n"
+				+ "00 => [   17] = <NoName>        :textCI           = \"This is a \\\"test\\\".\"",
+				parser.parse("This is a \"test\"."));
+	}
+	
+	@Test
 	public void testOptional() {
 		var parser = compileRegParser("Colou?r");
 		validate("\n"
@@ -176,7 +200,67 @@ public class TestPattern {
 				parser.parse("unsure"));
 	}
 	
-	// TODO - Alternative with default.
+	@Test
+	public void testAlternatives_length() {
+		var parser1 = compileRegParser("(AA|AAA|AAAA)");
+		validate("\n"
+				+ "00 => [    2] = <NoName>        :<NoType>         = \"AA\"",
+				parser1.match("AA"));
+		validate("\n"
+				+ "00 => [    3] = <NoName>        :<NoType>         = \"AAA\"",
+				parser1.match("AAA"));
+		validate("\n"
+				+ "00 => [    4] = <NoName>        :<NoType>         = \"AAAA\"",
+				parser1.match("AAAA"));
+		
+		// Alternative will try to match longest ... the order of the choice make no different.
+		
+		var parser2 = compileRegParser("(AAAA|AAA|AA)");
+		validate("\n"
+				+ "00 => [    2] = <NoName>        :<NoType>         = \"AA\"",
+				parser2.match("AA"));
+		validate("\n"
+				+ "00 => [    3] = <NoName>        :<NoType>         = \"AAA\"",
+				parser2.match("AAA"));
+		validate("\n"
+				+ "00 => [    4] = <NoName>        :<NoType>         = \"AAAA\"",
+				parser2.match("AAAA"));
+	}
+	
+	@Test
+	public void testAlternatives_default() {
+		var parser1 = compileRegParser("(AA|AAA||AAAA)");
+		validate("\n"
+				+ "00 => [    2] = <NoName>        :<NoType>         = \"AA\"",
+				parser1.match("AA"));
+		validate("\n"
+				+ "00 => [    3] = <NoName>        :<NoType>         = \"AAA\"",
+				parser1.match("AAA"));
+		
+		// Why?
+		// AA and AAA can match ... so they do and the tail is left which result in an unmatched text.
+		validate(null, parser1.match("AAAA"));
+		
+		// So to confirm, try with `parse` and confirm that only `AAA` match (so with tail `A`).
+		validate("\n"
+				+ "00 => [    3] = <NoName>        :<NoType>         = \"AAA\"",
+				parser1.parse("AAAA"));
+		
+		var parser2 = compileRegParser("(AAAA|AAA||AA)");
+		
+		// Why?
+		// AAAA and AAA cannot match, the parser try AA and found a match.
+		validate("\n"
+				+ "00 => [    2] = <NoName>        :<NoType>         = \"AA\"",
+				parser2.match("AA"));
+		
+		validate("\n"
+				+ "00 => [    3] = <NoName>        :<NoType>         = \"AAA\"",
+				parser2.match("AAA"));
+		validate("\n"
+				+ "00 => [    4] = <NoName>        :<NoType>         = \"AAAA\"",
+				parser2.match("AAAA"));
+	}
 	
 	@Test
 	public void testComment_slashStar() {
@@ -270,14 +354,7 @@ public class TestPattern {
 	}
 	
 	@Test
-	public void testPossessive_named_collapsed() {
-		var parser = compileRegParser("A($Middle:~.~)*Z");
-		var result = parser.parse("A123Z");
-		validate(null, result);
-	}
-	
-	@Test
-	public void testMinimum_named_collapsed() {
+	public void testMinimum_named_combine() {
 		var parser = compileRegParser("A($Middle[]:~.~)**Z");
 		var result = parser.parse("A123Z");
 		validate("\n"
@@ -288,7 +365,7 @@ public class TestPattern {
 	}
 	
 	@Test
-	public void testMaximum_named_collapsed() {
+	public void testMaximum_named_combine() {
 		var parser = compileRegParser("A($Middle[]:~.~)*+Z");
 		var result = parser.parse("A123Z");
 		validate("\n"
@@ -296,6 +373,82 @@ public class TestPattern {
 				+ "01 => [    4] = $Middle[]       :<NoType>         = \"123\"\n"
 				+ "02 => [    5] = <NoName>        :<NoType>         = \"Z\"",
 				result);
+	}
+	
+	@Test
+	public void testNamedGroupFlat() {
+		// Non-flatten --- as a reference
+		validate("\n"
+				+ "00 - => [    1] = <NoName>        :<NoType>         = \"A\"\n"
+				+ "01 - => [    4] = #Middle         :<NoType>         = \"123\"\n"
+				+ ". 00 => [    2] = #Sub            :<NoType>         = \"1\"\n"
+				+ ". 01 => [    3] = #Sub            :<NoType>         = \"2\"\n"
+				+ ". 02 => [    4] = #Sub            :<NoType>         = \"3\"\n"
+				+ "02 - => [    5] = <NoName>        :<NoType>         = \"Z\"",
+				compileRegParser("A(#Middle:~(#Sub:~[0-9]~)*~)Z")
+				.parse("A123Z"));
+		
+		// Flatten
+		// That is the outer group (Middle in this case) is replaced with its sub entry.
+		validate("\n"
+				+ "00 => [    1] = <NoName>        :<NoType>         = \"A\"\n"
+				+ "01 => [    2] = #Sub            :<NoType>         = \"1\"\n"
+				+ "02 => [    3] = #Sub            :<NoType>         = \"2\"\n"
+				+ "03 => [    4] = #Sub            :<NoType>         = \"3\"\n"
+				+ "04 => [    5] = <NoName>        :<NoType>         = \"Z\"",
+				compileRegParser("A(#Middle*:~(#Sub:~[0-9]~)*~)Z")
+				.parse("A123Z"));
+		
+		// Flatten
+		// That is the outer group (Middle in this case) is replaced with its sub entry.
+		validate("\n"
+				+ "00 => [    1] = <NoName>        :<NoType>         = \"A\"\n"
+				+ "01 => [    1] = #Middle*        :<NoType>         = \"\"\n"
+				+ "02 => [    2] = <NoName>        :<NoType>         = \"Z\"",
+				compileRegParser("A(#Middle*:~(#Sub:~[0-9]~)*~)Z")
+				.parse("AZ"));
+	}
+	
+	@Test
+	public void testNamedGroupFlat_whenOne() {
+		// Non-flatten --- as a reference
+		validate("\n"
+				+ "00 - => [    1] = <NoName>        :<NoType>         = \"A\"\n"
+				+ "01 - => [    4] = #Middle         :<NoType>         = \"123\"\n"
+				+ ". 00 => [    2] = #Sub            :<NoType>         = \"1\"\n"
+				+ ". 01 => [    3] = #Sub            :<NoType>         = \"2\"\n"
+				+ ". 02 => [    4] = #Sub            :<NoType>         = \"3\"\n"
+				+ "02 - => [    5] = <NoName>        :<NoType>         = \"Z\"",
+				compileRegParser("A(#Middle:~(#Sub:~[0-9]~)*~)Z")
+				.parse("A123Z"));
+		
+		// Flatten - as there is only sub entry
+		// That is the outer group (Middle in this case) is removed  with its sub entry if it has only one entry.
+		validate("\n"
+				+ "00 => [    1] = <NoName>        :<NoType>         = \"A\"\n"
+				+ "01 => [    2] = #Sub            :<NoType>         = \"1\"\n"
+				+ "02 => [    3] = <NoName>        :<NoType>         = \"Z\"",
+				compileRegParser("A(#Middle?:~(#Sub:~[0-9]~)*~)Z")
+				.parse("A1Z"));
+		
+		// Not-Flatten as there are more than sub elements.
+		validate("\n"
+				+ "00 - => [    1] = <NoName>        :<NoType>         = \"A\"\n"
+				+ "01 - => [    4] = #Middle?        :<NoType>         = \"123\"\n"
+				+ ". 00 => [    2] = #Sub            :<NoType>         = \"1\"\n"
+				+ ". 01 => [    3] = #Sub            :<NoType>         = \"2\"\n"
+				+ ". 02 => [    4] = #Sub            :<NoType>         = \"3\"\n"
+				+ "02 - => [    5] = <NoName>        :<NoType>         = \"Z\"",
+				compileRegParser("A(#Middle?:~(#Sub:~[0-9]~)*~)Z")
+				.parse("A123Z"));
+		
+		// Not-Flatten as there are more than sub elements.
+		validate("\n"
+				+ "00 => [    1] = <NoName>        :<NoType>         = \"A\"\n"
+				+ "01 => [    1] = #Middle?        :<NoType>         = \"\"\n"
+				+ "02 => [    2] = <NoName>        :<NoType>         = \"Z\"",
+				compileRegParser("A(#Middle?:~(#Sub:~[0-9]~)*~)Z")
+				.parse("AZ"));
 	}
 	
 	@Test
@@ -513,7 +666,10 @@ public class TestPattern {
 	
 	@Test
 	public void testRecursive() {
-		var lisp         = new SimpleParserType("lisp", compile("($Open:~[:(:]~)(($Content[]:~[^\\(]~)|(#Sub:~!lisp!~))**($Close:~[:):]~)"));
+		var lisp = new SimpleParserType("lisp", compile(
+				  "($Open:~[:(:]~)"
+				+ "(($Content[]:~[^\\(]~)|(#Sub:~!lisp!~))**"
+				+ "($Close:~[:):]~)"));
 		var typeProvider = new ParserTypeProvider.Simple(lisp);
 		var parser       = compileRegParser(typeProvider, "!lisp!");
 		validate("\n"
@@ -558,6 +714,28 @@ public class TestPattern {
 				+ ". . . 02 - - => [   51] = $Close          :<NoType>         = \")\"\n"
 				+ ". 05 - - - - => [   52] = $Close          :<NoType>         = \")\"",
 				parser.parse("(if x (list 1 2 (concat \"fo\" \"o\")) (list 3 4 \"bar\"))"));
+	}
+	
+	@Test
+	public void testBackRef() {
+		var typeProvider = new ParserTypeProvider.Extensible();
+		typeProvider.addType(ParserTypeBackRef.BackRef_Instance);
+		
+		// Case sensitive
+		validate("\n"
+				+ "00 => [    1] = $X              :<NoType>         = \"a\"\n"
+				+ "01 => [    2] = <NoName>        :<NoType>         = \"x\"\n"
+				+ "02 => [    3] = <NoName>        :$BackRef?        = \"a\"",
+				compileRegParser(typeProvider, "($X:~.~)[x]($X;)")
+				.parse("axa"));
+		
+		// Case insensitive
+		validate("\n"
+				+ "00 => [    1] = $X              :<NoType>         = \"a\"\n"
+				+ "01 => [    2] = <NoName>        :<NoType>         = \"x\"\n"
+				+ "02 => [    3] = <NoName>        :$BackRefCI?      = \"A\"",
+				compileRegParser(typeProvider, "($X:~.~)[x]($X';)")
+				.parse("axA"));
 	}
 	
 }

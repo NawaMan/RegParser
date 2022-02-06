@@ -1502,7 +1502,8 @@ abstract public class ParseResult implements Serializable {
 				i--;
 			}
 			
-			// Collapse auto skip name that end with '+', has sub and only one entry
+			// Flatten group with name or type that end with '+'
+			// This is done only if it has sub with only one entry
 			for (int i = 0; i < entries.size(); i++) {
 				var entry = entries.get(i);
 				if (!entry.hasSubResult())
@@ -1513,8 +1514,8 @@ abstract public class ParseResult implements Serializable {
 
 				var name = entry.name();
 				var type = entry.typeName();
-				if (((name == null) || !name.contains("+"))
-				 && ((type == null) || !type.contains("+")))
+				if (((name == null) || !(name.contains("+") || name.contains("?")))
+				 && ((type == null) || !(type.contains("+") || type.contains("?"))))
 					continue;
 				
 				if (RegParser.isDebugMode) {

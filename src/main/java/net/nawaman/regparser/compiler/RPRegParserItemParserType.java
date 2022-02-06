@@ -140,7 +140,7 @@ public class RPRegParserItemParserType extends ParserType {
 				.entry("#Name", new CharSet("#$"))
 				.entry(either(newRegParser()
 							.entry("#Group-Name",   IdentifierParserType.typeRef)
-							.entry("#Group-Option", new CharSet("*+"),     ZeroOrOne)
+							.entry("#Group-Option", new CharSet("*+?"),    ZeroOrOne)
 							.entry("#Multiple",     new WordChecker("[]"), ZeroOrOne)
 							.entry(WhiteSpace.zeroOrMore())
 							.entry(definition))
@@ -333,12 +333,12 @@ public class RPRegParserItemParserType extends ParserType {
 				return newParserEntry(entryName, parserTypeRef, null, secondParser);
 			}
 			
-			int IE = thisResult.indexOf("#GroupRegParser");
+			int groupIndex = thisResult.indexOf("#GroupRegParser");
 			// Named Group
 			var groupChecker
 			        = (Checker) typeProvider
 			        .type(RPRegParserParserType.name)
-			        .compile(thisResult, IE, null, compilationContext, typeProvider);
+			        .compile(thisResult, groupIndex, null, compilationContext, typeProvider);
 			return newParserEntry(entryName, groupChecker, null, secondParser);
 		}
 		return super.compile(thisResult, parameter, compilationContext, typeProvider);
