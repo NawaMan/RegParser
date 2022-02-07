@@ -1,12 +1,20 @@
 package net.nawaman.regparser;
 
+import static net.nawaman.regparser.Greediness.Maximum;
+import static net.nawaman.regparser.PredefinedCharClasses.Digit;
 import static net.nawaman.regparser.RegParser.compile;
 import static net.nawaman.regparser.RegParser.compileRegParser;
+import static net.nawaman.regparser.RegParser.newRegParser;
 import static net.nawaman.regparser.TestUtils.validate;
+import static net.nawaman.regparser.checkers.CheckerAlternative.either;
+
+import java.util.Arrays;
 
 import org.junit.Test;
 
+import net.nawaman.regparser.result.ParseResult;
 import net.nawaman.regparser.types.SimpleParserType;
+import net.nawaman.regparser.utils.Util;
 
 public class TestPattern {
 	
@@ -734,6 +742,55 @@ public class TestPattern {
 				+ "02 => [    3] = <NoName>        :$BackRefCI?      = \"A\"",
 				compileRegParser(typeProvider, "($X:~.~)[x]($X';)")
 				.parse("axA"));
+	}
+	
+	// TestJavaChecker for JavaChecker
+	
+	// TestTypeWithValidator for type with validator
+	
+	@Test
+	public void testTypeWithCompiler() {
+		@SuppressWarnings("serial")
+		var int0To99 = new ParserType() {
+			@Override
+			public String name() {
+				return "$int0to99?";
+			}
+			
+			private final Checker checker = newRegParser(Digit.bound(2, 2, Maximum));
+			
+			@Override
+			public Checker checker(ParseResult hostResult, String param, ParserTypeProvider typeProvider) {
+				return this.checker;
+			}
+
+			@Override
+			protected Object doCompile(
+								ParseResult        thisResult,
+								int                entryIndex,
+								String             parameter,
+								CompilationContext compilationContext,
+								ParserTypeProvider typeProvider) {
+				var entryText = thisResult.textOf(entryIndex);
+				return Integer.parseInt(entryText);
+			}
+			
+		};
+		
+		var typeProvider = new ParserTypeProvider.Simple(int0To99);
+		var parser       = compileRegParser(typeProvider, "(#int:!$int0to99?!)+");
+		var result       = parser.parse("3895482565");
+		validate("\n"
+				+ "00 => [    2] = #int            :$int0to99?       = \"38\"\n"
+				+ "01 => [    4] = #int            :$int0to99?       = \"95\"\n"
+				+ "02 => [    6] = #int            :$int0to99?       = \"48\"\n"
+				+ "03 => [    8] = #int            :$int0to99?       = \"25\"\n"
+				+ "04 => [   10] = #int            :$int0to99?       = \"65\"",
+				result);
+		
+		var context = new CompilationContext.Simple();
+		var values  = result.valuesOf("#int", typeProvider, context);
+		validate("[38, 95, 48, 25, 65]", values);
 	}
 	
 }

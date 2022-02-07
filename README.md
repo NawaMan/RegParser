@@ -12,13 +12,12 @@ Beyond that here are some of RegParser's unique features.
 5. Java parser
 5. Validation
 6. Compile
-
-Whitespace
-Negative group
-Recursive
-BackRef
-Comment
-Collapse (Combine and Flatten)
+7. Whitespace
+8. Negative group
+9. Recursive
+10. BackRef
+11. Comment
+12. Collapse (Combine and Flatten)
 
 ## IMPORTANT DIFFERENCES
 
@@ -38,10 +37,7 @@ can inform me via nawa@nawaman.net.
 
 Please use our[issues tracking page](https://github.com/NawaMan/RegParser/issues) to report any issues.
 
-## Take what you need
-
-You can import and use this library as you needed. But if you just need a small part of it, feel free to fork it or just copy the part that you need. :-)
-Contribute
+##Contribute
 
 Feel free to join in. Report problems, suggest solutions, suggest more functionalities, making pull requests ... anything is appreciated (please do it in issues tracking page or email me directly).
 

@@ -13,10 +13,10 @@ public class TestJavaChecker {
 	
 	@SuppressWarnings("serial")
 	static public class DigitChecker implements Checker {
-		static public final DigitChecker Instance = new DigitChecker();
+		static public final DigitChecker instance = new DigitChecker();
 		
 		static public final DigitChecker getInstance() {
-			return DigitChecker.Instance;
+			return DigitChecker.instance;
 		}
 		
 		public DigitChecker() {
@@ -64,7 +64,7 @@ public class TestJavaChecker {
 		
 		
 		// Point to the static field
-		parser = compile("!javaChecker(`net.nawaman.regparser.checkers.TestJavaChecker.DigitChecker::Instance`)!");
+		parser = compile("!javaChecker(`net.nawaman.regparser.checkers.TestJavaChecker.DigitChecker::instance`)!");
 		result = parser.parse("01234fdgd");
 		validate("\n"
 		       + "00 - => [    5] = <NoName>        :javaChecker      = \"01234\"\n"

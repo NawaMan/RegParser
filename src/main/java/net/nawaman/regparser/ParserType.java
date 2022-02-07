@@ -236,7 +236,7 @@ abstract public class ParserType implements AsRegParser, Serializable {
 	}
 	
 	/** Returns the match if the text is start with a match (from start to the pEndPosition) or -1 if not */
-	protected ParseResult doMatch(CharSequence text, int offset, int endPosition, ParserTypeProvider typeProvider) {
+	final ParseResult doMatch(CharSequence text, int offset, int endPosition, ParserTypeProvider typeProvider) {
 		var provider = ParserTypeProvider.Library.either(typeProvider, this.typeProvider);
 		int end      = (endPosition == -1)
 		             ? text.length()
