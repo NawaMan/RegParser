@@ -6,15 +6,11 @@ import static net.nawaman.regparser.RegParser.compile;
 import static net.nawaman.regparser.RegParser.compileRegParser;
 import static net.nawaman.regparser.RegParser.newRegParser;
 import static net.nawaman.regparser.TestUtils.validate;
-import static net.nawaman.regparser.checkers.CheckerAlternative.either;
-
-import java.util.Arrays;
 
 import org.junit.Test;
 
 import net.nawaman.regparser.result.ParseResult;
 import net.nawaman.regparser.types.SimpleParserType;
-import net.nawaman.regparser.utils.Util;
 
 public class TestPattern {
 	
