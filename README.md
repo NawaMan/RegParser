@@ -18,6 +18,7 @@ Negative group
 Recursive
 BackRef
 Comment
+Collapse (Combine and Flatten)
 
 ## IMPORTANT DIFFERENCES
 

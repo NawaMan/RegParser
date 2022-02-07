@@ -403,8 +403,7 @@ public class TestPattern {
 		// That is the outer group (Middle in this case) is replaced with its sub entry.
 		validate("\n"
 				+ "00 => [    1] = <NoName>        :<NoType>         = \"A\"\n"
-				+ "01 => [    1] = #Middle*        :<NoType>         = \"\"\n"
-				+ "02 => [    2] = <NoName>        :<NoType>         = \"Z\"",
+				+ "01 => [    2] = <NoName>        :<NoType>         = \"Z\"",
 				compileRegParser("A(#Middle*:~(#Sub:~[0-9]~)*~)Z")
 				.parse("AZ"));
 	}
@@ -428,26 +427,25 @@ public class TestPattern {
 				+ "00 => [    1] = <NoName>        :<NoType>         = \"A\"\n"
 				+ "01 => [    2] = #Sub            :<NoType>         = \"1\"\n"
 				+ "02 => [    3] = <NoName>        :<NoType>         = \"Z\"",
-				compileRegParser("A(#Middle?:~(#Sub:~[0-9]~)*~)Z")
+				compileRegParser("A(#Middle+:~(#Sub:~[0-9]~)*~)Z")
 				.parse("A1Z"));
 		
 		// Not-Flatten as there are more than sub elements.
 		validate("\n"
 				+ "00 - => [    1] = <NoName>        :<NoType>         = \"A\"\n"
-				+ "01 - => [    4] = #Middle?        :<NoType>         = \"123\"\n"
+				+ "01 - => [    4] = #Middle+        :<NoType>         = \"123\"\n"
 				+ ". 00 => [    2] = #Sub            :<NoType>         = \"1\"\n"
 				+ ". 01 => [    3] = #Sub            :<NoType>         = \"2\"\n"
 				+ ". 02 => [    4] = #Sub            :<NoType>         = \"3\"\n"
 				+ "02 - => [    5] = <NoName>        :<NoType>         = \"Z\"",
-				compileRegParser("A(#Middle?:~(#Sub:~[0-9]~)*~)Z")
+				compileRegParser("A(#Middle+:~(#Sub:~[0-9]~)*~)Z")
 				.parse("A123Z"));
 		
 		// Not-Flatten as there are more than sub elements.
 		validate("\n"
 				+ "00 => [    1] = <NoName>        :<NoType>         = \"A\"\n"
-				+ "01 => [    1] = #Middle?        :<NoType>         = \"\"\n"
-				+ "02 => [    2] = <NoName>        :<NoType>         = \"Z\"",
-				compileRegParser("A(#Middle?:~(#Sub:~[0-9]~)*~)Z")
+				+ "01 => [    2] = <NoName>        :<NoType>         = \"Z\"",
+				compileRegParser("A(#Middle+:~(#Sub:~[0-9]~)*~)Z")
 				.parse("AZ"));
 	}
 	

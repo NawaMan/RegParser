@@ -140,7 +140,7 @@ public class RPRegParserItemParserType extends ParserType {
 				.entry("#Name", new CharSet("#$"))
 				.entry(either(newRegParser()
 							.entry("#Group-Name",   IdentifierParserType.typeRef)
-							.entry("#Group-Option", new CharSet("*+?"),    ZeroOrOne)
+							.entry("#Group-Option", new CharSet("*+"),    ZeroOrOne)
 							.entry("#Multiple",     new WordChecker("[]"), ZeroOrOne)
 							.entry(WhiteSpace.zeroOrMore())
 							.entry(definition))

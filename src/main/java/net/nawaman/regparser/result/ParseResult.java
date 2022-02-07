@@ -1479,16 +1479,18 @@ abstract public class ParseResult implements Serializable {
 			}
 			
 			// Collapse auto skip name that end with '*'
-			for (int i = 0; i < entries.size(); i++) {
+			for (int i = entries.size(); i --> 0 ;) {
 				var entry = entries.get(i);
-				if (!entry.hasSubResult())
-					continue;
-				
-				var name = entry.name();
-				var type = entry.typeName();
+				var name  = entry.name();
+				var type  = entry.typeName();
 				if (((name == null) || !name.contains("*"))
 				 && ((type == null) || !type.contains("*")))
 					continue;
+				
+				if (!entry.hasSubResult()) {
+					entries.remove(i);
+					continue;
+				}
 				
 				if (RegParser.isDebugMode) {
 					RegParser.DebugPrintStream
@@ -1504,18 +1506,20 @@ abstract public class ParseResult implements Serializable {
 			
 			// Flatten group with name or type that end with '+'
 			// This is done only if it has sub with only one entry
-			for (int i = 0; i < entries.size(); i++) {
+			for (int i = entries.size(); i --> 0 ;) {
 				var entry = entries.get(i);
-				if (!entry.hasSubResult())
+				var name  = entry.name();
+				var type  = entry.typeName();
+				if (((name == null) || !(name.contains("+")))
+				 && ((type == null) || !(type.contains("+"))))
 					continue;
 				
-				if (entry.subResult().entryCount() != 1)
+				if (!entry.hasSubResult()) {
+					entries.remove(i);
 					continue;
-
-				var name = entry.name();
-				var type = entry.typeName();
-				if (((name == null) || !(name.contains("+") || name.contains("?")))
-				 && ((type == null) || !(type.contains("+") || type.contains("?"))))
+				}
+				
+				if (entry.subResult().entryCount() != 1)
 					continue;
 				
 				if (RegParser.isDebugMode) {

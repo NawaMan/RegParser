@@ -306,7 +306,7 @@ abstract public class ParserType implements AsRegParser, Serializable {
 							String             text,
 							String             parameter,
 							CompilationContext compilationContext,
-							ParserTypeProvider      typeProvider) {
+							ParserTypeProvider typeProvider) {
 		RegParser regParser = null;
 		
 		if (parameter == null) {
@@ -358,7 +358,7 @@ abstract public class ParserType implements AsRegParser, Serializable {
 							int                entryIndex,
 							String             parameter,
 							CompilationContext compilationContext,
-							ParserTypeProvider      typeProvider) {
+							ParserTypeProvider typeProvider) {
 		var provider = ParserTypeProvider.Library.either(typeProvider, this.typeProvider);
 		return doCompile(thisResult, entryIndex, parameter, compilationContext, provider);
 	}
