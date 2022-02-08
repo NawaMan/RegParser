@@ -6,6 +6,7 @@ import static net.nawaman.regparser.RegParser.compile;
 import static net.nawaman.regparser.RegParser.compileRegParser;
 import static net.nawaman.regparser.RegParser.newRegParser;
 import static net.nawaman.regparser.TestUtils.validate;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
@@ -786,7 +787,16 @@ public class TestPattern {
 		
 		var context = new CompilationContext.Simple();
 		var values  = result.valuesOf("#int", typeProvider, context);
-		validate("[38, 95, 48, 25, 65]", values);
+		assertEquals(38, values[0]);
+		assertEquals(95, values[1]);
+		assertEquals(48, values[2]);
+		assertEquals(25, values[3]);
+		assertEquals(65, values[4]);
+		assertEquals(Integer.class, values[0].getClass());
+		assertEquals(Integer.class, values[1].getClass());
+		assertEquals(Integer.class, values[2].getClass());
+		assertEquals(Integer.class, values[3].getClass());
+		assertEquals(Integer.class, values[4].getClass());
 	}
 	
 }
