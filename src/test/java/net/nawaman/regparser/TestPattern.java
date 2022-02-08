@@ -26,6 +26,38 @@ public class TestPattern {
 	}
 	
 	@Test
+	public void testExact_backtick() {
+		var parser = compileRegParser("`shape and shade`");
+		validate("\n"
+				+ "00 => [   15] = <NoName>        :<NoType>         = \"shape and shade\"",
+				parser.parse("shape and shade"));
+		
+		validate(null, parser.parse("Sharp and Shade"));
+	}
+	
+	@Test
+	public void testExact_backtick_caseSensitive() {
+		var parser = compileRegParser("$`shape and shade`");
+		validate("\n"
+				+ "00 => [   15] = <NoName>        :<NoType>         = \"shape and shade\"",
+				parser.parse("shape and shade"));
+		
+		validate(null, parser.parse("Sharp and Shade"));
+	}
+	
+	@Test
+	public void testExact_backtick_caseInsensitive() {
+		var parser = compileRegParser("#`shape and shade`");
+		validate("\n"
+				+ "00 => [   15] = <NoName>        :textCI           = \"shape and shade\"",
+				parser.parse("shape and shade"));
+		
+		validate("\n"
+				+ "00 => [   15] = <NoName>        :textCI           = \"Sharp and Shade\"",
+				parser.parse("Sharp and Shade"));
+	}
+	
+	@Test
 	public void testTextCI() {// "!textCI(`Te\\\"st`)!"
 		var parser = compileRegParser("!textCI(`shape`)!");
 		validate("\n"

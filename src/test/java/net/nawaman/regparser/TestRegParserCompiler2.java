@@ -487,26 +487,26 @@ public class TestRegParserCompiler2 {
 			var parser = RPRegParserParserType.typeRef.asRegParser();
 			validate("(!RegParser!)", parser);
 			
-			var result = parser.parse("one'Two'three", typeProvider);
+			var result = parser.parse("one#`Two`three", typeProvider);
 			validate("\n"
-			        + "00 - - => [   13] = <NoName>        :RegParser        = \"one\\'Two\\'three\"\n"
-			        + ". 00 - => [    3] = #Item[]         :RegParserItem[]  = \"one\"\n"
-			        + ". 01 - => [    8] = #Item[]         :RegParserItem[]  = \"\\'Two\\'\"\n"
-			        + ". . 00 => [    8] = $TextCI         :<NoType>         = \"\\'Two\\'\"\n"
-			        + ". 02 - => [   13] = #Item[]         :RegParserItem[]  = \"three\"",
+					+ "00 - - => [   14] = <NoName>        :RegParser        = \"one#`Two`three\"\n"
+					+ ". 00 - => [    3] = #Item[]         :RegParserItem[]  = \"one\"\n"
+					+ ". 01 - => [    9] = #Item[]         :RegParserItem[]  = \"#`Two`\"\n"
+					+ ". . 00 => [    9] = $Text           :<NoType>         = \"#`Two`\"\n"
+					+ ". 02 - => [   14] = #Item[]         :RegParserItem[]  = \"three\"",
 			        result);
 		}
 		
 		{
-			var parser = compile("one'Two'three");
-			validate("one(!textCI(\"Two\")!)three", parser);
+			var parser = compile("one#`Two`three");
+			validate("one((!textCI(\"Two\")!))three", parser);
 			validate(11, parser.match("oneTwothree", typeProvider).endPosition());
 			validate(11, parser.match("oneTWOthree", typeProvider).endPosition());
 		}
 		
 		{
-			var parser = compile("'var'\\b+(#Name:!$Identifier!)\\b*=\\b*(#Value:~[0-9]*~)\\b*;");
-			validate("(!textCI(\"var\")!)[\\ \\t]+(#Name:!$Identifier!)[\\ \\t]*=[\\ \\t]*(#Value:~[0-9]*~)[\\ \\t]*;",
+			var parser = compile("#`var`\\b+(#Name:!$Identifier!)\\b*=\\b*(#Value:~[0-9]*~)\\b*;");
+			validate("((!textCI(\"var\")!))[\\ \\t]+(#Name:!$Identifier!)[\\ \\t]*=[\\ \\t]*(#Value:~[0-9]*~)[\\ \\t]*;",
 			        parser);
 			
 			var result = parser.match("var V1 = 50;", typeProvider);

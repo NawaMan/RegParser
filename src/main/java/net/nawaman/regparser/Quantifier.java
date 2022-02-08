@@ -104,7 +104,7 @@ public final class Quantifier implements Serializable {
 	private final int        upperBound;
 	private final Greediness greediness;
 	
-	private transient final AtomicReference<String> toString = new AtomicReference<>(null);
+	private transient AtomicReference<String> toString = new AtomicReference<>(null);
 	
 	public Quantifier(int lowerBound, Greediness greediness) {
 		this(lowerBound, -1, greediness);
@@ -218,6 +218,10 @@ public final class Quantifier implements Serializable {
 	/** Returns the string representation of the qualifier */
 	@Override
 	public String toString() {
+		if (toString == null) {
+			// This can happens if he object was deserialize.
+			toString = new AtomicReference<>(null);
+		}
 		return toString.updateAndGet(oldValue -> {
 			if (oldValue != null)
 				return oldValue;

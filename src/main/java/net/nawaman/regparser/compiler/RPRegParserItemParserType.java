@@ -33,7 +33,7 @@ import static net.nawaman.regparser.RegParser.newRegParser;
 import static net.nawaman.regparser.RegParserEntry.newParserEntry;
 import static net.nawaman.regparser.checkers.CheckerAlternative.either;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.CompilationContext;
@@ -62,7 +62,19 @@ public class RPRegParserItemParserType extends ParserType {
 	private final Checker checker;
 	
 	public RPRegParserItemParserType() {
-		var checkers = new Vector<Checker>();
+		var checkers = new ArrayList<Checker>();
+		
+		checkers.add(
+			newRegParser(
+				"$Text",
+				newRegParser()
+				.entry(new CharSet("[#$]"), ZeroOrOne)
+				.entry(new CharSet("`"))
+				.entry(new CharNot(new CharSingle('`')), ZeroOrMore)
+				.entry(new WordChecker("`"))
+			)
+		);
+		
 		checkers.add(predefinedCharChecker);
 		// Escape
 		checkers.add(RPEscapeParserType.typeRef.asRegParser());
@@ -157,16 +169,6 @@ public class RPRegParserItemParserType extends ParserType {
 			)
 		);
 		
-		checkers.add(
-			newRegParser(
-				"$TextCI",
-				newRegParser()
-				.entry(new CharSet("'"))
-				.entry(new CharNot(new CharSingle('\'')), ZeroOrMore)
-				.entry(new WordChecker("'"))
-			)
-		);
-		
 		// Other char
 		checkers.add(newRegParser(new CharNot(new CharSet(escapable)).oneOrMore().minimum()));
 		
@@ -251,14 +253,18 @@ public class RPRegParserItemParserType extends ParserType {
 			return newParserEntry(checker);
 		}
 		
-		if ("$TextCI".equals(name)) {
-			var text = thisResult.textOf(0);
-			// Return as Word if its lower case and upper case is the same
-			if (text.toUpperCase().equals(text.toLowerCase()))
-				return newParserEntry(new WordChecker(text));
+		if ("$Text".equals(name)) {
+			var     text = thisResult.textOf(0);
+			char    ch0  = text.charAt(0);
+			boolean hasS = ch0 == '$';
+			boolean hasH = ch0 == '#';
+			var     word = text.substring(1 + ((hasS | hasH) ? 1 : 0), text.length() - 1);
 			
-			text = text.substring(1, text.length() - 1);
-			return newParserEntry(new ParserTypeRef.Simple(TextCaseInsensitiveParserType.name, text));
+			var checker
+					= hasH
+					? new ParserTypeRef.Simple(TextCaseInsensitiveParserType.name, word)
+					: new WordChecker(word);
+			return newParserEntry(checker);
 		}
 		
 		if (RPTypeParserType.name.equals(typeName)) {
