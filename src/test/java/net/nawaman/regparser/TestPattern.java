@@ -7,6 +7,7 @@ import static net.nawaman.regparser.RegParser.compileRegParser;
 import static net.nawaman.regparser.RegParser.newRegParser;
 import static net.nawaman.regparser.TestUtils.validate;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
@@ -164,6 +165,43 @@ public class TestPattern {
 				parser.parse("Roarrrrrrrr"));
 		
 		validate(null, parser.parse("Road"));
+	}
+	
+	@Test
+	public void testZero() {
+		var parser = compileRegParser("Ro^ar");
+		validate("\n"
+				+ "00 => [    3] = <NoName>        :<NoType>         = \"Rar\"",
+				parser.parse("Rar"));
+		
+		validate(null, parser.parse("Roar"));
+	}
+	
+	@Test
+	public void testZero_greedyException() {
+		try {
+			compileRegParser("Ro^+ar");
+			fail("Expect an exception.");
+		} catch (Exception exception) {
+			// Do nothing.
+			validate("net.nawaman.regparser.compiler.MalFormedRegParserException: Zero quantifier cannot have maximum greediness: \n"
+					+ "	-|Ro^+ar\n"
+					+ "	-|   ^\n"
+					+ "",
+					exception);
+		}
+		
+		try {
+			compileRegParser("Ro^*ar");
+			fail("Expect an exception.");
+		} catch (Exception exception) {
+			// Do nothing.
+			validate("net.nawaman.regparser.compiler.MalFormedRegParserException: Zero quantifier cannot have minimum greediness: \n"
+					+ "	-|Ro^*ar\n"
+					+ "	-|   ^\n"
+					+ "",
+					exception);
+		}
 	}
 	
 	@Test

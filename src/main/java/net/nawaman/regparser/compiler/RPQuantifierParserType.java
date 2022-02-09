@@ -107,7 +107,7 @@ public class RPQuantifierParserType extends ParserType {
 				.entry(
 					"#Quantifier",
 					new CheckerAlternative(true,
-						new CharSet("+*?"),
+						new CharSet("+*?^"),
 						bothBound,
 						upperBound,
 						lowerVount,
@@ -178,6 +178,16 @@ public class RPQuantifierParserType extends ParserType {
 				return Quantifier.OneOrMore_Minimum;
 			
 			break;
+		}
+		case '^': {
+			if (greediness == null)
+				return Quantifier.Zero;
+			
+			if (greediness.charAt(0) == MaximumSign.charAt(0))
+				throw new MalFormedRegParserException("Zero quantifier cannot have maximum greediness: \n" + thisResult.locationOf(1));
+			
+			if (greediness.charAt(0) == MinimumSign.charAt(0))
+				throw new MalFormedRegParserException("Zero quantifier cannot have minimum greediness: \n" + thisResult.locationOf(1));
 		}
 		case '{': {
 			thisResult = thisResult.entryAt(0).subResult();
