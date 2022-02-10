@@ -505,7 +505,7 @@ public class TestPattern {
 				compileRegParser("A(#Middle+:~(#Sub:~[0-9]~)*~)Z")
 				.parse("A1Z"));
 		
-		// Not-Flatten as there are more than sub elements.
+		// Not-Flatten as there are more than one sub elements.
 		validate("\n"
 				+ "00 - => [    1] = <NoName>        :<NoType>         = \"A\"\n"
 				+ "01 - => [    4] = #Middle+        :<NoType>         = \"123\"\n"
@@ -516,7 +516,7 @@ public class TestPattern {
 				compileRegParser("A(#Middle+:~(#Sub:~[0-9]~)*~)Z")
 				.parse("A123Z"));
 		
-		// Not-Flatten as there are more than sub elements.
+		// No sub element.
 		validate("\n"
 				+ "00 => [    1] = <NoName>        :<NoType>         = \"A\"\n"
 				+ "01 => [    2] = <NoName>        :<NoType>         = \"Z\"",
