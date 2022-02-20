@@ -1,19 +1,15 @@
 package net.nawaman.regparser.newway;
 
-import net.nawaman.regparser.AsChecker;
+public class RPEndText extends RPText {
 
-public class RPNodeText extends RPText {
-	
 	private final RPRootText root;
 	private final RPText     parent;
-	private final int        offset;
-	private final AsChecker  asChecker;
+	private final int        endOffset;
 	
-	public RPNodeText(RPText parent, int offset, AsChecker asChecker) {
+	public RPEndText(RPText parent, int endOffset) {
 		this.parent    = parent;
 		this.root      = parent.root();
-		this.offset    = offset;
-		this.asChecker = asChecker;
+		this.endOffset = endOffset;
 	}
 	
 	@Override
@@ -21,19 +17,20 @@ public class RPNodeText extends RPText {
 		return root;
 	}
 	
+	@Override
 	public RPText parent() {
 		return parent;
 	}
 	
 	@Override
 	public CharSequence originalText() {
-		return root.originalText();
+		return parent.root().originalText();
 	}
 	
 	@Override
 	public String toString() {
 		return parent.toString() + "\n"
-				+ "offset: " + offset + ", asChecker: " + asChecker;
+				+ "offset: " + endOffset;
 	}
 	
 }

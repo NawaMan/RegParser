@@ -7,9 +7,18 @@ import net.nawaman.regparser.utils.Util;
 public class NewRegParser {
 	
 	public static void main(String[] args) {
+		run("Color");
+		System.out.println();
+		
+		run("Colour");
+		System.out.println();
+		
+		System.out.println("DONE!");
+	}
+	
+	private static void run(String orgText) {
 		long startTime = System.currentTimeMillis();
-		var orgText = "Colour";
-		var parser  = RegParser.compile("Colou?r");
+		var parser     = RegParser.compile("Colou?r");
 		
 		System.out.println(Util.toString(parser));
 		
@@ -33,7 +42,6 @@ public class NewRegParser {
 		long endTime = System.currentTimeMillis();
 		System.out.println("Start -> Mid: " + (midTime - startTime));
 		System.out.println("Mid   -> End: " + (endTime - midTime));
-		System.out.println("DONE!");
 		System.out.println(text);
 		System.out.println(text.root().matches);
 	}

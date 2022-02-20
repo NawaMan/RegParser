@@ -29,6 +29,10 @@ public class RPRootText extends RPText {
 
 	@Override
 	public String toString() {
+		return "RPRootText [original=" + original + "]";
+	}
+	
+	public String toDetail() {
 		return "RPRootText [original=" + original + ", matches=" + matches + "]";
 	}
 	

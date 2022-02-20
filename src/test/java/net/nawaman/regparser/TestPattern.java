@@ -56,7 +56,7 @@ public class TestPattern {
 				+ "00 => [   15] = <NoName>        :<NoType>         = \"shape and shade\"",
 				parser.parse("shape and shade"));
 		
-		validate(null, parser.parse("Sharp and Shade"));
+		validate(null, parser.parse("Shape and Shade"));
 	}
 	
 	@Test

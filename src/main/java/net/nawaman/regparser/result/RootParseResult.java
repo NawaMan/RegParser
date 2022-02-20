@@ -28,7 +28,7 @@ public final class RootParseResult extends NormalParseResult {
 	
 	private final CharSequence originalText;
 	
-	RootParseResult(int startPosition, CharSequence originalText) {
+	public RootParseResult(int startPosition, CharSequence originalText) {
 		this(startPosition, originalText, null);
 	}
 	

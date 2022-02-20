@@ -31,11 +31,11 @@ public final class ParseResultNode extends NormalParseResult {
 	private ParseResult parent;
 	private int         index;
 	
-	ParseResultNode(int startPosition, ParseResult parentResult) {
+	public ParseResultNode(int startPosition, ParseResult parentResult) {
 		this(startPosition, parentResult, null);
 	}
 	
-	private ParseResultNode(int startPosition, ParseResult parentResult, List<ParseResultEntry> resultEntries) {
+	public ParseResultNode(int startPosition, ParseResult parentResult, List<ParseResultEntry> resultEntries) {
 		super(startPosition, resultEntries);
 		this.parent = parentResult;
 		

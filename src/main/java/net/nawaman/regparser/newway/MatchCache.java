@@ -64,7 +64,9 @@ public class MatchCache {
 		if (length == MatchCache.NOT_KNOWN) {
 			var checker = asChecker.asChecker();
 			length = checker.startLengthOf(text, offset, typeProvider);
-			map.putIfAbsent(key, length);
+			if (Boolean.TRUE.equals(checker.isDeterministic())) {
+				map.putIfAbsent(key, length);
+			}
 		}
 		
 		return length;
