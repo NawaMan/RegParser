@@ -18,7 +18,8 @@
 
 package net.nawaman.regparser.checkers;
 
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.ParserTypeProvider;
@@ -29,11 +30,11 @@ import net.nawaman.regparser.result.ParseResult;
  * 
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  **/
-public class CheckerAny implements Checker {
+public final class CheckerAny implements Checker {
 	
 	private static final long serialVersionUID = 1468541215412541527L;
 	
-	static Hashtable<Integer, CheckerAny> checkerAnys = new Hashtable<Integer, CheckerAny>();
+	static Map<Integer, CheckerAny> checkerAnys = new HashMap<Integer, CheckerAny>();
 	
 	private final int length;
 	
@@ -82,9 +83,25 @@ public class CheckerAny implements Checker {
 		return length;
 	}
 	
+	@Override
+	public final Boolean isDeterministic() {
+		return (length >= 0);
+	}
 	
 	@Override
 	public String toString() {
 		return "." + ((length == -1) ? "*" : "{" + length + "}");
+	}
+	
+	private int hashCode = 0;
+	
+	@Override
+	public int hashCode() {
+		if (hashCode != 0) {
+			return hashCode;
+		}
+		
+		hashCode = toString().hashCode();
+		return hashCode;
 	}
 }

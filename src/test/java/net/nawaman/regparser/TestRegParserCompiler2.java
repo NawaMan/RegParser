@@ -454,7 +454,9 @@ public class TestRegParserCompiler2 {
 		}
 		{
 			var parser = compile("Col(o|ou)?r");
-			validate("Col(o|ou)?r", parser);
+			validate("Col\n"
+					+ "(o|ou)?\n"
+					+ "r", parser);
 			validate(4,      parser.match("Colr",   typeProvider).endPosition());
 			validate(5,      parser.match("Color",  typeProvider).endPosition());
 			validate(6,      parser.match("Colour", typeProvider).endPosition());
@@ -499,25 +501,38 @@ public class TestRegParserCompiler2 {
 		
 		{
 			var parser = compile("one#`Two`three");
-			validate("one((!textCI(\"Two\")!))three", parser);
+			validate("one\n"
+					+ "(!textCI(\"Two\")!)\n"
+					+ "  - (!textCI(\"Two\")!)\n"
+					+ "three", parser);
 			validate(11, parser.match("oneTwothree", typeProvider).endPosition());
 			validate(11, parser.match("oneTWOthree", typeProvider).endPosition());
 		}
 		
 		{
 			var parser = compile("#`var`\\b+(#Name:!$Identifier!)\\b*=\\b*(#Value:~[0-9]*~)\\b*;");
-			validate("((!textCI(\"var\")!))[\\ \\t]+(#Name:!$Identifier!)[\\ \\t]*=[\\ \\t]*(#Value:~[0-9]*~)[\\ \\t]*;",
-			        parser);
+			validate("(!textCI(\"var\")!)\n"
+					+ "  - (!textCI(\"var\")!)\n"
+					+ "[\\ \\t]+\n"
+					+ "(#Name:!$Identifier!)\n"
+					+ "[\\ \\t]*\n"
+					+ "=\n"
+					+ "[\\ \\t]*\n"
+					+ "(#Value:~[0-9]*~)\n"
+					+ "  - [0-9]*\n"
+					+ "[\\ \\t]*\n"
+					+ ";",
+					parser);
 			
 			var result = parser.match("var V1 = 50;", typeProvider);
 			validate("\n"
-			        + "00 => [    3] = <NoName>        :textCI           = \"var\"\n"
-			        + "01 => [    4] = <NoName>        :<NoType>         = \" \"\n"
-			        + "02 => [    6] = #Name           :$Identifier      = \"V1\"\n"
-			        + "03 => [    9] = <NoName>        :<NoType>         = \" = \"\n"
-			        + "04 => [   11] = #Value          :<NoType>         = \"50\"\n"
-			        + "05 => [   12] = <NoName>        :<NoType>         = \";\"",
-			        result);
+					+ "00 => [    3] = <NoName>        :textCI           = \"var\"\n"
+					+ "01 => [    4] = <NoName>        :<NoType>         = \" \"\n"
+					+ "02 => [    6] = #Name           :$Identifier      = \"V1\"\n"
+					+ "03 => [    9] = <NoName>        :<NoType>         = \" = \"\n"
+					+ "04 => [   11] = #Value          :<NoType>         = \"50\"\n"
+					+ "05 => [   12] = <NoName>        :<NoType>         = \";\"",
+					result);
 			validate("V1", result.textOf("#Name"));
 			validate("50", result.textOf("#Value"));
 			

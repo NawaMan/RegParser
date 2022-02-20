@@ -36,6 +36,11 @@ public class TestTypeWithValidator {
 				int value = Integer.parseInt(text);
 				return (value >= 0) && (value <= 4);
 			}
+			
+			@Override
+			public final Boolean isDeterministic() {
+				return false;
+			}
 		};
 		
 		@SuppressWarnings("serial")
@@ -57,6 +62,11 @@ public class TestTypeWithValidator {
 				var text  = thisResult.text();
 				int value = Integer.parseInt(text);
 				return (value >= 5) && (value <= 9);
+			}
+			
+			@Override
+			public final Boolean isDeterministic() {
+				return false;
 			}
 		};
 		var regParser = newRegParser(

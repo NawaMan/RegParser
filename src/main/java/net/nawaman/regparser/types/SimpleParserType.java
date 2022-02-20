@@ -60,4 +60,9 @@ public class SimpleParserType extends ParserType {
 		return (Checker)checkerProvider;
 	}
 	
+	@Override
+	public final Boolean isDeterministic() {
+		return null;
+	}
+	
 }

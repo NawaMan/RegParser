@@ -29,7 +29,7 @@ import net.nawaman.regparser.result.ParseResult;
  *
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-public class CheckerNot implements Checker {
+public final class CheckerNot implements Checker {
 	
 	private static final long serialVersionUID = 4485946546354964247L;
 	
@@ -59,6 +59,11 @@ public class CheckerNot implements Checker {
 	}
 	
 	@Override
+	public final Boolean isDeterministic() {
+		return checker.isDeterministic();
+	}
+	
+	@Override
 	public String toString() {
 		return "(^" + checker.toString() + ")";
 	}
@@ -74,8 +79,15 @@ public class CheckerNot implements Checker {
 		return checker.equals(((CheckerNot)O).checker);
 	}
 	
+	private int hashCode = 0;
+	
 	@Override
 	public int hashCode() {
-		return "CheckerNot".hashCode() + checker.hashCode();
+		if (hashCode != 0) {
+			return hashCode;
+		}
+		
+		hashCode = "CheckerNot".hashCode() + checker.hashCode();
+		return hashCode;
 	}
 }

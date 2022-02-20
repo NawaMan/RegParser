@@ -95,4 +95,9 @@ public class ParserTypeBackRef extends ParserType {
 		return word;
 	}
 	
+	@Override
+	public final Boolean isDeterministic() {
+		return null;
+	}
+	
 }

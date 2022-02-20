@@ -21,6 +21,7 @@ package net.nawaman.regparser.checkers;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Objects;
 
 import net.nawaman.regparser.Checker;
 
@@ -29,21 +30,25 @@ import net.nawaman.regparser.Checker;
  *
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-public class CharUnion extends CharChecker {
+public final class CharUnion extends CharChecker {
 	
 	private static final long serialVersionUID = 2263513546518947854L;
 	
 	private final CharChecker[] charCheckers;
+	private final boolean       isDeterministic;
 	
 	/** Constructs a char set */
 	public CharUnion(CharChecker... charCheckers) {
 		// Combine if one of them is alternative
 		
-		var list = new ArrayList<CharChecker>();
+		var     list            = new ArrayList<CharChecker>();
+		boolean isDeterministic = true;
 		for (int i = 0; i < charCheckers.length; i++) {
 			var charChecker = charCheckers[i];
 			if (charChecker == null)
 				continue;
+			
+			isDeterministic &= charChecker.isDeterministic();
 			
 			if (charChecker instanceof CharUnion) {
 				var charUnion = (CharUnion)charChecker;
@@ -60,6 +65,8 @@ public class CharUnion extends CharChecker {
 		for (int i = 0; i < checkerCount; i++) {
 			this.charCheckers[i] = list.get(i);
 		}
+		
+		this.isDeterministic = isDeterministic;
 	}
 	
 	/** Checks of the char c is in this char checker */
@@ -70,6 +77,11 @@ public class CharUnion extends CharChecker {
 				return true;
 		}
 		return false;
+	}
+	
+	@Override
+	public final Boolean isDeterministic() {
+		return isDeterministic;
 	}
 	
 	@Override
@@ -109,13 +121,7 @@ public class CharUnion extends CharChecker {
 	
 	@Override
 	public int hashCode() {
-		int h = "CharUnion".hashCode();
-		int length = charCheckers.length;
-		for (int i = 0; i < length; i++) {
-			h += charCheckers[i].hashCode();
-		}
-		
-		return h;
+		return "CharUnion".hashCode() + Objects.hash((Object[])charCheckers);
 	}
 	
 	/** Return the optimized version of this Checker */

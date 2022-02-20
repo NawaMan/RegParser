@@ -27,7 +27,7 @@ import java.util.HashSet;
  *
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-public class CharSet extends CharChecker {
+public final class CharSet extends CharChecker {
 	
 	private static final long serialVersionUID = 2165464135465416515L;
 	
@@ -43,6 +43,11 @@ public class CharSet extends CharChecker {
 	@Override
 	public boolean inSet(char c) {
 		return (set.indexOf(c) != -1);
+	}
+	
+	@Override
+	public final Boolean isDeterministic() {
+		return true;
 	}
 	
 	@Override

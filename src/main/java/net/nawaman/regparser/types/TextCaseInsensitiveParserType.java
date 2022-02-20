@@ -79,4 +79,9 @@ public class TextCaseInsensitiveParserType extends ParserType {
 		
 		return text.toLowerCase().equals(parameter.toLowerCase());
 	}
+	
+	@Override
+	public final Boolean isDeterministic() {
+		return true;
+	}
 }

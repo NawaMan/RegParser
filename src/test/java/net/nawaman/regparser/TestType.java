@@ -55,7 +55,12 @@ public class TestType {
 			int value = Integer.parseInt(text);
 			return (value >= 0) && (value <= 255);
 		}
-
+		
+		@Override
+		public final Boolean isDeterministic() {
+			return true;
+		}
+		
 	}
 	
 	@Before
@@ -74,10 +79,14 @@ public class TestType {
 	public void testBasicTypeRef() {
 		@SuppressWarnings("serial")
 		var refToByte = new ParserTypeRef() {
-		@Override
-		public String name() {
-			return "$byte?";
-		}
+			@Override
+			public String name() {
+				return "$byte?";
+			}
+			@Override
+			public final Boolean isDeterministic() {
+				return true;
+			}
 		};
 		var regParser = newRegParser(defaultTypeProvider, newParserEntry("#Value", refToByte));
 		var result    = regParser.parse("192");
@@ -100,6 +109,11 @@ public class TestType {
 			@Override
 			public Checker checker(ParseResult hostResult, String param, ParserTypeProvider typeProvider) {
 				return this.checker;
+			}
+			
+			@Override
+			public final Boolean isDeterministic() {
+				return true;
 			}
 			
 			@Override
@@ -136,6 +150,11 @@ public class TestType {
 			@Override
 			public Checker checker(ParseResult hostResult, String param, ParserTypeProvider typeProvider) {
 				return this.checker;
+			}
+			
+			@Override
+			public final Boolean isDeterministic() {
+				return true;
 			}
 		};
 		
@@ -190,7 +209,10 @@ public class TestType {
 		                    new CharSingle('x'),
 		                    newRegParser(defaultTypeProvider, new ParserTypeRef.Simple(ParserTypeBackRef.BackRef_Instance.name(), "#X"))
 		        );
-		validate("(#X:!$byte?!)[x]((!$BackRef?(\"#X\")!))", regParser);
+		validate("(#X:!$byte?!)\n"
+				+ "[x]\n"
+				+ "(!$BackRef?(\"#X\")!)\n"
+				+ "  - (!$BackRef?(\"#X\")!)", regParser);
 		
 		var parseResult = regParser.parse("56x56");
 		validate("\n"
@@ -228,7 +250,17 @@ public class TestType {
 				.build();
 		
 		validate(
-		        "[<](Begin:~[[a-z][A-Z]]+~)[\\ \\t]*[>].**((#End:~</(#EndTag:!$BackRef?(\"Begin\")!)[>]~))",
+		        "[<]\n"
+		        + "(Begin:~[[a-z][A-Z]]+~)\n"
+		        + "  - [[a-z][A-Z]]+\n"
+		        + "[\\ \\t]*\n"
+		        + "[>]\n"
+		        + ".**\n"
+		        + "(#End:~</(#EndTag:!$BackRef?(\"Begin\")!)[>]~)\n"
+		        + "  - (#End:~</(#EndTag:!$BackRef?(\"Begin\")!)[>]~)\n"
+		        + "  -   - </\n"
+		        + "  -   - (#EndTag:!$BackRef?(\"Begin\")!)\n"
+		        + "  -   - [>]",
 		        parser);
 		
 		var result = parser.parse("<tag> <br /> </tag>");
@@ -274,34 +306,44 @@ public class TestType {
 			public Checker checker(ParseResult hostResult, String param, ParserTypeProvider typeProvider) {
 				return this.checker;
 			}
+			
+			@Override
+			public final Boolean isDeterministic() {
+				return true;
+			}
 		};
 		
 		@SuppressWarnings("serial")
 		var stringLiteralType = new ParserType() {
-		
-		final private Checker checker
-				= either(newRegParser()
-					.entry(new CharSingle('\"'))
-					.entry(either(new CharNot(new CharSingle('\"')))
-							.or  (new WordChecker("\\\"")), ZeroOrMore_Minimum)
-					.entry(new CharSingle('\"')))
-				.or(newRegParser()
-					.entry(new CharSingle('\''))
-					.entry(either(new CharNot(CharSingle.of('\'')))
-							.or  (new WordChecker("\\\'")),
-							ZeroOrMore_Minimum)
-					.entry(new CharSingle('\'')))
-				.build();
-		
-		@Override
-		public String name() {
-			return "StringValue";
-		}
-		
-		@Override
-		public Checker checker(ParseResult hostResult, String param, ParserTypeProvider typeProvider) {
-			return this.checker;
-		}
+			
+			final private Checker checker
+					= either(newRegParser()
+						.entry(new CharSingle('\"'))
+						.entry(either(new CharNot(new CharSingle('\"')))
+								.or  (new WordChecker("\\\"")), ZeroOrMore_Minimum)
+						.entry(new CharSingle('\"')))
+					.or(newRegParser()
+						.entry(new CharSingle('\''))
+						.entry(either(new CharNot(CharSingle.of('\'')))
+								.or  (new WordChecker("\\\'")),
+								ZeroOrMore_Minimum)
+						.entry(new CharSingle('\'')))
+					.build();
+			
+			@Override
+			public String name() {
+				return "StringValue";
+			}
+			
+			@Override
+			public Checker checker(ParseResult hostResult, String param, ParserTypeProvider typeProvider) {
+				return this.checker;
+			}
+			
+			@Override
+			public final Boolean isDeterministic() {
+				return checker.isDeterministic();
+			}
 		};
 		
 		@SuppressWarnings("serial")
@@ -323,6 +365,11 @@ public class TestType {
 			@Override
 			public Checker checker(ParseResult hostResult, String param, ParserTypeProvider typeProvider) {
 				return this.checker;
+			}
+			
+			@Override
+			public final Boolean isDeterministic() {
+				return true;
 			}
 		};
 		
@@ -369,6 +416,11 @@ public class TestType {
 			@Override
 			public Checker checker(ParseResult hostResult, String param, ParserTypeProvider typeProvider) {
 				return this.checker;
+			}
+			
+			@Override
+			public final Boolean isDeterministic() {
+				return checker.isDeterministic();
 			}
 		};
 		

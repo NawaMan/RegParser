@@ -362,6 +362,21 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
 			        ? this
 			        : new DirectWithQuantifier(checker, quantifier);
 		}
+		
+		@Override
+		public Boolean isDeterministic() {
+			return checker.isDeterministic();
+		}
+		
+		@Override
+		public String toString() {
+			return checker.toString();
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(Direct.class, checker);
+		}
 	}
 	
 	static private class DirectWithQuantifier extends Direct {
@@ -385,6 +400,21 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
 			return (quantifier == null)
 			        ? new Direct              (checker)
 			        : new DirectWithQuantifier(checker, quantifier);
+		}
+		
+		@Override
+		public Boolean isDeterministic() {
+			return super.isDeterministic() && quantifier.isPossessive();
+		}
+		
+		@Override
+		public String toString() {
+			return checker().toString() + quantifier;
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(DirectWithQuantifier.class, checker(), quantifier);
 		}
 	}
 	
@@ -412,6 +442,16 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
 			        ? this
 			        : new NamedDirectWithQuantifier(name, checker, quantifier);
 		}
+		
+		@Override
+		public String toString() {
+			return "(" + name + ":~" + checker().toString() + "~)";
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(NamedDirect.class, name, checker());
+		}
 	}
 	
 	static private class NamedDirectWithQuantifier extends NamedDirect {
@@ -437,6 +477,21 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
 			        ? new NamedDirect              (name, checker)
 			        : new NamedDirectWithQuantifier(name, checker, quantifier);
 		}
+		
+		@Override
+		public Boolean isDeterministic() {
+			return super.isDeterministic() && quantifier.isPossessive();
+		}
+		
+		@Override
+		public String toString() {
+			return "(" + name() + ":~" + checker().toString() + "~)" + quantifier;
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(NamedDirect.class, name(), checker(), quantifier);
+		}
 	}
 	
 	// Typed -----------------------------------------------------------------------------
@@ -460,6 +515,21 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
 			return (quantifier == null)
 			        ? this
 			        : new TypeRefWithQuantifier(typeRef, quantifier);
+		}
+		
+		@Override
+		public Boolean isDeterministic() {
+			return null;
+		}
+		
+		@Override
+		public String toString() {
+			return "(" + typeRef.toString() +")";
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(TypeRef.class, typeRef);
 		}
 	}
 	
@@ -485,6 +555,21 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
 			        ? new TypeRef              (typeRef)
 			        : new TypeRefWithQuantifier(typeRef, quantifier);
 		}
+		
+		@Override
+		public final Boolean isDeterministic() {
+			return !quantifier.isPossessive() ? false : null;
+		}
+		
+		@Override
+		public String toString() {
+			return super.toString() + quantifier;
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(TypeRef.class, typeRef(), quantifier);
+		}
 	}
 	
 	static private class NamedTypeRef extends TypeRef {
@@ -508,6 +593,16 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
 			return (quantifier == null)
 			        ? this
 			        : new NamedTypeRefWithQuantifier(name, typeRef, quantifier);
+		}
+		
+		@Override
+		public String toString() {
+			return "(" + name + ":" + typeRef() + ")";
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(NamedTypeRef.class, typeRef(), name);
 		}
 	}
 	
@@ -534,6 +629,21 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
 			        ? new NamedTypeRef              (name, typeRef)
 			        : new NamedTypeRefWithQuantifier(name, typeRef, quantifier);
 		}
+		
+		@Override
+		public final Boolean isDeterministic() {
+			return !quantifier.isPossessive() ? false : null;
+		}
+		
+		@Override
+		public String toString() {
+			return "(" + name() + ":" + typeRef() + ")" + quantifier;
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(NamedTypeRefWithQuantifier.class, typeRef(), name(), quantifier);
+		}
 	}
 	
 	// Typed -----------------------------------------------------------------------------
@@ -559,6 +669,21 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
 			        ? this
 			        : new TypedWithQuantifier(type, quantifier);
 		}
+		
+		@Override
+		public Boolean isDeterministic() {
+			return null;
+		}
+		
+		@Override
+		public String toString() {
+			return type.toString();
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(Typed.class, type);
+		}
 	}
 	
 	static private class TypedWithQuantifier extends Typed {
@@ -582,6 +707,21 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
 			return (quantifier == null)
 			        ? new Typed              (type)
 			        : new TypedWithQuantifier(type, quantifier);
+		}
+		
+		@Override
+		public final Boolean isDeterministic() {
+			return !quantifier.isPossessive() ? false : null;
+		}
+		
+		@Override
+		public String toString() {
+			return super.toString() + quantifier;
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(TypedWithQuantifier.class, typeRef(), quantifier);
 		}
 	}
 	
@@ -607,6 +747,16 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
 			        ? this
 			        : new NamedTypedWithQuantifier(name, type, quantifier);
 		}
+		
+		@Override
+		public String toString() {
+			return "(" + name + ":" + type() + ")";
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(NamedTyped.class, name, type());
+		}
 	}
 	
 	static private class NamedTypedWithQuantifier extends NamedTyped {
@@ -631,6 +781,21 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
 			return (quantifier == null)
 			        ? new NamedTyped              (name, type)
 			        : new NamedTypedWithQuantifier(name, type, quantifier);
+		}
+		
+		@Override
+		public final Boolean isDeterministic() {
+			return !quantifier.isPossessive() ? false : null;
+		}
+		
+		@Override
+		public String toString() {
+			return "(" + name() + ":" + type() + ")" + quantifier;
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(NamedTypedWithQuantifier.class, name(), type(), quantifier);
 		}
 	}
 	
@@ -677,12 +842,27 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
 		}
 		
 		@Override
+		public final Boolean isDeterministic() {
+			return !delegate.quantifier().isPossessive() ? false : delegate.checker().isDeterministic();
+		}
+		
+		@Override
 		public RegParser secondStage() {
 			return parser;
 		}
 		
 		public RegParserEntry quantifier(Quantifier quantifier) {
 			return new TwoStage(delegate.quantifier(quantifier), parser);
+		}
+		
+		@Override
+		public String toString() {
+			return "(" + delegate + ":" + parser + ")";
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(delegate, parser);
 		}
 	}
 	

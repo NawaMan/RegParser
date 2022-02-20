@@ -27,7 +27,7 @@ import net.nawaman.regparser.Checker;
  *
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-public class CheckerFirstFound extends CheckerAlternative {
+public final class CheckerFirstFound extends CheckerAlternative {
 	
 	private static final long serialVersionUID = 4464247859465463549L;
 	

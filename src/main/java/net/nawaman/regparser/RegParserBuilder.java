@@ -34,14 +34,18 @@ public class RegParserBuilder implements AsRegParser, Quantifiable<RegParser> {
 	
 	private final List<RegParserEntry> entries = new ArrayList<RegParserEntry>();
 	
+	private boolean isDirty         = false;
+	private Boolean isDeterministic = null;
 	
 	public RegParserBuilder typeProvider(ParserTypeProvider typeProvider) {
 		this.typeProvider = typeProvider;
+		this.isDirty = true;
 		return this;
 	}
 	
 	public RegParserBuilder entry(RegParserEntry entry) {
 		entries.add(entry);
+		this.isDirty = true;
 		return this;
 	}
 	
@@ -142,7 +146,12 @@ public class RegParserBuilder implements AsRegParser, Quantifiable<RegParser> {
 	}
 	
 	public RegParser build() {
-		return newRegParser(typeProvider, entries);
+		var regParser = newRegParser(typeProvider, entries);
+		if (isDirty) {
+			isDeterministic = regParser.isDeterministic();
+			isDirty         = false;
+		}
+		return regParser;
 	}
 
 	@Override
@@ -153,6 +162,15 @@ public class RegParserBuilder implements AsRegParser, Quantifiable<RegParser> {
 	@Override
 	public RegParser quantifier(Quantifier quantifier) {
 		return newRegParser(build().quantifier(quantifier));
+	}
+	
+	@Override
+	public final Boolean isDeterministic() {
+		if (isDirty) {
+			isDeterministic = build().isDeterministic();
+			isDirty         = false;
+		}
+		return isDeterministic;
 	}
 	
 }

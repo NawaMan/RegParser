@@ -18,6 +18,8 @@
 
 package net.nawaman.regparser.checkers;
 
+import static java.util.Objects.hash;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -56,7 +58,13 @@ public class CheckerAlternative implements Checker {
 	public static class Builder implements AsChecker {
 		private final List<AsChecker> checkers = new ArrayList<>();
 		
+		private boolean isDeterministic = true;
+		
 		public Builder or(AsChecker checker) {
+			if ((checker != null) && !checker.isDeterministic()) {
+				isDeterministic = false;
+			}
+			
 			checkers.add(checker);
 			return this;
 		}
@@ -69,6 +77,10 @@ public class CheckerAlternative implements Checker {
 		}
 		
 		public CheckerAlternative orDefault(AsChecker checker) {
+			if ((checker != null) && !checker.isDeterministic()) {
+				isDeterministic = false;
+			}
+			
 			boolean hasDefault = (checker != null);
 			checkers.add(checker);
 			var array = checkers.stream()
@@ -80,6 +92,11 @@ public class CheckerAlternative implements Checker {
 		@Override
 		public Checker asChecker() {
 			return build();
+		}
+		
+		@Override
+		public final Boolean isDeterministic() {
+			return isDeterministic;
 		}
 	}
 	
@@ -95,6 +112,7 @@ public class CheckerAlternative implements Checker {
 	
 	private final Checker   defaultChecker;
 	private final Checker[] checkers;
+	private final boolean   isDeterministic;
 	
 	/** Constructs a char set */
 	public CheckerAlternative(AsChecker... checkers) {
@@ -105,12 +123,15 @@ public class CheckerAlternative implements Checker {
 	public CheckerAlternative(boolean hasDefault, AsChecker ... checkers) {
 		// Combine if one of them is alternative
 		
-		var list      = new ArrayList<Checker>();
-		int lastIndex = checkers.length - (hasDefault ? 1 : 0);
+		var     list            = new ArrayList<Checker>();
+		int     lastIndex       = checkers.length - (hasDefault ? 1 : 0);
+		boolean isDeterministic = true;
 		for (int i = 0; i < lastIndex; i++) {
 			var checker = checkers[i].asChecker();
 			if (checker == null)
 				continue;
+			
+			isDeterministic &= checker.isDeterministic();
 			
 			if ((checker instanceof CheckerAlternative) && !((CheckerAlternative)checker).hasDefault()) {
 				var checkerAlternative = (CheckerAlternative)checker;
@@ -137,6 +158,8 @@ public class CheckerAlternative implements Checker {
 			defaultValue = defaultValue.optimize();
 		}
 		this.defaultChecker = defaultValue;
+		
+		this.isDeterministic = isDeterministic;
 	}
 	
 	@Override
@@ -174,6 +197,11 @@ public class CheckerAlternative implements Checker {
 			var checker = checkers[i];
 			action.accept(checker );
 		}
+	}
+	
+	@Override
+	public final Boolean isDeterministic() {
+		return isDeterministic;
 	}
 	
 	// Object ----------------------------------------------------------------------------------------------------------
@@ -221,14 +249,17 @@ public class CheckerAlternative implements Checker {
 		        : true;
 	}
 	
+	private int hashCode = 0;
+	
 	@Override
 	public int hashCode() {
-		int h = "CheckerAlternative".hashCode();
-		for (int i = 0; i < checkers.length; i++) {
-			h += checkers[i].hashCode();
+		if (hashCode != 0) {
+			return hashCode;
 		}
 		
-		return h + ((defaultChecker != null) ? defaultChecker.hashCode() : 0);
+		hashCode = hash(this.getClass(), defaultChecker) * 31
+				 + hash((Object[])checkers);
+		return hashCode;
 	}
 	
 	@Override

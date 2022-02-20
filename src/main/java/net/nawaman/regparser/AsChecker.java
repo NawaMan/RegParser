@@ -26,4 +26,7 @@ public interface AsChecker {
 	
 	public Checker asChecker();
 	
+	/** @return  if this checker will always returns the same result against a text at an offset. */
+	public Boolean isDeterministic();
+	
 }

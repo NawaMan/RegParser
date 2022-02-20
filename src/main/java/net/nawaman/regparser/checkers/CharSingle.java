@@ -26,7 +26,7 @@ import static net.nawaman.regparser.EscapeHelpers.escapeOfRegParser;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 /**  */
-public class CharSingle extends CharChecker {
+public final class CharSingle extends CharChecker {
 	
 	private static final long serialVersionUID = 1651564132135121525L;
 	
@@ -46,6 +46,11 @@ public class CharSingle extends CharChecker {
 	@Override
 	public boolean inSet(char c) {
 		return (c == this.ch);
+	}
+	
+	@Override
+	public final Boolean isDeterministic() {
+		return true;
 	}
 	
 	@Override

@@ -25,7 +25,7 @@ import static net.nawaman.regparser.EscapeHelpers.escapeOfRegParser;
  *
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-public class CharRange extends CharChecker {
+public final class CharRange extends CharChecker {
 	
 	private static final long serialVersionUID = 2356484436956456452L;
 	
@@ -42,6 +42,11 @@ public class CharRange extends CharChecker {
 	public boolean inSet(char c) {
 		return (c >= startChar)
 		    && (c <= endChar);
+	}
+	
+	@Override
+	public final Boolean isDeterministic() {
+		return true;
 	}
 	
 	@Override
@@ -69,7 +74,7 @@ public class CharRange extends CharChecker {
 	
 	@Override
 	public int hashCode() {
-		return "CharRange".hashCode() + startChar + endChar;
+		return "CharRange".hashCode() + startChar*31 + endChar;
 	}
 	
 }

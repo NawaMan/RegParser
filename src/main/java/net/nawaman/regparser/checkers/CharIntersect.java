@@ -19,6 +19,7 @@
 package net.nawaman.regparser.checkers;
 
 import static java.lang.reflect.Array.getLength;
+import static java.util.Objects.hash;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -30,22 +31,26 @@ import net.nawaman.regparser.Checker;
  * 
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-public class CharIntersect extends CharChecker {
+public final class CharIntersect extends CharChecker {
 	
 	private static final long serialVersionUID = 2351321651321651211L;
 	
 	private final CharChecker[] charCheckers;
+	private final boolean       isDeterministic;
 	
 	/** Constructs a char set */
 	public CharIntersect(CharChecker... charCheckers) {
 		// Combine if one of them is alternative
 		
-		var checkers     = new ArrayList<CharChecker>();
-		int checkerCount = charCheckers.length;
+		var     checkers        = new ArrayList<CharChecker>();
+		int     checkerCount    = charCheckers.length;
+		boolean isDeterministic = true;
 		for (int i = 0; i < checkerCount; i++) {
 			var charChecker = charCheckers[i];
 			if (charChecker == null)
 				continue;
+			
+			isDeterministic &= charChecker.isDeterministic();
 			
 			if (charChecker instanceof CharIntersect) {
 				var charIntersect   = (CharIntersect)charChecker;
@@ -64,6 +69,8 @@ public class CharIntersect extends CharChecker {
 		for (int i = 0; i < checkers.size(); i++) {
 			this.charCheckers[i] = checkers.get(i);
 		}
+		
+		this.isDeterministic = isDeterministic;
 	}
 	
 	@Override
@@ -73,6 +80,11 @@ public class CharIntersect extends CharChecker {
 				return false;
 		}
 		return true;
+	}
+	
+	@Override
+	public final Boolean isDeterministic() {
+		return isDeterministic;
 	}
 	
 	@Override
@@ -115,7 +127,7 @@ public class CharIntersect extends CharChecker {
 	
 	@Override
 	public int hashCode() {
-		return "CharIntersect".hashCode() + charCheckers.hashCode();
+		return "CharIntersect".hashCode() + hash((Object[])charCheckers);
 	}
 	
 	@Override

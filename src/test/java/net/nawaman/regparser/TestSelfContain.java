@@ -46,6 +46,11 @@ public class TestSelfContain {
 			int value = Integer.parseInt(text);
 			return (value >= 0) && (value <= 24);
 		}
+		
+		@Override
+		public final Boolean isDeterministic() {
+			return false;
+		}
 	};
 	
 	@SuppressWarnings("serial")
@@ -75,6 +80,11 @@ public class TestSelfContain {
 			var text  = thisResult.text().toString();
 			int value = Integer.parseInt(text);
 			return (value >= 25) && (value <= 50);
+		}
+		
+		@Override
+		public final Boolean isDeterministic() {
+			return false;
 		}
 	};
 	

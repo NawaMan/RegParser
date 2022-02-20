@@ -1,5 +1,6 @@
 package net.nawaman.regparser;
 
+import static java.util.stream.Collectors.joining;
 import static net.nawaman.regparser.Greediness.Maximum;
 import static net.nawaman.regparser.PredefinedCharClasses.Digit;
 import static net.nawaman.regparser.RegParser.compile;
@@ -19,6 +20,10 @@ public class TestPattern {
 	@Test
 	public void testExact() {
 		var parser = compileRegParser("Shape");
+		
+		validate("Shape",
+				parser);
+		
 		validate("\n"
 				+ "00 => [    5] = <NoName>        :<NoType>         = \"Shape\"",
 				parser.parse("Shape"));
@@ -29,6 +34,10 @@ public class TestPattern {
 	@Test
 	public void testExact_backtick() {
 		var parser = compileRegParser("`shape and shade`");
+		
+		validate("shape\\ and\\ shade",
+				parser);
+		
 		validate("\n"
 				+ "00 => [   15] = <NoName>        :<NoType>         = \"shape and shade\"",
 				parser.parse("shape and shade"));
@@ -39,6 +48,10 @@ public class TestPattern {
 	@Test
 	public void testExact_backtick_caseSensitive() {
 		var parser = compileRegParser("$`shape and shade`");
+		
+		validate("shape\\ and\\ shade",
+				parser);
+		
 		validate("\n"
 				+ "00 => [   15] = <NoName>        :<NoType>         = \"shape and shade\"",
 				parser.parse("shape and shade"));
@@ -49,6 +62,11 @@ public class TestPattern {
 	@Test
 	public void testExact_backtick_caseInsensitive() {
 		var parser = compileRegParser("#`shape and shade`");
+		
+		validate("(!textCI(\"shape and shade\")!)\n"
+				+ "  - (!textCI(\"shape and shade\")!)",
+				parser);
+		
 		validate("\n"
 				+ "00 => [   15] = <NoName>        :textCI           = \"shape and shade\"",
 				parser.parse("shape and shade"));
@@ -61,6 +79,10 @@ public class TestPattern {
 	@Test
 	public void testTextCI() {// "!textCI(`Te\\\"st`)!"
 		var parser = compileRegParser("!textCI(`shape`)!");
+		
+		validate("(!textCI(\"shape\")!)",
+				parser);
+		
 		validate("\n"
 				+ "00 => [    5] = <NoName>        :textCI           = \"Shape\"",
 				parser.parse("Shape"));
@@ -77,6 +99,10 @@ public class TestPattern {
 	@Test
 	public void testTextCI_escape() {
 		var parser = compileRegParser("!textCI(`this is a \"test\".`)!");
+		
+		validate("(!textCI(\"this is a \\\"test\\\".\")!)",
+				parser);
+		
 		validate("\n"
 				+ "00 => [   17] = <NoName>        :textCI           = \"This is a \\\"test\\\".\"",
 				parser.parse("This is a \"test\"."));
@@ -85,6 +111,12 @@ public class TestPattern {
 	@Test
 	public void testOptional() {
 		var parser = compileRegParser("Colou?r");
+		
+		validate("Colo\n"
+				+ "u?\n"
+				+ "r",
+				parser);
+		
 		validate("\n"
 				+ "00 => [    5] = <NoName>        :<NoType>         = \"Color\"",
 				parser.parse("Color"));
@@ -99,6 +131,13 @@ public class TestPattern {
 	public void testWhitespaces() {
 		var parser = compileRegParser("Ho Ho\tHo\nHo");
 		
+		validate("Ho\n"
+				+ "Ho\n"
+				+ "Ho\n"
+				+ "Ho",
+				parser);
+		
+		
 		validate(null, parser.parse("Ho Ho Ho Ho"));
 		
 		validate("\n"
@@ -110,6 +149,16 @@ public class TestPattern {
 	public void testUseWhiltespaces() {
 		var parser = compileRegParser("Ho[: :]Ho[:Tab:]Ho[:NewLine:]Ho");
 		
+		validate("Ho\n"
+				+ "[\\ ]\n"
+				+ "Ho\n"
+				+ "[\\t]\n"
+				+ "Ho\n"
+				+ "[\\n]\n"
+				+ "Ho",
+				parser);
+		
+		
 		validate("\n"
 				+ "00 => [   11] = <NoName>        :<NoType>         = \"Ho Ho\\tHo\\nHo\"",
 				parser.parse("Ho Ho\tHo\nHo"));
@@ -118,6 +167,9 @@ public class TestPattern {
 	@Test
 	public void testParseVsMatch() {
 		var parser = compileRegParser("Shape");
+		
+		validate("Shape",
+				parser);
 		
 		// When the text match completely, `parse(...)` and `match(...)` will be the same.
 		validate("\n"
@@ -141,6 +193,11 @@ public class TestPattern {
 	@Test
 	public void testZeroOrMore() {
 		var parser = compileRegParser("Roar*");
+		
+		validate("Roa\n"
+				+ "r*",
+				parser);
+		
 		validate("\n"
 				+ "00 => [    4] = <NoName>        :<NoType>         = \"Roar\"",
 				parser.parse("Roar"));
@@ -157,6 +214,11 @@ public class TestPattern {
 	@Test
 	public void testOneOrMore() {
 		var parser = compileRegParser("Roar+");
+		
+		validate("Roa\n"
+				+ "r+",
+				parser);
+		
 		validate("\n"
 				+ "00 => [    4] = <NoName>        :<NoType>         = \"Roar\"",
 				parser.parse("Roar"));
@@ -170,6 +232,12 @@ public class TestPattern {
 	@Test
 	public void testZero() {
 		var parser = compileRegParser("Ro^ar");
+		
+		validate("R\n"
+				+ "o{0}\n"
+				+ "ar",
+				parser);
+		
 		validate("\n"
 				+ "00 => [    3] = <NoName>        :<NoType>         = \"Rar\"",
 				parser.parse("Rar"));
@@ -207,6 +275,12 @@ public class TestPattern {
 	@Test
 	public void testAny() {
 		var parser = compileRegParser("A.Z");
+		
+		validate("A\n"
+				+ ".\n"
+				+ "Z",
+				parser);
+		
 		validate("\n"
 				+ "00 => [    3] = <NoName>        :<NoType>         = \"A2Z\"",
 				parser.parse("A2Z"));
@@ -217,6 +291,12 @@ public class TestPattern {
 	@Test
 	public void testCharClass() {
 		var parser = compileRegParser("A[0-9]+Z");
+		
+		validate("A\n"
+				+ "[0-9]+\n"
+				+ "Z",
+				parser);
+		
 		validate("\n"
 				+ "00 => [    3] = <NoName>        :<NoType>         = \"A2Z\"",
 				parser.parse("A2Z"));
@@ -232,6 +312,11 @@ public class TestPattern {
 		// We use `++` as one-or-more-maximum, because just one-or-more will be possessive and it will include Z
 		//   and no place for `Z`.
 		var parser = compileRegParser("A[^0-9]++Z");
+		
+		validate("A\n"
+				+ "[^[0-9]]++\n"
+				+ "Z",
+				parser);
 		
 		validate(null, parser.parse("A2Z"));
 		validate("\n"
@@ -255,6 +340,10 @@ public class TestPattern {
 	@Test
 	public void testAlternatives_negative() {
 		var parser = compileRegParser("(^true|false)");
+		
+		validate("(^(true|false))",
+				parser);
+		
 		validate(null, parser.parse("true"));
 		validate(null, parser.parse("false"));
 		
@@ -278,6 +367,10 @@ public class TestPattern {
 	@Test
 	public void testAlternatives_length() {
 		var parser1 = compileRegParser("(AA|AAA|AAAA)");
+		
+		validate("(AA|AAA|AAAA)",
+				parser1);
+		
 		validate("\n"
 				+ "00 => [    2] = <NoName>        :<NoType>         = \"AA\"",
 				parser1.match("AA"));
@@ -291,6 +384,10 @@ public class TestPattern {
 		// Alternative will try to match longest ... the order of the choice make no different.
 		
 		var parser2 = compileRegParser("(AAAA|AAA|AA)");
+		
+		validate("(AAAA|AAA|AA)",
+				parser2);
+		
 		validate("\n"
 				+ "00 => [    2] = <NoName>        :<NoType>         = \"AA\"",
 				parser2.match("AA"));
@@ -305,6 +402,10 @@ public class TestPattern {
 	@Test
 	public void testAlternatives_default() {
 		var parser1 = compileRegParser("(AA|AAA||AAAA)");
+		
+		validate("(AA|AAA||AAAA)",
+				parser1);
+		
 		validate("\n"
 				+ "00 => [    2] = <NoName>        :<NoType>         = \"AA\"",
 				parser1.match("AA"));
@@ -322,6 +423,9 @@ public class TestPattern {
 				parser1.parse("AAAA"));
 		
 		var parser2 = compileRegParser("(AAAA|AAA||AA)");
+		
+		validate("(AAAA|AAA||AA)",
+				parser2);
 		
 		// Why?
 		// AAAA and AAA cannot match, the parser try AA and found a match.
@@ -341,6 +445,17 @@ public class TestPattern {
 	public void testComment_slashStar() {
 		// We comment out the `not `.
 		var parser = compileRegParser("Orange[: :]is[: :]/*not[: :]*/a[: :]color.");
+		
+		validate("Orange\n"
+				+ "[\\ ]\n"
+				+ "is\n"
+				+ "[\\ ]\n"
+				+ "a\n"
+				+ "[\\ ]\n"
+				+ "color\n"
+				+ ".",
+				parser);
+		
 		validate("\n"
 				+ "00 => [   18] = <NoName>        :<NoType>         = \"Orange is a color.\"",
 				parser.parse("Orange is a color."));
@@ -351,6 +466,17 @@ public class TestPattern {
 	@Test
 	public void testComment_backetStar() {
 		var parser = compileRegParser("Orange[: :]is[: :](*not[: :]*)a[: :]color.");
+		
+		validate("Orange\n"
+				+ "[\\ ]\n"
+				+ "is\n"
+				+ "[\\ ]\n"
+				+ "a\n"
+				+ "[\\ ]\n"
+				+ "color\n"
+				+ ".",
+				parser);
+		
 		validate("\n"
 				+ "00 => [   18] = <NoName>        :<NoType>         = \"Orange is a color.\"",
 				parser.parse("Orange is a color."));
@@ -363,6 +489,17 @@ public class TestPattern {
 		var parser = compileRegParser(
 						"Orange[: :]is[: :]//not[: :]\n"
 						+ "a[: :]color.");
+		
+		validate("Orange\n"
+				+ "[\\ ]\n"
+				+ "is\n"
+				+ "[\\ ]\n"
+				+ "a\n"
+				+ "[\\ ]\n"
+				+ "color\n"
+				+ ".",
+				parser);
+		
 		validate("\n"
 				+ "00 => [   18] = <NoName>        :<NoType>         = \"Orange is a color.\"",
 				parser.parse("Orange is a color."));
@@ -373,6 +510,12 @@ public class TestPattern {
 	@Test
 	public void testPossessive() {
 		var parser = compileRegParser("A.*Z");
+		
+		validate("A\n"
+				+ ".*\n"
+				+ "Z",
+				parser);
+		
 		var result = parser.parse("A123Z");
 		validate(null, result);
 	}
@@ -380,6 +523,12 @@ public class TestPattern {
 	@Test
 	public void testMinimum() {
 		var parser = compileRegParser("A.**Z");
+		
+		validate("A\n"
+				+ ".**\n"
+				+ "Z",
+				parser);
+		
 		var result = parser.parse("A123Z");
 		validate("\n"
 				+ "00 => [    5] = <NoName>        :<NoType>         = \"A123Z\"",
@@ -389,6 +538,12 @@ public class TestPattern {
 	@Test
 	public void testMaximum() {
 		var parser = compileRegParser("A.*+Z");
+		
+		validate("A\n"
+				+ ".*+\n"
+				+ "Z",
+				parser);
+		
 		var result = parser.parse("A123Z");
 		validate("\n"
 				+ "00 => [    5] = <NoName>        :<NoType>         = \"A123Z\"",
@@ -398,6 +553,12 @@ public class TestPattern {
 	@Test
 	public void testPossessive_named() {
 		var parser = compileRegParser("A($Middle:~.~)*Z");
+		
+		validate("A\n"
+				+ "($Middle:~.~)*\n"
+				+ "Z",
+				parser);
+		
 		var result = parser.parse("A123Z");
 		validate(null, result);
 	}
@@ -405,6 +566,12 @@ public class TestPattern {
 	@Test
 	public void testMinimum_named() {
 		var parser = compileRegParser("A($Middle:~.~)**Z");
+		
+		validate("A\n"
+				+ "($Middle:~.~)**\n"
+				+ "Z",
+				parser);
+		
 		var result = parser.parse("A123Z");
 		validate("\n"
 				+ "00 => [    1] = <NoName>        :<NoType>         = \"A\"\n"
@@ -418,6 +585,12 @@ public class TestPattern {
 	@Test
 	public void testMaximum_named() {
 		var parser = compileRegParser("A($Middle:~.~)*+Z");
+		
+		validate("A\n"
+				+ "($Middle:~.~)*+\n"
+				+ "Z",
+				parser);
+		
 		var result = parser.parse("A123Z");
 		validate("\n"
 				+ "00 => [    1] = <NoName>        :<NoType>         = \"A\"\n"
@@ -431,6 +604,12 @@ public class TestPattern {
 	@Test
 	public void testMinimum_named_combine() {
 		var parser = compileRegParser("A($Middle[]:~.~)**Z");
+		
+		validate("A\n"
+				+ "($Middle[]:~.~)**\n"
+				+ "Z",
+				parser);
+		
 		var result = parser.parse("A123Z");
 		validate("\n"
 				+ "00 => [    1] = <NoName>        :<NoType>         = \"A\"\n"
@@ -442,6 +621,12 @@ public class TestPattern {
 	@Test
 	public void testMaximum_named_combine() {
 		var parser = compileRegParser("A($Middle[]:~.~)*+Z");
+		
+		validate("A\n"
+				+ "($Middle[]:~.~)*+\n"
+				+ "Z",
+				parser);
+		
 		var result = parser.parse("A123Z");
 		validate("\n"
 				+ "00 => [    1] = <NoName>        :<NoType>         = \"A\"\n"
@@ -516,7 +701,7 @@ public class TestPattern {
 				compileRegParser("A(#Middle+:~(#Sub:~[0-9]~)*~)Z")
 				.parse("A123Z"));
 		
-		// No sub element.
+		// No sub e.
 		validate("\n"
 				+ "00 => [    1] = <NoName>        :<NoType>         = \"A\"\n"
 				+ "01 => [    2] = <NoName>        :<NoType>         = \"Z\"",
@@ -538,6 +723,18 @@ public class TestPattern {
 	@Test
 	public void testSub_grouped() {
 		var parser = compileRegParser("A(#Digit:~1(#Two:~2(#Two:~3~)4~)5~)Z");
+		
+		validate("A\n"
+				+ "(#Digit:~1(#Two:~2(#Two:~3~)4~)5~)\n"
+				+ "  - 1\n"
+				+ "  - (#Two:~2(#Two:~3~)4~)\n"
+				+ "  -   - 2\n"
+				+ "  -   - (#Two:~3~)\n"
+				+ "  -   - 4\n"
+				+ "  - 5\n"
+				+ "Z",
+				parser);
+		
 		var result = parser.parse("A12345Z");
 		validate("\n"
 				+ "00 - - => [    1] = <NoName>        :<NoType>         = \"A\"\n"
@@ -557,6 +754,12 @@ public class TestPattern {
 		var intType      = new SimpleParserType("int", RegParser.compile("[0-9]+"));
 		var typeProvider = new ParserTypeProvider.Simple(intType);
 		var parser       = compileRegParser(typeProvider, "A!int!Z");
+		
+		validate("A\n"
+				+ "(!int!)\n"
+				+ "Z",
+				parser);
+		
 		var result       = parser.parse("A12345Z");
 		validate("\n"
 				+ "00 => [    1] = <NoName>        :<NoType>         = \"A\"\n"
@@ -745,6 +948,10 @@ public class TestPattern {
 				+ "($Close:~[:):]~)"));
 		var typeProvider = new ParserTypeProvider.Simple(lisp);
 		var parser       = compileRegParser(typeProvider, "!lisp!");
+		
+		validate("(!lisp!)",
+				parser);
+		
 		validate("\n"
 				+ "00 - => [    6] = <NoName>        :lisp             = \"(abcd)\"\n"
 				+ ". 00 => [    1] = $Open           :<NoType>         = \"(\"\n"
@@ -802,6 +1009,13 @@ public class TestPattern {
 				compileRegParser(typeProvider, "($X:~.~)[x]($X;)")
 				.parse("axa"));
 		
+		validate("($X:~.~)\n"
+				+ "[x]\n"
+				+ "(!$BackRef?(\"$X\")!)",
+				compileRegParser(typeProvider, "($X:~.~)[x]($X;)")
+				.entries()
+				.map(String::valueOf).collect(joining("\n")));
+		
 		// Case insensitive
 		validate("\n"
 				+ "00 => [    1] = $X              :<NoType>         = \"a\"\n"
@@ -809,6 +1023,14 @@ public class TestPattern {
 				+ "02 => [    3] = <NoName>        :$BackRefCI?      = \"A\"",
 				compileRegParser(typeProvider, "($X:~.~)[x]($X';)")
 				.parse("axA"));
+		
+		validate("($X:~.~)\n"
+				+ "[x]\n"
+				+ "(!$BackRefCI?(\"$X\")!)",
+				compileRegParser(typeProvider, "($X:~.~)[x]($X';)")
+				.entries()
+				.map(String::valueOf).collect(joining("\n")));
+		
 	}
 	
 	// TestJavaChecker for JavaChecker
@@ -842,10 +1064,19 @@ public class TestPattern {
 				return Integer.parseInt(entryText);
 			}
 			
+			@Override
+			public final Boolean isDeterministic() {
+				return false;
+			}
+			
 		};
 		
 		var typeProvider = new ParserTypeProvider.Simple(int0To99);
 		var parser       = compileRegParser(typeProvider, "(#int:!$int0to99?!)+");
+		
+		validate("(#int:!$int0to99?!)+",
+				parser);
+		
 		var result       = parser.parse("3895482565");
 		validate("\n"
 				+ "00 => [    2] = #int            :$int0to99?       = \"38\"\n"

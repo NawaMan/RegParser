@@ -31,7 +31,7 @@ import net.nawaman.regparser.utils.Util;
  *
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-public class WordChecker implements Checker {
+public final class WordChecker implements Checker {
 	
 	private static final long serialVersionUID = -6856120712978724955L;
 	
@@ -61,8 +61,18 @@ public class WordChecker implements Checker {
 	}
 	
 	@Override
+	public final Boolean isDeterministic() {
+		return true;
+	}
+	
+	@Override
 	public String toString() {
 		return escapeOfRegParser(word);
+	}
+	
+	@Override
+	public int hashCode() {
+		return word.hashCode();
 	}
 	
 	@Override

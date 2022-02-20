@@ -27,7 +27,7 @@ import net.nawaman.regparser.Checker;
  *
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-public class CharNot extends CharChecker {
+public final class CharNot extends CharChecker {
 	
 	private static final long serialVersionUID = 5313543126135165121L;
 	
@@ -45,6 +45,11 @@ public class CharNot extends CharChecker {
 	@Override
 	public boolean inSet(char c) {
 		return !charChecker.inSet(c);
+	}
+	
+	@Override
+	public final Boolean isDeterministic() {
+		return true;
 	}
 	
 	@Override

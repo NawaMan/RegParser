@@ -88,6 +88,11 @@ abstract public class ParserTypeRef implements AsRegParser, Quantifiable<RegPars
 		public String parameter() {
 			return parameter;
 		}
+		
+		@Override
+		public final Boolean isDeterministic() {
+			return null;
+		}
 	}
 	
 	// Object --------------------------------------------------------------------------------------

@@ -24,6 +24,7 @@ import static net.nawaman.regparser.utils.Util.getClassByName;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Hashtable;
+import java.util.Objects;
 
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.ParserType;
@@ -85,6 +86,11 @@ public class JavaCheckerParserType extends ParserType {
 				throw new RuntimeException(errorMessage);
 			}
 		});
+	}
+	
+	@Override
+	public final Boolean isDeterministic() {
+		return false;
 	}
 	
 	private Checker checkerFromStaticFieldOrMethod(String parameter, int Index) {
@@ -197,10 +203,27 @@ public class JavaCheckerParserType extends ParserType {
 			}
 		}
 		
+		@Override
+		public final Boolean isDeterministic() {
+			return false;
+		}
+		
 		/**{@inherDoc}*/
 		@Override
 		public Checker optimize() {
 			return this;
+		}
+		
+		private int hashCode = 0;
+		
+		@Override
+		public int hashCode() {
+			if (hashCode != 0) {
+				return hashCode;
+			}
+			
+			hashCode = Objects.hash(CheckerFromMethod.class, method);
+			return hashCode;
 		}
 		
 	}

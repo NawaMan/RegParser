@@ -63,4 +63,9 @@ public class IdentifierParserType extends ParserType {
 		return checker;
 	}
 	
+	@Override
+	public final Boolean isDeterministic() {
+		return checker.isDeterministic();
+	}
+	
 }

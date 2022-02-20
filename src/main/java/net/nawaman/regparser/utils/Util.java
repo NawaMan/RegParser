@@ -20,6 +20,7 @@ package net.nawaman.regparser.utils;
 
 import static java.lang.String.format;
 import static java.lang.reflect.Array.newInstance;
+import static java.util.stream.Collectors.joining;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -37,6 +38,10 @@ import java.io.PrintStream;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.function.Function;
+
+import net.nawaman.regparser.RegParser;
+import net.nawaman.regparser.RegParserEntry;
 
 /**
  * Utilities functions
@@ -268,7 +273,25 @@ public class Util {
 			
 		}
 		
+		if (object instanceof RegParser) {
+			return toStringRegParser("", (RegParser)object);
+		}
+		
 		return (object == null) ? "null" : object.toString();
+	}
+	
+	private static String toStringRegParser(String indent, RegParser parser) {
+		var subToString  = (Function<RegParserEntry, String>)(entry -> {
+			var checker = entry.checker();
+			if (checker instanceof RegParser) {
+				return indent + entry.toString() + "\n"
+						+ toStringRegParser(indent + "  - ", (RegParser)checker);
+			}
+			return indent + entry.toString();
+		});
+		return parser.entries()
+				.map(subToString)
+				.collect(joining("\n"));
 	}
 	
 	// Exception -------------------------------------------------------------------------------------------------------

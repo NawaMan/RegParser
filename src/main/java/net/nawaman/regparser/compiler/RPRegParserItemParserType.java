@@ -187,6 +187,11 @@ public class RPRegParserItemParserType extends ParserType {
 	}
 	
 	@Override
+	public final Boolean isDeterministic() {
+		return true;
+	}
+	
+	@Override
 	public Object doCompile(
 					ParseResult        thisResult,
 					int                entryIndex,

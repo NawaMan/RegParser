@@ -140,16 +140,36 @@ public class RegParser implements Checker, Serializable {
 	
 	private final RegParserEntry[] entries;
 	
-	private boolean isOptimized = false;
+	private boolean isOptimized     = false;
+	private boolean isDeterministic = true;
 	
 	RegParser(RegParserEntry[] entries) {
-		this.entries = requireNonNullElse(entries, RegParserEntry.EmptyRegParserEntryArray);
-		this.isOptimized = false;
+		this.entries         = requireNonNullElse(entries, RegParserEntry.EmptyRegParserEntryArray);
+		this.isOptimized     = false;
+		this.isDeterministic = isDeterministic(entries);
 	}
 	
 	RegParser(boolean isOptimized, RegParserEntry[] entries) {
-		this.entries     = requireNonNullElse(entries, RegParserEntry.EmptyRegParserEntryArray);
-		this.isOptimized = true;;
+		this.entries         = requireNonNullElse(entries, RegParserEntry.EmptyRegParserEntryArray);
+		this.isOptimized     = true;
+		this.isDeterministic = isDeterministic(entries);
+	}
+	
+	private boolean isDeterministic(RegParserEntry[] entries) {
+		for (var entry : entries) {
+			if (entry == null) {
+				continue;
+			}
+			if (Boolean.FALSE.equals(entry.isDeterministic())) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	@Override
+	public final Boolean isDeterministic() {
+		return isDeterministic;
 	}
 	
 	public Stream<RegParserEntry> entries() {
@@ -396,6 +416,18 @@ public class RegParser implements Checker, Serializable {
 			return false;
 		
 		return Arrays.equals(this.entries, ((RegParser)other).entries);
+	}
+	
+	private int hashCode = 0;
+	
+	@Override
+	public int hashCode() {
+		if (hashCode != 0) {
+			return hashCode;
+		}
+		
+		hashCode = toString().hashCode();
+		return hashCode;
 	}
 	
 }

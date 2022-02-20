@@ -78,4 +78,9 @@ public class StringLiteralParserType extends ParserType {
 		return checker;
 	}
 	
+	@Override
+	public final Boolean isDeterministic() {
+		return true;
+	}
+	
 }

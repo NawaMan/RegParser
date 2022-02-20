@@ -40,8 +40,25 @@ public class TestJavaChecker {
 			return 0;
 		}
 		
+		@Override
+		public final Boolean isDeterministic() {
+			return true;
+		}
+		
 		public Checker optimize() {
 			return this;
+		}
+		
+		private int hashCode = 0;
+		
+		@Override
+		public int hashCode() {
+			if (hashCode != 0) {
+				return hashCode;
+			}
+			
+			hashCode = System.identityHashCode(this);
+			return hashCode;
 		}
 	}
 	

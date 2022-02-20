@@ -69,4 +69,9 @@ public class RPCommentParserType extends ParserType {
 	public Checker checker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider) {
 		return checker;
 	}
+	
+	@Override
+	public final Boolean isDeterministic() {
+		return true;
+	}
 }

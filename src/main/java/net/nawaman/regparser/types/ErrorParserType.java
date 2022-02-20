@@ -87,4 +87,9 @@ public class ErrorParserType extends ParserType {
 		return null;
 	}
 	
+	@Override
+	public final Boolean isDeterministic() {
+		return checker.isDeterministic();
+	}
+	
 }

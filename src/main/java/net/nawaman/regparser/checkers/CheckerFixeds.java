@@ -22,6 +22,8 @@ import static java.lang.String.format;
 import static net.nawaman.regparser.RegParser.newRegParser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicReference;
 
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.ParserType;
@@ -52,12 +54,15 @@ import net.nawaman.regparser.result.ParseResult;
  * 
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  **/
-public class CheckerFixeds implements Checker {
+public final class CheckerFixeds implements Checker {
 	
 	private static final long serialVersionUID = 5484946354964465247L;
 	
 	private int     length  = 0;
 	private Entry[] entries = Entry.EMPTY_ARRAY;
+	private boolean isDeterministic = true;
+	
+	private final AtomicReference<String> toString = new AtomicReference<>(null);
 	
 	/** Constructs a checker fixed */
 	public CheckerFixeds(Entry... entries) {
@@ -65,12 +70,15 @@ public class CheckerFixeds implements Checker {
 		 || (entries.length == 0))
 			return;
 		
-		int totalLength = 0;
-		var list        = new ArrayList<Entry>();
+		int     totalLength     = 0;
+		var     list            = new ArrayList<Entry>();
+		boolean isDeterministic = true;
 		for (int i = 0; i < entries.length; i++) {
 			var entry = entries[i];
 			if (entry == null)
 				continue;
+			
+			isDeterministic &= entry.isDeterministic();
 			
 			list.add(entry);
 			int length = entry.length();
@@ -87,8 +95,9 @@ public class CheckerFixeds implements Checker {
 		if (listSize == 0)
 			return;
 		
-		this.entries = list.toArray(new Entry[listSize]);
-		this.length  = totalLength;
+		this.entries         = list.toArray(new Entry[listSize]);
+		this.length          = totalLength;
+		this.isDeterministic = isDeterministic;
 	}
 	
 	/** Returns the overall length needed by this checker */
@@ -121,6 +130,34 @@ public class CheckerFixeds implements Checker {
 	@Override
 	public Checker optimize() {
 		return this;
+	}
+	
+	@Override
+	public final Boolean isDeterministic() {
+		return isDeterministic;
+	}
+	
+	@Override
+	public String toString() {
+		return toString.updateAndGet(oldValue -> {
+			if (oldValue != null) {
+				return oldValue;
+			}
+			
+			return Arrays.toString(entries);
+		});
+	}
+	
+	private int hashCode = 0;
+	
+	@Override
+	public int hashCode() {
+		if (hashCode != 0) {
+			return hashCode;
+		}
+		
+		hashCode = toString.get().hashCode();
+		return hashCode;
 	}
 	
 	/** The group entries */
@@ -207,6 +244,10 @@ public class CheckerFixeds implements Checker {
 		
 		public RegParserEntry entry() {
 			return entry;
+		}
+		
+		public Boolean isDeterministic() {
+			return entry.isDeterministic();
 		}
 	}
 	

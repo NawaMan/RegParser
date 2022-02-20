@@ -29,7 +29,7 @@ import net.nawaman.regparser.result.ParseResult;
  * 
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
-final public class CharClass extends CharChecker {
+public final class CharClass extends CharChecker {
 	
 	private static final long serialVersionUID = 1235456543213546515L;
 	
@@ -78,6 +78,11 @@ final public class CharClass extends CharChecker {
 			return -1;
 		
 		return (matcher.end() < 0) ? -1 : matcher.end();
+	}
+	
+	@Override
+	public final Boolean isDeterministic() {
+		return true;
 	}
 	
 	@Override
