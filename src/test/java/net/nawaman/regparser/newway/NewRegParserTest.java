@@ -1,15 +1,15 @@
 package net.nawaman.regparser.newway;
 
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static net.nawaman.regparser.RegParser.compileRegParser;
 import static net.nawaman.regparser.TestUtils.validate;
-
-import java.util.Arrays;
 
 import org.junit.Test;
 
 import net.nawaman.regparser.ParserType;
 import net.nawaman.regparser.ParserTypeProvider;
+import net.nawaman.regparser.ParserTypeRef;
 import net.nawaman.regparser.ParsingException;
 import net.nawaman.regparser.RegParser;
 import net.nawaman.regparser.RegParserEntry;
@@ -39,12 +39,16 @@ public class NewRegParserTest {
 		var typeProvider = (ParserTypeProvider)null;
 		var parser       = compileRegParser("Shape");
 		
+		validate("Shape",
+				parser);
+		
 		validate("RPRootText [original=Shape]\n"
 				+ "offset: 0, asChecker: Shape\n"
 				+ "offset: 5",
 				parse("Shape", parser, typeProvider));
 		
-		validate("RPRootText [original=Sharp]\n"
+		validate("RPImcompleteText: Expect atleast [1] but only found [0]\n"
+				+ "RPRootText [original=Sharp]\n"
 				+ "offset: 0",
 				parse("Sharp", parser, typeProvider));
 	}
@@ -54,12 +58,16 @@ public class NewRegParserTest {
 		var typeProvider = (ParserTypeProvider)null;
 		var parser       = compileRegParser("`shape and shade`");
 		
+		validate("shape\\ and\\ shade",
+				parser);
+		
 		validate("RPRootText [original=shape and shade]\n"
 				+ "offset: 0, asChecker: shape\\ and\\ shade\n"
 				+ "offset: 15",
 				parse("shape and shade", parser, typeProvider));
 		
-		validate("RPRootText [original=Shape and Shade]\n"
+		validate("RPImcompleteText: Expect atleast [1] but only found [0]\n"
+				+ "RPRootText [original=Shape and Shade]\n"
 				+ "offset: 0",
 				parse("Shape and Shade", parser, typeProvider));
 	}
@@ -69,12 +77,16 @@ public class NewRegParserTest {
 		var typeProvider = (ParserTypeProvider)null;
 		var parser       = compileRegParser("$`shape and shade`");
 		
+		validate("shape\\ and\\ shade",
+				parser);
+		
 		validate("RPRootText [original=shape and shade]\n"
 				+ "offset: 0, asChecker: shape\\ and\\ shade\n"
 				+ "offset: 15",
 				parse("shape and shade", parser, typeProvider));
 		
-		validate("RPRootText [original=Shape and Shade]\n"
+		validate("RPImcompleteText: Expect atleast [1] but only found [0]\n"
+				+ "RPRootText [original=Shape and Shade]\n"
 				+ "offset: 0",
 				parse("Shape and Shade", parser, typeProvider));
 	}
@@ -83,6 +95,10 @@ public class NewRegParserTest {
 	public void testExact_backtick_caseInsensitive() {
 		var typeProvider = (ParserTypeProvider)null;
 		var parser       = compileRegParser("#`shape and shade`");
+		
+		validate("(!textCI(\"shape and shade\")!)\n"
+				+ "  - (!textCI(\"shape and shade\")!)",
+				parser);
 		
 		validate("RPRootText [original=shape and shade]\n"
 				+ "offset: 0, asChecker: (!textCI(\"shape and shade\")!)\n"
@@ -100,6 +116,9 @@ public class NewRegParserTest {
 		var typeProvider = (ParserTypeProvider)null;
 		var parser       = compileRegParser("!textCI(`shape`)!");
 		
+		validate("(!textCI(\"shape\")!)",
+				parser);
+		
 		validate("RPRootText [original=Shape]\n"
 				+ "offset: 0, asChecker: (!textCI(\"shape\")!)\n"
 				+ "offset: 5",
@@ -114,6 +133,49 @@ public class NewRegParserTest {
 				+ "offset: 0, asChecker: (!textCI(\"shape\")!)\n"
 				+ "offset: 5",
 				parse("SHAPE", parser, typeProvider));
+	}
+	
+	@Test
+	public void testTextCI_escape() {
+		var typeProvider = (ParserTypeProvider)null;
+		var parser       = compileRegParser("!textCI(`this is a \"test\".`)!");
+		
+		validate("(!textCI(\"this is a \\\"test\\\".\")!)",
+				parser);
+		
+		validate("RPRootText [original=This is a \"test\".]\n"
+				+ "offset: 0, asChecker: (!textCI(\"this is a \\\"test\\\".\")!)\n"
+				+ "offset: 17",
+				parse("This is a \"test\".", parser, typeProvider));
+	}
+	
+	@Test
+	public void testOptional() {
+		var typeProvider = (ParserTypeProvider)null;
+		var parser       = compileRegParser("Colou?r");
+		
+		validate("Colo\n"
+				+ "u?\n"
+				+ "r",
+				parser);
+		
+		validate("RPRootText [original=Color]\n"
+				+ "offset: 0, asChecker: Colo\n"
+				+ "offset: 4, asChecker: r\n"
+				+ "offset: 5",
+				parse("Color", parser, typeProvider));
+		
+		validate("RPRootText [original=Colour]\n"
+				+ "offset: 0, asChecker: Colo\n"
+				+ "offset: 4, asChecker: u?\n"
+				+ "offset: 5, asChecker: r\n"
+				+ "offset: 6",
+				parse("Colour", parser, typeProvider));
+		
+		validate("RPImcompleteText: Expect atleast [1] but only found [0]\n"
+				+ "RPRootText [original=Clr]\n"
+				+ "offset: 0",
+				parse("Clr", parser, typeProvider));
 	}
 	
 	private static class Session {
@@ -146,13 +208,11 @@ public class NewRegParserTest {
 		Session session = new Session(parser);
 		
 		ParseResult hostResult = null;
-		ParseResult thisResult = null;
 		
 		int offset = 0;
-		while (session.isInProgress()) {
+		Session: while (session.isInProgress()) {
 			try {
 				var entry     = session.entry();
-//				var qualifier = entry.quantifier();
 				var checker   = entry.checker();
 				var type      = (ParserType)null;
 				var parameter = (String)null;
@@ -160,47 +220,41 @@ public class NewRegParserTest {
 					type = entry.type();
 					if (type == null) {
 						var typeRef  = entry.typeRef();
-						var typeName = typeRef.name();
-						
-						// Get type from the ref
-						if (typeProvider != null) {
-							// Get from the given provider
-							type = typeProvider.type(typeName);
-						}
-						if (type == null) {
-							// Get from the default
-							type = ParserTypeProvider.Simple.defaultProvider().type(typeName);
-							if (type == null)
-								throw new ParsingException("RegParser type named '" + typeName + "' is not found.");
-						}
-						
+						type      = type(typeProvider, type, typeRef);
 						parameter = typeRef.parameter();
 					}
 					
 					checker = type.checker(hostResult, parameter, typeProvider);
 				}
 				
-				int length = text.match(offset, checker, typeProvider);
-				
-				System.out.println(session.entryIndex + ": " + entry + " = " + length);
-				if (length == -1) {
-					System.out.println("length: " + length);
-					continue;	// For now.
+				var qualifier  = entry.quantifier();
+				var lowerBound = qualifier.lowerBound();
+				var upperBound = qualifier.upperBound();
+				var greediness = qualifier.greediness();
+				int repeat = 0;
+				Repeate: while (true) {
+					int length = text.match(offset, checker, typeProvider);
+					
+					System.out.println(session.entryIndex + ": " + entry + " = " + length);
+					boolean isMatched
+							=  (length != -1)
+							&& ((type == null) || validateResult(typeProvider, text, offset, type, parameter, length));
+					if (!isMatched)
+						break Repeate;
+					
+					text = new RPNodeText(text, offset, entry);
+					offset += length;
+					repeat++;
+					if (repeat >= upperBound)
+						break Repeate;
+				}
+				if (repeat < lowerBound) {
+					var found  = repeat;
+					return new RPImcompleteText(text, offset, () -> {
+						return format("Expect atleast [%d] but only found [%d]", lowerBound, found);
+					});
 				}
 				
-				if (type != null) {
-					// TODO - Temporary - We will need to get rid of the old result ... or generate it.
-					var rootResult = new RootParseResult(offset, text);
-					var prEntry    = ParseResultEntry.newEntry(offset + length);
-					thisResult     = new ParseResultNode(offset, rootResult, asList(prEntry));
-					if (!type.validate(hostResult, thisResult, parameter, typeProvider)) {
-						System.out.println("validate: " + false);
-						continue;	// For now.
-					}
-				}
-				
-				text = new RPNodeText(text, offset, entry);
-				offset += length;
 			} finally {
 				session.next();
 			}
@@ -211,5 +265,38 @@ public class NewRegParserTest {
 		System.out.println(text);
 		System.out.println();
 		return text;
+	}
+
+	private static boolean validateResult(
+			ParserTypeProvider typeProvider,
+			RPText             text,
+			int                offset,
+	        ParserType         type,
+	        String             parameter,
+	        int                length) {
+		
+		var     hostResult  = (ParseResult)null;
+		var     rootResult  = new RootParseResult(offset, text);
+		var     prEntry     = ParseResultEntry.newEntry(offset + length);
+		var     thisResult  = new ParseResultNode(offset, rootResult, asList(prEntry));
+		boolean isValidated = type.validate(hostResult, thisResult, parameter, typeProvider);
+		return isValidated;
+	}
+
+	private static ParserType type(ParserTypeProvider typeProvider, ParserType type, ParserTypeRef typeRef) {
+		var typeName = typeRef.name();
+		
+		// Get type from the ref
+		if (typeProvider != null) {
+			// Get from the given provider
+			type = typeProvider.type(typeName);
+		}
+		if (type == null) {
+			// Get from the default
+			type = ParserTypeProvider.Simple.defaultProvider().type(typeName);
+			if (type == null)
+				throw new ParsingException("RegParser type named '" + typeName + "' is not found.");
+		}
+		return type;
 	}
 }
