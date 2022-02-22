@@ -4,10 +4,10 @@ import java.util.function.Supplier;
 
 public class RPImcompleteText extends RPText {
 	
-	private final Supplier<String> message;
-	private final RPRootText       root;
-	private final RPText           parent;
-	private final int              endOffset;
+	final Supplier<String> message;
+	final RPRootText       root;
+	final RPText           parent;
+	final int              endOffset;
 	
 	public RPImcompleteText(String message, RPText parent, int endOffset) {
 		this(parent, endOffset, () -> message);

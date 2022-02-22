@@ -4,10 +4,10 @@ import net.nawaman.regparser.AsChecker;
 
 public class RPNodeText extends RPText {
 	
-	private final RPRootText root;
-	private final RPText     parent;
-	private final int        offset;
-	private final AsChecker  asChecker;
+	final RPRootText root;
+	final RPText     parent;
+	final int        offset;
+	final AsChecker  asChecker;
 	
 	public RPNodeText(RPText parent, int offset, AsChecker asChecker) {
 		this.parent    = parent;
@@ -33,7 +33,7 @@ public class RPNodeText extends RPText {
 	@Override
 	public String toString() {
 		return parent.toString() + "\n"
-				+ "offset: " + offset + ", asChecker: " + asChecker;
+				+ "offset: " + offset + ", checker: " + asChecker;
 	}
 	
 }
