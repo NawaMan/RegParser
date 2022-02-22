@@ -2,6 +2,7 @@ package net.nawaman.regparser.newway;
 
 import static net.nawaman.regparser.RegParser.compileRegParser;
 import static net.nawaman.regparser.TestUtils.validate;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
@@ -581,8 +582,328 @@ public class NewRegParserTest {
 				parse("A01234ZZ", parser, typeProvider));
 	}
 	
+	@Test
+	public void testWhitespaces_match() {
+		var parser = compileRegParser("Ho Ho\tHo\nHo");
+		
+		validate("Ho\n"
+				+ "Ho\n"
+				+ "Ho\n"
+				+ "Ho",
+				parser);
+		
+		validate("RPRootText [original=HoHoHoHo]\n"
+				+ "offset: 0, checker: Ho\n"
+				+ "offset: 2, checker: Ho\n"
+				+ "offset: 4, checker: Ho\n"
+				+ "offset: 6, checker: Ho\n"
+				+ "offset: 8",
+				parse("HoHoHoHo", parser, typeProvider));
+	}
+	
+	@Test
+	public void testWhitespaces_notMatch() {
+		var parser = compileRegParser("Ho Ho\tHo\nHo");
+		
+		validate("Ho\n"
+				+ "Ho\n"
+				+ "Ho\n"
+				+ "Ho",
+				parser);
+		
+		validate("RPImcompleteText: Expect but not found: \"Ho\"\n"
+				+ "RPRootText [original=Ho Ho Ho Ho]\n"
+				+ "offset: 0, checker: Ho\n"
+				+ "offset: 2",
+				parse("Ho Ho Ho Ho", parser, typeProvider));
+	}
+	
+	@Test
+	public void testUseWhiltespaces() {
+		var parser = compileRegParser("Ho[: :]Ho[:Tab:]Ho[:NewLine:]Ho");
+		
+		validate("Ho\n"
+				+ "[\\ ]\n"
+				+ "Ho\n"
+				+ "[\\t]\n"
+				+ "Ho\n"
+				+ "[\\n]\n"
+				+ "Ho",
+				parser);
+		
+		
+		validate("RPRootText [original=Ho Ho	Ho\n"
+				+ "Ho]\n"
+				+ "offset: 0, checker: Ho\n"
+				+ "offset: 2, checker: [\\ ]\n"
+				+ "offset: 3, checker: Ho\n"
+				+ "offset: 5, checker: [\\t]\n"
+				+ "offset: 6, checker: Ho\n"
+				+ "offset: 8, checker: [\\n]\n"
+				+ "offset: 9, checker: Ho\n"
+				+ "offset: 11",
+				parse("Ho Ho\tHo\nHo", parser, typeProvider));
+	}
+	
+//	@Test
+//	public void testParseVsMatch() {
+//		var parser = compileRegParser("Shape");
+//		
+//		validate("Shape",
+//				parser);
+//		
+//		// When the text match completely, `parse(...)` and `match(...)` will be the same.
+//		validate("\n"
+//				+ "00 => [    5] = <NoName>        :<NoType>         = \"Shape\"",
+//				parser.parse("Shape"));
+//		validate("\n"
+//				+ "00 => [    5] = <NoName>        :<NoType>         = \"Shape\"",
+//				parser.match("Shape"));
+//		
+//		// "parse(...)" allow tail left over. -- Notice `n` tail at the end of the text.
+//		// "parse(...)" returns a result but the result will leave out the tail `n`.
+//		validate("\n"
+//				+ "00 => [    5] = <NoName>        :<NoType>         = \"Shape\"",
+//				parser.parse("Shapen"));
+//		
+//		// "match(...)" does not allow tail left over.
+//		// So it return `null` for not match.
+//		validate(null, parser.match("Shapen"));
+//	}
+	
+	@Test
+	public void testZeroOrMore() {
+		var parser = compileRegParser("Roar*");
+		
+		validate("Roa\n"
+				+ "r*",
+				parser);
+		
+		validate("RPRootText [original=Roar]\n"
+				+ "offset: 0, checker: Roa\n"
+				+ "offset: 3, checker: r*\n"
+				+ "offset: 4",
+				parse("Roar", parser, typeProvider));
+	}
+	
+	@Test
+	public void testZeroOrMore_extra() {
+		var parser = compileRegParser("Roar*");
+		
+		validate("Roa\n"
+				+ "r*",
+				parser);
+		
+		validate("RPRootText [original=Roarrrrrrrr]\n"
+				+ "offset: 0, checker: Roa\n"
+				+ "offset: 3, checker: r*\n"
+				+ "offset: 4, checker: r*\n"
+				+ "offset: 5, checker: r*\n"
+				+ "offset: 6, checker: r*\n"
+				+ "offset: 7, checker: r*\n"
+				+ "offset: 8, checker: r*\n"
+				+ "offset: 9, checker: r*\n"
+				+ "offset: 10, checker: r*\n"
+				+ "offset: 11",
+				parse("Roarrrrrrrr", parser, typeProvider));
+	}
+	
+	@Test
+	public void testZeroOrMore_missing() {
+		var parser = compileRegParser("Roar*");
+		
+		validate("Roa\n"
+				+ "r*",
+				parser);
+		
+		validate("RPRootText [original=Roa]\n"
+				+ "offset: 0, checker: Roa\n"
+				+ "offset: 3",
+				parse("Roa", parser, typeProvider));
+	}
+	
+	@Test
+	public void testZeroOrMore_unmatch() {
+		var parser = compileRegParser("Roar*");
+		
+		validate("Roa\n"
+				+ "r*",
+				parser);
+		
+		validate("RPImcompleteText: Expect but not found: \"Roa\"\n"
+				+ "RPRootText [original=Row]\n"
+				+ "offset: 0",
+				parse("Row", parser, typeProvider));
+	}
+	
+	@Test
+	public void testOneOrMore_justOne() {
+		var parser = compileRegParser("Roar+");
+		
+		validate("Roa\n"
+				+ "r+",
+				parser);
+		
+		validate("RPRootText [original=Roar]\n"
+				+ "offset: 0, checker: Roa\n"
+				+ "offset: 3, checker: r+\n"
+				+ "offset: 4",
+				parse("Roar", parser, typeProvider));
+	}
+	
+	@Test
+	public void testOneOrMore_extraR() {
+		var parser = compileRegParser("Roar+");
+		
+		validate("Roa\n"
+				+ "r+",
+				parser);
+		
+		validate("RPRootText [original=Roarrrrrrrr]\n"
+				+ "offset: 0, checker: Roa\n"
+				+ "offset: 3, checker: r+\n"
+				+ "offset: 4, checker: r+\n"
+				+ "offset: 5, checker: r+\n"
+				+ "offset: 6, checker: r+\n"
+				+ "offset: 7, checker: r+\n"
+				+ "offset: 8, checker: r+\n"
+				+ "offset: 9, checker: r+\n"
+				+ "offset: 10, checker: r+\n"
+				+ "offset: 11",
+				parse("Roarrrrrrrr", parser, typeProvider));
+	}
+	
+	@Test
+	public void testOneOrMore_unmatch() {
+		var parser = compileRegParser("Roar+");
+		
+		validate("Roa\n"
+				+ "r+",
+				parser);
+		
+		validate("RPImcompleteText: Expect but not found: \"r\"\n"
+				+ "RPRootText [original=Road]\n"
+				+ "offset: 0, checker: Roa\n"
+				+ "offset: 3",
+				parse("Road", parser, typeProvider));
+	}
+	
+	@Test
+	public void testZero_match() {
+		var parser = compileRegParser("Ro^ar");
+		
+		validate("R\n"
+				+ "o{0}\n"
+				+ "ar",
+				parser);
+		
+		validate("RPRootText [original=Rar]\n"
+				+ "offset: 0, checker: R\n"
+				+ "offset: 1, checker: ar\n"
+				+ "offset: 3",
+				parse("Rar", parser, typeProvider));
+	}
+	
+	@Test
+	public void testZero_unmatch() {
+		var parser = compileRegParser("Ro^ar");
+		
+		validate("R\n"
+				+ "o{0}\n"
+				+ "ar",
+				parser);
+		
+		validate("RPRootText [original=Roar]\n"
+				+ "offset: 0, checker: R\n"
+				+ "offset: 1, checker: o{0}\n"
+				+ "offset: 2, checker: ar\n"
+				+ "offset: 4",
+				parse("Roar", parser, typeProvider));
+	}
+	
+	@Test
+	public void testZero_greedyException() {
+		try {
+			compileRegParser("Ro^+ar");
+			fail("Expect an exception.");
+		} catch (Exception exception) {
+			// Do nothing.
+			validate("net.nawaman.regparser.compiler.MalFormedRegParserException: Zero quantifier cannot have maximum greediness: \n"
+					+ "	-|Ro^+ar\n"
+					+ "	-|   ^\n"
+					+ "",
+					exception);
+		}
+		
+		try {
+			compileRegParser("Ro^*ar");
+			fail("Expect an exception.");
+		} catch (Exception exception) {
+			// Do nothing.
+			validate("net.nawaman.regparser.compiler.MalFormedRegParserException: Zero quantifier cannot have minimum greediness: \n"
+					+ "	-|Ro^*ar\n"
+					+ "	-|   ^\n"
+					+ "",
+					exception);
+		}
+	}
+	
+	@Test
+	public void testAny() {
+		var parser = compileRegParser("A.Z");
+		
+		validate("A\n"
+				+ ".\n"
+				+ "Z",
+				parser);
+		
+		validate("RPRootText [original=A2Z]\n"
+				+ "offset: 0, checker: A\n"
+				+ "offset: 1, checker: .\n"
+				+ "offset: 2, checker: Z\n"
+				+ "offset: 3",
+				parse("A2Z", parser, typeProvider));
+	}
+	
+	@Test
+	public void testAny_unmatch() {
+		var parser = compileRegParser("A.Z");
+		
+		validate("A\n"
+				+ ".\n"
+				+ "Z",
+				parser);
+		
+		validate("RPImcompleteText: Expect but not found: \"Z\"\n"
+				+ "RPRootText [original=A-to-Z]\n"
+				+ "offset: 0, checker: A\n"
+				+ "offset: 1, checker: .\n"
+				+ "offset: 2",
+				parse("A-to-Z", parser, typeProvider));
+	}
+	
+	@Test
+	public void testAny_minimum() {
+		var parser = compileRegParser("A.**Z");
+		
+		validate("A\n"
+				+ ".**\n"
+				+ "Z",
+				parser);
+		
+		validate("RPRootText [original=A-to-Z]\n"
+				+ "offset: 0, checker: A\n"
+				+ "offset: 1, checker: .**\n"
+				+ "offset: 2, checker: .**\n"
+				+ "offset: 3, checker: .**\n"
+				+ "offset: 4, checker: .**\n"
+				+ "offset: 5, checker: Z\n"
+				+ "offset: 6",
+				parse("A-to-Z", parser, typeProvider));
+	}
+	
 	static RPText parse(String orgText, RegParser parser, ParserTypeProvider typeProvider) {
-		return NewRegParserResolver.parse(orgText, parser, typeProvider);
+		return new NewRegParserResolver().parse(orgText, parser, typeProvider);
 	}
 	
 }
