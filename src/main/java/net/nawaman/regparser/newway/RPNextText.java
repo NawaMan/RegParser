@@ -37,9 +37,14 @@ public class RPNextText extends RPMatchText {
 		return parent.asChecker();
 	}
 	
+	public int level() {
+		return parent.level();
+	}
+	
 	@Override
 	public String toString() {
+		int level = ((RPMatchText)parent).level();
 		return parent.toString() + "\n"
-				+ "offset: " + offset() + ", checker: " + asChecker();
+				+ "offset: " + offset() + ", level: " + level + ", checker: " + asChecker();
 	}
 }

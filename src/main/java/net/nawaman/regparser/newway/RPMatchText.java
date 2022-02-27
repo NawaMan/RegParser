@@ -14,4 +14,6 @@ public abstract class RPMatchText extends RPText {
 	
 	public abstract AsChecker asChecker();
 	
+	public abstract int level();
+	
 }

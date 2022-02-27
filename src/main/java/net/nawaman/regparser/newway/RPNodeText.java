@@ -8,12 +8,14 @@ public class RPNodeText extends RPMatchText {
 	final RPText     parent;
 	final int        offset;
 	final AsChecker  asChecker;
+	final int        level;
 	
-	public RPNodeText(RPText parent, int offset, AsChecker asChecker) {
+	public RPNodeText(RPText parent, int offset, AsChecker asChecker, int level) {
 		this.parent    = parent;
 		this.root      = parent.root();
 		this.offset    = offset;
 		this.asChecker = asChecker;
+		this.level     = level;
 	}
 	
 	@Override
@@ -33,6 +35,10 @@ public class RPNodeText extends RPMatchText {
 		return asChecker;
 	}
 	
+	public int level() {
+		return level;
+	}
+	
 	@Override
 	public CharSequence originalText() {
 		return root.originalText();
@@ -41,7 +47,7 @@ public class RPNodeText extends RPMatchText {
 	@Override
 	public String toString() {
 		return parent.toString() + "\n"
-				+ "offset: " + offset + ", checker: " + asChecker;
+				+ "offset: " + offset + ", level: " + level + ", checker: " + asChecker;
 	}
 	
 }

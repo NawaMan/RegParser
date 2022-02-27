@@ -158,7 +158,7 @@ public class NewRegParserResolver {
 	
 	private void advance(RegParserEntry entry, int length) {
 		text = (repeat == 0)
-			 ? new RPNodeText(             text, offset, entry)
+			 ? new RPNodeText(             text, offset, entry, session.sessionIndex)
 			 : new RPNextText((RPMatchText)text, length);
 		offset += length;
 	}
