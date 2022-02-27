@@ -5,7 +5,9 @@ import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNullElse;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import net.nawaman.regparser.Checker;
 import net.nawaman.regparser.ParserType;
@@ -22,70 +24,112 @@ import net.nawaman.regparser.result.entry.ParseResultEntry;
 
 public class NewRegParserResolver {
 	
-	private RPText longestText = null;
+	private final Session                 rootSession;
+	private final CharSequence            originalText;
+	private final AtomicReference<RPText> finalResult = new AtomicReference<RPText>(null);
 	
-	private List<Session> sessions = new ArrayList<Session>();
+	private RPText longestText = null;
 	
 	// NOTE: Optimize the data here.
 	private List<Snapshot> snapshots = new ArrayList<Snapshot>();
 	
-	private int     sessIdx = 0;
 	private Session session;
+	private RPText  text;
+	private int     offset;
+	private int     repeat;
 	
-	private RPText text;
-	private int    offset = 0;
-	private int    repeat = 0;
+	public NewRegParserResolver(String originalText, RegParser parser, ParserTypeProvider typeProvider) {
+		this.originalText = originalText;
+		this.rootSession  = new Session(parser, typeProvider);
+		
+		this.session = this.rootSession;
+		this.text    = new RPRootText(originalText);
+		this.offset  = 0;
+		this.repeat  = 0;
+	}
 	
-	public RPText parse(String orgText, RegParser parser, ParserTypeProvider typeProvider) {
-		session = new Session(parser, typeProvider);
-		sessions.add(session);
-		
-		text = new RPRootText(orgText);
-		
-		Session: while (session.isInProgress()) {
-			var entry      = session.entry();
-			var quantifier = entry.quantifier();
-			var lowerBound = entry.quantifier().lowerBound();
-			var upperBound = upperBound();
-			
-			while (true) {
-				int length = matchedLength();
-				if (length == -1)
-					break;
-				
-				advance(entry, length);
-				repeat++;
-				
-				if (repeat >= upperBound)
-					break;
-				
-				var greediness = quantifier.greediness();
-				if (!greediness.isPossessive() && (repeat >= lowerBound)) {
-					saveSnapshot(quantifier);
-					
-					if (greediness.isMinimum())
-						break;
+	synchronized private RPText doParse() {
+		do {
+			Session: while (session.isInProgress()) {
+				if (session.checker instanceof RegParser) {
+					session = new Session(session, (RegParser)session.checker, session.typeProvider);
 				}
-			}
-			
-			if (repeat < lowerBound) {
-				saveLongestText(lowerBound);
 				
-				// Attempt to recover from the snapshot
-				var snapshot = (Snapshot)null;
-				while ((snapshot = lastSnapshot()) != null) {
-					if (snapshot.isFallBack()) {
-						fallback(snapshot);
-						continue Session;
+				var entry      = session.entry();
+				var quantifier = entry.quantifier();
+				var lowerBound = entry.quantifier().lowerBound();
+				var upperBound = upperBound();
+				
+				while (true) {
+					int length = matchedLength();
+					if (length == -1)
+						break;
+					
+					advance(entry, length);
+					repeat++;
+					
+					if (repeat >= upperBound)
+						break;
+					
+					var greediness = quantifier.greediness();
+					if (!greediness.isPossessive() && (repeat >= lowerBound)) {
+						saveSnapshot(quantifier);
+						
+						if (greediness.isMinimum())
+							break;
 					}
 				}
 				
-				return incompleteResult(lowerBound);
+				if (repeat < lowerBound) {
+					saveLongestText(lowerBound);
+					
+					// Attempt to recover from the snapshot
+					var snapshot = (Snapshot)null;
+					while ((snapshot = lastSnapshot()) != null) {
+						if (snapshot.isFallBack()) {
+							fallback(snapshot);
+							continue Session;
+						}
+					}
+					
+					return incompleteResult(lowerBound);
+				}
+				
+				nextEntry();
+			}
+			if (session.parent != null) {
+				session = session.parent;
+				nextEntry();
+			} else {
+				break;
 			}
 			
-			nextEntry();
-		}
+		} while (true);
 		return completeResult();
+	}
+	
+	public RPText parse() {
+		return finalResult.updateAndGet(oldResult -> {
+			if (oldResult != null) {
+				return oldResult;
+			}
+			
+			var newResult = doParse();
+			return newResult;
+		});
+	}
+	
+	public RPText match() {
+		var result = parse();
+		if (!(result instanceof RPEndText))
+			return result;
+		
+		var endResult = (RPEndText)result;
+		int endOffset = endResult.endOffset;
+		if (endOffset == originalText.length())
+			return result;
+		
+		return newIncompletedText(endResult);
 	}
 	
 	private int upperBound() {
@@ -102,7 +146,9 @@ public class NewRegParserResolver {
 	}
 	
 	private void advance(RegParserEntry entry, int length) {
-		text   =  new RPNodeText(text, offset, entry);
+		text = (repeat == 0)
+			 ? new RPNodeText(             text, offset, entry)
+			 : new RPNextText((RPMatchText)text, length);
 		offset += length;
 	}
 	
@@ -110,35 +156,39 @@ public class NewRegParserResolver {
 		if (longestText == null)
 			return Integer.MIN_VALUE;
 		
-		if (longestText instanceof RPNodeText)
-			return ((RPNodeText)longestText).offset;
+		if (longestText instanceof RPMatchText)
+			return ((RPMatchText)longestText).offset();
 		
-		if (longestText instanceof RPImcompleteText)
-			return ((RPImcompleteText)longestText).endOffset;
+		if (longestText instanceof RPUnmatchedText)
+			return ((RPUnmatchedText)longestText).endOffset;
 		
 		return Integer.MIN_VALUE;
 	}
 	
 	private void saveSnapshot(Quantifier quantifier) {
-		var snapshot = new Snapshot(sessIdx, session.entryIndex, text, offset, repeat, quantifier);
+		var snapshot = new Snapshot(session, text, offset, repeat, quantifier);
 		snapshots.add(snapshot);
 	}
 	
 	private void saveLongestText(int lowerBound) {
-		if ((text instanceof RPNodeText) && (offset > longestOffset())) {
-			longestText = newIncompleteText(lowerBound);
+		if ((text instanceof RPMatchText) && (offset > longestOffset())) {
+			longestText = newUnmatchedText(lowerBound);
 		}
 	}
 	
-	private RPText newIncompleteText(int lowerBound) {
+	private RPText newUnmatchedText(int lowerBound) {
 		var found   = repeat;
 		var pattern = session.checker;
-		return new RPImcompleteText(text, offset, () -> {
+		return new RPUnmatchedText(text, offset, () -> {
 			var msg = ((found == 0) && (lowerBound == 1))
 					? format("Expect but not found: ", pattern)
 					: format("Expect atleast [%d] but only found [%d]: ", lowerBound, found);
 			return format("%s\"%s\"", msg, pattern);
 		});
+	}
+	
+	private RPText newIncompletedText(RPEndText endText) {
+		return new RPIncompletedText(endText);
 	}
 	
 	private Snapshot lastSnapshot() {
@@ -148,12 +198,19 @@ public class NewRegParserResolver {
 	}
 	
 	private void fallback(Snapshot snapshot) {
-		sessIdx = snapshot.sessIdx;
-		session = sessions.get(sessIdx);
+		session = snapshot.session;
 		text    = snapshot.text;
 		offset  = snapshot.offset;
 		repeat  = snapshot.repeat;
-		session.entryIndex(snapshot.entryIndex);
+		
+		var indexes     = snapshot.entryIndexes;
+		var eachSession = session;
+		int index       = indexes.length;
+		while (eachSession != null) {
+			index--;
+			eachSession.entryIndex(indexes[index]);
+			eachSession = eachSession.parent;
+		}
 		
 		if (snapshot.quantifier.isMaximum()) {
 			nextEntry();
@@ -176,7 +233,7 @@ public class NewRegParserResolver {
 	private RPText incompleteResult(int lowerBound) {
 		return (longestText != null)
 				? longestText
-				: newIncompleteText(lowerBound);
+				: newUnmatchedText(lowerBound);
 	}
 	
 	private void nextEntry() {
@@ -189,13 +246,15 @@ public class NewRegParserResolver {
 	}
 	
 	private static class Session {
+		final Session parent;
+		final int     sessionIndex;
+		
 		final ParserTypeProvider typeProvider;
 		final RegParser          parser;
 		final int                entryCount;
 		
-		ParseResult    hostResult = null;
-		
 		private int            entryIndex = 0;
+		private ParseResult    hostResult = null;
 		private RegParserEntry entry      = null;
 		private Checker        checker    = null;
 		private Quantifier     quantifier = null;
@@ -203,6 +262,13 @@ public class NewRegParserResolver {
 		private String         parameter  = null;
 		
 		Session(RegParser parser, ParserTypeProvider typeProvider) {
+			this(null, parser, typeProvider);
+		}
+		
+		Session(Session parent, RegParser parser, ParserTypeProvider typeProvider) {
+			this.parent       = parent;
+			this.sessionIndex = (parent == null) ? 0 : parent.sessionIndex + 1;
+			
 			this.parser       = parser;
 			this.typeProvider = requireNonNullElse(typeProvider, ParserTypeProvider.Simple.defaultProvider());
 			this.entryCount   = parser.getEntryCount();
@@ -287,20 +353,26 @@ public class NewRegParserResolver {
 	}
 	
 	private static class Snapshot {
-		final int        sessIdx;
-		final int        entryIndex;
+		final Session    session;
+		final int[]      entryIndexes;
 		final RPText     text;
 		final int        offset;
 		final int        repeat;
 		final Quantifier quantifier;
 		
-		public Snapshot(int sessIdx, int entryIndex, RPText text, int offset, int repeat, Quantifier quantifier) {
-			this.sessIdx    = sessIdx;
-			this.entryIndex = entryIndex;
-			this.text       = text;
-			this.offset     = offset;
-			this.repeat     = repeat;
-			this.quantifier = quantifier;
+		public Snapshot(Session session, RPText text, int offset, int repeat, Quantifier quantifier) {
+			this.session      = session;
+			this.text         = text;
+			this.offset       = offset;
+			this.repeat       = repeat;
+			this.quantifier   = quantifier;
+			
+			this.entryIndexes = new int[session.sessionIndex + 1];
+			var eachSession = session;
+			while (eachSession != null) {
+				this.entryIndexes[eachSession.sessionIndex] = eachSession.entryIndex;
+				eachSession = eachSession.parent;
+			}
 		}
 		
 		boolean isFallBack() {
@@ -321,12 +393,12 @@ public class NewRegParserResolver {
 		@Override
 		public String toString() {
 			return "Snapshot ["
-					+ "sessIdx="    + sessIdx    + ", "
-					+ "entryIndex=" + entryIndex + ", "
-					+ "offset="     + offset     + ", "
-					+ "repeat="     + repeat     + ", "
-					+ "quantifier=" + quantifier + ", "
-					+ "text="       + text
+					+ "session="      + session                       + ", "
+					+ "entryIndexes=" + Arrays.toString(entryIndexes) + ", "
+					+ "offset="       + offset                        + ", "
+					+ "repeat="       + repeat                        + ", "
+					+ "quantifier="   + quantifier                    + ", "
+					+ "text="         + text
 					+ "]";
 		}
 		

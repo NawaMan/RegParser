@@ -169,12 +169,19 @@ public class CheckerAlternative implements Checker {
 	
 	@Override
 	public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider, ParseResult parseResult) {
+		int maxLength = -1;
 		for (int i = checkers.length; --i >= 0;) {
 			var checker = checkers[i];
-			int index   = checker.startLengthOf(text, offset, typeProvider, parseResult);
-			if (index != -1)
-				return index;
+			int length  = checker.startLengthOf(text, offset, typeProvider, parseResult);
+			if (length != -1) {
+				if (length >= maxLength) {
+					maxLength = length;
+				}
+			}
 		}
+		if (maxLength != -1)
+			return maxLength;
+		
 		return (defaultChecker != null)
 		        ? defaultChecker.startLengthOf(text, offset, typeProvider, parseResult)
 		        : -1;

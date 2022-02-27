@@ -549,7 +549,7 @@ public class TestPattern {
 				+ "00 => [    5] = <NoName>        :<NoType>         = \"A123Z\"",
 				result);
 	}
-
+	
 	@Test
 	public void testPossessive_named() {
 		var parser = compileRegParser("A($Middle:~.~)*Z");

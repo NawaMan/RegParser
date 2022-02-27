@@ -1,10 +1,10 @@
 package net.nawaman.regparser.newway;
 
 public class RPEndText extends RPText {
-
-	private final RPRootText root;
-	private final RPText     parent;
-	private final int        endOffset;
+	
+	final RPRootText root;
+	final RPText     parent;
+	final int        endOffset;
 	
 	public RPEndText(RPText parent, int endOffset) {
 		this.parent    = parent;

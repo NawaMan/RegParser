@@ -11,7 +11,34 @@ public class MatchCache {
 	
 	public static final int NOT_KNOWN = Integer.MIN_VALUE;
 	public static final int NOT_MATCH = -1;
-
+	
+	// TODO - replace with something more memory efficient.
+	private final Map<Key, Integer> map = new TreeMap<>();
+	
+	int match(RPText text, int offset, AsChecker asChecker, ParserTypeProvider typeProvider) {
+		var key = new Key(offset, asChecker);
+		int length = map.getOrDefault(key, NOT_KNOWN);
+		if (length == MatchCache.NOT_KNOWN) {
+			var checker = asChecker.asChecker();
+			length = checker.startLengthOf(text, offset, typeProvider);
+			System.out.println("Checking: " + checker + " at " + offset);
+			if (Boolean.TRUE.equals(checker.isDeterministic())) {
+				map.putIfAbsent(key, length);
+			}
+		}
+		
+		return length;
+	}
+	
+	public int size() {
+		return map.size();
+	}
+	
+	@Override
+	public String toString() {
+		return "MatchCache [map=" + map + "]";
+	}
+	
 	private class Key implements Comparable<Key> {
 		final int       offset;
 		final AsChecker checker;
@@ -53,32 +80,6 @@ public class MatchCache {
 			}
 			return Integer.compare(checker.hashCode(), o.checker.hashCode());
 		}
-	}
-	
-	// TODO - replace with something more memory efficient.
-	private final Map<Key, Integer> map = new TreeMap<>();
-	
-	int match(RPText text, int offset, AsChecker asChecker, ParserTypeProvider typeProvider) {
-		var key = new Key(offset, asChecker);
-		int length = map.getOrDefault(key, NOT_KNOWN);
-		if (length == MatchCache.NOT_KNOWN) {
-			var checker = asChecker.asChecker();
-			length = checker.startLengthOf(text, offset, typeProvider);
-			if (Boolean.TRUE.equals(checker.isDeterministic())) {
-				map.putIfAbsent(key, length);
-			}
-		}
-		
-		return length;
-	}
-	
-	public int size() {
-		return map.size();
-	}
-	
-	@Override
-	public String toString() {
-		return "MatchCache [map=" + map + "]";
 	}
 	
 }

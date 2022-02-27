@@ -2,18 +2,18 @@ package net.nawaman.regparser.newway;
 
 import java.util.function.Supplier;
 
-public class RPImcompleteText extends RPText {
+public class RPUnmatchedText extends RPText {
 	
 	final Supplier<String> message;
 	final RPRootText       root;
 	final RPText           parent;
 	final int              endOffset;
 	
-	public RPImcompleteText(String message, RPText parent, int endOffset) {
+	public RPUnmatchedText(String message, RPText parent, int endOffset) {
 		this(parent, endOffset, () -> message);
 	}
 	
-	public RPImcompleteText(RPText parent, int endOffset, Supplier<String> message) {
+	public RPUnmatchedText(RPText parent, int endOffset, Supplier<String> message) {
 		this.parent    = parent;
 		this.root      = parent.root();
 		this.endOffset = endOffset;
@@ -41,7 +41,7 @@ public class RPImcompleteText extends RPText {
 	
 	@Override
 	public String toString() {
-		return "RPImcompleteText: " + message.get() + "\n"
+		return "RPUnmatchedText: " + message.get() + "\n"
 				+ parent.toString() + "\n"
 				+ "offset: " + endOffset;
 	}
