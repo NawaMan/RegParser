@@ -49,7 +49,7 @@ public class NewRegParserResolver {
 	}
 	
 	synchronized private RPText doParse() {
-		do {
+		while (true) {
 			Session: while (session.isInProgress()) {
 				if (session.checker instanceof RegParser) {
 					session = new Session(session, (RegParser)session.checker, session.typeProvider);
@@ -104,10 +104,16 @@ public class NewRegParserResolver {
 				break;
 			}
 			
-		} while (true);
+		}
+		
 		return completeResult();
 	}
 	
+	/**
+	 * Parses the original text and returns the result.
+	 * 
+	 * @return  the parse result.
+	 */
 	public RPText parse() {
 		return finalResult.updateAndGet(oldResult -> {
 			if (oldResult != null) {
@@ -119,6 +125,11 @@ public class NewRegParserResolver {
 		});
 	}
 	
+	/**
+	 * Parses the original text and ensure that the match cover the full length and returns the result.
+	 * 
+	 * @return  the parse result.
+	 */
 	public RPText match() {
 		var result = parse();
 		if (!(result instanceof RPEndText))
