@@ -111,7 +111,21 @@ public class NewRegParserTest {
 				parser);
 		
 		validate("RPRootText [original=shape and shade]\n"
-				+ "offset: 0, level: 1, checker: (!textCI(\"shape and shade\")!)\n"
+				+ "offset: 0, level: 2, checker: .{15}\n"
+				+ "offset: 1, level: 2, checker: .{15}\n"
+				+ "offset: 2, level: 2, checker: .{15}\n"
+				+ "offset: 3, level: 2, checker: .{15}\n"
+				+ "offset: 4, level: 2, checker: .{15}\n"
+				+ "offset: 5, level: 2, checker: .{15}\n"
+				+ "offset: 6, level: 2, checker: .{15}\n"
+				+ "offset: 7, level: 2, checker: .{15}\n"
+				+ "offset: 8, level: 2, checker: .{15}\n"
+				+ "offset: 9, level: 2, checker: .{15}\n"
+				+ "offset: 10, level: 2, checker: .{15}\n"
+				+ "offset: 11, level: 2, checker: .{15}\n"
+				+ "offset: 12, level: 2, checker: .{15}\n"
+				+ "offset: 13, level: 2, checker: .{15}\n"
+				+ "offset: 14, level: 2, checker: .{15}\n"
 				+ "offset: 15",
 				parse("shape and shade", parser, typeProvider));
 	}
@@ -125,7 +139,21 @@ public class NewRegParserTest {
 				parser);
 		
 		validate("RPRootText [original=Shape and Shade]\n"
-				+ "offset: 0, level: 1, checker: (!textCI(\"shape and shade\")!)\n"
+				+ "offset: 0, level: 2, checker: .{15}\n"
+				+ "offset: 1, level: 2, checker: .{15}\n"
+				+ "offset: 2, level: 2, checker: .{15}\n"
+				+ "offset: 3, level: 2, checker: .{15}\n"
+				+ "offset: 4, level: 2, checker: .{15}\n"
+				+ "offset: 5, level: 2, checker: .{15}\n"
+				+ "offset: 6, level: 2, checker: .{15}\n"
+				+ "offset: 7, level: 2, checker: .{15}\n"
+				+ "offset: 8, level: 2, checker: .{15}\n"
+				+ "offset: 9, level: 2, checker: .{15}\n"
+				+ "offset: 10, level: 2, checker: .{15}\n"
+				+ "offset: 11, level: 2, checker: .{15}\n"
+				+ "offset: 12, level: 2, checker: .{15}\n"
+				+ "offset: 13, level: 2, checker: .{15}\n"
+				+ "offset: 14, level: 2, checker: .{15}\n"
 				+ "offset: 15",
 				parse("Shape and Shade", parser, typeProvider));
 	}
@@ -1585,6 +1613,66 @@ public class NewRegParserTest {
 				+ "offset: 4, level: 0, checker: Z\n"
 				+ "offset: 5",
 				parse("A123Z", parser, typeProvider));
+	}
+	
+	@Test
+	public void testNestedGroup() {
+		var parser = compileRegParser("A(#L1:~a(#L2:~0(#L3:~[A-Z]+~)9~)z~)Z");
+		
+		validate("A\n"
+				+ "(#L1:~a(#L2:~0(#L3:~[A-Z]+~)9~)z~)\n"
+				+ "  - a\n"
+				+ "  - (#L2:~0(#L3:~[A-Z]+~)9~)\n"
+				+ "  -   - 0\n"
+				+ "  -   - (#L3:~[A-Z]+~)\n"
+				+ "  -   -   - [A-Z]+\n"
+				+ "  -   - 9\n"
+				+ "  - z\n"
+				+ "Z",
+				parser);
+		
+		validate("RPRootText [original=Aa0AAA9zZ]\n"
+				+ "offset: 0, level: 0, checker: A\n"
+				+ "offset: 1, level: 1, checker: a\n"
+				+ "offset: 2, level: 2, checker: 0\n"
+				+ "offset: 3, level: 3, checker: [A-Z]+\n"
+				+ "offset: 4, level: 3, checker: [A-Z]+\n"
+				+ "offset: 5, level: 3, checker: [A-Z]+\n"
+				+ "offset: 6, level: 2, checker: 9\n"
+				+ "offset: 7, level: 1, checker: z\n"
+				+ "offset: 8, level: 0, checker: Z\n"
+				+ "offset: 9",
+				parse("Aa0AAA9zZ", parser, typeProvider));
+	}
+	
+	@Test
+	public void testNestedGroup_multiple() {
+		var parser = compileRegParser("[:~:](#L1:~[:<:](#L2:~[:(:](#L3:~[A-Z]+~)[:):]~){3}[:>:]~){2}[:~:]");
+		
+		validate("[\\~]\n"
+				+ "(#L1:~[<](#L2:~[\\(](#L3:~[A-Z]+~)[\\)]~){3}[>]~){2}\n"
+				+ "  - [<]\n"
+				+ "  - (#L2:~[\\(](#L3:~[A-Z]+~)[\\)]~){3}\n"
+				+ "  -   - [\\(]\n"
+				+ "  -   - (#L3:~[A-Z]+~)\n"
+				+ "  -   -   - [A-Z]+\n"
+				+ "  -   - [\\)]\n"
+				+ "  - [>]\n"
+				+ "[\\~]",
+				parser);
+		
+		validate("RPRootText [original=Aa0AAA9zZ]\n"
+				+ "offset: 0, level: 0, checker: A\n"
+				+ "offset: 1, level: 1, checker: a\n"
+				+ "offset: 2, level: 2, checker: 0\n"
+				+ "offset: 3, level: 3, checker: [A-Z]+\n"
+				+ "offset: 4, level: 3, checker: [A-Z]+\n"
+				+ "offset: 5, level: 3, checker: [A-Z]+\n"
+				+ "offset: 6, level: 2, checker: 9\n"
+				+ "offset: 7, level: 1, checker: z\n"
+				+ "offset: 8, level: 0, checker: Z\n"
+				+ "offset: 9",
+				parse("~<(AA)(BB)(CC)><(DD)(EE)(FF)>~", parser, typeProvider));
 	}
 	
 	//==================================================================================================================
