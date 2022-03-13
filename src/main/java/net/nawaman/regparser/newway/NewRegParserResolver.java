@@ -47,6 +47,7 @@ public class NewRegParserResolver {
 			
 			// Session loop
 			while (session.isInProgress()) {
+				// Sub-Parser
 				if (session.checker instanceof RegParser) {
 					session = new Session(session, (RegParser)session.checker, session.typeProvider);
 					continue;
@@ -59,6 +60,7 @@ public class NewRegParserResolver {
 						break;
 					
 					advanceMatch(length);
+					
 					boolean mayStop = advanceRepeatCheckMayStop();
 					if (mayStop)
 						break;
@@ -262,6 +264,18 @@ public class NewRegParserResolver {
 	
 	private RPEndText completeResult() {
 		return new RPEndText(text, offset);
+	}
+	
+	@Override
+	public String toString() {
+		return "NewRegParserResolver [\n"
+				+ "  text="        + text        + ",\n"
+				+ "  offset="      + offset      + ",\n"
+				+ "  session="     + session     + ",\n"
+				+ "  finalResult=" + finalResult + ",\n"
+				+ "  longestText=" + longestText + ",\n"
+				+ "  snapshots="   + snapshots   + "\n"
+				+ "]";
 	}
 	
 	private static class Session {
