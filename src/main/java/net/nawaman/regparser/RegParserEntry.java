@@ -404,7 +404,7 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
 		
 		@Override
 		public Boolean isDeterministic() {
-			return super.isDeterministic() && quantifier.isPossessive();
+			return super.isDeterministic() && quantifier.isDeterministic();
 		}
 		
 		@Override
@@ -480,7 +480,7 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
 		
 		@Override
 		public Boolean isDeterministic() {
-			return super.isDeterministic() && quantifier.isPossessive();
+			return super.isDeterministic() && quantifier.isDeterministic();
 		}
 		
 		@Override
@@ -558,7 +558,7 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
 		
 		@Override
 		public final Boolean isDeterministic() {
-			return !quantifier.isPossessive() ? false : null;
+			return !quantifier.isDeterministic() ? false : null;
 		}
 		
 		@Override
@@ -632,7 +632,7 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
 		
 		@Override
 		public final Boolean isDeterministic() {
-			return !quantifier.isPossessive() ? false : null;
+			return !quantifier.isDeterministic() ? false : null;
 		}
 		
 		@Override
@@ -711,7 +711,7 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
 		
 		@Override
 		public final Boolean isDeterministic() {
-			return !quantifier.isPossessive() ? false : null;
+			return !quantifier.isDeterministic() ? false : null;
 		}
 		
 		@Override
@@ -785,7 +785,7 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
 		
 		@Override
 		public final Boolean isDeterministic() {
-			return !quantifier.isPossessive() ? false : null;
+			return !quantifier.isDeterministic() ? false : null;
 		}
 		
 		@Override
@@ -843,7 +843,7 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
 		
 		@Override
 		public final Boolean isDeterministic() {
-			return !delegate.quantifier().isPossessive() ? false : delegate.checker().isDeterministic();
+			return !delegate.quantifier().isDeterministic() ? false : delegate.checker().isDeterministic();
 		}
 		
 		@Override

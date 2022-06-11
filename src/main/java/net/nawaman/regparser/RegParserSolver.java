@@ -104,8 +104,11 @@ class RegParserSolver {
 			
 			var quantifier = entries[index].quantifier();
 			var loopResult = (ParseLoopResult)null;
-			if (quantifier.isPossessive()) {
-				loopResult = parsePossessive(entries, text, offset, index, times, parseResult, typeProvider, tabCount, textLength, quantifier);
+			if (quantifier.isDefault()) {
+				loopResult = parseDefault(entries, text, offset, index, times, parseResult, typeProvider, tabCount, textLength, quantifier);
+			// Comment out for now.
+//			} else if (quantifier.isObsessive()) {
+//				loopResult = parseObsessive(entries, text, offset, index, times, parseResult, typeProvider, tabCount, textLength, quantifier);
 			} else if (quantifier.isMaximum()) {
 				loopResult = parseMaximum(entries, text, offset, index, times, parseResult, typeProvider, type, parameter, tabCount, textLength, quantifier);
 			} else if (quantifier.isMinimum()) {
@@ -178,7 +181,7 @@ class RegParserSolver {
 		    && !((checker == null) && ((entry.type() != null) || (entry.typeRef() != null)));
 	}
 	
-	private static ParseLoopResult parsePossessive(
+	private static ParseLoopResult parseDefault(
 			RegParserEntry[]   entries,
 			CharSequence       text,
 			int                offset,
@@ -193,7 +196,7 @@ class RegParserSolver {
 		// the later (the later must match)
 		// If alternative, each first match must be longest
 		
-		if (quantifier.isOne_Possessive()) { // Match one
+		if (quantifier.isOne_Default()) { // Match one
 			int currentEntryIndex = parseResult.rawEntryCount();
 			var eachResult        = parseEach(entries, text, offset, index, parseResult, typeProvider, tabCount);
 			if (eachResult == null) {

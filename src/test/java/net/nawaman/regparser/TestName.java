@@ -1,6 +1,6 @@
 package net.nawaman.regparser;
 
-import static net.nawaman.regparser.Greediness.Possessive;
+import static net.nawaman.regparser.Greediness.Default;
 import static net.nawaman.regparser.PredefinedCharClasses.Alphabet;
 import static net.nawaman.regparser.PredefinedCharClasses.AlphabetAndDigit;
 import static net.nawaman.regparser.PredefinedCharClasses.Blank;
@@ -101,7 +101,7 @@ public class TestName {
 	
 	@Test
 	public void test3() {
-		var oneOrTwo = new Quantifier(1, 2, Possessive);
+		var oneOrTwo = new Quantifier(1, 2, Default);
 		var parser
 				= newRegParser()
 				.entry(new CharSingle('{'))

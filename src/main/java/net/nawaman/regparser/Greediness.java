@@ -25,16 +25,21 @@ package net.nawaman.regparser;
  */
 public enum Greediness {
 	
-	/** Maximum possible match that still allow the later part to match */
+	/** Maximum possible match that still allow the later part to match: `+`. */
 	Maximum,
-	/** Minimum possible match that still allow the later part to match */
+	/** Minimum possible match that still allow the later part to match: `*`. */
 	Minimum,
-	/** Eat all token until no longer can and do not care about the later part */
-	Possessive;
+	/** Take all tokens as much as possible then check if found to be with in the range: `!`. */
+	Obsessive,
+	/** Take available tokens up to the upper bound and acceptable down to lower bound: ``. */
+	Default
+	;
 	
 	/** Symbol for Maximum in RegParser language */
-	public static final String MaximumSign = "+";
-	public static final String MinimumSign = "*";
+	public static final String MaximumSign   = "+";
+	public static final String MinimumSign   = "*";
+	public static final String ObsessiveSign = "!";
+	public static final String DefaultSign   = "";
 	
 	/** Checks if this is a maximum greediness */
 	public boolean isMaximum() {
@@ -46,24 +51,36 @@ public enum Greediness {
 		return this == Minimum;
 	}
 	
-	/** Checks if this is a possessive greediness */
-	public boolean isPossessive() {
-		return this == Possessive;
+	/** Checks if this is a obsessive greediness */
+	public boolean isObsessive() {
+		return this == Obsessive;
 	}
 	
-	/** Returns the sign of this greediness */
+	/** Checks if this is a default greediness */
+	public boolean isDefault() {
+		return this == Default;
+	}
+	
+	/** @return the sign of this greediness */
 	public String sign() {
 		switch (this) {
-			case Maximum:
-				return MaximumSign;
-			
-			case Minimum:
-				return MinimumSign;
-			
-			case Possessive:
-			return "";
+			case Maximum:   return MaximumSign;
+			case Minimum:   return MinimumSign;
+			case Obsessive: return ObsessiveSign;
+			case Default:   return DefaultSign;
+			default:        throw new IllegalArgumentException("Unexpected greediness: " + this);
 		}
-		return "";
+	}
+	
+	/** @return  {@code true} if greediness is deterministic by itself. */
+	public boolean isDeterministic() {
+		switch (this) {
+			case Maximum:   return false;
+			case Minimum:   return false;
+			case Obsessive: return true;
+			case Default:   return true;
+			default:        throw new IllegalArgumentException("Unexpected greediness: " + this);
+		}
 	}
 	
 }

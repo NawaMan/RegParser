@@ -2,7 +2,7 @@ package net.nawaman.regparser;
 
 import static net.nawaman.regparser.Greediness.Maximum;
 import static net.nawaman.regparser.Greediness.Minimum;
-import static net.nawaman.regparser.Greediness.Possessive;
+import static net.nawaman.regparser.Greediness.Default;
 import static net.nawaman.regparser.PredefinedCharClasses.Java_Any;
 import static net.nawaman.regparser.Quantifier.ZeroOrMore_Maximum;
 import static net.nawaman.regparser.Quantifier.ZeroOrMore_Minimum;
@@ -49,7 +49,7 @@ public class TestGreediness {
 	@Test
 	public void testQuantifierPossessive() {
 		var parser = newRegParser(
-		                newParserEntry(Java_Any, new Quantifier(1, 5, Possessive)),
+		                newParserEntry(Java_Any, new Quantifier(1, 5, Default)),
 		                newParserEntry(new WordChecker("end")));
 		validate(null, parser.parse("1234567end123456789012345end9012"));
 	}
@@ -57,7 +57,7 @@ public class TestGreediness {
 	@Test
 	public void testQuantifierPossessive_longer() {
 		var parser = newRegParser(
-		                newParserEntry(Java_Any, new Quantifier(1, 17, Possessive)),
+		                newParserEntry(Java_Any, new Quantifier(1, 17, Default)),
 		                newParserEntry(new WordChecker("end")));
 		validate(null, parser.parse("1234567end123456789012345end9012"));
 	}
@@ -65,7 +65,7 @@ public class TestGreediness {
 	@Test
 	public void testQuantifierPossessive_evenLonger() {
 		var parser = newRegParser(
-		                newParserEntry(Java_Any, new Quantifier(1, 21, Possessive)),
+		                newParserEntry(Java_Any, new Quantifier(1, 21, Default)),
 		                newParserEntry(new WordChecker("end")));
 		validate(null, parser.parse("1234567end123456789012345end9012"));
 	}
@@ -201,7 +201,7 @@ public class TestGreediness {
 					.or   (new WordChecker("e"))
 					.or   (new WordChecker("n"))
 					.or   (new WordChecker("d")),
-					new Quantifier(1, 5, Possessive)),
+					new Quantifier(1, 5, Default)),
 				newParserEntry(new WordChecker("end")));
 		validate(null, parser.parse("1234567end123456789012345end9012"));
 	}
@@ -223,7 +223,7 @@ public class TestGreediness {
 					.or   (new WordChecker("e"))
 					.or   (new WordChecker("n"))
 					.or   (new WordChecker("d")),
-					new Quantifier(1, 17, Possessive)),
+					new Quantifier(1, 17, Default)),
 				newParserEntry(new WordChecker("end")));
 		validate(null, parser.parse("1234567end123456789012345end9012"));
 	}
@@ -245,7 +245,7 @@ public class TestGreediness {
 					.or   (new WordChecker("e"))
 					.or   (new WordChecker("n"))
 					.or   (new WordChecker("d")),
-					new Quantifier(1, 21, Possessive)),
+					new Quantifier(1, 21, Default)),
 				newParserEntry(new WordChecker("end")));
 		validate(null, parser.parse("1234567end123456789012345end9012"));
 	}

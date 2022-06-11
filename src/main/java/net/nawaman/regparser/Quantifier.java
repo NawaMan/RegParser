@@ -21,7 +21,8 @@ package net.nawaman.regparser;
 import static java.lang.String.format;
 import static net.nawaman.regparser.Greediness.Maximum;
 import static net.nawaman.regparser.Greediness.Minimum;
-import static net.nawaman.regparser.Greediness.Possessive;
+import static net.nawaman.regparser.Greediness.Obsessive;
+import static net.nawaman.regparser.Greediness.Default;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -37,15 +38,18 @@ public final class Quantifier implements Serializable {
 	private static final long serialVersionUID = 1930305369240858722L;
 	
 	/** Predefine Quantifier for Zero */
-	public static final Quantifier Zero       = new Quantifier(0, 0, Possessive);
+	public static final Quantifier Zero       = new Quantifier(0, 0, Default);
 	/** Predefine Quantifier for One */
-	public static final Quantifier One        = new Quantifier(1, 1, Possessive);
+	public static final Quantifier One        = new Quantifier(1, 1, Default);
 	/** Predefine Quantifier for ZeroOrOne */
-	public static final Quantifier ZeroOrOne  = new Quantifier(0, 1, Possessive);
+	public static final Quantifier ZeroOrOne  = new Quantifier(0, 1, Default);
 	/** Predefine Quantifier for ZeroOrMore */
-	public static final Quantifier ZeroOrMore = new Quantifier(0, Possessive);
+	public static final Quantifier ZeroOrMore = new Quantifier(0, Default);
 	/** Predefine Quantifier for OneOrMore */
-	public static final Quantifier OneOrMore  = new Quantifier(1, Possessive);
+	public static final Quantifier OneOrMore  = new Quantifier(1, Default);
+	
+	/** Predefine Quantifier for Zero obsessively */
+	public static final Quantifier ZeroObsessive = new Quantifier(0, 0, Obsessive);
 	
 	/** Predefine Quantifier for ZeroOrOne */
 	public static final Quantifier ZeroOrOne_Maximum     = new Quantifier(0, 1, Maximum);
@@ -126,13 +130,12 @@ public final class Quantifier implements Serializable {
 		
 		this.lowerBound = lowerBound;
 		this.upperBound = upperBound;
-		this.greediness = (greediness != null) ? greediness : Possessive;
+		this.greediness = (greediness != null) ? greediness : Default;
 	}
 	
-	
-	/** Checks if this Quantifier is a one and possessive */
-	public boolean isOne_Possessive() {
-		return isOne() && isPossessive();
+	/** Checks if this Quantifier is a one with default greediness */
+	public boolean isOne_Default() {
+		return isOne() && isDefault();
 	}
 	
 	/** Checks if this Quantifier is a zero */
@@ -195,14 +198,24 @@ public final class Quantifier implements Serializable {
 		return greediness == Greediness.Minimum;
 	}
 	
-	/** Checks if this is a possessive greediness */
-	public boolean isPossessive() {
-		return greediness == Greediness.Possessive;
+	/** Checks if this is a obsessive greediness */
+	public boolean isObsessive() {
+		return greediness == Greediness.Obsessive;
 	}
 	
-	/** @return  a quantifier with this lower/upper bound but with possessive greediness. */
-	public Quantifier withPossessive() {
-		return (greediness == Possessive) ? this : new Quantifier(lowerBound, upperBound, Possessive);
+	/** Checks if this is a default greediness */
+	public boolean isDefault() {
+		return greediness == Greediness.Default;
+	}
+	
+	/** @return  a quantifier with this lower/upper bound but with default greediness. */
+	public Quantifier withDefault() {
+		return (greediness == Default) ? this : new Quantifier(lowerBound, upperBound, Default);
+	}
+	
+	/** @return  a quantifier with this lower/upper bound but with obsessive greediness. */
+	public Quantifier withObsessive() {
+		return (greediness == Obsessive) ? this : new Quantifier(lowerBound, upperBound, Obsessive);
 	}
 	
 	/** @return  a quantifier with this lower/upper bound but with maximum greediness. */
@@ -213,6 +226,11 @@ public final class Quantifier implements Serializable {
 	/** @return  a quantifier with this lower/upper bound but with minimum greediness. */
 	public Quantifier withMinimum() {
 		return (greediness == Minimum) ? this : new Quantifier(lowerBound, upperBound, Minimum);
+	}
+	
+	/** @return  {@code true} if greediness is deterministic by itself. */
+	public boolean isDeterministic() {
+		return (greediness == null) ? true : greediness.isDeterministic();
 	}
 	
 	/** Returns the string representation of the qualifier */

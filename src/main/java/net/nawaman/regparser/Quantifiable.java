@@ -32,12 +32,12 @@ public interface Quantifiable<SOURCE> {
 	
 	/** Set the quantifier to lowerBound (Possessive) */
 	public default SOURCE from(int lowerBound) {
-		return quantifier(new Quantifier(lowerBound, Greediness.Possessive));
+		return quantifier(new Quantifier(lowerBound, Greediness.Default));
 	}
 	
 	/** Set the quantifier to upperBound (Possessive) */
 	public default SOURCE upto(int upperBound) {
-		return quantifier(new Quantifier(-1, upperBound, Greediness.Possessive));
+		return quantifier(new Quantifier(-1, upperBound, Greediness.Default));
 	}
 	
 	/** Set the quantifier to the given quantifier */
@@ -47,7 +47,7 @@ public interface Quantifiable<SOURCE> {
 	
 	/** Set the quantifier to lowerBound,upperBound (Possessive) */
 	public default SOURCE bound(int lowerBound, int upperBound) {
-		return quantifier(new Quantifier(lowerBound, upperBound, Greediness.Possessive));
+		return quantifier(new Quantifier(lowerBound, upperBound, Greediness.Default));
 	}
 	
 	/** Set the quantifier to lowerBound,upperBound with greediness */
@@ -92,10 +92,16 @@ public interface Quantifiable<SOURCE> {
 		return quantifier(quantifier.withMinimum());
 	}
 	
-	/** Set the quantifier to have possessive greediness */
-	public default SOURCE possessive() {
+	/** Set the quantifier to have obsessive greediness */
+	public default SOURCE obsessive() {
 		var quantifier = quantifier();
-		return quantifier(quantifier.withPossessive());
+		return quantifier(quantifier.withObsessive());
+	}
+	
+	/** Set the quantifier to have default greediness */
+	public default SOURCE defaultGreediness() {
+		var quantifier = quantifier();
+		return quantifier(quantifier.withDefault());
 	}
 	
 }

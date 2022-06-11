@@ -19,11 +19,13 @@ package net.nawaman.regparser.compiler;
 
 import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
+import static net.nawaman.regparser.Greediness.Default;
 import static net.nawaman.regparser.Greediness.Maximum;
 import static net.nawaman.regparser.Greediness.MaximumSign;
 import static net.nawaman.regparser.Greediness.Minimum;
 import static net.nawaman.regparser.Greediness.MinimumSign;
-import static net.nawaman.regparser.Greediness.Possessive;
+import static net.nawaman.regparser.Greediness.Obsessive;
+import static net.nawaman.regparser.Greediness.ObsessiveSign;
 import static net.nawaman.regparser.PredefinedCharClasses.Blank;
 import static net.nawaman.regparser.PredefinedCharClasses.Digit;
 import static net.nawaman.regparser.Quantifier.One;
@@ -275,7 +277,10 @@ public class RPQuantifierParserType extends ParserType {
 				return Quantifier.One;
 			
 			if (greediness == null)
-				return new Quantifier(bound, bound, Possessive);
+				return new Quantifier(bound, bound, Default);
+			
+			if (greediness.charAt(0) == ObsessiveSign.charAt(0))
+				return new Quantifier(bound, bound, Obsessive);
 			
 			if (greediness.charAt(0) == MaximumSign.charAt(0))
 				return new Quantifier(bound, bound, Maximum);

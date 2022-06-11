@@ -340,7 +340,7 @@ public class RegParser implements Checker, Serializable {
 			var entry = entries[0];
 			if ((entry.name() == null)
 			 && (entry.typeRef() == null)
-			 && ((entry.quantifier() == null) || entry.quantifier().isOne_Possessive())) {
+			 && ((entry.quantifier() == null) || entry.quantifier().isOne_Default())) {
 				return entry.checker();
 			}
 		}

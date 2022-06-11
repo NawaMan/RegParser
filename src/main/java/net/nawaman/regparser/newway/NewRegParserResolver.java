@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import net.nawaman.regparser.Checker;
+import net.nawaman.regparser.Greediness;
 import net.nawaman.regparser.ParserType;
 import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.ParserTypeRef;
@@ -31,59 +32,14 @@ public class NewRegParserResolver {
 	// NOTE: Optimize the data here.
 	private List<Snapshot> snapshots = new ArrayList<Snapshot>();
 	
-	private Session session;
-	private RPText  text;
-	private int     offset;
+	private ParserStack stack;
+	private RPText      text;
+	private int         offset;
 	
 	public NewRegParserResolver(String originalText, RegParser parser, ParserTypeProvider typeProvider) {
-		this.session = new Session(parser, typeProvider);
-		this.text    = new RPRootText(originalText);
-		this.offset  = 0;
-	}
-	
-	synchronized private RPText doParse() {
-		// Sessions loop
-		while (true) {
-			
-			// Session loop
-			while (session.isInProgress()) {
-				// Sub-Parser
-				if (session.checker instanceof RegParser) {
-					session = new Session(session, (RegParser)session.checker, session.typeProvider);
-					continue;
-				}
-				
-				// Checker Repeat loop
-				while (true) {
-					int length = attemptForwardReturnMatchedLength();
-					if (length == -1)
-						break;
-					
-					advanceMatch(length);
-					
-					boolean mayStop = advanceRepeatCheckMayStop();
-					if (mayStop)
-						break;
-				}
-				
-				// TODO - We should not return the early return if this is not a root session.
-				//        We should save the longest test, we can say that we cannot move one and let the parent session check the repeat and decide.
-				var result = attemptForwardOrEarlyResult();
-				if (result != null)
-					return result;
-			}
-			
-			// At this point, the current session is done.
-			// See if we can move up a session.
-			if (session.parent != null) {
-				session = session.parent;
-				nextEntry();
-			} else {
-				break;
-			}
-		}
-		
-		return completeResult();
+		this.stack  = new ParserStack(parser, typeProvider);
+		this.text   = new RPRootText(originalText);
+		this.offset = 0;
 	}
 	
 	/**
@@ -121,35 +77,134 @@ public class NewRegParserResolver {
 		return newIncompletedText(endResult);
 	}
 	
-	private int attemptForwardReturnMatchedLength() {
-		int     length    = text.match(offset, session.checker, session.typeProvider);
-		boolean isMatched = (length != -1) && ((session.entry.type() == null) || validateResult(length));
+	synchronized private RPText doParse() {
+		// Root loop
+		while (true) {
+			
+			while (stack.isInProgress()) {
+				
+				var quantifier = stack.quantifier();
+				var greediness = quantifier.greediness();
+				if (greediness.isDefault()) {
+					 
+					// Checker Repeat loop
+					while (true) {
+						int length = tryMatchedLength();
+						if (length == -1)
+							break;
+						
+						text   = newMatchText(length);
+						offset += length;
+						
+						stack.repeat++;
+						if (stack.repeat >= stack.upperBound())
+							break;
+					}
+					
+					var lowerBound = stack.lowerBound();
+					if (stack.repeat < lowerBound) {
+						// TODO - Once implementing snapshot, we should try to recover.
+						
+						longestText = longestText(lowerBound);
+						return incompleteResult(lowerBound);
+					}
+					
+					stack.nextEntry();
+					
+				}
+				
+			}
+			
+			// At this point, the current stack is done.
+			// See if we can move up a stack.
+			if (stack.parent != null) {
+				stack = stack.parent;
+				stack.nextEntry();
+			} else {
+				break;
+			}
+			
+			
+			
+			
+			
+			
+			
+			// Stack loop
+//			while (stack.isInProgress()) {
+//				// Sub-Parser
+//				if (stack.checker instanceof RegParser) {
+//					stack = new ParserStack(stack, (RegParser)stack.checker);
+//					continue;
+//				}
+//				
+//				// Checker Repeat loop
+//				while (true) {
+//					int length = attemptForwardReturnMatchedLength();
+//					if (length == -1)
+//						break;
+//					
+//					advanceMatch(length);
+//					
+//					boolean mayStop = advanceRepeatCheckMayStop();
+//					if (mayStop)
+//						break;
+//				}
+//				
+//				// TODO - We should not return the early return if this is not a root stack.
+//				//        We should save the longest test, we can say that we cannot move one and
+//				//          let the parent stack check the repeat and decide.
+//				var result = attemptForwardOrEarlyResult();
+//				if (result != null)
+//					return result;
+//			}
+//			
+//			// At this point, the current stack is done.
+//			// See if we can move up a stack.
+//			if (stack.parent != null) {
+//				stack = stack.parent;
+//				nextEntry();
+//			} else {
+//				break;
+//			}
+		}
+		
+		return completeResult();
+	}
+//	
+	private int tryMatchedLength() {
+		int     length    = text.match(offset, stack.checker, stack.typeProvider);
+		boolean isMatched = (length != -1) && ((stack.entry.type() == null) || validateResult(length));
 		return isMatched ? length : -1;
 	}
 	
-	private void advanceMatch(int length) {
-		text = (session.repeat == 0)
-			 ? new RPNodeText(             text, offset, session.entry(), session.sessionIndex)
-			 : new RPNextText((RPMatchText)text, length);
-		offset += length;
+//	private void advanceMatch(int length) {
+//		text = newMatchText(length);
+//		offset += length;
+//	}
+	
+	private RPMatchText newMatchText(int length) {
+		return (stack.repeat == 0)
+				 ? new RPNodeText(             text, offset, stack.entry(), stack.stackIndex)
+				 : new RPNextText((RPMatchText)text, length);
 	}
 	
-	private boolean advanceRepeatCheckMayStop() {
-		session.repeat++;
-		
-		if (session.repeat >= session.upperBound())
-			return true;
-		
-		var quantifier = session.quantifier();
-		var greediness = quantifier.greediness();
-		if (!greediness.isPossessive() && (session.repeat >= session.lowerBound())) {
-			saveSnapshot(quantifier);
-			
-			return greediness.isMinimum();
-		}
-		
-		return false;
-	}
+//	private boolean advanceRepeatCheckMayStop() {
+//		stack.repeat++;
+//		
+//		if (stack.repeat >= stack.upperBound())
+//			return true;
+//		
+//		var quantifier = stack.quantifier();
+//		var greediness = quantifier.greediness();
+//		if (!greediness.isPossessive() && (stack.repeat >= stack.lowerBound())) {
+//			saveSnapshot(quantifier);
+//			
+//			return greediness.isMinimum();
+//		}
+//		
+//		return false;
+//	}
 	
 	private int longestOffset() {
 		if (longestText == null)
@@ -164,22 +219,24 @@ public class NewRegParserResolver {
 		return Integer.MIN_VALUE;
 	}
 	
-	private void saveSnapshot(Quantifier quantifier) {
-		var snapshot = new Snapshot(session, text, offset, quantifier);
-		snapshots.add(snapshot);
-	}
+//	private void saveSnapshot(Quantifier quantifier) {
+//		var snapshot = new Snapshot(stack, text, offset);
+//		snapshots.add(snapshot);
+//	}
 	
-	private void saveLongestText(int lowerBound) {
+	private RPText longestText(int lowerBound) {
 		if ((text instanceof RPMatchText) && (offset > longestOffset())) {
-			longestText = newUnmatchedText(lowerBound);
+			return newUnmatchedText(lowerBound);
+		} else {
+			return longestText;
 		}
 	}
 	
 	private RPText newUnmatchedText(int lowerBound) {
-		var found   = session.repeat;
-		var pattern = session.checker;
+		var found   = stack.repeat != 0;
+		var pattern = stack.checker;
 		return new RPUnmatchedText(text, offset, () -> {
-			var msg = ((found == 0) && (lowerBound == 1))
+			var msg = (!found && (lowerBound == 1))
 					? format("Expect but not found: ", pattern)
 					: format("Expect atleast [%d] but only found [%d]: ", lowerBound, found);
 			return format("%s\"%s\"", msg, pattern);
@@ -190,32 +247,32 @@ public class NewRegParserResolver {
 		return new RPIncompletedText(endText);
 	}
 	
-	private Snapshot lastSnapshot() {
-		return snapshots.isEmpty()
-				? null
-				: snapshots.remove(snapshots.size() - 1);
-	}
-	
-	private void fallback(Snapshot snapshot) {
-		session        = snapshot.session;
-		text           = snapshot.text;
-		offset         = snapshot.offset;
-		session.repeat = snapshot.repeat;
-		
-		var indexes     = snapshot.entryIndexes;
-		var eachSession = session;
-		int index       = indexes.length;
-		while (eachSession != null) {
-			index--;
-			eachSession.entryIndex(indexes[index]);
-			eachSession = eachSession.parent;
-		}
-		
-		if (snapshot.quantifier.isMaximum()) {
-			nextEntry();
-		}
-	}
-	
+//	private Snapshot lastSnapshot() {
+//		return snapshots.isEmpty()
+//				? null
+//				: snapshots.remove(snapshots.size() - 1);
+//	}
+//	
+//	private void fallback(Snapshot snapshot) {
+//		stack        = snapshot.stack;
+//		text               = snapshot.text;
+//		offset             = snapshot.offset;
+//		stack.repeat = snapshot.repeat;
+//		
+//		var indexes     = snapshot.indexes;
+//		var eachSession = stack;
+//		int index       = indexes.length;
+//		while (eachSession != null) {
+//			index--;
+//			eachSession.entryIndex(indexes[index]);
+//			eachSession = eachSession.parent;
+//		}
+//		
+//		if (snapshot.quantifier.isMaximum()) {
+//			nextEntry();
+//		}
+//	}
+//	
 	private boolean validateResult(int length) {
 		// TODO - Temporary way to do the validation
 		var hostResult   = (ParseResult)null;
@@ -223,9 +280,9 @@ public class NewRegParserResolver {
 		var resultEntry  = ParseResultEntry.newEntry(offset + length);
 		var thisResult   = new ParseResultNode(offset, rootResult, asList(resultEntry));
 		
-		var type         = session.type;
-		var parameter    = session.parameter;
-		var typeProvider = session.typeProvider;
+		var type         = stack.type;
+		var parameter    = stack.parameter;
+		var typeProvider = stack.typeProvider;
 		return type.validate(hostResult, thisResult, parameter, typeProvider);
 	}
 	
@@ -235,32 +292,37 @@ public class NewRegParserResolver {
 				: newUnmatchedText(lowerBound);
 	}
 	
-	private void nextEntry() {
-		session.nextEntry();
-	}
-	
-	private RPText attemptForwardOrEarlyResult() {
-		var lowerBound = session.lowerBound();
-		if (session.repeat < lowerBound) {
-			saveLongestText(lowerBound);
-			
-			boolean shouldStartOver = false;
-			// Attempt to recover from the snapshot
-			var snapshot = (Snapshot)null;
-			while ((snapshot = lastSnapshot()) != null) {
-				if (snapshot.isFallBack()) {
-					fallback(snapshot);
-					return null;
-				}
-			}
-			
-			if (!shouldStartOver)
-				return incompleteResult(lowerBound);
-		}
-		
-		nextEntry();
-		return null;
-	}
+//	private void nextEntry() {
+//		stack.nextEntry();
+//	}
+//	
+//	private RPText attemptForwardOrEarlyResult() {
+//		var lowerBound = stack.lowerBound();
+//		if (stack.repeat < lowerBound) {
+//			saveLongestText(lowerBound);
+//			
+//			boolean shouldStartOver = false;
+//			// Attempt to recover from the snapshot
+//			var snapshot = (Snapshot)null;
+//			while ((snapshot = lastSnapshot()) != null) {
+//				
+//				int upperBound = snapshot.upperBound();
+//				boolean isFallBack
+//						 = snapshot.quantifier.isMinimum() && (snapshot.repeat <  upperBound)
+//						|| snapshot.quantifier.isMaximum() && (snapshot.repeat >= lowerBound);
+//				if (isFallBack) {
+//					fallback(snapshot);
+//					return null;
+//				}
+//			}
+//			
+//			if (!shouldStartOver)
+//				return incompleteResult(lowerBound);
+//		}
+//		
+//		nextEntry();
+//		return null;
+//	}
 	
 	private RPEndText completeResult() {
 		return new RPEndText(text, offset);
@@ -271,42 +333,46 @@ public class NewRegParserResolver {
 		return "NewRegParserResolver [\n"
 				+ "  text="        + text        + ",\n"
 				+ "  offset="      + offset      + ",\n"
-				+ "  session="     + session     + ",\n"
+				+ "  session="     + stack     + ",\n"
 				+ "  finalResult=" + finalResult + ",\n"
 				+ "  longestText=" + longestText + ",\n"
 				+ "  snapshots="   + snapshots   + "\n"
 				+ "]";
 	}
 	
-	private static class Session {
-		final Session parent;
-		final int     sessionIndex;
+	private static class ParserStack {
 		
+		final ParserStack        parent;
+		final int                stackIndex;
 		final ParserTypeProvider typeProvider;
 		final RegParser          parser;
 		final int                entryCount;
 		
-		private int entryIndex = 0;
-		private int repeat     = 0;
+		private int repeat = 0;
 		
-		
-		private ParseResult    hostResult = null;
+		private int            entryIndex = 0;
 		private RegParserEntry entry      = null;
 		private Checker        checker    = null;
 		private Quantifier     quantifier = null;
 		private ParserType     type       = null;
 		private String         parameter  = null;
+		private ParseResult    hostResult = null;
 		
-		Session(RegParser parser, ParserTypeProvider typeProvider) {
-			this(null, parser, typeProvider);
-		}
-		
-		Session(Session parent, RegParser parser, ParserTypeProvider typeProvider) {
-			this.parent       = parent;
-			this.sessionIndex = (parent == null) ? 0 : parent.sessionIndex + 1;
-			
+		ParserStack(RegParser parser, ParserTypeProvider typeProvider) {
+			this.parent       = null;
+			this.stackIndex   = (parent == null) ? 0 : parent.stackIndex + 1;
 			this.parser       = parser;
 			this.typeProvider = requireNonNullElse(typeProvider, ParserTypeProvider.Simple.defaultProvider());
+			this.entryCount   = parser.getEntryCount();
+			this.entryIndex   = 0;
+			update();
+		}
+		
+		ParserStack(ParserStack parent, RegParser parser) {
+			this.parent       = parent;
+			this.stackIndex   = (parent == null) ? 0 : parent.stackIndex + 1;
+			this.parser       = parser;
+			this.typeProvider = parent.typeProvider;
 			this.entryCount   = parser.getEntryCount();
 			this.entryIndex   = 0;
 			update();
@@ -387,17 +453,18 @@ public class NewRegParserResolver {
 		
 		@Override
 		public String toString() {
-			return "Session ["
+			return "ParserStack ["
+					+ "stackIndex="   + stackIndex   + ", "
 					+ "parser="       + parser       + ", "
 					+ "repeat="       + repeat       + ", "
+					+ "entryCount="   + entryCount   + ", "
 					+ "entryIndex="   + entryIndex   + ", "
 					+ "entry="        + entry        + ", "
-					+ "hostResult="   + hostResult   + ", "
 					+ "checker="      + checker      + ", "
 					+ "quantifier="   + quantifier   + ", "
 					+ "type="         + type         + ", "
 					+ "parameter="    + parameter    + ", "
-					+ "entryCount="   + entryCount   + ", "
+					+ "hostResult="   + hostResult   + ", "
 					+ "typeProvider=" + typeProvider
 					+ "]";
 		}
@@ -405,36 +472,31 @@ public class NewRegParserResolver {
 	}
 	
 	private static class Snapshot {
-		final Session    session;
-		final int[]      entryIndexes;
-		final RPText     text;
-		final int        offset;
-		final int        repeat;
-		final Quantifier quantifier;
 		
-		public Snapshot(Session session, RPText text, int offset, Quantifier quantifier) {
-			this.session    = session;
+		final ParserStack stack;
+		final int[]       indexes;
+		final RPText      text;
+		final int         offset;
+		final int         repeat;
+		final Quantifier  quantifier;
+		
+		public Snapshot(ParserStack stack, RPText text, int offset) {
+			this.stack      = stack;
 			this.text       = text;
 			this.offset     = offset;
-			this.repeat     = session.repeat;
-			this.quantifier = quantifier;
+			this.repeat     = stack.repeat;
+			this.quantifier = stack.quantifier();
 			
-			this.entryIndexes = new int[session.sessionIndex + 1];
-			var eachSession = session;
+			// Save the current indexes.
+			this.indexes = new int[stack.stackIndex + 1];
+			var eachSession = stack;
 			while (eachSession != null) {
-				this.entryIndexes[eachSession.sessionIndex] = eachSession.entryIndex;
+				this.indexes[eachSession.stackIndex] = eachSession.entryIndex;
 				eachSession = eachSession.parent;
 			}
 		}
 		
-		boolean isFallBack() {
-			int upperBound = upperBound();
-			int lowerBound = quantifier.lowerBound();
-			
-			return quantifier.isMinimum() && (repeat <  upperBound)
-				|| quantifier.isMaximum() && (repeat >= lowerBound);
-		}
-		
+		// Upper bound of the current stack as a number (Integer.MAX_VALUE when no upper bound).
 		private int upperBound() {
 			int upperBound = quantifier.upperBound();
 			return (upperBound == -1)
@@ -444,12 +506,13 @@ public class NewRegParserResolver {
 		
 		@Override
 		public String toString() {
+			var indexes = Arrays.toString(this.indexes);
 			return "Snapshot ["
-					+ "session="      + session                       + ", "
-					+ "entryIndexes=" + Arrays.toString(entryIndexes) + ", "
-					+ "offset="       + offset                        + ", "
-					+ "repeat="       + repeat                        + ", "
-					+ "quantifier="   + quantifier                    + ", "
+					+ "stack="        + stack      + ", "
+					+ "stackIndexes=" + indexes    + ", "
+					+ "offset="       + offset     + ", "
+					+ "repeat="       + repeat     + ", "
+					+ "quantifier="   + quantifier + ", "
 					+ "text="         + text
 					+ "]";
 		}

@@ -1100,4 +1100,5 @@ public class TestPattern {
 		assertEquals(Integer.class, values[4].getClass());
 	}
 	
+	
 }

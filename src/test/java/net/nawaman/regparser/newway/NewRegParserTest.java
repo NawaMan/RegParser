@@ -14,6 +14,110 @@ public class NewRegParserTest {
 	private ParserTypeProvider typeProvider = null;
 	
 	@Test
+	public void testDefaultGreedinessBasic() {
+		var parser = compileRegParser("a{1,4}b");
+		
+		// Pass
+		validate("RPRootText [original=ab]\n"
+				+ "offset: 0, level: 0, checker: a{1,4}\n"
+				+ "offset: 1, level: 0, checker: b\n"
+				+ "offset: 2",
+				parse("ab", parser, typeProvider));
+		validate("RPRootText [original=aab]\n"
+				+ "offset: 0, level: 0, checker: a{1,4}\n"
+				+ "offset: 1, level: 0, checker: a{1,4}\n"
+				+ "offset: 2, level: 0, checker: b\n"
+				+ "offset: 3",
+				parse("aab", parser, typeProvider));
+		validate("RPRootText [original=aaab]\n"
+				+ "offset: 0, level: 0, checker: a{1,4}\n"
+				+ "offset: 1, level: 0, checker: a{1,4}\n"
+				+ "offset: 2, level: 0, checker: a{1,4}\n"
+				+ "offset: 3, level: 0, checker: b\n"
+				+ "offset: 4",
+				parse("aaab", parser, typeProvider));
+		validate("RPRootText [original=aaaab]\n"
+				+ "offset: 0, level: 0, checker: a{1,4}\n"
+				+ "offset: 1, level: 0, checker: a{1,4}\n"
+				+ "offset: 2, level: 0, checker: a{1,4}\n"
+				+ "offset: 3, level: 0, checker: a{1,4}\n"
+				+ "offset: 4, level: 0, checker: b\n"
+				+ "offset: 5",
+				parse("aaaab", parser, typeProvider));
+		
+		// Fail
+		validate("RPUnmatchedText: Expect but not found: \"a\"\n"
+				+ "RPRootText [original=b]\n"
+				+ "offset: 0",
+				parse("b", parser, typeProvider));
+		validate("RPUnmatchedText: Expect but not found: \"b\"\n"
+				+ "RPRootText [original=aaaaab]\n"
+				+ "offset: 0, level: 0, checker: a{1,4}\n"
+				+ "offset: 1, level: 0, checker: a{1,4}\n"
+				+ "offset: 2, level: 0, checker: a{1,4}\n"
+				+ "offset: 3, level: 0, checker: a{1,4}\n"
+				+ "offset: 4",
+				parse("aaaaab", parser, typeProvider));
+	}
+	@Test
+	public void testDefaultGreedinessRelaxTail() {
+		var parser = compileRegParser("a{1,4}[ab]{,2}");
+		
+		// Pass
+		validate("RPRootText [original=ab]\n"
+				+ "offset: 0, level: 0, checker: a{1,4}\n"
+				+ "offset: 1, level: 0, checker: [ab]{,2}\n"
+				+ "offset: 2",
+				match("ab", parser, typeProvider));
+		validate("RPRootText [original=aab]\n"
+				+ "offset: 0, level: 0, checker: a{1,4}\n"
+				+ "offset: 1, level: 0, checker: a{1,4}\n"
+				+ "offset: 2, level: 0, checker: [ab]{,2}\n"
+				+ "offset: 3",
+				match("aab", parser, typeProvider));
+		validate("RPRootText [original=aaab]\n"
+				+ "offset: 0, level: 0, checker: a{1,4}\n"
+				+ "offset: 1, level: 0, checker: a{1,4}\n"
+				+ "offset: 2, level: 0, checker: a{1,4}\n"
+				+ "offset: 3, level: 0, checker: [ab]{,2}\n"
+				+ "offset: 4",
+				parse("aaab", parser, typeProvider));
+		validate("RPRootText [original=aaaab]\n"
+				+ "offset: 0, level: 0, checker: a{1,4}\n"
+				+ "offset: 1, level: 0, checker: a{1,4}\n"
+				+ "offset: 2, level: 0, checker: a{1,4}\n"
+				+ "offset: 3, level: 0, checker: a{1,4}\n"
+				+ "offset: 4, level: 0, checker: [ab]{,2}\n"
+				+ "offset: 5",
+				match("aaaab", parser, typeProvider));
+		validate("RPRootText [original=aaaaab]\n"
+				+ "offset: 0, level: 0, checker: a{1,4}\n"
+				+ "offset: 1, level: 0, checker: a{1,4}\n"
+				+ "offset: 2, level: 0, checker: a{1,4}\n"
+				+ "offset: 3, level: 0, checker: a{1,4}\n"
+				+ "offset: 4, level: 0, checker: [ab]{,2}\n"
+				+ "offset: 5, level: 0, checker: [ab]{,2}\n"
+				+ "offset: 6",
+				match("aaaaab", parser, typeProvider));
+		
+		// Fail
+		validate("RPUnmatchedText: Expect but not found: \"a\"\n"
+				+ "RPRootText [original=b]\n"
+				+ "offset: 0",
+				match("b", parser, typeProvider));
+		validate("RPIncompletedText: Match found but do not covering the whole text: \n"
+				+ "RPRootText [original=aaaaaab]\n"
+				+ "offset: 0, level: 0, checker: a{1,4}\n"
+				+ "offset: 1, level: 0, checker: a{1,4}\n"
+				+ "offset: 2, level: 0, checker: a{1,4}\n"
+				+ "offset: 3, level: 0, checker: a{1,4}\n"
+				+ "offset: 4, level: 0, checker: [ab]{,2}\n"
+				+ "offset: 5, level: 0, checker: [ab]{,2}\n"
+				+ "offset: 6",
+				match("aaaaaab", parser, typeProvider));
+	}
+	
+	@Test
 	public void testSimple() {
 		var parser = compileRegParser("Colou?r");
 		
