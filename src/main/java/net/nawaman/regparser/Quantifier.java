@@ -64,6 +64,12 @@ public final class Quantifier implements Serializable {
 	/** Predefine Quantifier for OneOrMore */
 	public static final Quantifier OneOrMore_Minimum     = new Quantifier(1, Minimum);
 	/** Predefine Quantifier for ZeroOrOne */
+	public static final Quantifier ZeroOrOne_Obsessive   = new Quantifier(0, 1, Obsessive);
+	/** Predefine Quantifier for ZeroOrMore */
+	public static final Quantifier ZeroOrMore_Obsessive    = new Quantifier(0, Obsessive);
+	/** Predefine Quantifier for OneOrMore */
+	public static final Quantifier OneOrMore_Obsessive     = new Quantifier(1, Obsessive);
+	/** Predefine Quantifier for ZeroOrOne */
 	public static final Quantifier ZeroOrOne_Possessive  = ZeroOrOne;
 	/** Predefine Quantifier for ZeroOrMore */
 	public static final Quantifier ZeroOrMore_Possessive = ZeroOrMore;

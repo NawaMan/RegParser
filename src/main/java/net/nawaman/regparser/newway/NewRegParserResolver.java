@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import net.nawaman.regparser.Checker;
-import net.nawaman.regparser.Greediness;
 import net.nawaman.regparser.ParserType;
 import net.nawaman.regparser.ParserTypeProvider;
 import net.nawaman.regparser.ParserTypeRef;
@@ -80,40 +79,66 @@ public class NewRegParserResolver {
 	synchronized private RPText doParse() {
 		// Root loop
 		while (true) {
-			
 			while (stack.isInProgress()) {
-				
 				var quantifier = stack.quantifier();
 				var greediness = quantifier.greediness();
 				if (greediness.isDefault()) {
 					 
 					// Checker Repeat loop
 					while (true) {
-						int length = tryMatchedLength();
-						if (length == -1)
+						if (stack.repeat >= stack.upperBound())
 							break;
 						
-						text   = newMatchText(length);
+						int length = tryMatchedLength();
+						if (length == -1) {
+							break;
+						}
+						
+						text   =  newMatchText(length);
 						offset += length;
 						
 						stack.repeat++;
-						if (stack.repeat >= stack.upperBound())
-							break;
 					}
 					
 					var lowerBound = stack.lowerBound();
 					if (stack.repeat < lowerBound) {
 						// TODO - Once implementing snapshot, we should try to recover.
-						
-						longestText = longestText(lowerBound);
-						return incompleteResult(lowerBound);
+						var upperBound = stack.upperBound();
+						longestText = longestText(lowerBound, upperBound);
+						return incompleteResult(lowerBound, upperBound);
 					}
 					
 					stack.nextEntry();
 					
+				} else if (greediness.isObsessive()) {
+
+					// Checker Repeat loop
+					while (true) {
+						int length = tryMatchedLength();
+						if (length == -1) {
+							break;
+						}
+						
+						text   =  newMatchText(length);
+						offset += length;
+						
+						stack.repeat++;
+					}
+					
+					var upperBound = stack.upperBound();
+					var lowerBound = stack.lowerBound();
+					var repeat     = stack.repeat;
+					if (repeat < lowerBound || repeat > upperBound) {
+						// TODO - Once implementing snapshot, we should try to recover.
+						
+						longestText = longestText(lowerBound, upperBound);
+						return incompleteResult(lowerBound, upperBound);
+					}
+					
+					stack.nextEntry();
 				}
 				
-			}
+			} 
 			
 			// At this point, the current stack is done.
 			// See if we can move up a stack.
@@ -123,8 +148,6 @@ public class NewRegParserResolver {
 			} else {
 				break;
 			}
-			
-			
 			
 			
 			
@@ -224,21 +247,28 @@ public class NewRegParserResolver {
 //		snapshots.add(snapshot);
 //	}
 	
-	private RPText longestText(int lowerBound) {
+	private RPText longestText(int lowerBound, int upperBound) {
 		if ((text instanceof RPMatchText) && (offset > longestOffset())) {
-			return newUnmatchedText(lowerBound);
+			return newUnmatchedText(lowerBound, upperBound);
 		} else {
 			return longestText;
 		}
 	}
 	
-	private RPText newUnmatchedText(int lowerBound) {
-		var found   = stack.repeat != 0;
+	private RPText newUnmatchedText(int lowerBound, int upperBound) {
 		var pattern = stack.checker;
+		if (stack.repeat > upperBound) {
+			return new RPUnmatchedText(text, offset, () -> {
+				var msg = format("Expect at most [%d] but found [%d]: ", upperBound, stack.repeat);
+				return format("%s\"%s\"", msg, pattern);
+			});
+		}
+		
+		var found = stack.repeat != 0;
 		return new RPUnmatchedText(text, offset, () -> {
 			var msg = (!found && (lowerBound == 1))
 					? format("Expect but not found: ", pattern)
-					: format("Expect atleast [%d] but only found [%d]: ", lowerBound, found);
+					: format("Expect atleast [%d] but only found [%d]: ", lowerBound, stack.repeat);
 			return format("%s\"%s\"", msg, pattern);
 		});
 	}
@@ -286,10 +316,10 @@ public class NewRegParserResolver {
 		return type.validate(hostResult, thisResult, parameter, typeProvider);
 	}
 	
-	private RPText incompleteResult(int lowerBound) {
+	private RPText incompleteResult(int lowerBound, int upperBound) {
 		return (longestText != null)
 				? longestText
-				: newUnmatchedText(lowerBound);
+				: newUnmatchedText(lowerBound, upperBound);
 	}
 	
 //	private void nextEntry() {

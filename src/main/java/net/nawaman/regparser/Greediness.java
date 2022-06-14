@@ -35,10 +35,15 @@ public enum Greediness {
 	Default
 	;
 	
-	/** Symbol for Maximum in RegParser language */
-	public static final String MaximumSign   = "+";
-	public static final String MinimumSign   = "*";
-	public static final String ObsessiveSign = "!";
+	/** Symbol for Greediness in RegParser language */
+	public static final char MaximumChar   = '+';
+	public static final char MinimumChar   = '*';
+	public static final char ObsessiveChar = '!';
+	
+	/** Symbol for Greediness in RegParser language */
+	public static final String MaximumSign   = "" + MaximumChar;
+	public static final String MinimumSign   = "" + MinimumChar;
+	public static final String ObsessiveSign = "" + ObsessiveChar;
 	public static final String DefaultSign   = "";
 	
 	/** Checks if this is a maximum greediness */
