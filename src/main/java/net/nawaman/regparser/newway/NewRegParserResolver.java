@@ -79,14 +79,15 @@ public class NewRegParserResolver {
 	synchronized private RPText doParse() {
 		// Root loop
 		while (true) {
-			while (stack.isInProgress()) {
+			stackLoop: while (stack.isInProgress()) {
+				var upperBound = stack.upperBound();
+				var lowerBound = stack.lowerBound();
 				var quantifier = stack.quantifier();
 				var greediness = quantifier.greediness();
 				if (greediness.isDefault()) {
 					 
-					// Checker Repeat loop
 					while (true) {
-						if (stack.repeat >= stack.upperBound())
+						if (stack.repeat >= upperBound)
 							break;
 						
 						int length = tryMatchedLength();
@@ -100,19 +101,43 @@ public class NewRegParserResolver {
 						stack.repeat++;
 					}
 					
-					var lowerBound = stack.lowerBound();
 					if (stack.repeat < lowerBound) {
 						// TODO - Once implementing snapshot, we should try to recover.
-						var upperBound = stack.upperBound();
 						longestText = longestText(lowerBound, upperBound);
+						
+						
+						// Attempt to recover from the snapshot
+						var snapshot = (Snapshot)null;
+						while ((snapshot = lastSnapshot()) != null) {
+							
+							boolean isFallBack
+									 = snapshot.quantifier.isMinimum() && (snapshot.repeat <  snapshot.upperBound())
+									|| snapshot.quantifier.isMaximum() && (snapshot.repeat >= snapshot.lowerBound());
+							if (isFallBack) {
+								stack        = snapshot.stack;
+								text         = snapshot.text;
+								offset       = snapshot.offset;
+								stack.repeat = snapshot.repeat;
+								
+								var indexes     = snapshot.indexes;
+								var eachSession = stack;
+								int index       = indexes.length;
+								while (eachSession != null) {
+									index--;
+									eachSession.entryIndex(indexes[index]);
+									eachSession = eachSession.parent;
+								}
+								continue stackLoop;
+							}
+						}
+						
 						return incompleteResult(lowerBound, upperBound);
 					}
 					
 					stack.nextEntry();
 					
 				} else if (greediness.isObsessive()) {
-
-					// Checker Repeat loop
+					
 					while (true) {
 						int length = tryMatchedLength();
 						if (length == -1) {
@@ -125,17 +150,98 @@ public class NewRegParserResolver {
 						stack.repeat++;
 					}
 					
-					var upperBound = stack.upperBound();
-					var lowerBound = stack.lowerBound();
 					var repeat     = stack.repeat;
 					if (repeat < lowerBound || repeat > upperBound) {
-						// TODO - Once implementing snapshot, we should try to recover.
-						
 						longestText = longestText(lowerBound, upperBound);
+						
+						// Attempt to recover from the snapshot
+						var snapshot = (Snapshot)null;
+						while ((snapshot = lastSnapshot()) != null) {
+							
+							boolean isFallBack
+									 = snapshot.quantifier.isMinimum() && (snapshot.repeat <  snapshot.upperBound())
+									|| snapshot.quantifier.isMaximum() && (snapshot.repeat >= snapshot.lowerBound());
+							if (isFallBack) {
+								stack        = snapshot.stack;
+								text         = snapshot.text;
+								offset       = snapshot.offset;
+								stack.repeat = snapshot.repeat;
+								
+								var indexes     = snapshot.indexes;
+								var eachSession = stack;
+								int index       = indexes.length;
+								while (eachSession != null) {
+									index--;
+									eachSession.entryIndex(indexes[index]);
+									eachSession = eachSession.parent;
+								}
+								continue stackLoop;
+							}
+						}
+						
+						
 						return incompleteResult(lowerBound, upperBound);
 					}
 					
 					stack.nextEntry();
+					
+				} else if (greediness.isMinimum()) {
+					
+					if ((stack.repeat == 0) && (lowerBound == 0)) {
+						saveSnapshot(stack.quantifier());
+						
+					} else {
+						while (true) {
+							
+							int length = tryMatchedLength();
+							if (length == -1) {
+								
+								longestText = longestText(lowerBound, upperBound);
+								
+								// Attempt to recover from the snapshot
+								var snapshot = (Snapshot)null;
+								while ((snapshot = lastSnapshot()) != null) {
+									
+									boolean isFallBack
+											 = snapshot.quantifier.isMinimum() && (snapshot.repeat <  snapshot.upperBound())
+											|| snapshot.quantifier.isMaximum() && (snapshot.repeat >= snapshot.lowerBound());
+									if (isFallBack) {
+										stack        = snapshot.stack;
+										text         = snapshot.text;
+										offset       = snapshot.offset;
+										stack.repeat = snapshot.repeat;
+										
+										var indexes     = snapshot.indexes;
+										var eachSession = stack;
+										int index       = indexes.length;
+										while (eachSession != null) {
+											index--;
+											eachSession.entryIndex(indexes[index]);
+											eachSession = eachSession.parent;
+										}
+										continue stackLoop;
+									}
+								}
+								
+								return incompleteResult(lowerBound, upperBound);
+							}
+							
+							text   =  newMatchText(length);
+							offset += length;
+							
+							stack.repeat++;
+							
+							if (stack.repeat >= lowerBound) {
+								saveSnapshot(stack.quantifier());
+								break;
+							}
+						}
+					}
+					
+					stack.nextEntry();
+					
+				} else if (greediness.isMaximum()) {
+					
 				}
 				
 			} 
@@ -146,6 +252,28 @@ public class NewRegParserResolver {
 				stack = stack.parent;
 				stack.nextEntry();
 			} else {
+				var snapshot = lastSnapshot();
+				if ((offset != text.length())
+				 && (snapshot != null)
+				 && snapshot.quantifier.greediness().isMinimum()
+				 && (snapshot.repeat < snapshot.upperBound())) {
+					stack        = snapshot.stack;
+					text         = snapshot.text;
+					offset       = snapshot.offset;
+					stack.repeat = snapshot.repeat;
+					
+					var indexes     = snapshot.indexes;
+					var eachSession = stack;
+					int index       = indexes.length;
+					while (eachSession != null) {
+						index--;
+						eachSession.entryIndex(indexes[index]);
+						eachSession = eachSession.parent;
+					}
+					continue;
+//					System.out.println("Here");
+				}
+				
 				break;
 			}
 			
@@ -242,10 +370,10 @@ public class NewRegParserResolver {
 		return Integer.MIN_VALUE;
 	}
 	
-//	private void saveSnapshot(Quantifier quantifier) {
-//		var snapshot = new Snapshot(stack, text, offset);
-//		snapshots.add(snapshot);
-//	}
+	private void saveSnapshot(Quantifier quantifier) {
+		var snapshot = new Snapshot(stack, text, offset);
+		snapshots.add(snapshot);
+	}
 	
 	private RPText longestText(int lowerBound, int upperBound) {
 		if ((text instanceof RPMatchText) && (offset > longestOffset())) {
@@ -277,16 +405,16 @@ public class NewRegParserResolver {
 		return new RPIncompletedText(endText);
 	}
 	
-//	private Snapshot lastSnapshot() {
-//		return snapshots.isEmpty()
-//				? null
-//				: snapshots.remove(snapshots.size() - 1);
-//	}
-//	
+	private Snapshot lastSnapshot() {
+		return snapshots.isEmpty()
+				? null
+				: snapshots.remove(snapshots.size() - 1);
+	}
+	
 //	private void fallback(Snapshot snapshot) {
 //		stack        = snapshot.stack;
-//		text               = snapshot.text;
-//		offset             = snapshot.offset;
+//		text         = snapshot.text;
+//		offset       = snapshot.offset;
 //		stack.repeat = snapshot.repeat;
 //		
 //		var indexes     = snapshot.indexes;
@@ -297,12 +425,8 @@ public class NewRegParserResolver {
 //			eachSession.entryIndex(indexes[index]);
 //			eachSession = eachSession.parent;
 //		}
-//		
-//		if (snapshot.quantifier.isMaximum()) {
-//			nextEntry();
-//		}
 //	}
-//	
+	
 	private boolean validateResult(int length) {
 		// TODO - Temporary way to do the validation
 		var hostResult   = (ParseResult)null;
@@ -532,6 +656,10 @@ public class NewRegParserResolver {
 			return (upperBound == -1)
 					? Integer.MAX_VALUE
 					: upperBound;
+		}
+		
+		private int lowerBound() {
+			return quantifier.lowerBound();
 		}
 		
 		@Override
