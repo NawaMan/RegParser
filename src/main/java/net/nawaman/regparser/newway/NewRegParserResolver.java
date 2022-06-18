@@ -102,9 +102,7 @@ public class NewRegParserResolver {
 					}
 					
 					if (stack.repeat < lowerBound) {
-						// TODO - Once implementing snapshot, we should try to recover.
 						longestText = longestText(lowerBound, upperBound);
-						
 						
 						// Attempt to recover from the snapshot
 						var snapshot = (Snapshot)null;
@@ -126,6 +124,9 @@ public class NewRegParserResolver {
 									index--;
 									eachSession.entryIndex(indexes[index]);
 									eachSession = eachSession.parent;
+								}
+								if (snapshot.quantifier.isMaximum()) {
+									stack.nextEntry();
 								}
 								continue stackLoop;
 							}
@@ -150,7 +151,7 @@ public class NewRegParserResolver {
 						stack.repeat++;
 					}
 					
-					var repeat     = stack.repeat;
+					var repeat = stack.repeat;
 					if (repeat < lowerBound || repeat > upperBound) {
 						longestText = longestText(lowerBound, upperBound);
 						
@@ -174,6 +175,9 @@ public class NewRegParserResolver {
 									index--;
 									eachSession.entryIndex(indexes[index]);
 									eachSession = eachSession.parent;
+								}
+								if (snapshot.quantifier.isMaximum()) {
+									stack.nextEntry();
 								}
 								continue stackLoop;
 							}
@@ -219,6 +223,9 @@ public class NewRegParserResolver {
 											eachSession.entryIndex(indexes[index]);
 											eachSession = eachSession.parent;
 										}
+										if (snapshot.quantifier.isMaximum()) {
+											stack.nextEntry();
+										}
 										continue stackLoop;
 									}
 								}
@@ -241,6 +248,63 @@ public class NewRegParserResolver {
 					stack.nextEntry();
 					
 				} else if (greediness.isMaximum()) {
+					
+					while (true) {
+						
+						if (stack.repeat >= lowerBound) {
+							saveSnapshot(stack.quantifier());
+						}
+						
+						if (stack.repeat >= upperBound) {
+							break;
+						}
+						
+						int length = tryMatchedLength();
+						if (length == -1) {
+							if (stack.repeat >= lowerBound) {
+								break;
+							}
+							
+							longestText = longestText(lowerBound, upperBound);
+							
+							// Attempt to recover from the snapshot
+							var snapshot = (Snapshot)null;
+							while ((snapshot = lastSnapshot()) != null) {
+								
+								boolean isFallBack
+										 = snapshot.quantifier.isMinimum() && (snapshot.repeat <  snapshot.upperBound())
+										|| snapshot.quantifier.isMaximum() && (snapshot.repeat >= snapshot.lowerBound());
+								if (isFallBack) {
+									stack        = snapshot.stack;
+									text         = snapshot.text;
+									offset       = snapshot.offset;
+									stack.repeat = snapshot.repeat;
+									
+									var indexes     = snapshot.indexes;
+									var eachSession = stack;
+									int index       = indexes.length;
+									while (eachSession != null) {
+										index--;
+										eachSession.entryIndex(indexes[index]);
+										eachSession = eachSession.parent;
+									}
+									if (snapshot.quantifier.isMaximum()) {
+										stack.nextEntry();
+									}
+									continue stackLoop;
+								}
+							}
+							
+							return incompleteResult(lowerBound, upperBound);
+						}
+						
+						text   =  newMatchText(length);
+						offset += length;
+						
+						stack.repeat++;
+					}
+					
+					stack.nextEntry();
 					
 				}
 				
@@ -271,7 +335,6 @@ public class NewRegParserResolver {
 						eachSession = eachSession.parent;
 					}
 					continue;
-//					System.out.println("Here");
 				}
 				
 				break;
