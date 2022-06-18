@@ -38,7 +38,7 @@ public final class Quantifier implements Serializable {
 	private static final long serialVersionUID = 1930305369240858722L;
 	
 	/** Predefine Quantifier for Zero */
-	public static final Quantifier Zero       = new Quantifier(0, 0, Default);
+	public static final Quantifier Zero = new Quantifier(0, 0, Default);
 	/** Predefine Quantifier for One */
 	public static final Quantifier One        = new Quantifier(1, 1, Default);
 	/** Predefine Quantifier for ZeroOrOne */
@@ -258,6 +258,9 @@ public final class Quantifier implements Serializable {
 			
 			if (isOneOrMore())
 				return "+" + greediness.sign();
+			
+			if (isZero() && isObsessive())
+				return "^";
 			
 			if (isZero())
 				return "{0}";

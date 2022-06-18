@@ -206,7 +206,7 @@ public class RPQuantifierParserType extends ParserType {
 		}
 		case '^': {
 			if (greediness == null)
-				return Zero;
+				return ZeroObsessive;
 			
 			char greedy = greediness.charAt(0);
 			if (greedy == MaximumChar)
