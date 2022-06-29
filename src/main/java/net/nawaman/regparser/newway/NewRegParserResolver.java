@@ -116,6 +116,7 @@ public class NewRegParserResolver {
 								text         = snapshot.text;
 								offset       = snapshot.offset;
 								stack.repeat = snapshot.repeat;
+								stack.isBackTracking = true;
 								
 								var indexes     = snapshot.indexes;
 								var eachSession = stack;
@@ -167,6 +168,7 @@ public class NewRegParserResolver {
 								text         = snapshot.text;
 								offset       = snapshot.offset;
 								stack.repeat = snapshot.repeat;
+								stack.isBackTracking = true;
 								
 								var indexes     = snapshot.indexes;
 								var eachSession = stack;
@@ -191,7 +193,7 @@ public class NewRegParserResolver {
 					
 				} else if (greediness.isMinimum()) {
 					
-					if ((stack.repeat == 0) && (lowerBound == 0)) {
+					if (!stack.isBackTracking && (stack.repeat == 0) && (lowerBound == 0)) {
 						saveSnapshot(stack.quantifier());
 						
 					} else {
@@ -214,6 +216,7 @@ public class NewRegParserResolver {
 										text         = snapshot.text;
 										offset       = snapshot.offset;
 										stack.repeat = snapshot.repeat;
+										stack.isBackTracking = true;
 										
 										var indexes     = snapshot.indexes;
 										var eachSession = stack;
@@ -279,6 +282,7 @@ public class NewRegParserResolver {
 									text         = snapshot.text;
 									offset       = snapshot.offset;
 									stack.repeat = snapshot.repeat;
+									stack.isBackTracking = true;
 									
 									var indexes     = snapshot.indexes;
 									var eachSession = stack;
@@ -306,6 +310,8 @@ public class NewRegParserResolver {
 					
 					stack.nextEntry();
 					
+				} else {
+					throw new IllegalArgumentException("Unknown greediness: "+ greediness);
 				}
 				
 			} 
@@ -325,6 +331,7 @@ public class NewRegParserResolver {
 					text         = snapshot.text;
 					offset       = snapshot.offset;
 					stack.repeat = snapshot.repeat;
+					stack.isBackTracking = true;
 					
 					var indexes     = snapshot.indexes;
 					var eachSession = stack;
@@ -575,6 +582,8 @@ public class NewRegParserResolver {
 		private String         parameter  = null;
 		private ParseResult    hostResult = null;
 		
+		private boolean isBackTracking = false;
+		
 		ParserStack(RegParser parser, ParserTypeProvider typeProvider) {
 			this.parent       = null;
 			this.stackIndex   = (parent == null) ? 0 : parent.stackIndex + 1;
@@ -624,6 +633,7 @@ public class NewRegParserResolver {
 			}
 			
 			repeat = 0;
+			isBackTracking = false;
 		}
 		
 		void entryIndex(int entryIndex) {

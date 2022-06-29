@@ -338,6 +338,54 @@ public class NewRegParserTest {
 				match("aab", parser, typeProvider));
 	}
 	
+	@Ignore
+	@Test
+	public void testObsessiveGreedinessSub() {
+		var parser = compileRegParser("((a|z){1,4}!)b");
+		
+		// Pass
+		validate("RPRootText [original=ab]\n"
+				+ "offset: 0, level: 0, checker: a{1,4}\n"
+				+ "offset: 1, level: 0, checker: b\n"
+				+ "offset: 2",
+				match("ab", parser, typeProvider));
+		validate("RPRootText [original=aab]\n"
+				+ "offset: 0, level: 0, checker: a{1,4}\n"
+				+ "offset: 1, level: 0, checker: a{1,4}\n"
+				+ "offset: 2, level: 0, checker: b\n"
+				+ "offset: 3",
+				match("aab", parser, typeProvider));
+		validate("RPRootText [original=aaab]\n"
+				+ "offset: 0, level: 0, checker: a{1,4}\n"
+				+ "offset: 1, level: 0, checker: a{1,4}\n"
+				+ "offset: 2, level: 0, checker: a{1,4}\n"
+				+ "offset: 3, level: 0, checker: b\n"
+				+ "offset: 4",
+				match("aaab", parser, typeProvider));
+		validate("RPRootText [original=aaaab]\n"
+				+ "offset: 0, level: 0, checker: a{1,4}\n"
+				+ "offset: 1, level: 0, checker: a{1,4}\n"
+				+ "offset: 2, level: 0, checker: a{1,4}\n"
+				+ "offset: 3, level: 0, checker: a{1,4}\n"
+				+ "offset: 4, level: 0, checker: b\n"
+				+ "offset: 5",
+				match("aaaab", parser, typeProvider));
+		
+		// Fail
+		validate("RPUnmatchedText: Expect but not found: \"a\"\n"
+				+ "RPRootText [original=b]\n"
+				+ "offset: 0",
+				parse("b", parser, typeProvider));
+		validate("RPUnmatchedText: Expect but not found: \"b\"\n"
+				+ "RPRootText [original=aaaaab]\n"
+				+ "offset: 0, level: 0, checker: a{1,4}\n"
+				+ "offset: 1, level: 0, checker: a{1,4}\n"
+				+ "offset: 2, level: 0, checker: a{1,4}\n"
+				+ "offset: 3, level: 0, checker: a{1,4}\n"
+				+ "offset: 4",
+				match("aaaaab", parser, typeProvider));
+	}
+	
 	@Test
 	public void testMinimumGreedinessBasic() {
 		var parser = compileRegParser("a{1,4}*b");
@@ -478,6 +526,54 @@ public class NewRegParserTest {
 				+ "offset: 1, level: 0, checker: [ab]{,2}\n"
 				+ "offset: 2",
 				match("aab", parser, typeProvider));
+	}
+	
+	@Ignore
+	@Test
+	public void testMinimumGreedinessSub() {
+		var parser = compileRegParser("((a|z){1,4}*)b");
+		
+		// Pass
+		validate("RPRootText [original=ab]\n"
+				+ "offset: 0, level: 0, checker: a{1,4}\n"
+				+ "offset: 1, level: 0, checker: b\n"
+				+ "offset: 2",
+				match("ab", parser, typeProvider));
+		validate("RPRootText [original=aab]\n"
+				+ "offset: 0, level: 0, checker: a{1,4}\n"
+				+ "offset: 1, level: 0, checker: a{1,4}\n"
+				+ "offset: 2, level: 0, checker: b\n"
+				+ "offset: 3",
+				match("aab", parser, typeProvider));
+		validate("RPRootText [original=aaab]\n"
+				+ "offset: 0, level: 0, checker: a{1,4}\n"
+				+ "offset: 1, level: 0, checker: a{1,4}\n"
+				+ "offset: 2, level: 0, checker: a{1,4}\n"
+				+ "offset: 3, level: 0, checker: b\n"
+				+ "offset: 4",
+				match("aaab", parser, typeProvider));
+		validate("RPRootText [original=aaaab]\n"
+				+ "offset: 0, level: 0, checker: a{1,4}\n"
+				+ "offset: 1, level: 0, checker: a{1,4}\n"
+				+ "offset: 2, level: 0, checker: a{1,4}\n"
+				+ "offset: 3, level: 0, checker: a{1,4}\n"
+				+ "offset: 4, level: 0, checker: b\n"
+				+ "offset: 5",
+				match("aaaab", parser, typeProvider));
+		
+		// Fail
+		validate("RPUnmatchedText: Expect but not found: \"a\"\n"
+				+ "RPRootText [original=b]\n"
+				+ "offset: 0",
+				parse("b", parser, typeProvider));
+		validate("RPUnmatchedText: Expect but not found: \"b\"\n"
+				+ "RPRootText [original=aaaaab]\n"
+				+ "offset: 0, level: 0, checker: a{1,4}\n"
+				+ "offset: 1, level: 0, checker: a{1,4}\n"
+				+ "offset: 2, level: 0, checker: a{1,4}\n"
+				+ "offset: 3, level: 0, checker: a{1,4}\n"
+				+ "offset: 4",
+				match("aaaaab", parser, typeProvider));
 	}
 	
 	@Test
@@ -622,6 +718,221 @@ public class NewRegParserTest {
 				match("aab", parser, typeProvider));
 	}
 	
+	@Ignore
+	@Test
+	public void testMaximumGreedinessSub() {
+		var parser = compileRegParser("((a|z){1,4}+)b");
+		
+		// Pass
+		validate("RPRootText [original=ab]\n"
+				+ "offset: 0, level: 0, checker: a{1,4}\n"
+				+ "offset: 1, level: 0, checker: b\n"
+				+ "offset: 2",
+				match("ab", parser, typeProvider));
+		validate("RPRootText [original=aab]\n"
+				+ "offset: 0, level: 0, checker: a{1,4}\n"
+				+ "offset: 1, level: 0, checker: a{1,4}\n"
+				+ "offset: 2, level: 0, checker: b\n"
+				+ "offset: 3",
+				match("aab", parser, typeProvider));
+		validate("RPRootText [original=aaab]\n"
+				+ "offset: 0, level: 0, checker: a{1,4}\n"
+				+ "offset: 1, level: 0, checker: a{1,4}\n"
+				+ "offset: 2, level: 0, checker: a{1,4}\n"
+				+ "offset: 3, level: 0, checker: b\n"
+				+ "offset: 4",
+				match("aaab", parser, typeProvider));
+		validate("RPRootText [original=aaaab]\n"
+				+ "offset: 0, level: 0, checker: a{1,4}\n"
+				+ "offset: 1, level: 0, checker: a{1,4}\n"
+				+ "offset: 2, level: 0, checker: a{1,4}\n"
+				+ "offset: 3, level: 0, checker: a{1,4}\n"
+				+ "offset: 4, level: 0, checker: b\n"
+				+ "offset: 5",
+				match("aaaab", parser, typeProvider));
+		
+		// Fail
+		validate("RPUnmatchedText: Expect but not found: \"a\"\n"
+				+ "RPRootText [original=b]\n"
+				+ "offset: 0",
+				parse("b", parser, typeProvider));
+		validate("RPUnmatchedText: Expect but not found: \"b\"\n"
+				+ "RPRootText [original=aaaaab]\n"
+				+ "offset: 0, level: 0, checker: a{1,4}\n"
+				+ "offset: 1, level: 0, checker: a{1,4}\n"
+				+ "offset: 2, level: 0, checker: a{1,4}\n"
+				+ "offset: 3, level: 0, checker: a{1,4}\n"
+				+ "offset: 4",
+				match("aaaaab", parser, typeProvider));
+	}
+	
+	@Test
+	public void testMinimumThenMaximum() {
+		var parser = compileRegParser("A[:-:]{1,}*[:-:]{1,}+Z");
+		
+		validate("A\n"
+				+ "[\\-]+*\n"
+				+ "[\\-]++\n"
+				+ "Z",
+				parser);
+		
+		validate("RPRootText [original=A--Z]\n"
+				+ "offset: 0, level: 0, checker: A\n"
+				+ "offset: 1, level: 0, checker: [\\-]+*\n"
+				+ "offset: 2, level: 0, checker: [\\-]++\n"
+				+ "offset: 3, level: 0, checker: Z\n"
+				+ "offset: 4",
+				parse("A--Z", parser, typeProvider));
+		System.out.println();
+		
+		validate("RPRootText [original=A---Z]\n"
+				+ "offset: 0, level: 0, checker: A\n"
+				+ "offset: 1, level: 0, checker: [\\-]+*\n"
+				+ "offset: 2, level: 0, checker: [\\-]++\n"
+				+ "offset: 3, level: 0, checker: [\\-]++\n"
+				+ "offset: 4, level: 0, checker: Z\n"
+				+ "offset: 5",
+				parse("A---Z", parser, typeProvider));
+		System.out.println();
+		
+		validate("RPRootText [original=A----Z]\n"
+				+ "offset: 0, level: 0, checker: A\n"
+				+ "offset: 1, level: 0, checker: [\\-]+*\n"
+				+ "offset: 2, level: 0, checker: [\\-]++\n"
+				+ "offset: 3, level: 0, checker: [\\-]++\n"
+				+ "offset: 4, level: 0, checker: [\\-]++\n"
+				+ "offset: 5, level: 0, checker: Z\n"
+				+ "offset: 6",
+				parse("A----Z", parser, typeProvider));
+		System.out.println();
+	}
+	
+	@Test
+	public void testMaximumThenMinimum() {
+		var parser = compileRegParser("A[:-:]{1,}+[:-:]{1,}*Z");
+		
+		validate("A\n"
+				+ "[\\-]++\n"
+				+ "[\\-]+*\n"
+				+ "Z",
+				parser);
+		
+		validate("RPRootText [original=A--Z]\n"
+				+ "offset: 0, level: 0, checker: A\n"
+				+ "offset: 1, level: 0, checker: [\\-]++\n"
+				+ "offset: 2, level: 0, checker: [\\-]+*\n"
+				+ "offset: 3, level: 0, checker: Z\n"
+				+ "offset: 4",
+				parse("A--Z", parser, typeProvider));
+		System.out.println();
+		
+		validate("RPRootText [original=A---Z]\n"
+				+ "offset: 0, level: 0, checker: A\n"
+				+ "offset: 1, level: 0, checker: [\\-]++\n"
+				+ "offset: 2, level: 0, checker: [\\-]++\n"
+				+ "offset: 3, level: 0, checker: [\\-]+*\n"
+				+ "offset: 4, level: 0, checker: Z\n"
+				+ "offset: 5",
+				parse("A---Z", parser, typeProvider));
+		System.out.println();
+		
+		validate("RPRootText [original=A----Z]\n"
+				+ "offset: 0, level: 0, checker: A\n"
+				+ "offset: 1, level: 0, checker: [\\-]++\n"
+				+ "offset: 2, level: 0, checker: [\\-]++\n"
+				+ "offset: 3, level: 0, checker: [\\-]++\n"
+				+ "offset: 4, level: 0, checker: [\\-]+*\n"
+				+ "offset: 5, level: 0, checker: Z\n"
+				+ "offset: 6",
+				parse("A----Z", parser, typeProvider));
+		System.out.println();
+	}
+	
+	@Test
+	public void testMaximumThenMaximum() {
+		var parser = compileRegParser("A.++a++Z");
+		
+		validate("A\n"
+				+ ".++\n"
+				+ "a++\n"
+				+ "Z",
+				parser);
+		
+		validate("RPRootText [original=A-aZ]\n"
+				+ "offset: 0, level: 0, checker: A\n"
+				+ "offset: 1, level: 0, checker: .++\n"
+				+ "offset: 2, level: 0, checker: a++\n"
+				+ "offset: 3, level: 0, checker: Z\n"
+				+ "offset: 4",
+				parse("A-aZ", parser, typeProvider));
+		System.out.println();
+		
+		validate("RPRootText [original=A--aaZ]\n"
+				+ "offset: 0, level: 0, checker: A\n"
+				+ "offset: 1, level: 0, checker: .++\n"
+				+ "offset: 2, level: 0, checker: .++\n"
+				+ "offset: 3, level: 0, checker: .++\n"
+				+ "offset: 4, level: 0, checker: a++\n"
+				+ "offset: 5, level: 0, checker: Z\n"
+				+ "offset: 6",
+				parse("A--aaZ", parser, typeProvider));
+		System.out.println();
+		
+		validate("RPRootText [original=A---aaZ]\n"
+				+ "offset: 0, level: 0, checker: A\n"
+				+ "offset: 1, level: 0, checker: .++\n"
+				+ "offset: 2, level: 0, checker: .++\n"
+				+ "offset: 3, level: 0, checker: .++\n"
+				+ "offset: 4, level: 0, checker: .++\n"
+				+ "offset: 5, level: 0, checker: a++\n"
+				+ "offset: 6, level: 0, checker: Z\n"
+				+ "offset: 7",
+				parse("A---aaZ", parser, typeProvider));
+		System.out.println();
+	}
+	
+	@Test
+	public void testMinimumThenMinimum() {
+		var parser = compileRegParser("A.+*a+*Z");
+		
+		validate("A\n"
+				+ ".+*\n"
+				+ "a+*\n"
+				+ "Z",
+				parser);
+		
+		validate("RPRootText [original=A-aZ]\n"
+				+ "offset: 0, level: 0, checker: A\n"
+				+ "offset: 1, level: 0, checker: .+*\n"
+				+ "offset: 2, level: 0, checker: a+*\n"
+				+ "offset: 3, level: 0, checker: Z\n"
+				+ "offset: 4",
+				parse("A-aZ", parser, typeProvider));
+		System.out.println();
+		
+		validate("RPRootText [original=A--aaZ]\n"
+				+ "offset: 0, level: 0, checker: A\n"
+				+ "offset: 1, level: 0, checker: .+*\n"
+				+ "offset: 2, level: 0, checker: .+*\n"
+				+ "offset: 3, level: 0, checker: a+*\n"
+				+ "offset: 4, level: 0, checker: a+*\n"
+				+ "offset: 5, level: 0, checker: Z\n"
+				+ "offset: 6",
+				parse("A--aaZ", parser, typeProvider));
+		System.out.println();
+		
+		validate("RPRootText [original=A---aaZ]\n"
+				+ "offset: 0, level: 0, checker: A\n"
+				+ "offset: 1, level: 0, checker: .+*\n"
+				+ "offset: 2, level: 0, checker: .+*\n"
+				+ "offset: 3, level: 0, checker: .+*\n"
+				+ "offset: 4, level: 0, checker: a+*\n"
+				+ "offset: 5, level: 0, checker: a+*\n"
+				+ "offset: 6, level: 0, checker: Z\n"
+				+ "offset: 7",
+				parse("A---aaZ", parser, typeProvider));
+		System.out.println();
+	}
 	
 	@Test
 	public void testSimple() {
@@ -1559,7 +1870,6 @@ public class NewRegParserTest {
 				parse("A-to-Z", parser, typeProvider));
 	}
 	
-	@Ignore
 	@Test
 	public void testAny_minimum() {
 		var parser = compileRegParser("A.**Z");
@@ -2300,6 +2610,46 @@ public class NewRegParserTest {
 				+ "offset: 8, level: 0, checker: Z\n"
 				+ "offset: 9",
 				parse("~<(AA)(BB)(CC)><(DD)(EE)(FF)>~", parser, typeProvider));
+	}
+	
+	@Test
+	public void testMinimumThenObsessive() {
+		var parser = compileRegParser("A.**Z^");
+		
+		validate("A\n"
+				+ ".**\n"
+				+ "Z^",
+				parser);
+		
+		validate("RPRootText [original=A-to-Z]\n"
+				+ "offset: 0, level: 0, checker: A\n"
+				+ "offset: 1, level: 0, checker: .**\n"
+				+ "offset: 2, level: 0, checker: .**\n"
+				+ "offset: 3, level: 0, checker: .**\n"
+				+ "offset: 4, level: 0, checker: .**\n"
+				+ "offset: 5, level: 0, checker: .**\n"
+				+ "offset: 6",
+				parse("A-to-Z", parser, typeProvider));
+	}
+	
+	@Test
+	public void testMaximumThenObsessive() {
+		var parser = compileRegParser("A.*+Z^");
+		
+		validate("A\n"
+				+ ".*+\n"
+				+ "Z^",
+				parser);
+		
+		validate("RPRootText [original=A-to-Z]\n"
+				+ "offset: 0, level: 0, checker: A\n"
+				+ "offset: 1, level: 0, checker: .*+\n"
+				+ "offset: 2, level: 0, checker: .*+\n"
+				+ "offset: 3, level: 0, checker: .*+\n"
+				+ "offset: 4, level: 0, checker: .*+\n"
+				+ "offset: 5, level: 0, checker: .*+\n"
+				+ "offset: 6",
+				parse("A-to-Z", parser, typeProvider));
 	}
 	
 	//==================================================================================================================
