@@ -77,28 +77,40 @@ public class NewRegParserResolver {
 	}
 	
 	synchronized private RPText doParse() {
+		boolean justFallback = false;
 		// Root loop
-		while (true) {
+		rootLoop: while (true) {
 			stackLoop: while (stack.isInProgress()) {
 				var upperBound = stack.upperBound();
 				var lowerBound = stack.lowerBound();
 				var quantifier = stack.quantifier();
 				var greediness = quantifier.greediness();
 				if (greediness.isDefault()) {
-					 
-					while (true) {
-						if (stack.repeat >= upperBound)
-							break;
-						
-						int length = tryMatchedLength();
-						if (length == -1) {
-							break;
+					
+					if (!justFallback) {
+						while (true) {
+							if (stack.repeat >= upperBound)
+								break;
+							
+							if (stack.checker instanceof RegParser) {
+								stack = new ParserStack(stack, (RegParser)stack.checker);
+								continue stackLoop;
+							}
+							
+							int     length    = text.match(offset, stack.checker, stack.typeProvider);
+							boolean isMatched = (length != -1) && ((stack.entry.type() == null) || validateResult(length));
+							length = isMatched ? length : -1;
+							if (length == -1) {
+								break;
+							}
+							
+							text   =  newMatchText(length);
+							offset += length;
+							
+							stack.repeat++;
 						}
-						
-						text   =  newMatchText(length);
-						offset += length;
-						
-						stack.repeat++;
+					} else {
+						justFallback = false;
 					}
 					
 					if (stack.repeat < lowerBound) {
@@ -133,15 +145,59 @@ public class NewRegParserResolver {
 							}
 						}
 						
-						return incompleteResult(lowerBound, upperBound);
+						if (stack.parent == null) {
+							return incompleteResult(lowerBound, upperBound);
+						} else {
+							stack = stack.parent;
+							justFallback = true;
+							continue rootLoop;
+						}
 					}
 					
-					stack.nextEntry();
+					if (stack.entryIndex < (stack.entryCount - 1)) {
+						// We are not at the end of the entry, continue to next.
+						stack.nextEntry();
+					} else {
+						if (stack.parent == null) {
+							
+							var snapshot = lastSnapshot();
+							if ((offset != text.length())
+							 && (snapshot != null)
+							 && snapshot.quantifier.greediness().isMinimum()
+							 && (snapshot.repeat < snapshot.upperBound())) {
+								stack        = snapshot.stack;
+								text         = snapshot.text;
+								offset       = snapshot.offset;
+								stack.repeat = snapshot.repeat;
+								stack.isBackTracking = true;
+								
+								var indexes     = snapshot.indexes;
+								var eachSession = stack;
+								int index       = indexes.length;
+								while (eachSession != null) {
+									index--;
+									eachSession.entryIndex(indexes[index]);
+									eachSession = eachSession.parent;
+								}
+								continue;
+							}
+							
+							break rootLoop;
+						} else {
+							stack = stack.parent;
+							stack.repeat++;
+							justFallback = false;
+							continue rootLoop;
+						}
+					}
 					
 				} else if (greediness.isObsessive()) {
 					
 					while (true) {
-						int length = tryMatchedLength();
+//						int length = tryMatchedLength();
+						int     length    = text.match(offset, stack.checker, stack.typeProvider);
+						boolean isMatched = (length != -1) && ((stack.entry.type() == null) || validateResult(length));
+						length = isMatched ? length : -1;
 						if (length == -1) {
 							break;
 						}
@@ -199,7 +255,10 @@ public class NewRegParserResolver {
 					} else {
 						while (true) {
 							
-							int length = tryMatchedLength();
+//							int length = tryMatchedLength();
+							int     length    = text.match(offset, stack.checker, stack.typeProvider);
+							boolean isMatched = (length != -1) && ((stack.entry.type() == null) || validateResult(length));
+							length = isMatched ? length : -1;
 							if (length == -1) {
 								
 								longestText = longestText(lowerBound, upperBound);
@@ -262,7 +321,10 @@ public class NewRegParserResolver {
 							break;
 						}
 						
-						int length = tryMatchedLength();
+//						int length = tryMatchedLength();
+						int     length    = text.match(offset, stack.checker, stack.typeProvider);
+						boolean isMatched = (length != -1) && ((stack.entry.type() == null) || validateResult(length));
+						length = isMatched ? length : -1;
 						if (length == -1) {
 							if (stack.repeat >= lowerBound) {
 								break;
@@ -320,7 +382,8 @@ public class NewRegParserResolver {
 			// See if we can move up a stack.
 			if (stack.parent != null) {
 				stack = stack.parent;
-				stack.nextEntry();
+				stack.repeat++;
+				justFallback = true;
 			} else {
 				var snapshot = lastSnapshot();
 				if ((offset != text.length())
@@ -393,11 +456,11 @@ public class NewRegParserResolver {
 		return completeResult();
 	}
 //	
-	private int tryMatchedLength() {
-		int     length    = text.match(offset, stack.checker, stack.typeProvider);
-		boolean isMatched = (length != -1) && ((stack.entry.type() == null) || validateResult(length));
-		return isMatched ? length : -1;
-	}
+//	private int tryMatchedLength() {
+//		int     length    = text.match(offset, stack.checker, stack.typeProvider);
+//		boolean isMatched = (length != -1) && ((stack.entry.type() == null) || validateResult(length));
+//		return isMatched ? length : -1;
+//	}
 	
 //	private void advanceMatch(int length) {
 //		text = newMatchText(length);
