@@ -156,7 +156,6 @@ public class NewRegParserTest {
 				match("aab", parser, typeProvider));
 	}
 	
-//	@Ignore
 	@Test
 	public void testDefaultGreedinessSub() {
 		var parser = compileRegParser("((a|z){1,4})b");
@@ -395,51 +394,66 @@ public class NewRegParserTest {
 				match("aab", parser, typeProvider));
 	}
 	
-	@Ignore
 	@Test
 	public void testObsessiveGreedinessSub() {
-		var parser = compileRegParser("((a|z){1,4}!)b");
+		var parser = compileRegParser("((a|z){2,4}!)b");
 		
 		// Pass
-		validate("RPRootText [original=ab]\n"
-				+ "offset: 0, level: 0, checker: a{1,4}\n"
-				+ "offset: 1, level: 0, checker: b\n"
-				+ "offset: 2",
+		validate("RPUnmatchedText: Expect atleast [2] but only found [1]: \"(a|z)\"\n"
+				+ "RPRootText [original=ab]\n"
+				+ "offset: 0, level: 1, checker: (a|z){2,4}!\n"
+				+ "offset: 1",
 				match("ab", parser, typeProvider));
 		validate("RPRootText [original=aab]\n"
-				+ "offset: 0, level: 0, checker: a{1,4}\n"
-				+ "offset: 1, level: 0, checker: a{1,4}\n"
+				+ "offset: 0, level: 1, checker: (a|z){2,4}!\n"
+				+ "offset: 1, level: 1, checker: (a|z){2,4}!\n"
 				+ "offset: 2, level: 0, checker: b\n"
 				+ "offset: 3",
 				match("aab", parser, typeProvider));
 		validate("RPRootText [original=aaab]\n"
-				+ "offset: 0, level: 0, checker: a{1,4}\n"
-				+ "offset: 1, level: 0, checker: a{1,4}\n"
-				+ "offset: 2, level: 0, checker: a{1,4}\n"
+				+ "offset: 0, level: 1, checker: (a|z){2,4}!\n"
+				+ "offset: 1, level: 1, checker: (a|z){2,4}!\n"
+				+ "offset: 2, level: 1, checker: (a|z){2,4}!\n"
 				+ "offset: 3, level: 0, checker: b\n"
 				+ "offset: 4",
 				match("aaab", parser, typeProvider));
 		validate("RPRootText [original=aaaab]\n"
-				+ "offset: 0, level: 0, checker: a{1,4}\n"
-				+ "offset: 1, level: 0, checker: a{1,4}\n"
-				+ "offset: 2, level: 0, checker: a{1,4}\n"
-				+ "offset: 3, level: 0, checker: a{1,4}\n"
+				+ "offset: 0, level: 1, checker: (a|z){2,4}!\n"
+				+ "offset: 1, level: 1, checker: (a|z){2,4}!\n"
+				+ "offset: 2, level: 1, checker: (a|z){2,4}!\n"
+				+ "offset: 3, level: 1, checker: (a|z){2,4}!\n"
 				+ "offset: 4, level: 0, checker: b\n"
 				+ "offset: 5",
 				match("aaaab", parser, typeProvider));
 		
 		// Fail
-		validate("RPUnmatchedText: Expect but not found: \"a\"\n"
+		validate("RPUnmatchedText: Expect but not found: \"(a|z){2,4}!\"\n"
 				+ "RPRootText [original=b]\n"
 				+ "offset: 0",
 				parse("b", parser, typeProvider));
-		validate("RPUnmatchedText: Expect but not found: \"b\"\n"
+		validate("RPUnmatchedText: Expect at most [4] but found [5]: \"(a|z)\"\n"
 				+ "RPRootText [original=aaaaab]\n"
-				+ "offset: 0, level: 0, checker: a{1,4}\n"
-				+ "offset: 1, level: 0, checker: a{1,4}\n"
-				+ "offset: 2, level: 0, checker: a{1,4}\n"
-				+ "offset: 3, level: 0, checker: a{1,4}\n"
-				+ "offset: 4",
+				+ "offset: 0, level: 1, checker: (a|z){2,4}!\n"
+				+ "offset: 1, level: 1, checker: (a|z){2,4}!\n"
+				+ "offset: 2, level: 1, checker: (a|z){2,4}!\n"
+				+ "offset: 3, level: 1, checker: (a|z){2,4}!\n"
+				+ "offset: 4, level: 1, checker: (a|z){2,4}!\n"
+				+ "offset: 5",
+				match("aaaaab", parser, typeProvider));
+	}
+	
+	@Test
+	public void testObsessiveGreedinessSub_multiple() {
+		var parser = compileRegParser("((a|z){2,4}!){,2}b");
+		
+		validate("RPUnmatchedText: Expect at most [4] but found [5]: \"(a|z)\"\n"
+				+ "RPRootText [original=aaaaab]\n"
+				+ "offset: 0, level: 1, checker: (a|z){2,4}!\n"
+				+ "offset: 1, level: 1, checker: (a|z){2,4}!\n"
+				+ "offset: 2, level: 1, checker: (a|z){2,4}!\n"
+				+ "offset: 3, level: 1, checker: (a|z){2,4}!\n"
+				+ "offset: 4, level: 1, checker: (a|z){2,4}!\n"
+				+ "offset: 5",
 				match("aaaaab", parser, typeProvider));
 	}
 	
