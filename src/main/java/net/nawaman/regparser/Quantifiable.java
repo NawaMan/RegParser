@@ -92,10 +92,10 @@ public interface Quantifiable<SOURCE> {
 		return quantifier(quantifier.withMinimum());
 	}
 	
-	/** Set the quantifier to have obsessive greediness */
-	public default SOURCE obsessive() {
+	/** Set the quantifier to have exact greediness */
+	public default SOURCE exact() {
 		var quantifier = quantifier();
-		return quantifier(quantifier.withObsessive());
+		return quantifier(quantifier.withExact());
 	}
 	
 	/** Set the quantifier to have default greediness */

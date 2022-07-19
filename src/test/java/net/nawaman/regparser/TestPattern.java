@@ -234,7 +234,7 @@ public class TestPattern {
 		var parser = compileRegParser("Ro^ar");
 		
 		validate("R\n"
-				+ "o{0}\n"
+				+ "o^\n"
 				+ "ar",
 				parser);
 		

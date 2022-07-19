@@ -24,25 +24,25 @@ import static net.nawaman.regparser.Greediness.Maximum;
 import static net.nawaman.regparser.Greediness.MaximumChar;
 import static net.nawaman.regparser.Greediness.Minimum;
 import static net.nawaman.regparser.Greediness.MinimumChar;
-import static net.nawaman.regparser.Greediness.Obsessive;
-import static net.nawaman.regparser.Greediness.ObsessiveChar;
+import static net.nawaman.regparser.Greediness.Exact;
+import static net.nawaman.regparser.Greediness.ExactChar;
 import static net.nawaman.regparser.PredefinedCharClasses.Blank;
 import static net.nawaman.regparser.PredefinedCharClasses.Digit;
 import static net.nawaman.regparser.Quantifier.One;
 import static net.nawaman.regparser.Quantifier.OneOrMore;
 import static net.nawaman.regparser.Quantifier.OneOrMore_Maximum;
 import static net.nawaman.regparser.Quantifier.OneOrMore_Minimum;
-import static net.nawaman.regparser.Quantifier.OneOrMore_Obsessive;
+import static net.nawaman.regparser.Quantifier.OneOrMore_Exact;
 import static net.nawaman.regparser.Quantifier.Zero;
-import static net.nawaman.regparser.Quantifier.ZeroObsessive;
+import static net.nawaman.regparser.Quantifier.ZeroExact;
 import static net.nawaman.regparser.Quantifier.ZeroOrMore;
 import static net.nawaman.regparser.Quantifier.ZeroOrMore_Maximum;
 import static net.nawaman.regparser.Quantifier.ZeroOrMore_Minimum;
-import static net.nawaman.regparser.Quantifier.ZeroOrMore_Obsessive;
+import static net.nawaman.regparser.Quantifier.ZeroOrMore_Exact;
 import static net.nawaman.regparser.Quantifier.ZeroOrOne;
 import static net.nawaman.regparser.Quantifier.ZeroOrOne_Maximum;
 import static net.nawaman.regparser.Quantifier.ZeroOrOne_Minimum;
-import static net.nawaman.regparser.Quantifier.ZeroOrOne_Obsessive;
+import static net.nawaman.regparser.Quantifier.ZeroOrOne_Exact;
 import static net.nawaman.regparser.RegParser.newRegParser;
 
 import net.nawaman.regparser.Checker;
@@ -167,8 +167,8 @@ public class RPQuantifierParserType extends ParserType {
 			if (greedy == MinimumChar)
 				return ZeroOrOne_Minimum;
 			
-			if (greedy == ObsessiveChar)
-				return ZeroOrOne_Obsessive;
+			if (greedy == ExactChar)
+				return ZeroOrOne_Exact;
 			
 			break;
 		}
@@ -183,8 +183,8 @@ public class RPQuantifierParserType extends ParserType {
 			if (greedy == MinimumChar)
 				return ZeroOrMore_Minimum;
 			
-			if (greedy == ObsessiveChar)
-				return ZeroOrMore_Obsessive;
+			if (greedy == ExactChar)
+				return ZeroOrMore_Exact;
 			
 			break;
 		}
@@ -199,14 +199,14 @@ public class RPQuantifierParserType extends ParserType {
 			if (greedy == MinimumChar)
 				return OneOrMore_Minimum;
 			
-			if (greedy == ObsessiveChar)
-				return OneOrMore_Obsessive;
+			if (greedy == ExactChar)
+				return OneOrMore_Exact;
 			
 			break;
 		}
 		case '^': {
 			if (greediness == null)
-				return ZeroObsessive;
+				return ZeroExact;
 			
 			char greedy = greediness.charAt(0);
 			if (greedy == MaximumChar)
@@ -215,8 +215,8 @@ public class RPQuantifierParserType extends ParserType {
 			if (greedy == MinimumChar)
 				throw new MalFormedRegParserException("Zero quantifier cannot have minimum greediness: \n" + thisResult.locationOf(1));
 			
-			if (greedy == ObsessiveChar)
-				return ZeroObsessive;
+			if (greedy == ExactChar)
+				return ZeroExact;
 		}
 		case '{': {
 			thisResult = thisResult.entryAt(0).subResult();
@@ -249,8 +249,8 @@ public class RPQuantifierParserType extends ParserType {
 						if (greedy == MinimumChar)
 							return ZeroOrOne_Minimum;
 						
-						if (greedy == ObsessiveChar)
-							return ZeroOrOne_Obsessive;
+						if (greedy == ExactChar)
+							return ZeroOrOne_Exact;
 						
 						break;
 					}
@@ -265,8 +265,8 @@ public class RPQuantifierParserType extends ParserType {
 						if (greedy == MinimumChar)
 							return ZeroOrMore_Minimum;
 						
-						if (greedy == ObsessiveChar)
-							return ZeroOrMore_Obsessive;
+						if (greedy == ExactChar)
+							return ZeroOrMore_Exact;
 						
 						break;
 					}
@@ -281,8 +281,8 @@ public class RPQuantifierParserType extends ParserType {
 						if (greedy == MinimumChar)
 							return OneOrMore_Minimum;
 						
-						if (greedy == ObsessiveChar)
-							return OneOrMore_Obsessive;
+						if (greedy == ExactChar)
+							return OneOrMore_Exact;
 						
 						break;
 					}
@@ -297,8 +297,8 @@ public class RPQuantifierParserType extends ParserType {
 					if (greedy == MinimumChar)
 						return new Quantifier(lowerBound, upperBound, Minimum);
 					
-					if (greedy == ObsessiveChar)
-						return new Quantifier(lowerBound, upperBound, Obsessive);
+					if (greedy == ExactChar)
+						return new Quantifier(lowerBound, upperBound, Exact);
 					
 					break;
 				}
@@ -318,8 +318,8 @@ public class RPQuantifierParserType extends ParserType {
 				return new Quantifier(bound, bound, Default);
 			
 			char greedy = greediness.charAt(0);
-			if (greedy == ObsessiveChar)
-				return new Quantifier(bound, bound, Obsessive);
+			if (greedy == ExactChar)
+				return new Quantifier(bound, bound, Exact);
 			
 			if (greedy == MaximumChar)
 				return new Quantifier(bound, bound, Maximum);
@@ -327,8 +327,8 @@ public class RPQuantifierParserType extends ParserType {
 			if (greedy == MinimumChar)
 				return new Quantifier(bound, bound, Minimum);
 			
-			if (greedy == ObsessiveChar)
-				return new Quantifier(bound, bound, Obsessive);
+			if (greedy == ExactChar)
+				return new Quantifier(bound, bound, Exact);
 			
 			break;
 		}

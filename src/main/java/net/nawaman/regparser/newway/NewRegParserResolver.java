@@ -4,7 +4,6 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNullElse;
 import static net.nawaman.regparser.result.Coordinate.coordinateOf;
-import static net.nawaman.regparser.result.Location.detailLocationOf;
 import static net.nawaman.regparser.result.Location.locationOf;
 
 import java.util.ArrayList;
@@ -20,8 +19,6 @@ import net.nawaman.regparser.ParsingException;
 import net.nawaman.regparser.Quantifier;
 import net.nawaman.regparser.RegParser;
 import net.nawaman.regparser.RegParserEntry;
-import net.nawaman.regparser.result.Coordinate;
-import net.nawaman.regparser.result.Location;
 import net.nawaman.regparser.result.ParseResult;
 import net.nawaman.regparser.result.ParseResultNode;
 import net.nawaman.regparser.result.RootParseResult;
@@ -191,16 +188,13 @@ public class NewRegParserResolver {
 							break rootLoop;
 						} else {
 							stack = stack.parent;
-//							offset = stack.startOffset;
-//							text   =  newMatchText(length);
-//							offset += length;
 							stack.repeat++;
 							justFallback = false;
 							continue rootLoop;
 						}
 					}
 					
-				} else if (greediness.isObsessive()) {
+				} else if (greediness.isExact()) {
 					
 					if (!justFallback) {
 						while (true) {
@@ -307,8 +301,6 @@ public class NewRegParserResolver {
 						
 					} else {
 						while (true) {
-							
-//							int length = tryMatchedLength();
 							int     length    = text.match(offset, stack.checker, stack.typeProvider);
 							boolean isMatched = (length != -1) && ((stack.entry.type() == null) || validateResult(length));
 							length = isMatched ? length : -1;
@@ -374,7 +366,6 @@ public class NewRegParserResolver {
 							break;
 						}
 						
-//						int length = tryMatchedLength();
 						int     length    = text.match(offset, stack.checker, stack.typeProvider);
 						boolean isMatched = (length != -1) && ((stack.entry.type() == null) || validateResult(length));
 						length = isMatched ? length : -1;
@@ -435,7 +426,6 @@ public class NewRegParserResolver {
 			// See if we can move up a stack.
 			if (stack.parent != null) {
 				stack = stack.parent;
-//				offset = stack.startOffset;
 				stack.repeat++;
 				justFallback = true;
 			} else {
@@ -463,87 +453,16 @@ public class NewRegParserResolver {
 				
 				break;
 			}
-			
-			
-			
-			
-			
-			// Stack loop
-//			while (stack.isInProgress()) {
-//				// Sub-Parser
-//				if (stack.checker instanceof RegParser) {
-//					stack = new ParserStack(stack, (RegParser)stack.checker);
-//					continue;
-//				}
-//				
-//				// Checker Repeat loop
-//				while (true) {
-//					int length = attemptForwardReturnMatchedLength();
-//					if (length == -1)
-//						break;
-//					
-//					advanceMatch(length);
-//					
-//					boolean mayStop = advanceRepeatCheckMayStop();
-//					if (mayStop)
-//						break;
-//				}
-//				
-//				// TODO - We should not return the early return if this is not a root stack.
-//				//        We should save the longest test, we can say that we cannot move one and
-//				//          let the parent stack check the repeat and decide.
-//				var result = attemptForwardOrEarlyResult();
-//				if (result != null)
-//					return result;
-//			}
-//			
-//			// At this point, the current stack is done.
-//			// See if we can move up a stack.
-//			if (stack.parent != null) {
-//				stack = stack.parent;
-//				offset = stack.startOffset;
-//				nextEntry();
-//			} else {
-//				break;
-//			}
 		}
 		
 		return completeResult();
 	}
-//	
-//	private int tryMatchedLength() {
-//		int     length    = text.match(offset, stack.checker, stack.typeProvider);
-//		boolean isMatched = (length != -1) && ((stack.entry.type() == null) || validateResult(length));
-//		return isMatched ? length : -1;
-//	}
-	
-//	private void advanceMatch(int length) {
-//		text = newMatchText(length);
-//		offset += length;
-//	}
 	
 	private RPMatchText newMatchText(int length) {
 		return (stack.repeat == 0)
 				 ? new RPNodeText(             text, offset, stack.entry(), stack.stackIndex)
 				 : new RPNextText((RPMatchText)text, length);
 	}
-	
-//	private boolean advanceRepeatCheckMayStop() {
-//		stack.repeat++;
-//		
-//		if (stack.repeat >= stack.upperBound())
-//			return true;
-//		
-//		var quantifier = stack.quantifier();
-//		var greediness = quantifier.greediness();
-//		if (!greediness.isPossessive() && (stack.repeat >= stack.lowerBound())) {
-//			saveSnapshot(quantifier);
-//			
-//			return greediness.isMinimum();
-//		}
-//		
-//		return false;
-//	}
 	
 	private int longestOffset() {
 		if (longestText == null)
@@ -601,22 +520,6 @@ public class NewRegParserResolver {
 				: snapshots.remove(snapshots.size() - 1);
 	}
 	
-//	private void fallback(Snapshot snapshot) {
-//		stack        = snapshot.stack;
-//		text         = snapshot.text;
-//		offset       = snapshot.offset;
-//		stack.repeat = snapshot.repeat;
-//		
-//		var indexes     = snapshot.indexes;
-//		var eachSession = stack;
-//		int index       = indexes.length;
-//		while (eachSession != null) {
-//			index--;
-//			eachSession.entryIndex(indexes[index]);
-//			eachSession = eachSession.parent;
-//		}
-//	}
-	
 	private boolean validateResult(int length) {
 		// TODO - Temporary way to do the validation
 		var hostResult   = (ParseResult)null;
@@ -635,38 +538,6 @@ public class NewRegParserResolver {
 				? longestText
 				: newUnmatchedText(lowerBound, upperBound);
 	}
-	
-//	private void nextEntry() {
-//		stack.nextEntry();
-//	}
-//	
-//	private RPText attemptForwardOrEarlyResult() {
-//		var lowerBound = stack.lowerBound();
-//		if (stack.repeat < lowerBound) {
-//			saveLongestText(lowerBound);
-//			
-//			boolean shouldStartOver = false;
-//			// Attempt to recover from the snapshot
-//			var snapshot = (Snapshot)null;
-//			while ((snapshot = lastSnapshot()) != null) {
-//				
-//				int upperBound = snapshot.upperBound();
-//				boolean isFallBack
-//						 = snapshot.quantifier.isMinimum() && (snapshot.repeat <  upperBound)
-//						|| snapshot.quantifier.isMaximum() && (snapshot.repeat >= lowerBound);
-//				if (isFallBack) {
-//					fallback(snapshot);
-//					return null;
-//				}
-//			}
-//			
-//			if (!shouldStartOver)
-//				return incompleteResult(lowerBound);
-//		}
-//		
-//		nextEntry();
-//		return null;
-//	}
 	
 	private RPEndText completeResult() {
 		return new RPEndText(text, offset);
@@ -873,6 +744,7 @@ public class NewRegParserResolver {
 		
 	}
 	
+	@SuppressWarnings("unused")
 	private ToString toString = new ToString();
 	
 	class ToString {

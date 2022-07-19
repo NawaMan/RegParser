@@ -261,7 +261,7 @@ public class NewRegParserTest {
 	}
 	
 	@Test
-	public void testObsessiveGreedinessBasic() {
+	public void testExactGreedinessBasic() {
 		var parser = compileRegParser("a{1,4}!b");
 		
 		// Pass
@@ -309,7 +309,7 @@ public class NewRegParserTest {
 	}
 	
 	@Test
-	public void testObsessiveGreedinessRelaxTail() {
+	public void testExactGreedinessRelaxTail() {
 		var parser = compileRegParser("a{1,4}![ab]{,2}");
 		
 		// Pass
@@ -357,7 +357,7 @@ public class NewRegParserTest {
 	}
 	
 	@Test
-	public void testObsessiveGreedinessZero() {
+	public void testExactGreedinessZero() {
 		var parser = compileRegParser("a{0}!b");
 		
 		// Pass
@@ -373,7 +373,7 @@ public class NewRegParserTest {
 	}
 	
 	@Test
-	public void testObsessiveGreedinessZeroRelaxTail() {
+	public void testExactGreedinessZeroRelaxTail() {
 		var parser = compileRegParser("a{0}![ab]{,2}");
 		
 		// Pass
@@ -395,7 +395,7 @@ public class NewRegParserTest {
 	}
 	
 	@Test
-	public void testObsessiveGreedinessSub() {
+	public void testExactGreedinessSub() {
 		var parser = compileRegParser("((a|z){2,4}!)b");
 		
 		// Pass
@@ -443,7 +443,7 @@ public class NewRegParserTest {
 	}
 	
 	@Test
-	public void testObsessiveGreedinessSub_outside() {
+	public void testExactGreedinessSub_outside() {
 		var parser = compileRegParser("((a|z){1,2}){2}!b");
 		
 		// Less than expected
@@ -481,7 +481,7 @@ public class NewRegParserTest {
 	}
 	
 	@Test
-	public void testObsessiveGreedinessSub_multiple() {
+	public void testExactGreedinessSub_multiple() {
 		var parser = compileRegParser("((a|z){2,4}!){,2}b");
 		
 		validate("RPUnmatchedText: Expect at most [4] but found [5]: \"(a|z)\"\n"
@@ -2722,7 +2722,7 @@ public class NewRegParserTest {
 	}
 	
 	@Test
-	public void testMinimumThenObsessive() {
+	public void testMinimumThenExact() {
 		var parser = compileRegParser("A.**Z^");
 		
 		validate("A\n"
@@ -2742,7 +2742,7 @@ public class NewRegParserTest {
 	}
 	
 	@Test
-	public void testMaximumThenObsessive() {
+	public void testMaximumThenExact() {
 		var parser = compileRegParser("A.*+Z^");
 		
 		validate("A\n"

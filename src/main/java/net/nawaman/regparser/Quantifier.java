@@ -21,7 +21,7 @@ package net.nawaman.regparser;
 import static java.lang.String.format;
 import static net.nawaman.regparser.Greediness.Maximum;
 import static net.nawaman.regparser.Greediness.Minimum;
-import static net.nawaman.regparser.Greediness.Obsessive;
+import static net.nawaman.regparser.Greediness.Exact;
 import static net.nawaman.regparser.Greediness.Default;
 
 import java.io.Serializable;
@@ -48,8 +48,8 @@ public final class Quantifier implements Serializable {
 	/** Predefine Quantifier for OneOrMore */
 	public static final Quantifier OneOrMore  = new Quantifier(1, Default);
 	
-	/** Predefine Quantifier for Zero obsessively */
-	public static final Quantifier ZeroObsessive = new Quantifier(0, 0, Obsessive);
+	/** Predefine Quantifier for Zero exactly */
+	public static final Quantifier ZeroExact = new Quantifier(0, 0, Exact);
 	
 	/** Predefine Quantifier for ZeroOrOne */
 	public static final Quantifier ZeroOrOne_Maximum     = new Quantifier(0, 1, Maximum);
@@ -64,11 +64,11 @@ public final class Quantifier implements Serializable {
 	/** Predefine Quantifier for OneOrMore */
 	public static final Quantifier OneOrMore_Minimum     = new Quantifier(1, Minimum);
 	/** Predefine Quantifier for ZeroOrOne */
-	public static final Quantifier ZeroOrOne_Obsessive   = new Quantifier(0, 1, Obsessive);
+	public static final Quantifier ZeroOrOne_Exact   = new Quantifier(0, 1, Exact);
 	/** Predefine Quantifier for ZeroOrMore */
-	public static final Quantifier ZeroOrMore_Obsessive    = new Quantifier(0, Obsessive);
+	public static final Quantifier ZeroOrMore_Exact    = new Quantifier(0, Exact);
 	/** Predefine Quantifier for OneOrMore */
-	public static final Quantifier OneOrMore_Obsessive     = new Quantifier(1, Obsessive);
+	public static final Quantifier OneOrMore_Exact     = new Quantifier(1, Exact);
 	/** Predefine Quantifier for ZeroOrOne */
 	public static final Quantifier ZeroOrOne_Possessive  = ZeroOrOne;
 	/** Predefine Quantifier for ZeroOrMore */
@@ -204,9 +204,9 @@ public final class Quantifier implements Serializable {
 		return greediness == Greediness.Minimum;
 	}
 	
-	/** Checks if this is a obsessive greediness */
-	public boolean isObsessive() {
-		return greediness == Greediness.Obsessive;
+	/** Checks if this is a exact greediness */
+	public boolean isExact() {
+		return greediness == Greediness.Exact;
 	}
 	
 	/** Checks if this is a default greediness */
@@ -219,9 +219,9 @@ public final class Quantifier implements Serializable {
 		return (greediness == Default) ? this : new Quantifier(lowerBound, upperBound, Default);
 	}
 	
-	/** @return  a quantifier with this lower/upper bound but with obsessive greediness. */
-	public Quantifier withObsessive() {
-		return (greediness == Obsessive) ? this : new Quantifier(lowerBound, upperBound, Obsessive);
+	/** @return  a quantifier with this lower/upper bound but with exact greediness. */
+	public Quantifier withExact() {
+		return (greediness == Exact) ? this : new Quantifier(lowerBound, upperBound, Exact);
 	}
 	
 	/** @return  a quantifier with this lower/upper bound but with maximum greediness. */
@@ -259,7 +259,7 @@ public final class Quantifier implements Serializable {
 			if (isOneOrMore())
 				return "+" + greediness.sign();
 			
-			if (isZero() && isObsessive())
+			if (isZero() && isExact())
 				return "^";
 			
 			if (isZero())

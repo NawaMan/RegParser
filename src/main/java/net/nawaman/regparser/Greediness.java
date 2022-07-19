@@ -30,21 +30,21 @@ public enum Greediness {
 	/** Minimum possible match that still allow the later part to match: `*`. */
 	Minimum,
 	/** Take all tokens as much as possible then check if found to be with in the range: `!`. */
-	Obsessive,
+	Exact,
 	/** Take available tokens up to the upper bound and acceptable down to lower bound: ``. */
 	Default
 	;
 	
 	/** Symbol for Greediness in RegParser language */
-	public static final char MaximumChar   = '+';
-	public static final char MinimumChar   = '*';
-	public static final char ObsessiveChar = '!';
+	public static final char MaximumChar = '+';
+	public static final char MinimumChar = '*';
+	public static final char ExactChar   = '!';
 	
 	/** Symbol for Greediness in RegParser language */
-	public static final String MaximumSign   = "" + MaximumChar;
-	public static final String MinimumSign   = "" + MinimumChar;
-	public static final String ObsessiveSign = "" + ObsessiveChar;
-	public static final String DefaultSign   = "";
+	public static final String MaximumSign = "" + MaximumChar;
+	public static final String MinimumSign = "" + MinimumChar;
+	public static final String ExactSign   = "" + ExactChar;
+	public static final String DefaultSign = "";
 	
 	/** Checks if this is a maximum greediness */
 	public boolean isMaximum() {
@@ -56,9 +56,9 @@ public enum Greediness {
 		return this == Minimum;
 	}
 	
-	/** Checks if this is a obsessive greediness */
-	public boolean isObsessive() {
-		return this == Obsessive;
+	/** Checks if this is a Exact greediness */
+	public boolean isExact() {
+		return this == Exact;
 	}
 	
 	/** Checks if this is a default greediness */
@@ -69,22 +69,22 @@ public enum Greediness {
 	/** @return the sign of this greediness */
 	public String sign() {
 		switch (this) {
-			case Maximum:   return MaximumSign;
-			case Minimum:   return MinimumSign;
-			case Obsessive: return ObsessiveSign;
-			case Default:   return DefaultSign;
-			default:        throw new IllegalArgumentException("Unexpected greediness: " + this);
+			case Maximum: return MaximumSign;
+			case Minimum: return MinimumSign;
+			case Exact  : return ExactSign;
+			case Default: return DefaultSign;
+			default:      throw new IllegalArgumentException("Unexpected greediness: " + this);
 		}
 	}
 	
 	/** @return  {@code true} if greediness is deterministic by itself. */
 	public boolean isDeterministic() {
 		switch (this) {
-			case Maximum:   return false;
-			case Minimum:   return false;
-			case Obsessive: return true;
-			case Default:   return true;
-			default:        throw new IllegalArgumentException("Unexpected greediness: " + this);
+			case Maximum: return false;
+			case Minimum: return false;
+			case Exact  : return true;
+			case Default: return true;
+			default:      throw new IllegalArgumentException("Unexpected greediness: " + this);
 		}
 	}
 	

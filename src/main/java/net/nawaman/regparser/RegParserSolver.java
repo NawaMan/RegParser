@@ -107,8 +107,8 @@ class RegParserSolver {
 			if (quantifier.isDefault()) {
 				loopResult = parseDefault(entries, text, offset, index, times, parseResult, typeProvider, tabCount, textLength, quantifier);
 			// Comment out for now.
-//			} else if (quantifier.isObsessive()) {
-//				loopResult = parseObsessive(entries, text, offset, index, times, parseResult, typeProvider, tabCount, textLength, quantifier);
+//			} else if (quantifier.isExact()) {
+//				loopResult = parseExact(entries, text, offset, index, times, parseResult, typeProvider, tabCount, textLength, quantifier);
 			} else if (quantifier.isMaximum()) {
 				loopResult = parseMaximum(entries, text, offset, index, times, parseResult, typeProvider, type, parameter, tabCount, textLength, quantifier);
 			} else if (quantifier.isMinimum()) {
