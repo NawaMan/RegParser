@@ -6,16 +6,16 @@ public class RPUnmatchedText extends RPText {
 	
 	final Supplier<String> message;
 	final RPRootText       root;
-	final RPText           parent;
+	final RPText           previous;
 	final int              endOffset;
 	
-	public RPUnmatchedText(String message, RPText parent, int endOffset) {
-		this(parent, endOffset, () -> message);
+	public RPUnmatchedText(String message, RPText previous, int endOffset) {
+		this(previous, endOffset, () -> message);
 	}
 	
-	public RPUnmatchedText(RPText parent, int endOffset, Supplier<String> message) {
-		this.parent    = parent;
-		this.root      = parent.root();
+	public RPUnmatchedText(RPText previous, int endOffset, Supplier<String> message) {
+		this.previous  = previous;
+		this.root      = previous.root();
 		this.endOffset = endOffset;
 		this.message   = message;
 	}
@@ -26,13 +26,13 @@ public class RPUnmatchedText extends RPText {
 	}
 	
 	@Override
-	public RPText parent() {
-		return parent;
+	public RPText previous() {
+		return previous;
 	}
 	
 	@Override
 	public CharSequence originalText() {
-		return parent.root().originalText();
+		return previous.root().originalText();
 	}
 	
 	public String message() {
@@ -42,7 +42,7 @@ public class RPUnmatchedText extends RPText {
 	@Override
 	public String toString() {
 		return "RPUnmatchedText: " + message.get() + "\n"
-				+ parent.toString() + "\n"
+				+ previous.toString() + "\n"
 				+ "offset: " + endOffset;
 	}
 	

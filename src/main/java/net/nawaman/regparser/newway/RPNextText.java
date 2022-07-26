@@ -2,49 +2,59 @@ package net.nawaman.regparser.newway;
 
 import static java.util.Objects.requireNonNull;
 
-import net.nawaman.regparser.AsChecker;
+import java.util.Arrays;
 
+/**
+ * Parse result for the match that is from the check of the previous one.
+ * 
+ * @author nawa
+ */
 public class RPNextText extends RPMatchText {
 	
-	final RPMatchText parent;
-	final int         length;
+	final RPMatchText  previous;
+	final int          length;
 	
-	public RPNextText(RPMatchText parent, int length) {
-		this.parent = requireNonNull(parent);
-		this.length = length;
+	public RPNextText(RPMatchText previous, int length) {
+		this.previous   = requireNonNull(previous);
+		this.length     = length;
 	}
 	
 	@Override
 	public RPRootText root() {
-		return parent.root();
+		return previous.root();
 	}
 	
 	@Override
-	public RPText parent() {
-		return (RPText)parent;
+	public RPText previous() {
+		return (RPText)previous;
 	}
 	
-	public int offset() {
-		return parent.offset() + length;
+	@Override
+	public int startOffset() {
+		return previous.endOffset();
+	}
+	
+	@Override
+	public int endOffset() {
+		return previous.endOffset() + length;
 	}
 	
 	@Override
 	public CharSequence originalText() {
-		return parent.originalText();
+		return previous.originalText();
 	}
 	
-	public AsChecker asChecker() {
-		return parent.asChecker();
-	}
-	
-	public int level() {
-		return parent.level();
+	@Override
+	public RPEntryIndex parserEntryIndex() {
+		return previous.parserEntryIndex();
 	}
 	
 	@Override
 	public String toString() {
-		int level = ((RPMatchText)parent).level();
-		return parent.toString() + "\n"
-				+ "offset: " + offset() + ", level: " + level + ", checker: " + asChecker();
+		int offset  = startOffset();
+		var indexes = Arrays.toString(parserEntryIndex().indexStream().toArray());
+		var entry   = entry();
+		return previous.toString() + "\n"
+		+ "offset: " + offset + ", length: " + length + ", indexes: " + indexes + ", entry: " + entry;
 	}
 }

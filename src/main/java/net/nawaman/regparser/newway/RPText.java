@@ -7,7 +7,7 @@ public abstract class RPText implements ExtensibleCharSequence {
 	
 	public abstract RPRootText root();
 	
-	public abstract RPText parent();
+	public abstract RPText previous();
 	
 	@Override
 	public abstract CharSequence originalText();

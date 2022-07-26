@@ -83,6 +83,7 @@ public class NewRegParserResolver {
 		// Root loop
 		rootLoop: while (true) {
 			stackLoop: while (stack.isInProgress()) {
+				System.out.println(toString.toString());
 				var upperBound = stack.upperBound();
 				var lowerBound = stack.lowerBound();
 				var quantifier = stack.quantifier();
@@ -90,9 +91,14 @@ public class NewRegParserResolver {
 				if (greediness.isDefault()) {
 					
 					if (!justFallback) {
+						boolean hasMatched = false;
 						while (true) {
-							if (stack.repeat >= upperBound)
+							if (stack.repeat >= upperBound) {
+								if (hasMatched) {
+									text = new RPNodeText(text, offset, stack.entryIndex());
+								}
 								break;
+							}
 							
 							if (stack.checker instanceof RegParser) {
 								stack = new ParserStack(stack, (RegParser)stack.checker, offset);
@@ -103,11 +109,15 @@ public class NewRegParserResolver {
 							boolean isMatched = (length != -1) && ((stack.entry.type() == null) || validateResult(length));
 							length = isMatched ? length : -1;
 							if (length == -1) {
+								if (hasMatched) {
+									text = new RPNodeText(text, offset, stack.entryIndex());
+								}
 								break;
 							}
 							
-							text   =  newMatchText(length);
+							hasMatched = true;
 							offset += length;
+							
 							
 							stack.repeat++;
 						}
@@ -197,15 +207,25 @@ public class NewRegParserResolver {
 				} else if (greediness.isExact()) {
 					
 					if (!justFallback) {
+						boolean hasMatched = false;
 						while (true) {
+							if (stack.checker instanceof RegParser) {
+								stack = new ParserStack(stack, (RegParser)stack.checker, offset);
+								continue stackLoop;
+							}
+							
 							int     length    = text.match(offset, stack.checker, stack.typeProvider);
 							boolean isMatched = (length != -1) && ((stack.entry.type() == null) || validateResult(length));
 							length = isMatched ? length : -1;
 							if (length == -1) {
+								if (hasMatched) {
+									text = new RPNodeText(text, offset, stack.entryIndex());
+								}
 								break;
 							}
 							
-							text   =  newMatchText(length);
+//							text   =  newMatchText(length);
+							hasMatched = true;
 							offset += length;
 							
 							stack.repeat++;
@@ -459,8 +479,8 @@ public class NewRegParserResolver {
 	}
 	
 	private RPMatchText newMatchText(int length) {
-		return (stack.repeat == 0)
-				 ? new RPNodeText(             text, offset, stack.entry(), stack.stackIndex)
+		return (!(text instanceof RPMatchText))
+				 ? new RPNodeText(             text, offset, stack.entryIndex())
 				 : new RPNextText((RPMatchText)text, length);
 	}
 	
@@ -469,7 +489,7 @@ public class NewRegParserResolver {
 			return Integer.MIN_VALUE;
 		
 		if (longestText instanceof RPMatchText)
-			return ((RPMatchText)longestText).offset();
+			return ((RPMatchText)longestText).endOffset();
 		
 		if (longestText instanceof RPUnmatchedText)
 			return ((RPUnmatchedText)longestText).endOffset;
@@ -483,7 +503,7 @@ public class NewRegParserResolver {
 	}
 	
 	private RPText longestText(int lowerBound, int upperBound) {
-		if ((text instanceof RPMatchText) && (offset > longestOffset())) {
+		if ((text instanceof RPMatchText) && (offset >= longestOffset())) {
 			return newUnmatchedText(lowerBound, upperBound);
 		} else {
 			return longestText;
@@ -511,7 +531,7 @@ public class NewRegParserResolver {
 	}
 	
 	private RPText newIncompletedText(RPEndText endText) {
-		return new RPIncompletedText(endText);
+		return new RPIncompletedMatchedText(endText);
 	}
 	
 	private Snapshot lastSnapshot() {
@@ -598,10 +618,6 @@ public class NewRegParserResolver {
 			update();
 		}
 		
-		RegParserEntry entry() {
-			return entry;
-		}
-		
 		Quantifier quantifier() {
 			return quantifier;
 		}
@@ -636,6 +652,14 @@ public class NewRegParserResolver {
 			if (entryIndex < entryCount) {
 				update();
 			}
+		}
+		RPEntryIndex entryIndex() {
+			if (parent == null) {
+				return new RPRootEntryIndex(parser, entryIndex);
+			}
+			
+			var parentEntryIndex = parent.entryIndex();
+			return new RPNextEntryIndex(parentEntryIndex, entryIndex);
 		}
 		
 		private void update() {
@@ -753,12 +777,13 @@ public class NewRegParserResolver {
 			if (stack.parent != null) {
 				toString(stack.parent, str);
 			}
-			str.append(format("#%d: Offset=[%d], repeat=[%d], bounds={%s,%s}: %s\n",
+			str.append(format("#%d: Offset=[%d], repeat=[%d], bounds={%s,%s}, entryIndex=%s: %s\n",
 								stack.stackIndex,
 								stack.startOffset,
 								stack.repeat,
 								stack.lowerBound(),
 								stack.upperBound(),
+								stack.entryIndex(),
 								stack.checker));
 		}
 		

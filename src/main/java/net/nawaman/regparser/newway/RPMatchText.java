@@ -1,19 +1,36 @@
 package net.nawaman.regparser.newway;
 
-import net.nawaman.regparser.AsChecker;
+import net.nawaman.regparser.RegParserEntry;
 
+/**
+ * Parse result for the match.
+ * 
+ * @author nawa
+ */
 public abstract class RPMatchText extends RPText {
 	
 	public abstract RPRootText root();
 	
-	public abstract RPText parent();
+	public abstract RPText previous();
 	
-	public abstract int offset();
+	public abstract int startOffset();
+	
+	public abstract int endOffset();
 	
 	public abstract CharSequence originalText();
 	
-	public abstract AsChecker asChecker();
+	public abstract RPEntryIndex parserEntryIndex();
 	
-	public abstract int level();
+	public final int level() {
+		return parserEntryIndex().level();
+	}
+	
+	public final int entryIndex() {
+		return parserEntryIndex().index();
+	}
+	
+	public final RegParserEntry entry() {
+		return parserEntryIndex().entry();
+	}
 	
 }

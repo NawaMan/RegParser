@@ -1,14 +1,19 @@
 package net.nawaman.regparser.newway;
 
+/**
+ * ParseResult for the end text.
+ * 
+ * @author nawa
+ */
 public class RPEndText extends RPText {
 	
 	final RPRootText root;
-	final RPText     parent;
+	final RPText     previous;
 	final int        endOffset;
 	
-	public RPEndText(RPText parent, int endOffset) {
-		this.parent    = parent;
-		this.root      = parent.root();
+	public RPEndText(RPText previous, int endOffset) {
+		this.previous  = previous;
+		this.root      = previous.root();
 		this.endOffset = endOffset;
 	}
 	
@@ -18,18 +23,18 @@ public class RPEndText extends RPText {
 	}
 	
 	@Override
-	public RPText parent() {
-		return parent;
+	public RPText previous() {
+		return previous;
 	}
 	
 	@Override
 	public CharSequence originalText() {
-		return parent.root().originalText();
+		return previous.root().originalText();
 	}
 	
 	@Override
 	public String toString() {
-		return parent.toString() + "\n"
+		return previous.toString() + "\n"
 				+ "offset: " + endOffset;
 	}
 	

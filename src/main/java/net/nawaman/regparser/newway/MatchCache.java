@@ -7,6 +7,11 @@ import java.util.TreeMap;
 import net.nawaman.regparser.AsChecker;
 import net.nawaman.regparser.ParserTypeProvider;
 
+/**
+ * Cache for matching to speed thing up. --- TODO - Check if the current implementation still use it.
+ * 
+ * @author nawa
+ */
 public class MatchCache {
 	
 	public static final int NOT_KNOWN = Integer.MIN_VALUE;

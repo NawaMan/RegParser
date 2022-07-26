@@ -1,21 +1,25 @@
 package net.nawaman.regparser.newway;
 
-import net.nawaman.regparser.AsChecker;
+import static java.util.Objects.requireNonNull;
+
+import java.util.Arrays;
 
 public class RPNodeText extends RPMatchText {
 	
-	final RPRootText root;
-	final RPText     parent;
-	final int        offset;
-	final AsChecker  asChecker;
-	final int        level;
+	final RPRootText   root;
+	final RPText       previous;
+	final int          endOffset;
+	final RPEntryIndex entryIndex;
 	
-	public RPNodeText(RPText parent, int offset, AsChecker asChecker, int level) {
-		this.parent    = parent;
-		this.root      = parent.root();
-		this.offset    = offset;
-		this.asChecker = asChecker;
-		this.level     = level;
+	public RPNodeText(RPText previous, int endOffset, RPEntryIndex entryIndex) {
+		this.previous   = previous;
+		this.root       = previous.root();
+		this.endOffset  = endOffset;
+		this.entryIndex = requireNonNull(entryIndex);
+		
+		if (!(previous instanceof RPMatchText) && !(previous instanceof RPRootText)) {
+			throw new IllegalStateException("Unexpected previous result: " + previous);
+		}
 	}
 	
 	@Override
@@ -23,20 +27,28 @@ public class RPNodeText extends RPMatchText {
 		return root;
 	}
 	
-	public RPText parent() {
-		return parent;
+	public RPText previous() {
+		return previous;
 	}
 	
-	public int offset() {
-		return offset;
+	@Override
+	public int startOffset() {
+		if (previous instanceof RPMatchText) {
+			return ((RPMatchText)previous).endOffset();
+		}
+		if (previous instanceof RPRootText) {
+			return 0;
+		}
+		throw new IllegalStateException("Unexpected previous result: " + previous);
 	}
 	
-	public AsChecker asChecker() {
-		return asChecker;
+	public int endOffset() {
+		return endOffset;
 	}
-	
-	public int level() {
-		return level;
+
+	@Override
+	public RPEntryIndex parserEntryIndex() {
+		return entryIndex;
 	}
 	
 	@Override
@@ -46,8 +58,12 @@ public class RPNodeText extends RPMatchText {
 	
 	@Override
 	public String toString() {
-		return parent.toString() + "\n"
-				+ "offset: " + offset + ", level: " + level + ", checker: " + asChecker;
+		int offset  = startOffset();
+		int length  = endOffset - offset;
+		var indexes = Arrays.toString(parserEntryIndex().indexStream().toArray());
+		var entry   = entry();
+		return previous.toString() + "\n"
+				+ "offset: " + offset + ", length: " + length + ", indexes: " + indexes + ", entry: " + entry;
 	}
 	
 }

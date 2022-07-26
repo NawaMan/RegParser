@@ -1,10 +1,15 @@
 package net.nawaman.regparser.newway;
 
-public class RPIncompletedText extends RPText {
+/**
+ * Parse result for the incomplete match.
+ * 
+ * @author nawa
+ */
+public class RPIncompletedMatchedText extends RPText {
 	
 	final RPEndText endText;
 	
-	public RPIncompletedText(RPEndText endText) {
+	public RPIncompletedMatchedText(RPEndText endText) {
 		this.endText = endText;
 	}
 	
@@ -14,8 +19,8 @@ public class RPIncompletedText extends RPText {
 	}
 	
 	@Override
-	public RPText parent() {
-		return endText.parent();
+	public RPText previous() {
+		return endText.previous();
 	}
 	
 	@Override
@@ -25,7 +30,7 @@ public class RPIncompletedText extends RPText {
 	
 	@Override
 	public String toString() {
-		return "RPIncompletedText: Match found but do not covering the whole text: \n"
+		return "RPIncompletedMatchedText: Match found but do not covering the whole text: \n"
 				+ endText;
 	}
 	

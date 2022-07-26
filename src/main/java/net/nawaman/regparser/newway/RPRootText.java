@@ -14,8 +14,12 @@ public class RPRootText extends RPText {
 		return this;
 	}
 	
-	public RPText parent() {
+	public RPText previous() {
 		return null;
+	}
+	
+	public int startOffset() {
+		return 0;
 	}
 	
 	@Override

@@ -204,6 +204,11 @@ public class RegParser implements Checker, Serializable {
 	
 	/** Returns the the match if the text is start with a match or -1 if not */
 	public ParseResult parse(CharSequence text) {
+		return parse(text, true);
+	}
+	
+	/** Returns the the match if the text is start with a match or -1 if not */
+	public ParseResult parse(CharSequence text, boolean collapseResult) {
 		if (text == null)
 			return null;
 		
@@ -211,7 +216,9 @@ public class RegParser implements Checker, Serializable {
 		if (parseResult == null)
 			return null;
 		
-		parseResult.collapse(null);
+		if (collapseResult) {
+			parseResult.collapse(null);
+		}
 		return parseResult;
 	}
 	
