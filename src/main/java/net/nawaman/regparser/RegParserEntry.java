@@ -409,7 +409,13 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
 		
 		@Override
 		public String toString() {
-			return checker().toString() + quantifier;
+			var checker = checker();
+			var checkerString = checker.toString();
+			checkerString
+					= (checker instanceof RegParser)
+					? ("(" + checkerString + ")")
+					: checkerString;
+			return checkerString + quantifier;
 		}
 		
 		@Override

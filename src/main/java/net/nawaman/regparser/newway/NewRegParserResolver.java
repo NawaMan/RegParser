@@ -321,10 +321,19 @@ public class NewRegParserResolver {
 						
 					} else {
 						while (true) {
+							if (stack.checker instanceof RegParser) {
+								stack = new ParserStack(stack, (RegParser)stack.checker, offset);
+								continue stackLoop;
+							}
+							
 							int     length    = text.match(offset, stack.checker, stack.typeProvider);
 							boolean isMatched = (length != -1) && ((stack.entry.type() == null) || validateResult(length));
 							length = isMatched ? length : -1;
 							if (length == -1) {
+								
+								if (stack.repeat() >= lowerBound) {
+									break;
+								}
 								
 								longestText = longestText(lowerBound, upperBound);
 								
@@ -480,7 +489,7 @@ public class NewRegParserResolver {
 	
 	private RPMatchText newMatchText(int length) {
 		return (!(text instanceof RPMatchText))
-				 ? new RPNodeText(             text, offset, stack.entryIndex())
+				 ? new RPNodeText(             text, offset + length, stack.entryIndex())
 				 : new RPNextText((RPMatchText)text, length);
 	}
 	
@@ -583,10 +592,11 @@ public class NewRegParserResolver {
 		final ParserTypeProvider typeProvider;
 		final RegParser          parser;
 		final int                entryCount;
+
+		private int repeat     = 0;
+		private int entryIndex = 0;
 		
-		private int repeat = 0;
 		
-		private int            entryIndex = 0;
 		private RegParserEntry entry      = null;
 		private Checker        checker    = null;
 		private Quantifier     quantifier = null;
@@ -618,15 +628,32 @@ public class NewRegParserResolver {
 			update();
 		}
 		
+		public RegParser parser() {
+			return parser;
+		}
+		public int stackIndex() {
+			return stackIndex;
+		}
+		public int startOffset() {
+			return startOffset;
+		}
+		public int repeat() {
+			return repeat;
+		}
+		
+		public Checker checker() {
+			return checker;
+		}
+		
 		Quantifier quantifier() {
 			return quantifier;
 		}
 		
-		int lowerBound() {
+		public int lowerBound() {
 			return quantifier.lowerBound();
 		}
 		
-		int upperBound() {
+		public int upperBound() {
 			var upperBound = quantifier.upperBound();
 			return (upperBound >= 0) ? upperBound : Integer.MAX_VALUE;
 		}
@@ -653,7 +680,7 @@ public class NewRegParserResolver {
 				update();
 			}
 		}
-		RPEntryIndex entryIndex() {
+		public RPEntryIndex entryIndex() {
 			if (parent == null) {
 				return new RPRootEntryIndex(parser, entryIndex);
 			}
@@ -777,14 +804,15 @@ public class NewRegParserResolver {
 			if (stack.parent != null) {
 				toString(stack.parent, str);
 			}
-			str.append(format("#%d: Offset=[%d], repeat=[%d], bounds={%s,%s}, entryIndex=%s: %s\n",
-								stack.stackIndex,
-								stack.startOffset,
-								stack.repeat,
+			str.append(format("#%d: Offset=[%d], repeat=[%d], bounds={%s,%s}, greediness=%s, entryIndex=%s: %s\n",
+								stack.stackIndex(),
+								stack.startOffset(),
+								stack.repeat(),
 								stack.lowerBound(),
 								stack.upperBound(),
+								stack.quantifier().greediness(),
 								stack.entryIndex(),
-								stack.checker));
+								stack.checker()));
 		}
 		
 		public String toString() {

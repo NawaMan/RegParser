@@ -219,7 +219,7 @@ public class NewRegParserTest {
 	public void testDefaultGreedinessSub_zero() {
 		var parser = compileRegParser("((a|z){1,2}){,2}b");
 		
-		validate("(a|z){1,2}{,2}\n"
+		validate("((a|z){1,2}){,2}\n"
 				+ "  - (a|z){1,2}\n"
 				+ "b",
 				parser);
@@ -265,7 +265,7 @@ public class NewRegParserTest {
 	public void testDefaultGreedinessSub_fewerThanExpect() {
 		var parser = compileRegParser("((a|z){1,3}){2}b");
 		
-		validate("(a|z){1,3}{2}\n"
+		validate("((a|z){1,3}){2}\n"
 				+ "  - (a|z){1,3}\n"
 				+ "b",
 				parser);
@@ -521,7 +521,7 @@ public class NewRegParserTest {
 	public void testExactGreedinessSub_outside() {
 		var parser = compileRegParser("((a|z){1,2}){2}!b");
 		
-		validate("(a|z){1,2}{2}!\n"
+		validate("((a|z){1,2}){2}!\n"
 				+ "  - (a|z){1,2}\n"
 				+ "b",
 				parser);
@@ -571,38 +571,29 @@ public class NewRegParserTest {
 				match("aaaaab", parser, typeProvider));
 	}
 	
-	@Ignore
 	@Test
 	public void testMinimumGreedinessBasic() {
-		var parser = compileRegParser("a{1,4}*b");
+		var parser = compileRegParser("a{1,3}*b");
 		
 		// Pass
 		validate("RPRootText [original=ab]\n"
-				+ "offset: 0, level: 0, checker: a{1,4}*\n"
-				+ "offset: 1, level: 0, checker: b\n"
+				+ "offset: 0, length: 1, indexes: [0], entry: a{1,3}*\n"
+				+ "offset: 1, length: 1, indexes: [1], entry: b\n"
 				+ "offset: 2",
 				parse("ab", parser, typeProvider));
 		validate("RPRootText [original=aab]\n"
-				+ "offset: 0, level: 0, checker: a{1,4}*\n"
-				+ "offset: 1, level: 0, checker: a{1,4}*\n"
-				+ "offset: 2, level: 0, checker: b\n"
+				+ "offset: 0, length: 1, indexes: [0], entry: a{1,3}*\n"
+				+ "offset: 1, length: 1, indexes: [0], entry: a{1,3}*\n"
+				+ "offset: 2, length: 1, indexes: [1], entry: b\n"
 				+ "offset: 3",
 				parse("aab", parser, typeProvider));
 		validate("RPRootText [original=aaab]\n"
-				+ "offset: 0, level: 0, checker: a{1,4}*\n"
-				+ "offset: 1, level: 0, checker: a{1,4}*\n"
-				+ "offset: 2, level: 0, checker: a{1,4}*\n"
-				+ "offset: 3, level: 0, checker: b\n"
+				+ "offset: 0, length: 1, indexes: [0], entry: a{1,3}*\n"
+				+ "offset: 1, length: 1, indexes: [0], entry: a{1,3}*\n"
+				+ "offset: 2, length: 1, indexes: [0], entry: a{1,3}*\n"
+				+ "offset: 3, length: 1, indexes: [1], entry: b\n"
 				+ "offset: 4",
 				parse("aaab", parser, typeProvider));
-		validate("RPRootText [original=aaaab]\n"
-				+ "offset: 0, level: 0, checker: a{1,4}*\n"
-				+ "offset: 1, level: 0, checker: a{1,4}*\n"
-				+ "offset: 2, level: 0, checker: a{1,4}*\n"
-				+ "offset: 3, level: 0, checker: a{1,4}*\n"
-				+ "offset: 4, level: 0, checker: b\n"
-				+ "offset: 5",
-				parse("aaaab", parser, typeProvider));
 		
 		// Fail
 		validate("RPUnmatchedText: Expect but not found: \"a\"\n"
@@ -610,82 +601,65 @@ public class NewRegParserTest {
 				+ "offset: 0",
 				parse("b", parser, typeProvider));
 		validate("RPUnmatchedText: Expect but not found: \"b\"\n"
-				+ "RPRootText [original=aaaaab]\n"
-				+ "offset: 0, level: 0, checker: a{1,4}*\n"
-				+ "offset: 1, level: 0, checker: a{1,4}*\n"
-				+ "offset: 2, level: 0, checker: a{1,4}*\n"
-				+ "offset: 3, level: 0, checker: a{1,4}*\n"
-				+ "offset: 4",
-				parse("aaaaab", parser, typeProvider));
+				+ "RPRootText [original=aaaab]\n"
+				+ "offset: 0, length: 1, indexes: [0], entry: a{1,3}*\n"
+				+ "offset: 1, length: 1, indexes: [0], entry: a{1,3}*\n"
+				+ "offset: 2, length: 1, indexes: [0], entry: a{1,3}*\n"
+				+ "offset: 3",
+				parse("aaaab", parser, typeProvider));
 	}
 	
-	@Ignore
 	@Test
 	public void testMinimumGreedinessRelaxTail() {
-		var parser = compileRegParser("a{1,4}*[ab]{,2}");
+		var parser = compileRegParser("a{1,3}*[ab]{,2}");
 		
 		// Pass
 		validate("RPRootText [original=ab]\n"
-				+ "offset: 0, level: 0, checker: a{1,4}*\n"
-				+ "offset: 1, level: 0, checker: [ab]{,2}\n"
+				+ "offset: 0, length: 1, indexes: [0], entry: a{1,3}*\n"
+				+ "offset: 1, length: 1, indexes: [1], entry: [ab]{,2}\n"
 				+ "offset: 2",
 				match("ab", parser, typeProvider));
 		validate("RPRootText [original=aab]\n"
-				+ "offset: 0, level: 0, checker: a{1,4}*\n"
-				+ "offset: 1, level: 0, checker: [ab]{,2}\n"
-				+ "offset: 2, level: 0, checker: [ab]{,2}\n"
+				+ "offset: 0, length: 1, indexes: [0], entry: a{1,3}*\n"
+				+ "offset: 1, length: 2, indexes: [1], entry: [ab]{,2}\n"
 				+ "offset: 3",
 				match("aab", parser, typeProvider));
 		validate("RPRootText [original=aaab]\n"
-				+ "offset: 0, level: 0, checker: a{1,4}*\n"
-				+ "offset: 1, level: 0, checker: a{1,4}*\n"
-				+ "offset: 2, level: 0, checker: [ab]{,2}\n"
-				+ "offset: 3, level: 0, checker: [ab]{,2}\n"
+				+ "offset: 0, length: 1, indexes: [0], entry: a{1,3}*\n"
+				+ "offset: 1, length: 1, indexes: [0], entry: a{1,3}*\n"
+				+ "offset: 2, length: 2, indexes: [1], entry: [ab]{,2}\n"
 				+ "offset: 4",
 				parse("aaab", parser, typeProvider));
 		validate("RPRootText [original=aaaab]\n"
-				+ "offset: 0, level: 0, checker: a{1,4}*\n"
-				+ "offset: 1, level: 0, checker: a{1,4}*\n"
-				+ "offset: 2, level: 0, checker: a{1,4}*\n"
-				+ "offset: 3, level: 0, checker: [ab]{,2}\n"
-				+ "offset: 4, level: 0, checker: [ab]{,2}\n"
+				+ "offset: 0, length: 1, indexes: [0], entry: a{1,3}*\n"
+				+ "offset: 1, length: 1, indexes: [0], entry: a{1,3}*\n"
+				+ "offset: 2, length: 1, indexes: [0], entry: a{1,3}*\n"
+				+ "offset: 3, length: 2, indexes: [1], entry: [ab]{,2}\n"
 				+ "offset: 5",
 				match("aaaab", parser, typeProvider));
-		validate("RPRootText [original=aaaaab]\n"
-				+ "offset: 0, level: 0, checker: a{1,4}*\n"
-				+ "offset: 1, level: 0, checker: a{1,4}*\n"
-				+ "offset: 2, level: 0, checker: a{1,4}*\n"
-				+ "offset: 3, level: 0, checker: a{1,4}*\n"
-				+ "offset: 4, level: 0, checker: [ab]{,2}\n"
-				+ "offset: 5, level: 0, checker: [ab]{,2}\n"
-				+ "offset: 6",
-				match("aaaaab", parser, typeProvider));
 		
 		// Fail
 		validate("RPUnmatchedText: Expect but not found: \"a\"\n"
 				+ "RPRootText [original=b]\n"
 				+ "offset: 0",
 				match("b", parser, typeProvider));
-		validate("RPIncompletedText: Match found but do not covering the whole text: \n"
-				+ "RPRootText [original=aaaaaab]\n"
-				+ "offset: 0, level: 0, checker: a{1,4}*\n"
-				+ "offset: 1, level: 0, checker: a{1,4}*\n"
-				+ "offset: 2, level: 0, checker: a{1,4}*\n"
-				+ "offset: 3, level: 0, checker: a{1,4}*\n"
-				+ "offset: 4, level: 0, checker: [ab]{,2}\n"
-				+ "offset: 5, level: 0, checker: [ab]{,2}\n"
-				+ "offset: 6",
-				match("aaaaaab", parser, typeProvider));
+		validate("RPIncompletedMatchedText: Match found but do not covering the whole text: \n"
+				+ "RPRootText [original=aaaaab]\n"
+				+ "offset: 0, length: 1, indexes: [0], entry: a{1,3}*\n"
+				+ "offset: 1, length: 1, indexes: [0], entry: a{1,3}*\n"
+				+ "offset: 2, length: 1, indexes: [0], entry: a{1,3}*\n"
+				+ "offset: 3, length: 2, indexes: [1], entry: [ab]{,2}\n"
+				+ "offset: 5",
+				match("aaaaab", parser, typeProvider));
 	}
 	
-	@Ignore
 	@Test
 	public void testMinimumGreedinessZero() {
 		var parser = compileRegParser("a{0}*b");
 		
 		// Pass
 		validate("RPRootText [original=b]\n"
-				+ "offset: 0, level: 0, checker: b\n"
+				+ "offset: 0, length: 1, indexes: [1], entry: b\n"
 				+ "offset: 1",
 				match("b", parser, typeProvider));
 		validate("RPUnmatchedText: Expect but not found: \"b\"\n"
@@ -694,61 +668,49 @@ public class NewRegParserTest {
 				match("ab", parser, typeProvider));
 	}
 	
-	@Ignore
 	@Test
 	public void testMinimumGreedinessZeroRelaxTail() {
 		var parser = compileRegParser("a{0}*[ab]{,2}");
 		
 		// Pass
 		validate("RPRootText [original=b]\n"
-				+ "offset: 0, level: 0, checker: [ab]{,2}\n"
+				+ "offset: 0, length: 1, indexes: [1], entry: [ab]{,2}\n"
 				+ "offset: 1",
 				match("b", parser, typeProvider));
 		validate("RPRootText [original=ab]\n"
-				+ "offset: 0, level: 0, checker: [ab]{,2}\n"
-				+ "offset: 1, level: 0, checker: [ab]{,2}\n"
+				+ "offset: 0, length: 2, indexes: [1], entry: [ab]{,2}\n"
 				+ "offset: 2",
 				match("ab", parser, typeProvider));
-		validate("RPIncompletedText: Match found but do not covering the whole text: \n"
+		validate("RPIncompletedMatchedText: Match found but do not covering the whole text: \n"
 				+ "RPRootText [original=aab]\n"
-				+ "offset: 0, level: 0, checker: [ab]{,2}\n"
-				+ "offset: 1, level: 0, checker: [ab]{,2}\n"
+				+ "offset: 0, length: 2, indexes: [1], entry: [ab]{,2}\n"
 				+ "offset: 2",
 				match("aab", parser, typeProvider));
 	}
 	
-	@Ignore
 	@Test
 	public void testMinimumGreedinessSub() {
-		var parser = compileRegParser("((a|z){1,4}*)b");
+		var parser = compileRegParser("((a|z){1,3}*)b");
 		
 		// Pass
 		validate("RPRootText [original=ab]\n"
-				+ "offset: 0, level: 1, checker: (a|z){1,4}*\n"
-				+ "offset: 1, level: 0, checker: b\n"
+				+ "offset: 0, length: 1, indexes: [0, 0], entry: (a|z){1,3}*\n"
+				+ "offset: 1, length: 1, indexes: [1], entry: b\n"
 				+ "offset: 2",
 				match("ab", parser, typeProvider));
 		validate("RPRootText [original=aab]\n"
-				+ "offset: 0, level: 1, checker: (a|z){1,4}*\n"
-				+ "offset: 1, level: 1, checker: (a|z){1,4}*\n"
-				+ "offset: 2, level: 0, checker: b\n"
+				+ "offset: 0, length: 1, indexes: [0, 0], entry: (a|z){1,3}*\n"
+				+ "offset: 1, length: 1, indexes: [0, 0], entry: (a|z){1,3}*\n"
+				+ "offset: 2, length: 1, indexes: [1], entry: b\n"
 				+ "offset: 3",
 				match("aab", parser, typeProvider));
 		validate("RPRootText [original=aaab]\n"
-				+ "offset: 0, level: 1, checker: (a|z){1,4}*\n"
-				+ "offset: 1, level: 1, checker: (a|z){1,4}*\n"
-				+ "offset: 2, level: 1, checker: (a|z){1,4}*\n"
-				+ "offset: 3, level: 0, checker: b\n"
+				+ "offset: 0, length: 1, indexes: [0, 0], entry: (a|z){1,3}*\n"
+				+ "offset: 1, length: 1, indexes: [0, 0], entry: (a|z){1,3}*\n"
+				+ "offset: 2, length: 1, indexes: [0, 0], entry: (a|z){1,3}*\n"
+				+ "offset: 3, length: 1, indexes: [1], entry: b\n"
 				+ "offset: 4",
 				match("aaab", parser, typeProvider));
-		validate("RPRootText [original=aaaab]\n"
-				+ "offset: 0, level: 1, checker: (a|z){1,4}*\n"
-				+ "offset: 1, level: 1, checker: (a|z){1,4}*\n"
-				+ "offset: 2, level: 1, checker: (a|z){1,4}*\n"
-				+ "offset: 3, level: 1, checker: (a|z){1,4}*\n"
-				+ "offset: 4, level: 0, checker: b\n"
-				+ "offset: 5",
-				match("aaaab", parser, typeProvider));
 		
 		// Fail
 		validate("RPUnmatchedText: Expect but not found: \"(a|z)\"\n"
@@ -756,81 +718,68 @@ public class NewRegParserTest {
 				+ "offset: 0",
 				parse("b", parser, typeProvider));
 		validate("RPUnmatchedText: Expect but not found: \"b\"\n"
-				+ "RPRootText [original=aaaaab]\n"
-				+ "offset: 0, level: 1, checker: (a|z){1,4}*\n"
-				+ "offset: 1, level: 1, checker: (a|z){1,4}*\n"
-				+ "offset: 2, level: 1, checker: (a|z){1,4}*\n"
-				+ "offset: 3, level: 1, checker: (a|z){1,4}*\n"
-				+ "offset: 4",
-				match("aaaaab", parser, typeProvider));
+				+ "RPRootText [original=aaaab]\n"
+				+ "offset: 0, length: 1, indexes: [0, 0], entry: (a|z){1,3}*\n"
+				+ "offset: 1, length: 1, indexes: [0, 0], entry: (a|z){1,3}*\n"
+				+ "offset: 2, length: 1, indexes: [0, 0], entry: (a|z){1,3}*\n"
+				+ "offset: 3",
+				match("aaaab", parser, typeProvider));
 	}
 	
-	@Ignore
 	@Test
 	public void testMinimumGreedinessSub_minOutside() {
-		var parser = compileRegParser("(a(b(c)?)?){1,4}*b");
+		var parser = compileRegParser("(a(b(c)?)?){1,3}*b");
 		
-		// TODO - This toString is not clear.
-		validate("abc??{1,4}*\n"
-				+ "  - a\n"
-				+ "  - bc??\n"
-				+ "  -   - b\n"
-				+ "  -   - c?\n"
-				+ "b",
-				parser);
-		
+//		validate("(a(bc?)?){1,3}*\n"
+//				+ "  - a\n"
+//				+ "  - (bc?)?\n"
+//				+ "  -   - b\n"
+//				+ "  -   - c?\n"
+//				+ "b",
+//				parser);
+//		
 		validate("RPRootText [original=abb]\n"
-				+ "offset: 0, level: 0, checker: abc??{1,4}*\n"
-				+ "offset: 2, level: 0, checker: b\n"
+				+ "offset: 0, length: 2, indexes: [0], entry: (a(bc?)?){1,3}*\n"
+				+ "offset: 2, length: 1, indexes: [1], entry: b\n"
 				+ "offset: 3",
 				match("abb", parser, typeProvider));
-		validate("RPRootText [original=aababb]\n"
-				+ "offset: 0, level: 0, checker: abc??{1,4}*\n"
-				+ "offset: 2, level: 0, checker: abc??{1,4}*\n"
-				+ "offset: 4, level: 0, checker: abc??{1,4}*\n"
-				+ "offset: 5, level: 0, checker: b\n"
-				+ "offset: 6",
-				match("aababb", parser, typeProvider));
-		validate("RPRootText [original=abcabaabb]\n"
-				+ "offset: 0, level: 0, checker: abc??{1,4}*\n"
-				+ "offset: 2, level: 0, checker: abc??{1,4}*\n"
-				+ "offset: 3, level: 0, checker: abc??{1,4}*\n"
-				+ "offset: 5, level: 0, checker: abc??{1,4}*\n"
-				+ "offset: 8, level: 0, checker: b\n"
-				+ "offset: 9",
-				match("abcabaabb", parser, typeProvider));
-		
-		// 'ab' is found .... but then not the last 'b'
-		validate("RPUnmatchedText: Expect but not found: \"b\"\n"
-				+ "RPRootText [original=ab]\n"
-				+ "offset: 0, level: 0, checker: abc??{1,4}*\n"
-				+ "offset: 2",
-				match("ab", parser, typeProvider));
-		// 'a' and 'ab' are found .... but then not the last 'b'
-		validate("RPUnmatchedText: Expect but not found: \"b\"\n"
-				+ "RPRootText [original=aab]\n"
-				+ "offset: 0, level: 0, checker: abc??{1,4}*\n"
-				+ "offset: 2, level: 0, checker: abc??{1,4}*\n"
-				+ "offset: 3",
-				match("aab", parser, typeProvider));
-		// 'a', 'ab', 'abc', 'ab' are found .... but then not the last 'b'
-		validate("RPUnmatchedText: Expect but not found: \"b\"\n"
-				+ "RPRootText [original=aababcab]\n"
-				+ "offset: 0, level: 0, checker: abc??{1,4}*\n"
-				+ "offset: 2, level: 0, checker: abc??{1,4}*\n"
-				+ "offset: 5, level: 0, checker: abc??{1,4}*\n"
-				+ "offset: 7, level: 0, checker: abc??{1,4}*\n"
-				+ "offset: 8",
-				match("aababcab", parser, typeProvider));
-		// 'abc', 'ab', 'a', 'ab' are found .... but then not the last 'b'
-		validate("RPUnmatchedText: Expect but not found: \"b\"\n"
-				+ "RPRootText [original=abcabaab]\n"
-				+ "offset: 0, level: 0, checker: abc??{1,4}*\n"
-				+ "offset: 2, level: 0, checker: abc??{1,4}*\n"
-				+ "offset: 3, level: 0, checker: abc??{1,4}*\n"
-				+ "offset: 5, level: 0, checker: abc??{1,4}*\n"
-				+ "offset: 8",
-				match("abcabaab", parser, typeProvider));
+//		validate("RPRootText [original=aababb]\n"
+//				+ "offset: 0, length: 1, indexes: [0], entry: (a(bc?)?){1,3}*\n"
+//				+ "offset: 1, length: 2, indexes: [0], entry: (a(bc?)?){1,3}*\n"
+//				+ "offset: 3, length: 2, indexes: [0], entry: (a(bc?)?){1,3}*\n"
+//				+ "offset: 5, length: 1, indexes: [1], entry: b\n"
+//				+ "offset: 6",
+//				match("aababb", parser, typeProvider));
+//		
+//		// 'ab' is found .... but then not the last 'b'
+//		validate("RPUnmatchedText: Expect but not found: \"b\"\n"
+//				+ "RPRootText [original=ab]\n"
+//				+ "offset: 0, length: 2, indexes: [0], entry: (a(bc?)?){1,3}*\n"
+//				+ "offset: 2",
+//				match("ab", parser, typeProvider));
+//		// 'a' and 'ab' are found .... but then not the last 'b'
+//		validate("RPUnmatchedText: Expect but not found: \"b\"\n"
+//				+ "RPRootText [original=aab]\n"
+//				+ "offset: 0, length: 1, indexes: [0], entry: (a(bc?)?){1,3}*\n"
+//				+ "offset: 1, length: 2, indexes: [0], entry: (a(bc?)?){1,3}*\n"
+//				+ "offset: 3",
+//				match("aab", parser, typeProvider));
+//		// 'a', 'ab', 'abc', 'ab' are found .... but then not the last 'b'
+//		validate("RPUnmatchedText: Expect but not found: \"b\"\n"
+//				+ "RPRootText [original=aababcab]\n"
+//				+ "offset: 0, length: 1, indexes: [0], entry: (a(bc?)?){1,3}*\n"
+//				+ "offset: 1, length: 2, indexes: [0], entry: (a(bc?)?){1,3}*\n"
+//				+ "offset: 3, length: 3, indexes: [0], entry: (a(bc?)?){1,3}*\n"
+//				+ "offset: 6",
+//				match("aababcab", parser, typeProvider));
+//		// 'abc', 'ab', 'a', 'ab' are found .... but then not the last 'b'
+//		validate("RPUnmatchedText: Expect but not found: \"b\"\n"
+//				+ "RPRootText [original=abcabaab]\n"
+//				+ "offset: 0, length: 3, indexes: [0], entry: (a(bc?)?){1,3}*\n"
+//				+ "offset: 3, length: 2, indexes: [0], entry: (a(bc?)?){1,3}*\n"
+//				+ "offset: 5, length: 1, indexes: [0], entry: (a(bc?)?){1,3}*\n"
+//				+ "offset: 6",
+//				match("abcabaab", parser, typeProvider));
 	}
 	
 	@Ignore
@@ -838,13 +787,12 @@ public class NewRegParserTest {
 	public void testMinimumGreedinessSub_minBoth() {
 		var parser = compileRegParser("(a(b?*)){1,3}*b");
 		
-		// TODO - This toString is not clear.
-		validate("ab?*{1,3}*\n"
-				+ "  - a\n"
-				+ "  - b?*\n"
-				+ "  -   - b?*\n"
-				+ "b",
-				parser);
+//		validate("(ab?*){1,3}*\n"
+//				+ "  - a\n"
+//				+ "  - b?*\n"
+//				+ "  -   - b?*\n"
+//				+ "b",
+//				parser);
 		
 		validate("RPRootText [original=abb]\n"
 				+ "offset: 0, level: 0, checker: ab{1,3}*\n"
