@@ -39,10 +39,10 @@ import net.nawaman.regparser.result.ParseResult;
  *   
  * There are four ways of using PTJavaChecker
  * 
- *  "!javaChecker(`<<string reference to a static method of (CharSequence, int, PTypeProvider, ParseResult):int>>`)!"
- *  "!javaChecker(`<<string reference to a class that implements Checker>>`)!"
- *  "!javaChecker(`<<string reference to a field of an instance of a Checker>>`)!"
- *  "!javaChecker(`<<string reference to a method ():Checker to be executed to get an instance of a Checker>>`)!"
+ *  "!javaChecker(`&lt;&lt;string reference to a static method of (CharSequence, int, PTypeProvider, ParseResult):int&gt;&gt;`)!"
+ *  "!javaChecker(`&lt;&lt;string reference to a class that implements Checker&gt;&gt;`)!"
+ *  "!javaChecker(`&lt;&lt;string reference to a field of an instance of a Checker&gt;&gt;`)!"
+ *  "!javaChecker(`&lt;&lt;string reference to a method ():Checker to be executed to get an instance of a Checker&gt;&gt;`)!"
  *  
  * Again, See Test_14_JavaChecker _CheckerFized for example.
  * 

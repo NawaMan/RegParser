@@ -65,15 +65,15 @@ public class Util {
 	 * @param  suffix  the suffix character.
 	 * @return         {@code true} if the last character of the text is the suffixCharacter.
 	 */
-	public static boolean startsWith(CharSequence text, CharSequence needle) {
-		return startsWith(text, needle, 0);
+	public static boolean startsWith(CharSequence text, CharSequence suffix) {
+		return startsWith(text, suffix, 0);
 	}
 	
 	/**
 	 * Check text of it ends with the suffix.
 	 * 
 	 * @param  text    the text.
-	 * @param  suffix  the suffix character.
+	 * @param  prefix  the prefix character.
 	 * @return         {@code true} if the last character of the text is the suffixCharacter.
 	 */
 	public static boolean startsWith(CharSequence text, CharSequence prefix, int offset) {
@@ -111,7 +111,7 @@ public class Util {
 	 * @param  suffix  the suffix character.
 	 * @return         {@code true} if the last character of the text is the suffixCharacter.
 	 */
-	public static boolean endsWith(CharSequence text, char suffixCharacter) {
+	public static boolean endsWith(CharSequence text, char suffix) {
 		if (text == null)
 			return false;
 		
@@ -120,7 +120,7 @@ public class Util {
 		
 		int  lastIndex = text.length() - 1;
 		char lastChar  = text.charAt(lastIndex);
-		return suffixCharacter == lastChar;
+		return suffix == lastChar;
 	}
 	
 	public static int indexOf(CharSequence text, CharSequence needle, int startOffset) {
@@ -644,10 +644,6 @@ public class Util {
 	
 	/**
 	 * Returns the class by its name and throws exception if not found.
-	 * 
-	 * @exception LinkageError                 if the linkage fails
-	 * @exception ExceptionInInitializerError  if the initialization provoked by this method fails
-	 * @exception ClassNotFoundException       if the class cannot be located
 	 **/
 	public static Class<?> getClassByName(String className, ClassLoader classLoader) {
 		try {
