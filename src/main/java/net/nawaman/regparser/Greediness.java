@@ -34,24 +34,26 @@ public enum Greediness {
     
     /** Symbol for Maximum in RegParser language */
     public static final String MaximumSign = "+";
+    
+    /** Symbol for Minimum in RegParser language */
     public static final String MinimumSign = "*";
     
-    /** Checks if this is a maximum greediness */
+    /** @return  <code>true</code> if this is a maximum greediness */
     public boolean isMaximum() {
         return this == Maximum;
     }
     
-    /** Checks if this is a minimum greediness */
+    /** @return  <code>true</code> if this is a minimum greediness */
     public boolean isMinimum() {
         return this == Minimum;
     }
     
-    /** Checks if this is a possessive greediness */
+    /** @return  <code>true</code> this is a possessive greediness */
     public boolean isPossessive() {
         return this == Possessive;
     }
     
-    /** Returns the sign of this greediness */
+    /** @return the sign of this greediness */
     public String sign() {
         switch (this) {
             case Maximum:

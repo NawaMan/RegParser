@@ -13,7 +13,7 @@ import net.nawaman.regparser.result.ParseResult;
  */
 public class ParseResultEntry implements Serializable {
     
-    static private final long serialVersionUID = 3256524452125552551L;
+    private static final long serialVersionUID = 3256524452125552551L;
     
     //== Factory method ================================================================================================
     

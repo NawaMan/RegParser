@@ -339,9 +339,9 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
     
     // Non-Typed & Non-Named -------------------------------------------------------------
     
-    static private class Direct extends RegParserEntry {
+    private static class Direct extends RegParserEntry {
         
-        static private final long serialVersionUID = 6546356543546354612L;
+        private static final long serialVersionUID = 6546356543546354612L;
         
         private final Checker checker;
         
@@ -379,9 +379,9 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
         }
     }
     
-    static private class DirectWithQuantifier extends Direct {
+    private static class DirectWithQuantifier extends Direct {
         
-        static private final long serialVersionUID = 8351352113651352625L;
+        private static final long serialVersionUID = 8351352113651352625L;
         
         private final Quantifier quantifier;
         
@@ -420,9 +420,9 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
     
     // Named -----------------------------------------------------------------------------
     
-    static private class NamedDirect extends Direct {
+    private static class NamedDirect extends Direct {
         
-        static private final long serialVersionUID = 2245241556456325624L;
+        private static final long serialVersionUID = 2245241556456325624L;
         
         private final String name;
         
@@ -454,9 +454,9 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
         }
     }
     
-    static private class NamedDirectWithQuantifier extends NamedDirect {
+    private static class NamedDirectWithQuantifier extends NamedDirect {
         
-        static private final long serialVersionUID = 1354655635656936565L;
+        private static final long serialVersionUID = 1354655635656936565L;
         
         private final Quantifier quantifier;
         
@@ -496,9 +496,9 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
     
     // Typed -----------------------------------------------------------------------------
     
-    static private class TypeRef extends RegParserEntry {
+    private static class TypeRef extends RegParserEntry {
         
-        static private final long serialVersionUID = 3565652656351262366L;
+        private static final long serialVersionUID = 3565652656351262366L;
         
         private final ParserTypeRef typeRef;
         
@@ -533,9 +533,9 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
         }
     }
     
-    static private class TypeRefWithQuantifier extends TypeRef {
+    private static class TypeRefWithQuantifier extends TypeRef {
         
-        static private final long serialVersionUID = 4123563534562456523L;
+        private static final long serialVersionUID = 4123563534562456523L;
         
         private final Quantifier quantifier;
         
@@ -572,9 +572,9 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
         }
     }
     
-    static private class NamedTypeRef extends TypeRef {
+    private static class NamedTypeRef extends TypeRef {
         
-        static private final long serialVersionUID = 3456412356352456523L;
+        private static final long serialVersionUID = 3456412356352456523L;
         
         private String name;
         
@@ -606,9 +606,9 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
         }
     }
     
-    static private class NamedTypeRefWithQuantifier extends NamedTypeRef {
+    private static class NamedTypeRefWithQuantifier extends NamedTypeRef {
         
-        static private final long serialVersionUID = 6312456522334564535L;
+        private static final long serialVersionUID = 6312456522334564535L;
         
         private final Quantifier quantifier;
         
@@ -648,9 +648,9 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
     
     // Typed -----------------------------------------------------------------------------
     
-    static private class Typed extends RegParserEntry {
+    private static class Typed extends RegParserEntry {
         
-        static private final long serialVersionUID = 4566522331246354535L;
+        private static final long serialVersionUID = 4566522331246354535L;
         
         private final ParserType type;
         
@@ -686,9 +686,9 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
         }
     }
     
-    static private class TypedWithQuantifier extends Typed {
+    private static class TypedWithQuantifier extends Typed {
         
-        static private final long serialVersionUID = 3125454566463522335L;
+        private static final long serialVersionUID = 3125454566463522335L;
         
         private final Quantifier quantifier;
         
@@ -725,9 +725,9 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
         }
     }
     
-    static private class NamedTyped extends Typed {
+    private static class NamedTyped extends Typed {
         
-        static private final long serialVersionUID = 6312352354545266435L;
+        private static final long serialVersionUID = 6312352354545266435L;
         
         private final String name;
         
@@ -759,9 +759,9 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
         }
     }
     
-    static private class NamedTypedWithQuantifier extends NamedTyped {
+    private static class NamedTypedWithQuantifier extends NamedTyped {
         
-        static private final long serialVersionUID = 2613235452356436455L;
+        private static final long serialVersionUID = 2613235452356436455L;
         
         private final Quantifier quantifier;
         
@@ -801,9 +801,9 @@ abstract public class RegParserEntry implements AsRegParserEntry, Quantifiable<R
     
     // TwoStage --------------------------------------------------------------------------------------------------------
     
-    static private class TwoStage extends RegParserEntry {
+    private static class TwoStage extends RegParserEntry {
         
-        static private final long serialVersionUID = 2636435413256452355L;
+        private static final long serialVersionUID = 2636435413256452355L;
         
         private final RegParserEntry delegate;
         private final RegParser      parser;

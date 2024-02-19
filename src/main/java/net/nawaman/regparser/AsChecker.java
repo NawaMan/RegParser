@@ -24,6 +24,7 @@ package net.nawaman.regparser;
  */
 public interface AsChecker {
     
+    /** @return  a {@link Checker} that this object represents. */
     public Checker asChecker();
     
     /** @return  if this checker will always returns the same result against a text at an offset. */

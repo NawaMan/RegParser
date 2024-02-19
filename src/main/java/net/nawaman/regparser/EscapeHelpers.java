@@ -18,7 +18,7 @@
 
 package net.nawaman.regparser;
 
-import net.nawaman.regparser.utils.Util;
+import static net.nawaman.regparser.utils.Util.escapeText;
 
 /**
  * Compiler of RegParser language.
@@ -27,21 +27,27 @@ import net.nawaman.regparser.utils.Util;
  */
 public class EscapeHelpers {
     
-    EscapeHelpers() {}
+    private EscapeHelpers() {}
     
     static final public String escapable = ".?*-+^&'{}()[]|\\~ \t\n\r\f\u000B\u000C";
     
-    public static String escapeOfRegParser(String pWord) {
-        if(pWord == null) return null;
-        pWord = Util.escapeText(pWord).toString();
+    /**
+     * Produce an escape string of the given word for RefParser.
+     * 
+     * @param  word  the word.
+     * @return       the RegParser escape string.
+     **/
+    public static String escapeOfRegParser(String word) {
+        if(word == null) return null;
+        word = escapeText(word).toString();
         
-        StringBuffer SB = new StringBuffer();
-        for(int i = 0; i < pWord.length(); i++)  {
-            char C = pWord.charAt(i);
-            if((C != '\\') && (escapable.indexOf(C) != -1)) SB.append('\\'); 
-            SB.append(C);
+        var sb = new StringBuffer();
+        for(int i = 0; i < word.length(); i++)  {
+            char C = word.charAt(i);
+            if((C != '\\') && (escapable.indexOf(C) != -1)) sb.append('\\'); 
+            sb.append(C);
         }
-        return SB.toString();
+        return sb.toString();
     }
     
 }

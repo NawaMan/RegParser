@@ -24,8 +24,10 @@ package net.nawaman.regparser;
  */
 public interface AsRegParserEntry extends AsRegParser {
     
+    /** @return  a {@link RegParserEntry} that this object represents. */
     public RegParserEntry asRegParserEntry();
     
+    /** @return  a {@link RegParser} that this object represents. */
     public default RegParser asRegParser() {
         return RegParser.newRegParser(asRegParserEntry());
     }

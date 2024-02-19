@@ -9,7 +9,7 @@ import net.nawaman.regparser.result.ParseResult;
  */
 public class ParseResultEntryWithParserEntryAndSubResult extends ParseResultEntryWithParserEntry {
     
-    static private final long serialVersionUID = 2548545452415545545L;
+    private static final long serialVersionUID = 2548545452415545545L;
     
     private final ParseResult subResult;
     

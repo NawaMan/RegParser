@@ -29,7 +29,7 @@ import net.nawaman.regparser.result.ParseResult;
  */
 abstract public class ParserType implements AsRegParser, Serializable {
     
-    static private final long serialVersionUID = 7148744076563340787L;
+    private static final long serialVersionUID = 7148744076563340787L;
     
     /** An empty array of RPType */
     public static final ParserType[] EmptyTypeArray = new ParserType[0];
@@ -45,27 +45,28 @@ abstract public class ParserType implements AsRegParser, Serializable {
     /** Returns the checker for parsing the type */
     abstract public Checker checker(ParseResult hostResult, String param, ParserTypeProvider typeProvider);
     
+    @Override
     public RegParser asRegParser() {
         return new RegParserBuilder()
                 .entry(this)
                 .build();
     }
     
-    /** Return the default TypeRef of this type */
+    /** @return the default TypeRef of this type .*/
     public final ParserTypeRef typeRef() {
         return (defaultRef != null)
                 ? defaultRef
                 : (defaultRef = new ParserTypeRef.Simple(name(), null));
     }
     
-    /** Return the default TypeRef of this type with the parameter */
+    /** @return the default TypeRef of this type with the parameter. */
     public final ParserTypeRef typeRef(String parameter) {
         return (parameter == null)
                 ? typeRef()
                 : new ParserTypeRef.Simple(name(), parameter);
     }
     
-    /** Checks if this type will not record the sub-result but record as a text */
+    /** @return <code>true</code> if this type will not record the sub-result but record as a text. */
     public final boolean isText() {
         if ((flags & 0x80) != 0)
             return ((flags & 0x08) != 0);
@@ -76,7 +77,7 @@ abstract public class ParserType implements AsRegParser, Serializable {
         return isText;
     }
     
-    /** Checks if the continuous text results of this type will collapse into one */
+    /** @return <code>true</code> if the continuous text results of this type will collapse into one. */
     public final boolean isCollective() {
         if ((flags & 0x40) != 0)
             return ((flags & 0x04) != 0);
@@ -88,8 +89,8 @@ abstract public class ParserType implements AsRegParser, Serializable {
     }
     
     /**
-     * Checks if the boundary of the result of this type can be determine by the its checker alone and validation is not
-     *    mandatory to determine its length
+     * @return <code>true</code> if the boundary of the result of this type can be determine by the its checker alone 
+     *           and validation is not mandatory to determine its length.
      **/
     public final boolean hasValidation() {
         if ((flags & 0x20) != 0)
@@ -103,8 +104,8 @@ abstract public class ParserType implements AsRegParser, Serializable {
     }
     
     /**
-     * Checks if the boundary of the result of this type can be determine by the its checker alone and validation is not
-     *    mandatory to determine its length
+     * @return <code>true</code>  if the boundary of the result of this type can be determine by the its checker alone 
+     *           and validation is not mandatory to determine its length.
      **/
     public final boolean isSelfContain() {
         if ((flags & 0x10) != 0)
@@ -118,8 +119,8 @@ abstract public class ParserType implements AsRegParser, Serializable {
     }
     
     /**
-     * Checks if the boundary of the result of this type can be determine by the its checker alone and validation is not
-     *    mandatory to determine its length
+     * @return <code>true</code> if the boundary of the result of this type can be determine by the its checker alone 
+     *           and validation is not mandatory to determine its length.
      **/
     public final boolean hasFlatAlways() {
         if ((flags & 0x2000) != 0)
@@ -133,8 +134,8 @@ abstract public class ParserType implements AsRegParser, Serializable {
     }
     
     /**
-     * Checks if the boundary of the result of this type can be determine by the its checker alone and validation is not
-     *    mandatory to determine its length
+     * @return <code>true</code> if the boundary of the result of this type can be determine by the its checker alone 
+     *           and validation is not mandatory to determine its length.
      **/
     public final boolean isFlatSingle() {
         if ((flags & 0x1000) != 0)
@@ -147,19 +148,22 @@ abstract public class ParserType implements AsRegParser, Serializable {
         return isSelfContain;
     }
     
+    /** @return  the type provider used by this type. */
     public final ParserTypeProvider typeProvider() {
         return typeProvider;
     }
     
+    /** Change the type provider used by this type. */
     final void setTypeProvider(ParserTypeProvider typeProvider) {
         this.typeProvider = typeProvider;
     }
     
+    /** @return  the default type provider used by this type. */
     final ParserTypeProvider defaultTypeProvider() {
         return typeProvider;
     }
     
-    /** Returns the RegParser wrapping this type */
+    /** @return the RegParser wrapping this type. */
     public final RegParser parser() {
         if (parser == null) {
             parser = this.asRegParser();
@@ -169,27 +173,27 @@ abstract public class ParserType implements AsRegParser, Serializable {
     
     // == Parse ==
     
-    /** Returns the the match if the text is start with a match or -1 if not */
+    /** @return the the match if the text is start with a match or -1 if not. */
     public final ParseResult parse(CharSequence text) {
         return parse(text, 0, null);
     }
     
-    /** Returns the match if the text is start with a match (from pOffset on) or -1 if not */
+    /** @return the match if the text is start with a match (from pOffset on) or -1 if not. */
     public final ParseResult parse(CharSequence text, int offset) {
         return parse(text, offset, null);
     }
     
-    /** Returns the the match if the text is start with a match or -1 if not */
+    /** @return the the match if the text is start with a match or -1 if not. */
     public final ParseResult parse(CharSequence text, ParserTypeProvider typeProvider) {
         return parse(text, 0, typeProvider);
     }
     
-    /** Returns the match if the text is start with a match (from pOffset on) or -1 if not */
+    /** @return the match if the text is start with a match (from pOffset on) or -1 if not. */
     public final ParseResult parse(CharSequence text, int offset, ParserTypeProvider typeProvider) {
         return doParse(text, offset, typeProvider);
     }
     
-    /** Returns the match if the text is start with a match (from pOffset on) or -1 if not */
+    /** @return the match if the text is start with a match (from pOffset on) or -1 if not. */
     public final ParseResult doParse(CharSequence text, int offset, ParserTypeProvider typeProvider) {
         var provider = ParserTypeProvider.Library.either(typeProvider, this.typeProvider);
         return parser()
@@ -198,13 +202,13 @@ abstract public class ParserType implements AsRegParser, Serializable {
     
     // Match
     
-    /** Returns the match if the text is start with a match (from start to the end) or -1 if not */
+    /** @return the match if the text is start with a match (from start to the end) or -1 if not. */
     public final ParseResult match(CharSequence text) {
         int endPosition = text.length();
         return match(text, 0, endPosition, null);
     }
     
-    /** Returns the match if the text is start with a match (from start to the pEndPosition) or -1 if not */
+    /** @return the match if the text is start with a match (from start to the pEndPosition) or -1 if not. */
     public final ParseResult match(CharSequence text, int offset, int endPosition) {
         int end = (endPosition == -1)
                 ? text.length()
@@ -212,30 +216,30 @@ abstract public class ParserType implements AsRegParser, Serializable {
         return match(text, offset, end, null);
     }
     
-    /** Returns the match if the text is start with a match (from start to the end) or -1 if not */
+    /** @return the match if the text is start with a match (from start to the end) or -1 if not. */
     public final ParseResult match(CharSequence text, ParserTypeProvider typeProvider) {
         int endPosition = text.length();
         return match(text, 0, endPosition, typeProvider);
     }
     
-    /** Returns the match if the text is start with a match (from start to the pEndPosition) or -1 if not */
+    /** @return the match if the text is start with a match (from start to the offset) or -1 if not. */
     public final ParseResult match(CharSequence text, int offset) {
         int endPosition = text.length();
         return match(text, offset, endPosition, null);
     }
     
-    /** Returns the match if the text is start with a match (from start to the end) or -1 if not */
+    /** @return the match if the text is start with a match (from start to the end) or -1 if not. */
     public final ParseResult match(CharSequence text, int offset, ParserTypeProvider typeProvider) {
         int endPosition = text.length();
         return match(text, offset, endPosition, typeProvider);
     }
     
-    /** Returns the match if the text is start with a match (from start to the pEndPosition) or -1 if not */
+    /** @return the match if the text is start with a match (from start to the pEndPosition) or -1 if not. */
     public final ParseResult match(CharSequence text, int offset, int endPosition, ParserTypeProvider typeProvider) {
         return doMatch(text, offset, endPosition, typeProvider);
     }
     
-    /** Returns the match if the text is start with a match (from start to the pEndPosition) or -1 if not */
+    /** @return the match if the text is start with a match (from start to the pEndPosition) or -1 if not. */
     final ParseResult doMatch(CharSequence text, int offset, int endPosition, ParserTypeProvider typeProvider) {
         var provider = ParserTypeProvider.Library.either(typeProvider, this.typeProvider);
         int end      = (endPosition == -1)
@@ -246,12 +250,12 @@ abstract public class ParserType implements AsRegParser, Serializable {
     
     // Validation ----------------------------------------------------------------------------------
     
-    /** Returns a display string that represent a validation code */
+    /** @return a display string that represent a validation code. */
     public String validation() {
         return "...";
     }
     
-    /** Validate the parse result */
+    /** Validate the parse result. */
     public final boolean validate(
                             ParseResult   hostResult,
                             ParseResult   thisResult,
@@ -261,7 +265,7 @@ abstract public class ParserType implements AsRegParser, Serializable {
         return doValidate(hostResult, thisResult, parameter, provider);
     }
     
-    /** Validate the parse result */
+    /** Validate the parse result. */
     protected boolean doValidate(
                             ParseResult   hostResult,
                             ParseResult   thisResult,
@@ -272,13 +276,18 @@ abstract public class ParserType implements AsRegParser, Serializable {
     
     // Compilation ---------------------------------------------------------------------------------
     
-    /** Returns a display string that represent a compilation code */
+    /** @return a display string that represent a compilation code. */
     public String compilation() {
         return "...";
     }
     
     
-    /** Compiles a ParseResult in to an object */
+    /**
+     * Compiles a ParseResult in to an object.
+     * 
+     * @param  text  the text.
+     * @return       the compiled result.
+     **/
     public final Object compile(String text) {
         var thisResult = this.asRegParser().match(text);
         if (thisResult == null)
@@ -287,7 +296,13 @@ abstract public class ParserType implements AsRegParser, Serializable {
         return compile(thisResult, 0, null, null, null);
     }
     
-    /** Compiles a ParseResult in to an object */
+    /**
+     * Compiles a ParseResult in to an object using a different type provider.
+     * 
+     * @param  text          the text.
+     * @param  typeProvider  the type provider.
+     * @return               the compiled result.
+     **/
     public final Object compile(String text, ParserTypeProvider typeProvider) {
         var thisResult = this.match(text, typeProvider);
         if (thisResult == null)
@@ -296,12 +311,27 @@ abstract public class ParserType implements AsRegParser, Serializable {
         return compile(thisResult, 0, null, null, typeProvider);
     }
     
-    /** Compiles a ParseResult in to an object */
+    /**
+     * Compiles a ParseResult in to an object using a different type provider and parameter.
+     * 
+     * @param  text          the text.
+     * @param  parameter     the parameter.
+     * @param  typeProvider  the type provider.
+     * @return               the compiled result.
+     **/
     public final Object compile(String text, String parameter, ParserTypeProvider typeProvider) {
         return compile(text, parameter, null, typeProvider);
     }
     
-    /** Compiles a ParseResult in to an object */
+    /**
+     * Compiles a ParseResult in to an object using a different type provider and parameter.
+     * 
+     * @param  text                the text.
+     * @param  parameter           the parameter.
+     * @param  compilationContext  the compilation context.
+     * @param  typeProvider        the type provider.
+     * @return                     the compiled result.
+     **/
     public final Object compile(
                             String             text,
                             String             parameter,

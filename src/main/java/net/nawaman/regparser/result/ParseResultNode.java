@@ -26,7 +26,7 @@ import net.nawaman.regparser.result.entry.ParseResultEntry;
 /** Node Result - For sub result*/
 public final class ParseResultNode extends NormalParseResult {
     
-    static private final long serialVersionUID = 2545684654651635454L;
+    private static final long serialVersionUID = 2545684654651635454L;
     
     private ParseResult parent;
     private int         index;

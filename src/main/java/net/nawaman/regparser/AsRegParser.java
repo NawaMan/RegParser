@@ -24,8 +24,10 @@ package net.nawaman.regparser;
  */
 public interface AsRegParser extends AsChecker {
     
+    /** @return  a {@link RegParser} that this object represents. */
     public RegParser asRegParser();
     
+    /** @return  a {@link Checker} that this object represents. */
     public default Checker asChecker() {
         return asRegParser();
     }

@@ -24,7 +24,7 @@ import net.nawaman.regparser.result.entry.ParseResultEntry;
 /** Root Result */
 public final class RootParseResult extends NormalParseResult {
     
-    static private final long serialVersionUID = 2543546515135214354L;
+    private static final long serialVersionUID = 2543546515135214354L;
     
     private final CharSequence originalText;
     

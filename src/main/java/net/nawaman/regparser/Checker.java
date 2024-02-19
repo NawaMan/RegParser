@@ -74,26 +74,64 @@ public interface Checker extends AsChecker, AsRegParserEntry, Quantifiable<RegPa
         return newParserEntry(null, this, null);
     }
     
+    /**
+     * Create and returns a {@link RegParserEntry} of this checker.
+     * 
+     * @param name        the name of the entry.
+     * @param quantifier  the quantifier of this entry.
+     * @return            the new {@link RegParserEntry}.
+     */
     public default RegParserEntry with(String name, Quantifier quantifier) {
         return newParserEntry(name, this, quantifier);
     }
     
+    /**
+     * Create and returns a {@link RegParserEntry} of this checker.
+     * 
+     * @param quantifier  the quantifier of this entry.
+     * @return            the new {@link RegParserEntry}.
+     */
     public default RegParserEntry with(Quantifier quantifier) {
         return newParserEntry(null, this, quantifier);
     }
     
+    /**
+     * Create and returns a {@link RegParserEntry} of this checker.
+     * 
+     * @param bound  the bound.
+     * @return       the new {@link RegParserEntry}.
+     */
     public default RegParserEntry with(int bound) {
         return newParserEntry(null, this, new Quantifier(bound, bound));
     }
     
+    /**
+     * Create and returns a {@link RegParserEntry} of this checker.
+     * 
+     * @param lowerBound  the name of the entry.
+     * @param upperBound  the quantifier of this entry.
+     * @return            the new {@link RegParserEntry}.
+     */
     public default RegParserEntry with(int lowerBound, int upperBound) {
         return newParserEntry(null, this, new Quantifier(lowerBound, upperBound));
     }
     
+    /**
+     * Create and returns a {@link RegParserEntry} of this checker.
+     * 
+     * @param name  the name of the entry.
+     * @return      the new {@link RegParserEntry}.
+     */
     public default RegParserEntry withName(String name) {
         return newParserEntry(name, this, null);
     }
     
+    /**
+     * Create and returns a {@link RegParserEntry} of this checker.
+     * 
+     * @param quantifier  the quantifier of this entry.
+     * @return            the new {@link RegParserEntry}.
+     */
     public default RegParserEntry quantifier(Quantifier quantifier) {
         return newParserEntry(null, this, quantifier);
     }

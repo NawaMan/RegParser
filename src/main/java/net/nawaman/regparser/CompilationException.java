@@ -26,11 +26,19 @@ package net.nawaman.regparser;
 public class CompilationException extends RuntimeException {
     
     private static final long serialVersionUID = 3735054998331471045L;
-
+    
+    /**
+     * Constructs a compilation exception.
+     */
     public CompilationException() {
         super();
     }
     
+    /**
+     * Constructs a compilation exception with a message.
+     * 
+     * @param message  the message.
+     */
     public CompilationException(String message) {
         super(message);
     }
