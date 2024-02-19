@@ -37,50 +37,50 @@ import net.nawaman.regparser.result.ParseResult;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class StringLiteralParserType extends ParserType {
-	
-	private static final long serialVersionUID = -5671933716521874182L;
+    
+    private static final long serialVersionUID = -5671933716521874182L;
 
-	public static String                  name     = "$StringLiteral";
-	public static StringLiteralParserType instance = new StringLiteralParserType();
-	public static ParserTypeRef           typeRef  = instance.typeRef();
-	
-	private final Checker checker;
-	
-	public StringLiteralParserType() {
-		var singleQuote
-				= newRegParser()
-				.entry(new CharSingle('\''))
-				.entry(either(new CharNot(new CharSingle('\''))).or(new WordChecker("\\\'")), ZeroOrMore)
-				.entry(new CharSingle('\''))
-				.build();
-		var doubleQuote
-				= newRegParser()
-				.entry(new CharSingle('\"'))
-				.entry(either(new CharNot(new CharSingle('\''))).or(new WordChecker("\\\"")), ZeroOrMore)
-				.entry(new CharSingle('\"'))
-				.build();
-		var backtick 
-				= newRegParser()
-				.entry(new CharSingle('`'))
-				.entry(either(new CharNot(new CharSingle('`'))).or(new WordChecker("\\`")), ZeroOrMore)
-				.entry(new CharSingle('`'))
-				.build();
-		checker = newRegParser("#String", either(doubleQuote).or(singleQuote).or(backtick));
-	}
-	
-	@Override
-	public String name() {
-		return name;
-	}
-	
-	@Override
-	public Checker checker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider) {
-		return checker;
-	}
-	
-	@Override
-	public final Boolean isDeterministic() {
-		return true;
-	}
-	
+    public static String                  name     = "$StringLiteral";
+    public static StringLiteralParserType instance = new StringLiteralParserType();
+    public static ParserTypeRef           typeRef  = instance.typeRef();
+    
+    private final Checker checker;
+    
+    public StringLiteralParserType() {
+        var singleQuote
+                = newRegParser()
+                .entry(new CharSingle('\''))
+                .entry(either(new CharNot(new CharSingle('\''))).or(new WordChecker("\\\'")), ZeroOrMore)
+                .entry(new CharSingle('\''))
+                .build();
+        var doubleQuote
+                = newRegParser()
+                .entry(new CharSingle('\"'))
+                .entry(either(new CharNot(new CharSingle('\''))).or(new WordChecker("\\\"")), ZeroOrMore)
+                .entry(new CharSingle('\"'))
+                .build();
+        var backtick 
+                = newRegParser()
+                .entry(new CharSingle('`'))
+                .entry(either(new CharNot(new CharSingle('`'))).or(new WordChecker("\\`")), ZeroOrMore)
+                .entry(new CharSingle('`'))
+                .build();
+        checker = newRegParser("#String", either(doubleQuote).or(singleQuote).or(backtick));
+    }
+    
+    @Override
+    public String name() {
+        return name;
+    }
+    
+    @Override
+    public Checker checker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider) {
+        return checker;
+    }
+    
+    @Override
+    public final Boolean isDeterministic() {
+        return true;
+    }
+    
 }

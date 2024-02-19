@@ -37,35 +37,35 @@ import net.nawaman.regparser.result.ParseResult;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class IdentifierParserType extends ParserType {
-	
-	private static final long serialVersionUID = -3805785789736448768L;
-	
-	public static String               name     = "$Identifier";
-	public static IdentifierParserType instance = new IdentifierParserType();
-	public static ParserTypeRef        typeRef  = instance.typeRef();
-	
-	private final Checker checker;
-	
-	public IdentifierParserType() {
-		checker = newRegParser()
-		        .entry(new CharUnion(Alphabet, new CharSingle('_')))
-		        .entry(new CharUnion(Alphabet, new CharSingle('_'), Digit), ZeroOrMore)
-		        .build();
-	}
-	
-	@Override
-	public String name() {
-		return name;
-	}
-	
-	@Override
-	public Checker checker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider) {
-		return checker;
-	}
-	
-	@Override
-	public final Boolean isDeterministic() {
-		return checker.isDeterministic();
-	}
-	
+    
+    private static final long serialVersionUID = -3805785789736448768L;
+    
+    public static String               name     = "$Identifier";
+    public static IdentifierParserType instance = new IdentifierParserType();
+    public static ParserTypeRef        typeRef  = instance.typeRef();
+    
+    private final Checker checker;
+    
+    public IdentifierParserType() {
+        checker = newRegParser()
+                .entry(new CharUnion(Alphabet, new CharSingle('_')))
+                .entry(new CharUnion(Alphabet, new CharSingle('_'), Digit), ZeroOrMore)
+                .build();
+    }
+    
+    @Override
+    public String name() {
+        return name;
+    }
+    
+    @Override
+    public Checker checker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider) {
+        return checker;
+    }
+    
+    @Override
+    public final Boolean isDeterministic() {
+        return checker.isDeterministic();
+    }
+    
 }

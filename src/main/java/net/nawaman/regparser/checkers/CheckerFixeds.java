@@ -55,200 +55,200 @@ import net.nawaman.regparser.result.ParseResult;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  **/
 public final class CheckerFixeds implements Checker {
-	
-	private static final long serialVersionUID = 5484946354964465247L;
-	
-	private int     length  = 0;
-	private Entry[] entries = Entry.EMPTY_ARRAY;
-	private boolean isDeterministic = true;
-	
-	private final AtomicReference<String> toString = new AtomicReference<>(null);
-	
-	/** Constructs a checker fixed */
-	public CheckerFixeds(Entry... entries) {
-		if ((entries == null)
-		 || (entries.length == 0))
-			return;
-		
-		int     totalLength     = 0;
-		var     list            = new ArrayList<Entry>();
-		boolean isDeterministic = true;
-		for (int i = 0; i < entries.length; i++) {
-			var entry = entries[i];
-			if (entry == null)
-				continue;
-			
-			isDeterministic &= entry.isDeterministic();
-			
-			list.add(entry);
-			int length = entry.length();
-			if (length == -1) {
-				if (i != (entries.length - 1)) {
-					var errorMessage = format("Length cannot be negative (%d), unless it is the last entry.", length);
-					throw new IllegalArgumentException(errorMessage);
-				}
-			} else {
-				totalLength += length;
-			}
-		}
-		int listSize = list.size();
-		if (listSize == 0)
-			return;
-		
-		this.entries         = list.toArray(new Entry[listSize]);
-		this.length          = totalLength;
-		this.isDeterministic = isDeterministic;
-	}
-	
-	/** Returns the overall length needed by this checker */
-	public int neededLength() {
-		return length;
-	}
-	
-	/** Returns the number of fixed-entry */
-	public int entryCount() {
-		return entries.length;
-	}
-	
-	/** Returns the entry at the index I */
-	public Entry entry(int index) {
-		return ((index < 0) || (index > entryCount()))
-		        ? null
-		        : entries[index];
-	}
-	
-	@Override
-	public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider) {
-		return startLengthOf(text, offset, typeProvider, null);
-	}
-	
-	@Override
-	public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider, ParseResult parseResult) {
-		return neededLength();
-	}
-	
-	@Override
-	public Checker optimize() {
-		return this;
-	}
-	
-	@Override
-	public final Boolean isDeterministic() {
-		return isDeterministic;
-	}
-	
-	@Override
-	public String toString() {
-		return toString.updateAndGet(oldValue -> {
-			if (oldValue != null) {
-				return oldValue;
-			}
-			
-			return Arrays.toString(entries);
-		});
-	}
-	
-	private int hashCode = 0;
-	
-	@Override
-	public int hashCode() {
-		if (hashCode != 0) {
-			return hashCode;
-		}
-		
-		hashCode = toString.get().hashCode();
-		return hashCode;
-	}
-	
-	/** The group entries */
-	static public class Entry {
-		
-		public static final Entry[] EMPTY_ARRAY = new Entry[0];
-		
-		Entry() {
-			this(null, -1, (Object)null);
-		}
-		
-		Entry(String name) {
-			this(name, -1, (Object)null);
-		}
-		
-		Entry(String name, Checker secondStage) {
-			this(name, -1, (Object)secondStage);
-		}
-		
-		Entry(String name, ParserType secondStage) {
-			this(name, -1, (Object)secondStage);
-		}
-		
-		Entry(String name, ParserTypeRef secondStage) {
-			this(name, -1, (Object)secondStage);
-		}
-		
-		Entry(int length) {
-			this(null, length, (Object)null);
-		}
-		
-		Entry(String name, int length) {
-			this(name, length, (Object)null);
-		}
-		
-		Entry(String name, int length, Checker secondStage) {
-			this(name, length, (Object)secondStage);
-		}
-		
-		Entry(String name, int length, ParserType secondStage) {
-			this(name, length, (Object)secondStage);
-		}
-		
-		Entry(String name, int length, ParserTypeRef secondStage) {
-			this(name, length, (Object)secondStage);
-		}
-		
-		Entry(String name, int length, Object secondStage) {
-			if (length < 0) {
-				length = -1;
-			}
-			
-			Checker checker = null;
-			if (secondStage != null) {
-				RegParserEntry[] entries;
-				if (secondStage instanceof Checker) {
-					entries = new RegParserEntry[] { RegParserEntry.newParserEntry(name, (Checker)secondStage) };
-				} else if (secondStage instanceof ParserType) {
-					entries = new RegParserEntry[] { RegParserEntry.newParserEntry(name, (ParserType)secondStage) };
-				} else if (secondStage instanceof ParserTypeRef) {
-					entries = new RegParserEntry[] { RegParserEntry.newParserEntry(name, (ParserTypeRef)secondStage) };
-				} else {
-					var errMsg = format("Second stage must be null, Checker, PTypeRef or PType (%s).", secondStage);
-					throw new IllegalArgumentException(errMsg);
-				}
-				checker = newRegParser(entries);
-			}
-			this.entry = RegParserEntry.newParserEntry(name, CheckerAny.getCheckerAny(length), null, checker);
-		}
-		
-		private final RegParserEntry entry;
-		
-		public String name() {
-			return entry.name();
-		}
-		
-		public int length() {
-			return ((CheckerAny)entry.checker()).length();
-		}
-		
-		public Checker secondStage() {
-			return entry.secondStage();
-		}
-		
-		public RegParserEntry entry() {
-			return entry;
-		}
-		
-		public Boolean isDeterministic() {
-			return entry.isDeterministic();
-		}
-	}
-	
+    
+    private static final long serialVersionUID = 5484946354964465247L;
+    
+    private int     length  = 0;
+    private Entry[] entries = Entry.EMPTY_ARRAY;
+    private boolean isDeterministic = true;
+    
+    private final AtomicReference<String> toString = new AtomicReference<>(null);
+    
+    /** Constructs a checker fixed */
+    public CheckerFixeds(Entry... entries) {
+        if ((entries == null)
+         || (entries.length == 0))
+            return;
+        
+        int     totalLength     = 0;
+        var     list            = new ArrayList<Entry>();
+        boolean isDeterministic = true;
+        for (int i = 0; i < entries.length; i++) {
+            var entry = entries[i];
+            if (entry == null)
+                continue;
+            
+            isDeterministic &= entry.isDeterministic();
+            
+            list.add(entry);
+            int length = entry.length();
+            if (length == -1) {
+                if (i != (entries.length - 1)) {
+                    var errorMessage = format("Length cannot be negative (%d), unless it is the last entry.", length);
+                    throw new IllegalArgumentException(errorMessage);
+                }
+            } else {
+                totalLength += length;
+            }
+        }
+        int listSize = list.size();
+        if (listSize == 0)
+            return;
+        
+        this.entries         = list.toArray(new Entry[listSize]);
+        this.length          = totalLength;
+        this.isDeterministic = isDeterministic;
+    }
+    
+    /** Returns the overall length needed by this checker */
+    public int neededLength() {
+        return length;
+    }
+    
+    /** Returns the number of fixed-entry */
+    public int entryCount() {
+        return entries.length;
+    }
+    
+    /** Returns the entry at the index I */
+    public Entry entry(int index) {
+        return ((index < 0) || (index > entryCount()))
+                ? null
+                : entries[index];
+    }
+    
+    @Override
+    public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider) {
+        return startLengthOf(text, offset, typeProvider, null);
+    }
+    
+    @Override
+    public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider, ParseResult parseResult) {
+        return neededLength();
+    }
+    
+    @Override
+    public Checker optimize() {
+        return this;
+    }
+    
+    @Override
+    public final Boolean isDeterministic() {
+        return isDeterministic;
+    }
+    
+    @Override
+    public String toString() {
+        return toString.updateAndGet(oldValue -> {
+            if (oldValue != null) {
+                return oldValue;
+            }
+            
+            return Arrays.toString(entries);
+        });
+    }
+    
+    private int hashCode = 0;
+    
+    @Override
+    public int hashCode() {
+        if (hashCode != 0) {
+            return hashCode;
+        }
+        
+        hashCode = toString.get().hashCode();
+        return hashCode;
+    }
+    
+    /** The group entries */
+    static public class Entry {
+        
+        public static final Entry[] EMPTY_ARRAY = new Entry[0];
+        
+        Entry() {
+            this(null, -1, (Object)null);
+        }
+        
+        Entry(String name) {
+            this(name, -1, (Object)null);
+        }
+        
+        Entry(String name, Checker secondStage) {
+            this(name, -1, (Object)secondStage);
+        }
+        
+        Entry(String name, ParserType secondStage) {
+            this(name, -1, (Object)secondStage);
+        }
+        
+        Entry(String name, ParserTypeRef secondStage) {
+            this(name, -1, (Object)secondStage);
+        }
+        
+        Entry(int length) {
+            this(null, length, (Object)null);
+        }
+        
+        Entry(String name, int length) {
+            this(name, length, (Object)null);
+        }
+        
+        Entry(String name, int length, Checker secondStage) {
+            this(name, length, (Object)secondStage);
+        }
+        
+        Entry(String name, int length, ParserType secondStage) {
+            this(name, length, (Object)secondStage);
+        }
+        
+        Entry(String name, int length, ParserTypeRef secondStage) {
+            this(name, length, (Object)secondStage);
+        }
+        
+        Entry(String name, int length, Object secondStage) {
+            if (length < 0) {
+                length = -1;
+            }
+            
+            Checker checker = null;
+            if (secondStage != null) {
+                RegParserEntry[] entries;
+                if (secondStage instanceof Checker) {
+                    entries = new RegParserEntry[] { RegParserEntry.newParserEntry(name, (Checker)secondStage) };
+                } else if (secondStage instanceof ParserType) {
+                    entries = new RegParserEntry[] { RegParserEntry.newParserEntry(name, (ParserType)secondStage) };
+                } else if (secondStage instanceof ParserTypeRef) {
+                    entries = new RegParserEntry[] { RegParserEntry.newParserEntry(name, (ParserTypeRef)secondStage) };
+                } else {
+                    var errMsg = format("Second stage must be null, Checker, PTypeRef or PType (%s).", secondStage);
+                    throw new IllegalArgumentException(errMsg);
+                }
+                checker = newRegParser(entries);
+            }
+            this.entry = RegParserEntry.newParserEntry(name, CheckerAny.getCheckerAny(length), null, checker);
+        }
+        
+        private final RegParserEntry entry;
+        
+        public String name() {
+            return entry.name();
+        }
+        
+        public int length() {
+            return ((CheckerAny)entry.checker()).length();
+        }
+        
+        public Checker secondStage() {
+            return entry.secondStage();
+        }
+        
+        public RegParserEntry entry() {
+            return entry;
+        }
+        
+        public Boolean isDeterministic() {
+            return entry.isDeterministic();
+        }
+    }
+    
 }

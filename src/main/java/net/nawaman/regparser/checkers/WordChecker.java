@@ -32,63 +32,63 @@ import net.nawaman.regparser.utils.Util;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public final class WordChecker implements Checker {
-	
-	private static final long serialVersionUID = -6856120712978724955L;
-	
-	static public final WordChecker EmptyWord = new WordChecker();
-	
-	private final String word;
-	
-	private WordChecker() {
-		this.word = "";
-	}
-	
-	public WordChecker(String word) {
-		this.word = requireNonNull(word);
-		if (word.length() == 0)
-			throw new IllegalArgumentException();
-	}
-	
-	public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider) {
-		return startLengthOf(text, offset, typeProvider, null);
-	}
-	
-	@Override
-	public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider, ParseResult parseResult) {
-		return Util.startsWith(text, word, offset)
-		        ? word.length()
-		        : -1;
-	}
-	
-	@Override
-	public final Boolean isDeterministic() {
-		return true;
-	}
-	
-	@Override
-	public String toString() {
-		return escapeOfRegParser(word);
-	}
-	
-	@Override
-	public int hashCode() {
-		return word.hashCode();
-	}
-	
-	@Override
-	public boolean equals(Object O) {
-		if (O == this)
-			return true;
-		
-		if (!(O instanceof WordChecker))
-			return false;
-		
-		return word.equals(((WordChecker)O).word);
-	}
-	
-	@Override
-	public Checker optimize() {
-		return this;
-	}
-	
+    
+    private static final long serialVersionUID = -6856120712978724955L;
+    
+    static public final WordChecker EmptyWord = new WordChecker();
+    
+    private final String word;
+    
+    private WordChecker() {
+        this.word = "";
+    }
+    
+    public WordChecker(String word) {
+        this.word = requireNonNull(word);
+        if (word.length() == 0)
+            throw new IllegalArgumentException();
+    }
+    
+    public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider) {
+        return startLengthOf(text, offset, typeProvider, null);
+    }
+    
+    @Override
+    public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider, ParseResult parseResult) {
+        return Util.startsWith(text, word, offset)
+                ? word.length()
+                : -1;
+    }
+    
+    @Override
+    public final Boolean isDeterministic() {
+        return true;
+    }
+    
+    @Override
+    public String toString() {
+        return escapeOfRegParser(word);
+    }
+    
+    @Override
+    public int hashCode() {
+        return word.hashCode();
+    }
+    
+    @Override
+    public boolean equals(Object O) {
+        if (O == this)
+            return true;
+        
+        if (!(O instanceof WordChecker))
+            return false;
+        
+        return word.equals(((WordChecker)O).word);
+    }
+    
+    @Override
+    public Checker optimize() {
+        return this;
+    }
+    
 }

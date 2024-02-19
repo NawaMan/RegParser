@@ -28,33 +28,33 @@ import net.nawaman.regparser.result.ParseResult;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class IdentifierCaseInsensitiveParserType extends IdentifierParserType {
-	
-	private static final long serialVersionUID = 1841177503836598215L;
+    
+    private static final long serialVersionUID = 1841177503836598215L;
 
-	
-	public static String               name     = "$IdentifierCI";
-	public static IdentifierParserType instance = new IdentifierParserType();
-	public static ParserTypeRef        typeRef  = instance.typeRef();
-	
-	@Override
-	public String name() {
-		return name;
-	}
-	
-	@Override
-	public boolean doValidate(
-					ParseResult        hostResult,
-					ParseResult        thisResult,
-					String             parameter,
-					ParserTypeProvider typeProvider) {
-		var text = thisResult.text();
-		if (text == parameter)
-			return true;
-		
-		if ((text == null) || (parameter == null))
-			return false;
-		
-		return text.toLowerCase().equals(parameter.toLowerCase());
-	}
-	
+    
+    public static String               name     = "$IdentifierCI";
+    public static IdentifierParserType instance = new IdentifierParserType();
+    public static ParserTypeRef        typeRef  = instance.typeRef();
+    
+    @Override
+    public String name() {
+        return name;
+    }
+    
+    @Override
+    public boolean doValidate(
+                    ParseResult        hostResult,
+                    ParseResult        thisResult,
+                    String             parameter,
+                    ParserTypeProvider typeProvider) {
+        var text = thisResult.text();
+        if (text == parameter)
+            return true;
+        
+        if ((text == null) || (parameter == null))
+            return false;
+        
+        return text.toLowerCase().equals(parameter.toLowerCase());
+    }
+    
 }

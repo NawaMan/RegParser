@@ -31,13 +31,13 @@ import net.nawaman.regparser.result.ParseResult;
  **/
 @FunctionalInterface
 public interface CheckerProvider extends Serializable {
-	
-	public static CheckerProvider of(Checker checker) {
-		return (hostResult, parameter, typeProvider) -> checker;
-	}
-	
-	
-	/** Returns the checker */
-	public Checker getChecker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider);
-	
+    
+    public static CheckerProvider of(Checker checker) {
+        return (hostResult, parameter, typeProvider) -> checker;
+    }
+    
+    
+    /** Returns the checker */
+    public Checker getChecker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider);
+    
 }

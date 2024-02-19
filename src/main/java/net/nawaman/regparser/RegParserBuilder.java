@@ -29,148 +29,148 @@ import java.util.List;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class RegParserBuilder implements AsRegParser, Quantifiable<RegParser> {
-	
-	private ParserTypeProvider typeProvider = null;
-	
-	private final List<RegParserEntry> entries = new ArrayList<RegParserEntry>();
-	
-	private boolean isDirty         = false;
-	private Boolean isDeterministic = null;
-	
-	public RegParserBuilder typeProvider(ParserTypeProvider typeProvider) {
-		this.typeProvider = typeProvider;
-		this.isDirty = true;
-		return this;
-	}
-	
-	public RegParserBuilder entry(RegParserEntry entry) {
-		entries.add(entry);
-		this.isDirty = true;
-		return this;
-	}
-	
-	public RegParserBuilder entry(AsChecker checker) {
-		return entry(null, checker, null, null);
-	}
-	
-	public RegParserBuilder entry(AsChecker checker, AsChecker secondStage) {
-		return entry(newParserEntry(null, checker, null, secondStage));
-	}
-	
-	public RegParserBuilder entry(AsChecker checker, Quantifier quantifier) {
-		return entry(null, checker, quantifier, null);
-	}
-	
-	public RegParserBuilder entry(AsChecker checker, Quantifier quantifier, AsChecker secondStage) {
-		return entry(null, checker, quantifier, secondStage);
-	}
-	
-	public RegParserBuilder entry(String name, AsChecker checker) {
-		return entry(name, checker, null, null);
-	}
-	
-	public RegParserBuilder entry(String name, AsChecker checker, Checker secondStage) {
-		return entry(name, checker, null, secondStage);
-	}
-	
-	public RegParserBuilder entry(String name, AsChecker checker, Quantifier quantifier) {
-		return entry(name, checker, quantifier, null);
-	}
-	
-	public RegParserBuilder entry(String name, AsChecker checker, Quantifier quantifier, AsChecker secondStage) {
-		return entry(newParserEntry(name, checker, quantifier, secondStage));
-	}
-	
-	public RegParserBuilder entry(ParserType type) {
-		return entry(null, type, null, null);
-	}
-	
-	public RegParserBuilder entry(ParserType type, AsChecker secondStage) {
-		return entry(null, type, null, secondStage);
-	}
-	
-	public RegParserBuilder entry(ParserType type, Quantifier quantifier) {
-		return entry(null, type, quantifier, null);
-	}
-	
-	public RegParserBuilder entry(ParserType type, Quantifier quantifier, AsChecker secondStage) {
-		return entry(null, type, quantifier, secondStage);
-	}
-	
-	public RegParserBuilder entry(String name, ParserType type) {
-		return entry(name, type, null, null);
-	}
-	
-	public RegParserBuilder entry(String name, ParserType type, AsChecker secondStage) {
-		return entry(name, type, null, secondStage);
-	}
-	
-	public RegParserBuilder entry(String name, ParserType type, Quantifier quantifier) {
-		return entry(name, type, quantifier, null);
-	}
-	
-	public RegParserBuilder entry(String name, ParserType type, Quantifier quantifier, AsChecker secondStage) {
-		return entry(newParserEntry(name, type, quantifier, secondStage));
-	}
-	
-	public RegParserBuilder entry(ParserTypeRef typeRef) {
-		return entry(null, typeRef, null, null);
-	}
-	
-	public RegParserBuilder entry(ParserTypeRef typeRef, AsChecker secondStage) {
-		return entry(null, typeRef, null, secondStage);
-	}
-	
-	public RegParserBuilder entry(ParserTypeRef typeRef, Quantifier quantifier) {
-		return entry(null, typeRef, quantifier, null);
-	}
-	
-	public RegParserBuilder entry(ParserTypeRef typeRef, Quantifier quantifier, AsChecker secondStage) {
-		return entry(null, typeRef, quantifier, secondStage);
-	}
-	
-	public RegParserBuilder entry(String name, ParserTypeRef typeRef) {
-		return entry(name, typeRef, null, null);
-	}
-	
-	public RegParserBuilder entry(String name, ParserTypeRef typeRef, AsChecker secondStage) {
-		return entry(name, typeRef, null, secondStage);
-	}
-	
-	public RegParserBuilder entry(String name, ParserTypeRef typeRef, Quantifier quantifier) {
-		return entry(name, typeRef, quantifier, null);
-	}
-	
-	public RegParserBuilder entry(String name, ParserTypeRef typeRef, Quantifier quantifier, AsChecker secondStage) {
-		return entry(newParserEntry(name, typeRef, quantifier, secondStage));
-	}
-	
-	public RegParser build() {
-		var regParser = newRegParser(typeProvider, entries);
-		if (isDirty) {
-			isDeterministic = regParser.isDeterministic();
-			isDirty         = false;
-		}
-		return regParser;
-	}
+    
+    private ParserTypeProvider typeProvider = null;
+    
+    private final List<RegParserEntry> entries = new ArrayList<RegParserEntry>();
+    
+    private boolean isDirty         = false;
+    private Boolean isDeterministic = null;
+    
+    public RegParserBuilder typeProvider(ParserTypeProvider typeProvider) {
+        this.typeProvider = typeProvider;
+        this.isDirty = true;
+        return this;
+    }
+    
+    public RegParserBuilder entry(RegParserEntry entry) {
+        entries.add(entry);
+        this.isDirty = true;
+        return this;
+    }
+    
+    public RegParserBuilder entry(AsChecker checker) {
+        return entry(null, checker, null, null);
+    }
+    
+    public RegParserBuilder entry(AsChecker checker, AsChecker secondStage) {
+        return entry(newParserEntry(null, checker, null, secondStage));
+    }
+    
+    public RegParserBuilder entry(AsChecker checker, Quantifier quantifier) {
+        return entry(null, checker, quantifier, null);
+    }
+    
+    public RegParserBuilder entry(AsChecker checker, Quantifier quantifier, AsChecker secondStage) {
+        return entry(null, checker, quantifier, secondStage);
+    }
+    
+    public RegParserBuilder entry(String name, AsChecker checker) {
+        return entry(name, checker, null, null);
+    }
+    
+    public RegParserBuilder entry(String name, AsChecker checker, Checker secondStage) {
+        return entry(name, checker, null, secondStage);
+    }
+    
+    public RegParserBuilder entry(String name, AsChecker checker, Quantifier quantifier) {
+        return entry(name, checker, quantifier, null);
+    }
+    
+    public RegParserBuilder entry(String name, AsChecker checker, Quantifier quantifier, AsChecker secondStage) {
+        return entry(newParserEntry(name, checker, quantifier, secondStage));
+    }
+    
+    public RegParserBuilder entry(ParserType type) {
+        return entry(null, type, null, null);
+    }
+    
+    public RegParserBuilder entry(ParserType type, AsChecker secondStage) {
+        return entry(null, type, null, secondStage);
+    }
+    
+    public RegParserBuilder entry(ParserType type, Quantifier quantifier) {
+        return entry(null, type, quantifier, null);
+    }
+    
+    public RegParserBuilder entry(ParserType type, Quantifier quantifier, AsChecker secondStage) {
+        return entry(null, type, quantifier, secondStage);
+    }
+    
+    public RegParserBuilder entry(String name, ParserType type) {
+        return entry(name, type, null, null);
+    }
+    
+    public RegParserBuilder entry(String name, ParserType type, AsChecker secondStage) {
+        return entry(name, type, null, secondStage);
+    }
+    
+    public RegParserBuilder entry(String name, ParserType type, Quantifier quantifier) {
+        return entry(name, type, quantifier, null);
+    }
+    
+    public RegParserBuilder entry(String name, ParserType type, Quantifier quantifier, AsChecker secondStage) {
+        return entry(newParserEntry(name, type, quantifier, secondStage));
+    }
+    
+    public RegParserBuilder entry(ParserTypeRef typeRef) {
+        return entry(null, typeRef, null, null);
+    }
+    
+    public RegParserBuilder entry(ParserTypeRef typeRef, AsChecker secondStage) {
+        return entry(null, typeRef, null, secondStage);
+    }
+    
+    public RegParserBuilder entry(ParserTypeRef typeRef, Quantifier quantifier) {
+        return entry(null, typeRef, quantifier, null);
+    }
+    
+    public RegParserBuilder entry(ParserTypeRef typeRef, Quantifier quantifier, AsChecker secondStage) {
+        return entry(null, typeRef, quantifier, secondStage);
+    }
+    
+    public RegParserBuilder entry(String name, ParserTypeRef typeRef) {
+        return entry(name, typeRef, null, null);
+    }
+    
+    public RegParserBuilder entry(String name, ParserTypeRef typeRef, AsChecker secondStage) {
+        return entry(name, typeRef, null, secondStage);
+    }
+    
+    public RegParserBuilder entry(String name, ParserTypeRef typeRef, Quantifier quantifier) {
+        return entry(name, typeRef, quantifier, null);
+    }
+    
+    public RegParserBuilder entry(String name, ParserTypeRef typeRef, Quantifier quantifier, AsChecker secondStage) {
+        return entry(newParserEntry(name, typeRef, quantifier, secondStage));
+    }
+    
+    public RegParser build() {
+        var regParser = newRegParser(typeProvider, entries);
+        if (isDirty) {
+            isDeterministic = regParser.isDeterministic();
+            isDirty         = false;
+        }
+        return regParser;
+    }
 
-	@Override
-	public RegParser asRegParser() {
-		return build();
-	}
-	
-	@Override
-	public RegParser quantifier(Quantifier quantifier) {
-		return newRegParser(build().quantifier(quantifier));
-	}
-	
-	@Override
-	public final Boolean isDeterministic() {
-		if (isDirty) {
-			isDeterministic = build().isDeterministic();
-			isDirty         = false;
-		}
-		return isDeterministic;
-	}
-	
+    @Override
+    public RegParser asRegParser() {
+        return build();
+    }
+    
+    @Override
+    public RegParser quantifier(Quantifier quantifier) {
+        return newRegParser(build().quantifier(quantifier));
+    }
+    
+    @Override
+    public final Boolean isDeterministic() {
+        if (isDirty) {
+            isDeterministic = build().isDeterministic();
+            isDirty         = false;
+        }
+        return isDeterministic;
+    }
+    
 }

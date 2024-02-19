@@ -33,69 +33,69 @@ import net.nawaman.regparser.result.ParseResult;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public interface Checker extends AsChecker, AsRegParserEntry, Quantifiable<RegParserEntry>, Serializable {
-	
-	/** Returns the empty array of Checkers */
-	public static final Checker[] EMPTY_CHECKER_ARRAY = new Checker[0];
-	
-	/**
-	 * Returns the length of the match if the string S starts (from offset) with this checker.<br />
-	 * @param  text    the string to be parsed
-	 * @param  offset  the starting point of the checking
-	 * @return         the length of the match or -1 if the string S does not start with this checker
-	 */
-	public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider);
-	
-	/**
-	 * Returns the length of the match if the string S starts (from offset) with this checker.<br />
-	 * @param  text         the string to be parsed
-	 * @param  offset       the starting point of the checking
-	 * @param  parseResult  the parse result of the current parsing. Only given in special case from RegParser.
-	 * @return              the length of the match or -1 if the string S does not start with this checker
-	 */
-	public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider, ParseResult parseResult);
-	
-	/** Return the optimized version of this Checker */
-	public default Checker optimize() {
-		return this;
-	}
-	
-	@Override
-	public default Checker asChecker() {
-		return this;
-	}
-	
-	@Override
-	public default Quantifier quantifier() {
-		return Quantifier.One;
-	}
-	
-	@Override
-	public default RegParserEntry asRegParserEntry() {
-		return newParserEntry(null, this, null);
-	}
-	
-	public default RegParserEntry with(String name, Quantifier quantifier) {
-		return newParserEntry(name, this, quantifier);
-	}
-	
-	public default RegParserEntry with(Quantifier quantifier) {
-		return newParserEntry(null, this, quantifier);
-	}
-	
-	public default RegParserEntry with(int bound) {
-		return newParserEntry(null, this, new Quantifier(bound, bound));
-	}
-	
-	public default RegParserEntry with(int lowerBound, int upperBound) {
-		return newParserEntry(null, this, new Quantifier(lowerBound, upperBound));
-	}
-	
-	public default RegParserEntry withName(String name) {
-		return newParserEntry(name, this, null);
-	}
-	
-	public default RegParserEntry quantifier(Quantifier quantifier) {
-		return newParserEntry(null, this, quantifier);
-	}
-	
+    
+    /** Returns the empty array of Checkers */
+    public static final Checker[] EMPTY_CHECKER_ARRAY = new Checker[0];
+    
+    /**
+     * Returns the length of the match if the string S starts (from offset) with this checker.<br />
+     * @param  text    the string to be parsed
+     * @param  offset  the starting point of the checking
+     * @return         the length of the match or -1 if the string S does not start with this checker
+     */
+    public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider);
+    
+    /**
+     * Returns the length of the match if the string S starts (from offset) with this checker.<br />
+     * @param  text         the string to be parsed
+     * @param  offset       the starting point of the checking
+     * @param  parseResult  the parse result of the current parsing. Only given in special case from RegParser.
+     * @return              the length of the match or -1 if the string S does not start with this checker
+     */
+    public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider, ParseResult parseResult);
+    
+    /** Return the optimized version of this Checker */
+    public default Checker optimize() {
+        return this;
+    }
+    
+    @Override
+    public default Checker asChecker() {
+        return this;
+    }
+    
+    @Override
+    public default Quantifier quantifier() {
+        return Quantifier.One;
+    }
+    
+    @Override
+    public default RegParserEntry asRegParserEntry() {
+        return newParserEntry(null, this, null);
+    }
+    
+    public default RegParserEntry with(String name, Quantifier quantifier) {
+        return newParserEntry(name, this, quantifier);
+    }
+    
+    public default RegParserEntry with(Quantifier quantifier) {
+        return newParserEntry(null, this, quantifier);
+    }
+    
+    public default RegParserEntry with(int bound) {
+        return newParserEntry(null, this, new Quantifier(bound, bound));
+    }
+    
+    public default RegParserEntry with(int lowerBound, int upperBound) {
+        return newParserEntry(null, this, new Quantifier(lowerBound, upperBound));
+    }
+    
+    public default RegParserEntry withName(String name) {
+        return newParserEntry(name, this, null);
+    }
+    
+    public default RegParserEntry quantifier(Quantifier quantifier) {
+        return newParserEntry(null, this, quantifier);
+    }
+    
 }

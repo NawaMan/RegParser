@@ -23,12 +23,12 @@ package net.nawaman.regparser;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public interface AsRegParserEntry extends AsRegParser {
-	
-	public RegParserEntry asRegParserEntry();
-	
-	public default RegParser asRegParser() {
-		return RegParser.newRegParser(asRegParserEntry());
-	}
-	
-	
+    
+    public RegParserEntry asRegParserEntry();
+    
+    public default RegParser asRegParser() {
+        return RegParser.newRegParser(asRegParserEntry());
+    }
+    
+    
 }

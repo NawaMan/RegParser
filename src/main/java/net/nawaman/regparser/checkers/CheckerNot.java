@@ -30,64 +30,64 @@ import net.nawaman.regparser.result.ParseResult;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public final class CheckerNot implements Checker {
-	
-	private static final long serialVersionUID = 4485946546354964247L;
-	
-	private final Checker checker;
-	
-	public CheckerNot(Checker checker) {
-		this.checker = requireNonNull(checker);
-	}
-	
-	@Override
-	public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider) {
-		return startLengthOf(text, offset, typeProvider, null);
-	}
-	
-	@Override
-	public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider, ParseResult parseResult) {
-		int startLength = checker.startLengthOf(text, offset, typeProvider, parseResult);
-		return (startLength != -1) ? -1 : 1;
-	}
-	
-	/** Return the optimized version of this Checker */
-	@Override
-	public Checker optimize() {
-		return (checker instanceof CheckerNot)
-		        ? ((CheckerNot)checker).checker
-		        : this;
-	}
-	
-	@Override
-	public final Boolean isDeterministic() {
-		return checker.isDeterministic();
-	}
-	
-	@Override
-	public String toString() {
-		return "(^" + checker.toString() + ")";
-	}
-	
-	@Override
-	public boolean equals(Object O) {
-		if (O == this)
-			return true;
-		
-		if (!(O instanceof CheckerNot))
-			return false;
-		
-		return checker.equals(((CheckerNot)O).checker);
-	}
-	
-	private int hashCode = 0;
-	
-	@Override
-	public int hashCode() {
-		if (hashCode != 0) {
-			return hashCode;
-		}
-		
-		hashCode = "CheckerNot".hashCode() + checker.hashCode();
-		return hashCode;
-	}
+    
+    private static final long serialVersionUID = 4485946546354964247L;
+    
+    private final Checker checker;
+    
+    public CheckerNot(Checker checker) {
+        this.checker = requireNonNull(checker);
+    }
+    
+    @Override
+    public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider) {
+        return startLengthOf(text, offset, typeProvider, null);
+    }
+    
+    @Override
+    public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider, ParseResult parseResult) {
+        int startLength = checker.startLengthOf(text, offset, typeProvider, parseResult);
+        return (startLength != -1) ? -1 : 1;
+    }
+    
+    /** Return the optimized version of this Checker */
+    @Override
+    public Checker optimize() {
+        return (checker instanceof CheckerNot)
+                ? ((CheckerNot)checker).checker
+                : this;
+    }
+    
+    @Override
+    public final Boolean isDeterministic() {
+        return checker.isDeterministic();
+    }
+    
+    @Override
+    public String toString() {
+        return "(^" + checker.toString() + ")";
+    }
+    
+    @Override
+    public boolean equals(Object O) {
+        if (O == this)
+            return true;
+        
+        if (!(O instanceof CheckerNot))
+            return false;
+        
+        return checker.equals(((CheckerNot)O).checker);
+    }
+    
+    private int hashCode = 0;
+    
+    @Override
+    public int hashCode() {
+        if (hashCode != 0) {
+            return hashCode;
+        }
+        
+        hashCode = "CheckerNot".hashCode() + checker.hashCode();
+        return hashCode;
+    }
 }

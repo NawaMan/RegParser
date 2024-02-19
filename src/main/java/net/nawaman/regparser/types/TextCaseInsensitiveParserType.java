@@ -38,50 +38,50 @@ import net.nawaman.regparser.result.ParseResult;
  */
 @SuppressWarnings("serial")
 public class TextCaseInsensitiveParserType extends ParserType {
-	
-	private static Hashtable<Integer, Checker> checkers = new Hashtable<Integer, Checker>();
-	
-	public static String                        name     = "textCI";
-	public static TextCaseInsensitiveParserType instance = new TextCaseInsensitiveParserType();
-	public static ParserTypeRef                 typeRef  = instance.typeRef();
-	
-	@Override
-	public String name() {
-		return name;
-	}
-	
-	@Override
-	public Checker checker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider) {
-		if (parameter == null) {
-			parameter = "";
-		}
-		int length  = parameter.length();
-		return checkers.computeIfAbsent(length, __ ->{
-			return newRegParser()
-					.entry(Any, bound(length))
-					.build();
-		});
-	}
-	
-	@Override
-	public boolean doValidate(
-					ParseResult        hostResult,
-					ParseResult        thisResult,
-					String             parameter,
-					ParserTypeProvider typeProvider) {
-		var text = thisResult.text();
-		if (text == parameter)
-			return true;
-		
-		if ((text      == null)
-		 || (parameter == null))
-			return false;
-		
-		return text.toLowerCase().equals(parameter.toLowerCase());
-	}
-	
-	@Override
-	public final Boolean isDeterministic() {
-		return true;
-	}
+    
+    private static Hashtable<Integer, Checker> checkers = new Hashtable<Integer, Checker>();
+    
+    public static String                        name     = "textCI";
+    public static TextCaseInsensitiveParserType instance = new TextCaseInsensitiveParserType();
+    public static ParserTypeRef                 typeRef  = instance.typeRef();
+    
+    @Override
+    public String name() {
+        return name;
+    }
+    
+    @Override
+    public Checker checker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider) {
+        if (parameter == null) {
+            parameter = "";
+        }
+        int length  = parameter.length();
+        return checkers.computeIfAbsent(length, __ ->{
+            return newRegParser()
+                    .entry(Any, bound(length))
+                    .build();
+        });
+    }
+    
+    @Override
+    public boolean doValidate(
+                    ParseResult        hostResult,
+                    ParseResult        thisResult,
+                    String             parameter,
+                    ParserTypeProvider typeProvider) {
+        var text = thisResult.text();
+        if (text == parameter)
+            return true;
+        
+        if ((text      == null)
+         || (parameter == null))
+            return false;
+        
+        return text.toLowerCase().equals(parameter.toLowerCase());
+    }
+    
+    @Override
+    public final Boolean isDeterministic() {
+        return true;
+    }
 }

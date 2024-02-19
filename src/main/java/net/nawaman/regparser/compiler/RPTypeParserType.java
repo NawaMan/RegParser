@@ -38,97 +38,97 @@ import net.nawaman.regparser.types.IdentifierParserType;
 import net.nawaman.regparser.types.StringLiteralParserType;
 
 public class RPTypeParserType extends ParserType {
-	
-	private static final long serialVersionUID = 534187749649740618L;
-	
-	public static String           name     = "Type";
-	public static RPTypeParserType instance = new RPTypeParserType();
-	public static ParserTypeRef    typeRef  = instance.typeRef();
-	
-	private final Checker checker;
-	
-	@Override
-	public String name() {
-		return name;
-	}
-	
-	public RPTypeParserType() {
-		checker = newRegParser()
-		        .entry(new CharSingle('!'))
-		        .entry(
-		            either(
-		                newRegParser()
-		                .entry("#AsText",     new CharSingle('$'),          ZeroOrOne)
-		                .entry("#TypeName",   IdentifierParserType.typeRef)
-		                .entry("#TypeOption", new CharSet("*+"),            ZeroOrOne)
-		                .entry("#Validate",   new CharSet("~?"),            ZeroOrOne)
-		                .entry("#Collective", new WordChecker("[]"),        ZeroOrOne)
-		                .entry(
-		                    "#Param",
-		                    newRegParser()
-		                    .entry(new CharSingle('('))
-		                    .entry("#ParamValue", StringLiteralParserType.typeRef, ZeroOrOne)
-		                    .entry(new CharSingle(')')),
-		                    ZeroOrOne)
-		                .entry(new CharSingle('!')))
-		            .orDefault(
-		                newRegParser()
-		                .entry("#Error[]", new CharNot(new CharSingle('!')).zeroOrMore())
-		                .entry(new CharSingle('!'))
-		            )
-		        )
-		        .build();
-	}
-	
-	@Override
-	public Checker checker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider) {
-		return this.checker;
-	}
-	
-	@Override
-	public final Boolean isDeterministic() {
-		return true;
-	}
-	
-	@Override
-	public Object doCompile(
-					ParseResult        thisResult,
-					int                entryIndex,
-					String             parameter,
-					CompilationContext compilationContext,
-					ParserTypeProvider typeProvider) {
-		thisResult = thisResult.entryAt(entryIndex).subResult();
-		
-		var typeName = thisResult.lastStringOf("#TypeName");
-		if (typeName == null) {
-			int position = thisResult.startPosition();
-			var nearBy   = thisResult.originalText().substring(position);
-			var errMsg   = format("Mal-formed RegParser Type near \"%s\".", nearBy) ;
-			throw new CompilationException(errMsg);
-		}
-		
-		var type       = thisResult.lastStringOf("#AsText");
-		var option     = thisResult.lastStringOf("#TypeOption");
-		var validate   = thisResult.lastStringOf("#Validate");
-		var collective = thisResult.lastStringOf("#Collective");
-		
-		typeName = ((type == null) ? "" : type)
-		         + typeName
-		         + ((option     == null) ? "" : option)
-		         + ((validate   == null) ? "" : validate)
-		         + ((collective == null) ? "" : collective);
-		
-		var param      = (String)null;
-		var paramEntry = thisResult.lastEntryOf("#Param");
-		if ((paramEntry != null) && paramEntry.hasSubResult()) {
-			param = paramEntry.subResult().lastStringOf("#ParamValue");
-			if (param != null) {
-				var text = param.substring(1, param.length() - 1);
-				param    = unescapeText(text).toString();
-			}
-			
-		}
-		return new ParserTypeRef.Simple(typeName, param);
-	}
-	
+    
+    private static final long serialVersionUID = 534187749649740618L;
+    
+    public static String           name     = "Type";
+    public static RPTypeParserType instance = new RPTypeParserType();
+    public static ParserTypeRef    typeRef  = instance.typeRef();
+    
+    private final Checker checker;
+    
+    @Override
+    public String name() {
+        return name;
+    }
+    
+    public RPTypeParserType() {
+        checker = newRegParser()
+                .entry(new CharSingle('!'))
+                .entry(
+                    either(
+                        newRegParser()
+                        .entry("#AsText",     new CharSingle('$'),          ZeroOrOne)
+                        .entry("#TypeName",   IdentifierParserType.typeRef)
+                        .entry("#TypeOption", new CharSet("*+"),            ZeroOrOne)
+                        .entry("#Validate",   new CharSet("~?"),            ZeroOrOne)
+                        .entry("#Collective", new WordChecker("[]"),        ZeroOrOne)
+                        .entry(
+                            "#Param",
+                            newRegParser()
+                            .entry(new CharSingle('('))
+                            .entry("#ParamValue", StringLiteralParserType.typeRef, ZeroOrOne)
+                            .entry(new CharSingle(')')),
+                            ZeroOrOne)
+                        .entry(new CharSingle('!')))
+                    .orDefault(
+                        newRegParser()
+                        .entry("#Error[]", new CharNot(new CharSingle('!')).zeroOrMore())
+                        .entry(new CharSingle('!'))
+                    )
+                )
+                .build();
+    }
+    
+    @Override
+    public Checker checker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider) {
+        return this.checker;
+    }
+    
+    @Override
+    public final Boolean isDeterministic() {
+        return true;
+    }
+    
+    @Override
+    public Object doCompile(
+                    ParseResult        thisResult,
+                    int                entryIndex,
+                    String             parameter,
+                    CompilationContext compilationContext,
+                    ParserTypeProvider typeProvider) {
+        thisResult = thisResult.entryAt(entryIndex).subResult();
+        
+        var typeName = thisResult.lastStringOf("#TypeName");
+        if (typeName == null) {
+            int position = thisResult.startPosition();
+            var nearBy   = thisResult.originalText().substring(position);
+            var errMsg   = format("Mal-formed RegParser Type near \"%s\".", nearBy) ;
+            throw new CompilationException(errMsg);
+        }
+        
+        var type       = thisResult.lastStringOf("#AsText");
+        var option     = thisResult.lastStringOf("#TypeOption");
+        var validate   = thisResult.lastStringOf("#Validate");
+        var collective = thisResult.lastStringOf("#Collective");
+        
+        typeName = ((type == null) ? "" : type)
+                 + typeName
+                 + ((option     == null) ? "" : option)
+                 + ((validate   == null) ? "" : validate)
+                 + ((collective == null) ? "" : collective);
+        
+        var param      = (String)null;
+        var paramEntry = thisResult.lastEntryOf("#Param");
+        if ((paramEntry != null) && paramEntry.hasSubResult()) {
+            param = paramEntry.subResult().lastStringOf("#ParamValue");
+            if (param != null) {
+                var text = param.substring(1, param.length() - 1);
+                param    = unescapeText(text).toString();
+            }
+            
+        }
+        return new ParserTypeRef.Simple(typeName, param);
+    }
+    
 }

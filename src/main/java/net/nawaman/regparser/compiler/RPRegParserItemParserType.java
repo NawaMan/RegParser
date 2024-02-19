@@ -52,307 +52,307 @@ import net.nawaman.regparser.types.IdentifierParserType;
 import net.nawaman.regparser.types.TextCaseInsensitiveParserType;
 
 public class RPRegParserItemParserType extends ParserType {
-	
-	private static final long serialVersionUID = -9022541167055232126L;
-	
-	public static String                    name     = "RegParserItem[]";
-	public static RPRegParserItemParserType instance = new RPRegParserItemParserType();
-	public static ParserTypeRef             typeRef  = instance.typeRef();
-	
-	private final Checker checker;
-	
-	public RPRegParserItemParserType() {
-		var checkers = new ArrayList<Checker>();
-		
-		checkers.add(
-			newRegParser(
-				"$Text",
-				newRegParser()
-				.entry(new CharSet("[#$]"), ZeroOrOne)
-				.entry(new CharSet("`"))
-				.entry(new CharNot(new CharSingle('`')), ZeroOrMore)
-				.entry(new WordChecker("`"))
-			)
-		);
-		
-		checkers.add(predefinedCharChecker);
-		// Escape
-		checkers.add(RPEscapeParserType.typeRef.asRegParser());
-		checkers.add(RPEscapeOctParserType.typeRef.asRegParser());
-		checkers.add(RPEscapeHexParserType.typeRef.asRegParser());
-		checkers.add(RPEscapeUnicodeParserType.typeRef.asRegParser());
-		// CharSet
-		checkers.add(RPTypeParserType.typeRef.asRegParser());
-		// Type
-		checkers.add(RPCharSetItemParserType.typeRef.asRegParser());
-		
-		var regParserTypeRef = new ParserTypeRef.Simple("RegParser");
-		
-		var unnamedGroup 
-				= newRegParser()
-				.entry(new CharSet("#$"), Zero)
-				.entry(
-					either(newRegParser()
-						.entry("#NOT", new CharSingle('^'), ZeroOrOne)
-						.entry(regParserTypeRef, OneOrMore)
-						.entry(newRegParser()
-							.entry("#OR", new CharSingle('|'))
-							.entry(regParserTypeRef, OneOrMore),
-							ZeroOrMore)
-						.entry(newRegParser()
-							.entry("#Default", new WordChecker("||"))
-							.entry(regParserTypeRef, OneOrMore),
-							ZeroOrMore)
-						.entry(new CharSingle(')')))
-					.orDefault(newRegParser()
-						.entry("#Error[]", new CharNot(new CharSet(")")), ZeroOrMore)
-						.entry(new CharSingle(')'))));
-		var definition 
-				= either(newRegParser()
-					.entry("#Defined", new CharSingle(':'))
-					.entry(WhiteSpace, ZeroOrMore)
-					.entry(either(newRegParser("#Type", RPTypeParserType.typeRef))
-							.or(newRegParser("#Error[]", newRegParser(
-									new CharSingle('!'),
-									new CharNot(new CharSet("!)")).zeroOrMore())))
-							.or(newRegParser()
-									.entry(new CharSingle('~'))
-									.entry("#GroupRegParser", regParserTypeRef)
-									.entry(new CharSingle('~')))
-							.or(newRegParser("#Error[]", newRegParser(new CharNot(new CharSet(":!)~")).zeroOrMore()))))
-					.entry(WhiteSpace, ZeroOrMore)
-					.entry("#Second", newRegParser()
-						.entry(new CharSingle(':'))
-						.entry(WhiteSpace, ZeroOrMore)
-						.entry(either(newRegParser("#Type", RPTypeParserType.typeRef)) // Type
-								.or(newRegParser("#Error[]", newRegParser(  // Error of Type
-										new CharSingle('!'),
-										new CharNot(new CharSet("!)")).zeroOrMore())))
-								.or(newRegParser() // Nested-RegParser
-										.entry(new CharSingle('~'))
-										.entry("#GroupRegParser",  regParserTypeRef)
-										.entry(new CharSingle('~')))
-								.or(newRegParser("#Error[]", newRegParser(new CharNot(new CharSet(":!)~")).zeroOrMore()))))
-						.entry(WhiteSpace, ZeroOrMore), ZeroOrOne)
-					.entry(new CharSingle(')')))
-				.or(newRegParser() // BackRef
-					.entry("#BackRefCI", new CharSingle('\''), ZeroOrOne)
-					.entry("#BackRef",   new CharSingle(';'))
-					.entry(WhiteSpace, ZeroOrMore)
-					.entry(either(new CharSingle(')'))
-							.or(newRegParser()
-								.entry("#Error[]", new CharNot(new CharSet(")")), ZeroOrOne)
-								.entry(new CharSingle(')')))))
-				.orDefault(newRegParser()
-					.entry("#Error[]", new CharNot(new CharSet(")")), ZeroOrMore)
-					.entry(new CharSingle(')')));
-		
-		var namedGroup 
-				= newRegParser()
-				.entry("#Name", new CharSet("#$"))
-				.entry(either(newRegParser()
-							.entry("#Group-Name",   IdentifierParserType.typeRef)
-							.entry("#Group-Option", new CharSet("*+"),    ZeroOrOne)
-							.entry("#Multiple",     new WordChecker("[]"), ZeroOrOne)
-							.entry(WhiteSpace.zeroOrMore())
-							.entry(definition))
-						.orDefault(newRegParser()
-							.entry("#Error[]", new CharNot(new CharSet(")")), ZeroOrMore)
-							.entry(new CharSingle(')'))));
-		checkers.add(
-			newRegParser(
-				"#Group",
-				newRegParser()
-				.entry(new CharSingle('('))
-				.entry(new CharSingle('*'), Zero)
-				.entry(either(unnamedGroup).or(namedGroup))
-			)
-		);
-		
-		// Other char
-		checkers.add(newRegParser(new CharNot(new CharSet(escapable)).oneOrMore().minimum()));
-		
-		// Create the checker
-		checker = newRegParser(new CheckerAlternative(true, checkers.toArray(EMPTY_CHECKER_ARRAY)));
-	}
-	
-	@Override
-	public String name() {
-		return name;
-	}
-	
-	@Override
-	public Checker checker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider) {
-		return checker;
-	}
-	
-	@Override
-	public final Boolean isDeterministic() {
-		return true;
-	}
-	
-	@Override
-	public Object doCompile(
-					ParseResult        thisResult,
-					int                entryIndex,
-					String             parameter,
-					CompilationContext compilationContext,
-					ParserTypeProvider typeProvider) {
-		
-		var     entry        = thisResult.entryAt(entryIndex);
-		boolean hasSubResult = entry.hasSubResult();
-		
-		if (!hasSubResult) { // A word
-			var text = thisResult.textOf(entryIndex);
-			return newParserEntry(
-			        (text.length() == 0)
-			        ? new CharSingle(text.charAt(0))
-			        : new WordChecker(text));
-		}
-		
-		// Go into the sub
-		thisResult = entry.subResult();
-		entry      = thisResult.entryAt(0);
-		
-		var name = entry.name();
-		
-		if ("#Any".equals(name))
-			return newParserEntry(Any);
-		
-		if (PredefinedCheckers.charClassName.equals(name))
-			return newParserEntry(getCharClass(thisResult, 0));
-		
-		var typeName = entry.typeName();
-		if (RPEscapeParserType.name.equals(typeName)) {
-			var chr = (Character) typeProvider
-			        .type(RPEscapeParserType.name)
-			        .compile(thisResult, 0, null, compilationContext, typeProvider);
-			return newParserEntry(new CharSingle(chr));
-		}
-		
-		if (RPEscapeOctParserType.name.equals(typeName)) {
-			var chr = (Character) typeProvider
-			        .type(RPEscapeOctParserType.name)
-			        .compile(thisResult, 0, null, compilationContext, typeProvider);
-			return newParserEntry(new CharSingle(chr));
-		}
-		
-		if (RPEscapeHexParserType.name.equals(typeName)) {
-			var chr = (Character) typeProvider
-			        .type(RPEscapeHexParserType.name)
-			        .compile(thisResult, 0, null, compilationContext, typeProvider);
-			return newParserEntry(new CharSingle(chr));
-		}
-		
-		if (RPEscapeUnicodeParserType.name.equals(typeName)) {
-			var chr = (Character) typeProvider
-			        .type(RPEscapeUnicodeParserType.name)
-			        .compile(thisResult, 0, null, compilationContext, typeProvider);
-			return newParserEntry(new CharSingle(chr));
-		}
-		
-		if (RPCharSetItemParserType.name.equals(typeName)) {
-			var checker = (Checker) typeProvider
-			            .type(RPCharSetItemParserType.name)
-			            .compile(thisResult, 0, null, compilationContext, typeProvider);
-			return newParserEntry(checker);
-		}
-		
-		if ("$Text".equals(name)) {
-			var     text = thisResult.textOf(0);
-			char    ch0  = text.charAt(0);
-			boolean hasS = ch0 == '$';
-			boolean hasH = ch0 == '#';
-			var     word = text.substring(1 + ((hasS | hasH) ? 1 : 0), text.length() - 1);
-			
-			var checker
-					= hasH
-					? new ParserTypeRef.Simple(TextCaseInsensitiveParserType.name, word)
-					: new WordChecker(word);
-			return newParserEntry(checker);
-		}
-		
-		if (RPTypeParserType.name.equals(typeName)) {
-			var parserTypeRef
-			        = (ParserTypeRef) typeProvider
-			        .type(RPTypeParserType.name)
-			        .compile(thisResult, 0, null, compilationContext, typeProvider);
-			return newParserEntry(parserTypeRef);
-		}
-		
-		if ("#Group".equals(name)) {
-			var nameValue = entry.subResult().lastStringOf("#Name");
-			if (nameValue == null) {
-				var checker
-				        = (Checker) typeProvider
-				        .type(RPRegParserParserType.name)
-				        .compile(thisResult, 0, null, compilationContext, typeProvider);
-				return newParserEntry(checker);
-			}
-			
-			thisResult = entry.subResult();
-			
-			var groupName   = thisResult.lastStringOf("#Group-Name");
-			var groupOption = thisResult.lastStringOf("#Group-Option");
-			groupOption = (groupOption == null) ? "" : groupOption;
-			
-			var multiple = thisResult.lastStringOf("#Multiple");
-			multiple = (multiple == null) ? "" : multiple;
-			
-			var backRef = thisResult.lastStringOf("#BackRef");
-			if (backRef != null) {
-				var backRefParam = nameValue + groupName + multiple;
-				if (thisResult.lastStringOf("#BackRefCI") != null) {
-					var typeRef = new ParserTypeRef.Simple(BackRefCI_Instance.name(), backRefParam);
-					return newParserEntry(typeRef);
-				}
-				
-				var typeRef = new ParserTypeRef.Simple(BackRef_Instance.name(), backRefParam);
-				return newParserEntry(typeRef);
-			}
-			
-			var secondParser = (RegParser) null;
-			var secondEntry  = thisResult.lastEntryOf("#Second");
-			if ((secondEntry != null) && secondEntry.hasSubResult()) {
-				var secondSubResult = secondEntry.subResult();
-				
-				int typeIndex = secondSubResult.indexOf("#Type");
-				if (typeIndex != -1) { // TypeRef with Name
-					var secondTypeRef
-					        = (ParserTypeRef) typeProvider
-					        .type(RPTypeParserType.name)
-					        .compile(secondSubResult, typeIndex, null, compilationContext, typeProvider);
-					secondParser = secondTypeRef.asRegParser();
-				} else {
-					int parserIndex = secondSubResult.indexOf("#GroupRegParser");
-					// Named Group
-					var secondChecker 
-					        = (Checker) typeProvider
-					        .type(RPRegParserParserType.name)
-					        .compile(secondSubResult, parserIndex, null, compilationContext, typeProvider);
-					secondParser = newRegParser(secondChecker);
-				}
-			}
-			
-			int typeIndex = thisResult.indexOf("#Type");
-			var entryName = nameValue + groupName + groupOption + multiple;
-			if (typeIndex != -1) { // TypeRef with Name
-				var parserTypeRef
-				        = (ParserTypeRef) typeProvider
-				        .type(RPTypeParserType.name)
-				        .compile(thisResult, typeIndex, null, compilationContext, typeProvider);
-				return newParserEntry(entryName, parserTypeRef, null, secondParser);
-			}
-			
-			int groupIndex = thisResult.indexOf("#GroupRegParser");
-			// Named Group
-			var groupChecker
-			        = (Checker) typeProvider
-			        .type(RPRegParserParserType.name)
-			        .compile(thisResult, groupIndex, null, compilationContext, typeProvider);
-			return newParserEntry(entryName, groupChecker, null, secondParser);
-		}
-		return super.compile(thisResult, parameter, compilationContext, typeProvider);
-	}
-	
+    
+    private static final long serialVersionUID = -9022541167055232126L;
+    
+    public static String                    name     = "RegParserItem[]";
+    public static RPRegParserItemParserType instance = new RPRegParserItemParserType();
+    public static ParserTypeRef             typeRef  = instance.typeRef();
+    
+    private final Checker checker;
+    
+    public RPRegParserItemParserType() {
+        var checkers = new ArrayList<Checker>();
+        
+        checkers.add(
+            newRegParser(
+                "$Text",
+                newRegParser()
+                .entry(new CharSet("[#$]"), ZeroOrOne)
+                .entry(new CharSet("`"))
+                .entry(new CharNot(new CharSingle('`')), ZeroOrMore)
+                .entry(new WordChecker("`"))
+            )
+        );
+        
+        checkers.add(predefinedCharChecker);
+        // Escape
+        checkers.add(RPEscapeParserType.typeRef.asRegParser());
+        checkers.add(RPEscapeOctParserType.typeRef.asRegParser());
+        checkers.add(RPEscapeHexParserType.typeRef.asRegParser());
+        checkers.add(RPEscapeUnicodeParserType.typeRef.asRegParser());
+        // CharSet
+        checkers.add(RPTypeParserType.typeRef.asRegParser());
+        // Type
+        checkers.add(RPCharSetItemParserType.typeRef.asRegParser());
+        
+        var regParserTypeRef = new ParserTypeRef.Simple("RegParser");
+        
+        var unnamedGroup 
+                = newRegParser()
+                .entry(new CharSet("#$"), Zero)
+                .entry(
+                    either(newRegParser()
+                        .entry("#NOT", new CharSingle('^'), ZeroOrOne)
+                        .entry(regParserTypeRef, OneOrMore)
+                        .entry(newRegParser()
+                            .entry("#OR", new CharSingle('|'))
+                            .entry(regParserTypeRef, OneOrMore),
+                            ZeroOrMore)
+                        .entry(newRegParser()
+                            .entry("#Default", new WordChecker("||"))
+                            .entry(regParserTypeRef, OneOrMore),
+                            ZeroOrMore)
+                        .entry(new CharSingle(')')))
+                    .orDefault(newRegParser()
+                        .entry("#Error[]", new CharNot(new CharSet(")")), ZeroOrMore)
+                        .entry(new CharSingle(')'))));
+        var definition 
+                = either(newRegParser()
+                    .entry("#Defined", new CharSingle(':'))
+                    .entry(WhiteSpace, ZeroOrMore)
+                    .entry(either(newRegParser("#Type", RPTypeParserType.typeRef))
+                            .or(newRegParser("#Error[]", newRegParser(
+                                    new CharSingle('!'),
+                                    new CharNot(new CharSet("!)")).zeroOrMore())))
+                            .or(newRegParser()
+                                    .entry(new CharSingle('~'))
+                                    .entry("#GroupRegParser", regParserTypeRef)
+                                    .entry(new CharSingle('~')))
+                            .or(newRegParser("#Error[]", newRegParser(new CharNot(new CharSet(":!)~")).zeroOrMore()))))
+                    .entry(WhiteSpace, ZeroOrMore)
+                    .entry("#Second", newRegParser()
+                        .entry(new CharSingle(':'))
+                        .entry(WhiteSpace, ZeroOrMore)
+                        .entry(either(newRegParser("#Type", RPTypeParserType.typeRef)) // Type
+                                .or(newRegParser("#Error[]", newRegParser(  // Error of Type
+                                        new CharSingle('!'),
+                                        new CharNot(new CharSet("!)")).zeroOrMore())))
+                                .or(newRegParser() // Nested-RegParser
+                                        .entry(new CharSingle('~'))
+                                        .entry("#GroupRegParser",  regParserTypeRef)
+                                        .entry(new CharSingle('~')))
+                                .or(newRegParser("#Error[]", newRegParser(new CharNot(new CharSet(":!)~")).zeroOrMore()))))
+                        .entry(WhiteSpace, ZeroOrMore), ZeroOrOne)
+                    .entry(new CharSingle(')')))
+                .or(newRegParser() // BackRef
+                    .entry("#BackRefCI", new CharSingle('\''), ZeroOrOne)
+                    .entry("#BackRef",   new CharSingle(';'))
+                    .entry(WhiteSpace, ZeroOrMore)
+                    .entry(either(new CharSingle(')'))
+                            .or(newRegParser()
+                                .entry("#Error[]", new CharNot(new CharSet(")")), ZeroOrOne)
+                                .entry(new CharSingle(')')))))
+                .orDefault(newRegParser()
+                    .entry("#Error[]", new CharNot(new CharSet(")")), ZeroOrMore)
+                    .entry(new CharSingle(')')));
+        
+        var namedGroup 
+                = newRegParser()
+                .entry("#Name", new CharSet("#$"))
+                .entry(either(newRegParser()
+                            .entry("#Group-Name",   IdentifierParserType.typeRef)
+                            .entry("#Group-Option", new CharSet("*+"),    ZeroOrOne)
+                            .entry("#Multiple",     new WordChecker("[]"), ZeroOrOne)
+                            .entry(WhiteSpace.zeroOrMore())
+                            .entry(definition))
+                        .orDefault(newRegParser()
+                            .entry("#Error[]", new CharNot(new CharSet(")")), ZeroOrMore)
+                            .entry(new CharSingle(')'))));
+        checkers.add(
+            newRegParser(
+                "#Group",
+                newRegParser()
+                .entry(new CharSingle('('))
+                .entry(new CharSingle('*'), Zero)
+                .entry(either(unnamedGroup).or(namedGroup))
+            )
+        );
+        
+        // Other char
+        checkers.add(newRegParser(new CharNot(new CharSet(escapable)).oneOrMore().minimum()));
+        
+        // Create the checker
+        checker = newRegParser(new CheckerAlternative(true, checkers.toArray(EMPTY_CHECKER_ARRAY)));
+    }
+    
+    @Override
+    public String name() {
+        return name;
+    }
+    
+    @Override
+    public Checker checker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider) {
+        return checker;
+    }
+    
+    @Override
+    public final Boolean isDeterministic() {
+        return true;
+    }
+    
+    @Override
+    public Object doCompile(
+                    ParseResult        thisResult,
+                    int                entryIndex,
+                    String             parameter,
+                    CompilationContext compilationContext,
+                    ParserTypeProvider typeProvider) {
+        
+        var     entry        = thisResult.entryAt(entryIndex);
+        boolean hasSubResult = entry.hasSubResult();
+        
+        if (!hasSubResult) { // A word
+            var text = thisResult.textOf(entryIndex);
+            return newParserEntry(
+                    (text.length() == 0)
+                    ? new CharSingle(text.charAt(0))
+                    : new WordChecker(text));
+        }
+        
+        // Go into the sub
+        thisResult = entry.subResult();
+        entry      = thisResult.entryAt(0);
+        
+        var name = entry.name();
+        
+        if ("#Any".equals(name))
+            return newParserEntry(Any);
+        
+        if (PredefinedCheckers.charClassName.equals(name))
+            return newParserEntry(getCharClass(thisResult, 0));
+        
+        var typeName = entry.typeName();
+        if (RPEscapeParserType.name.equals(typeName)) {
+            var chr = (Character) typeProvider
+                    .type(RPEscapeParserType.name)
+                    .compile(thisResult, 0, null, compilationContext, typeProvider);
+            return newParserEntry(new CharSingle(chr));
+        }
+        
+        if (RPEscapeOctParserType.name.equals(typeName)) {
+            var chr = (Character) typeProvider
+                    .type(RPEscapeOctParserType.name)
+                    .compile(thisResult, 0, null, compilationContext, typeProvider);
+            return newParserEntry(new CharSingle(chr));
+        }
+        
+        if (RPEscapeHexParserType.name.equals(typeName)) {
+            var chr = (Character) typeProvider
+                    .type(RPEscapeHexParserType.name)
+                    .compile(thisResult, 0, null, compilationContext, typeProvider);
+            return newParserEntry(new CharSingle(chr));
+        }
+        
+        if (RPEscapeUnicodeParserType.name.equals(typeName)) {
+            var chr = (Character) typeProvider
+                    .type(RPEscapeUnicodeParserType.name)
+                    .compile(thisResult, 0, null, compilationContext, typeProvider);
+            return newParserEntry(new CharSingle(chr));
+        }
+        
+        if (RPCharSetItemParserType.name.equals(typeName)) {
+            var checker = (Checker) typeProvider
+                        .type(RPCharSetItemParserType.name)
+                        .compile(thisResult, 0, null, compilationContext, typeProvider);
+            return newParserEntry(checker);
+        }
+        
+        if ("$Text".equals(name)) {
+            var     text = thisResult.textOf(0);
+            char    ch0  = text.charAt(0);
+            boolean hasS = ch0 == '$';
+            boolean hasH = ch0 == '#';
+            var     word = text.substring(1 + ((hasS | hasH) ? 1 : 0), text.length() - 1);
+            
+            var checker
+                    = hasH
+                    ? new ParserTypeRef.Simple(TextCaseInsensitiveParserType.name, word)
+                    : new WordChecker(word);
+            return newParserEntry(checker);
+        }
+        
+        if (RPTypeParserType.name.equals(typeName)) {
+            var parserTypeRef
+                    = (ParserTypeRef) typeProvider
+                    .type(RPTypeParserType.name)
+                    .compile(thisResult, 0, null, compilationContext, typeProvider);
+            return newParserEntry(parserTypeRef);
+        }
+        
+        if ("#Group".equals(name)) {
+            var nameValue = entry.subResult().lastStringOf("#Name");
+            if (nameValue == null) {
+                var checker
+                        = (Checker) typeProvider
+                        .type(RPRegParserParserType.name)
+                        .compile(thisResult, 0, null, compilationContext, typeProvider);
+                return newParserEntry(checker);
+            }
+            
+            thisResult = entry.subResult();
+            
+            var groupName   = thisResult.lastStringOf("#Group-Name");
+            var groupOption = thisResult.lastStringOf("#Group-Option");
+            groupOption = (groupOption == null) ? "" : groupOption;
+            
+            var multiple = thisResult.lastStringOf("#Multiple");
+            multiple = (multiple == null) ? "" : multiple;
+            
+            var backRef = thisResult.lastStringOf("#BackRef");
+            if (backRef != null) {
+                var backRefParam = nameValue + groupName + multiple;
+                if (thisResult.lastStringOf("#BackRefCI") != null) {
+                    var typeRef = new ParserTypeRef.Simple(BackRefCI_Instance.name(), backRefParam);
+                    return newParserEntry(typeRef);
+                }
+                
+                var typeRef = new ParserTypeRef.Simple(BackRef_Instance.name(), backRefParam);
+                return newParserEntry(typeRef);
+            }
+            
+            var secondParser = (RegParser) null;
+            var secondEntry  = thisResult.lastEntryOf("#Second");
+            if ((secondEntry != null) && secondEntry.hasSubResult()) {
+                var secondSubResult = secondEntry.subResult();
+                
+                int typeIndex = secondSubResult.indexOf("#Type");
+                if (typeIndex != -1) { // TypeRef with Name
+                    var secondTypeRef
+                            = (ParserTypeRef) typeProvider
+                            .type(RPTypeParserType.name)
+                            .compile(secondSubResult, typeIndex, null, compilationContext, typeProvider);
+                    secondParser = secondTypeRef.asRegParser();
+                } else {
+                    int parserIndex = secondSubResult.indexOf("#GroupRegParser");
+                    // Named Group
+                    var secondChecker 
+                            = (Checker) typeProvider
+                            .type(RPRegParserParserType.name)
+                            .compile(secondSubResult, parserIndex, null, compilationContext, typeProvider);
+                    secondParser = newRegParser(secondChecker);
+                }
+            }
+            
+            int typeIndex = thisResult.indexOf("#Type");
+            var entryName = nameValue + groupName + groupOption + multiple;
+            if (typeIndex != -1) { // TypeRef with Name
+                var parserTypeRef
+                        = (ParserTypeRef) typeProvider
+                        .type(RPTypeParserType.name)
+                        .compile(thisResult, typeIndex, null, compilationContext, typeProvider);
+                return newParserEntry(entryName, parserTypeRef, null, secondParser);
+            }
+            
+            int groupIndex = thisResult.indexOf("#GroupRegParser");
+            // Named Group
+            var groupChecker
+                    = (Checker) typeProvider
+                    .type(RPRegParserParserType.name)
+                    .compile(thisResult, groupIndex, null, compilationContext, typeProvider);
+            return newParserEntry(entryName, groupChecker, null, secondParser);
+        }
+        return super.compile(thisResult, parameter, compilationContext, typeProvider);
+    }
+    
 }

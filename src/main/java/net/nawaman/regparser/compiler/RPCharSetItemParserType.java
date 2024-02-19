@@ -47,156 +47,156 @@ import net.nawaman.regparser.checkers.WordChecker;
 import net.nawaman.regparser.result.ParseResult;
 
 public class RPCharSetItemParserType extends ParserType {
-	
-	private static final long serialVersionUID = -5308399615865809113L;
-	
-	public static String                  name     = "CharSetItem";
-	public static RPCharSetItemParserType instance = new RPCharSetItemParserType();
-	public static ParserTypeRef           typeRef  = instance.typeRef();
-	
-	private final Checker checker;
-	
-	public RPCharSetItemParserType() {
-		var typeRef  = new ParserTypeRef.Simple(name);
-		var checkers = new ArrayList<Checker>();
-		checkers.add(predefinedCharChecker);
-		checkers.add(
-		        newRegParser()
-		        .entry(typeRef)
-		        .entry(newRegParser().entry("#Intersect", new WordChecker("&&")).entry(typeRef), ZeroOrMore)
-		        .build());
-		checkers.add(newRegParser("#Ignored[]", WhiteSpace.oneOrMore()));
-		checkers.add(newRegParser("#Range",     RPRangeParserType.typeRef));
-		
-		// Create the checker
-		checker = newRegParser()
-		        .entry(
-		            newRegParser()
-		            .entry(new CharSingle('['))
-		            .entry("#NOT", new CharSingle('^'), ZeroOrOne)
-		            .entry(new CharSingle(':'), Zero)
-	                      // "#Content",
-		            .entry(new CheckerAlternative(true, checkers.toArray(EMPTY_CHECKER_ARRAY)), OneOrMore)
-		            .entry(new CharSingle(']'))
-		        )
-		        .entry(
-		            newRegParser()
-		            .entry("#Intersect", new WordChecker("&&"))
-		            .entry(
-		                "#Set",
-		                newRegParser()
-		                .entry(new CharSingle('['))
-		                .entry("#NOT", new CharSingle('^'), ZeroOrOne)
-		                .entry(new CharSingle(':'), Zero)
-		                       // "#Content",
-		                .entry(new CheckerAlternative(checkers.toArray(EMPTY_CHECKER_ARRAY)), OneOrMore)
-		                .entry(new CharSingle(']'))
-		            ),
-		            ZeroOrMore
-		        )
-		        .build();
-	}
-	
-	@Override
-	public String name() {
-		return name;
-	}
-	
-	@Override
-	public Checker checker(ParseResult pHostResult, String pParam, ParserTypeProvider pProvider) {
-		return checker;
-	}
-	
-	@Override
-	public final Boolean isDeterministic() {
-		return true;
-	}
-	
-	@Override
-	public Object doCompile(
-					ParseResult        thisResult,
-					int                entryIndex,
-					String             parameter,
-					CompilationContext compilationContext,
-					ParserTypeProvider typeProvider) {
-		thisResult = thisResult.entryAt(entryIndex).subResult();
-		
-		var     allCheckers  = new ArrayList<CharChecker>();
-		var     eachCheckers = new ArrayList<CharChecker>();
-		boolean negate       = false;
-		int     entryCount   = thisResult.rawEntryCount();
-		for (int i = 0; i < entryCount; i++) {
-			var entry = thisResult.entryAt(i);
-			var name  = entry.name();
-			var text  = thisResult.textOf(i);
-			var type  = entry.typeName();
-			if ((name == null)
-			 && (text.equals("[")))
-				continue;
-			
-			if ("#NOT".equals(name)) { // Process not
-				negate = true;
-				
-			} else if (charClassName.equals(name) || "#Any".equals(name)) { // Extract CharClass
-				eachCheckers.add(getCharClass(thisResult, i));
-				
-			} else if ("#Range".equals(name)) { // Extract Range
-				var charChecker
-				        = (CharChecker)typeProvider.type(RPRangeParserType.name)
-				                                   .compile(thisResult, i, null, compilationContext, typeProvider);
-				
-				if ((charChecker instanceof CharSingle) && (eachCheckers.size() > 0)) {
-					var eachCharChecker = eachCheckers.get(eachCheckers.size() - 1);
-					
-					// Append the previous one if able
-					if (eachCharChecker instanceof CharSingle) {
-						charChecker = new CharSet("" + ((CharSingle) eachCharChecker).ch + ((CharSingle) charChecker).ch);
-						eachCheckers.remove(eachCheckers.size() - 1);
-						
-					} else if (eachCharChecker instanceof CharSet) {
-						charChecker = new CharSet("" + ((CharSet) eachCharChecker).set + ((CharSingle) charChecker).ch);
-						eachCheckers.remove(eachCheckers.size() - 1);
-					}
-				}
-				eachCheckers.add(charChecker);
-				
-			} else if ("#Set".equals(name) || RPCharSetItemParserType.name.equals(type)) { // Extract Nested
-				eachCheckers.add((CharChecker) this.compile(thisResult, i, null, compilationContext, typeProvider));
-				
-			}
-			
-			// Ending and intersect
-			if ("#Intersect".equals(name)) {
-				var newCharChecker
-				        = (eachCheckers.size() == 1)
-				        ? eachCheckers.get(0)
-				        : new CharUnion(eachCheckers.toArray(EMPTY_CHAR_CHECKER_ARRAY));
-				
-				if (negate) {
-					newCharChecker = new CharNot(newCharChecker);
-				}
-				
-				allCheckers.add(newCharChecker);
-				eachCheckers = new ArrayList<CharChecker>();
-				negate = false;
-			}
-		}
-		
-		if (eachCheckers.size() > 0) {
-			var newCharChecker
-			        = (eachCheckers.size() == 1)
-			        ? eachCheckers.get(0)
-			        : new CharUnion(eachCheckers.toArray(EMPTY_CHAR_CHECKER_ARRAY));
-			if (negate) {
-				newCharChecker = new CharNot(newCharChecker);
-			}
-			allCheckers.add(newCharChecker);
-		}
-		
-		if (allCheckers.size() == 1)
-			return allCheckers.get(0);
-		
-		return new CharIntersect(allCheckers.toArray(EMPTY_CHAR_CHECKER_ARRAY));
-	}
-	
+    
+    private static final long serialVersionUID = -5308399615865809113L;
+    
+    public static String                  name     = "CharSetItem";
+    public static RPCharSetItemParserType instance = new RPCharSetItemParserType();
+    public static ParserTypeRef           typeRef  = instance.typeRef();
+    
+    private final Checker checker;
+    
+    public RPCharSetItemParserType() {
+        var typeRef  = new ParserTypeRef.Simple(name);
+        var checkers = new ArrayList<Checker>();
+        checkers.add(predefinedCharChecker);
+        checkers.add(
+                newRegParser()
+                .entry(typeRef)
+                .entry(newRegParser().entry("#Intersect", new WordChecker("&&")).entry(typeRef), ZeroOrMore)
+                .build());
+        checkers.add(newRegParser("#Ignored[]", WhiteSpace.oneOrMore()));
+        checkers.add(newRegParser("#Range",     RPRangeParserType.typeRef));
+        
+        // Create the checker
+        checker = newRegParser()
+                .entry(
+                    newRegParser()
+                    .entry(new CharSingle('['))
+                    .entry("#NOT", new CharSingle('^'), ZeroOrOne)
+                    .entry(new CharSingle(':'), Zero)
+                          // "#Content",
+                    .entry(new CheckerAlternative(true, checkers.toArray(EMPTY_CHECKER_ARRAY)), OneOrMore)
+                    .entry(new CharSingle(']'))
+                )
+                .entry(
+                    newRegParser()
+                    .entry("#Intersect", new WordChecker("&&"))
+                    .entry(
+                        "#Set",
+                        newRegParser()
+                        .entry(new CharSingle('['))
+                        .entry("#NOT", new CharSingle('^'), ZeroOrOne)
+                        .entry(new CharSingle(':'), Zero)
+                               // "#Content",
+                        .entry(new CheckerAlternative(checkers.toArray(EMPTY_CHECKER_ARRAY)), OneOrMore)
+                        .entry(new CharSingle(']'))
+                    ),
+                    ZeroOrMore
+                )
+                .build();
+    }
+    
+    @Override
+    public String name() {
+        return name;
+    }
+    
+    @Override
+    public Checker checker(ParseResult pHostResult, String pParam, ParserTypeProvider pProvider) {
+        return checker;
+    }
+    
+    @Override
+    public final Boolean isDeterministic() {
+        return true;
+    }
+    
+    @Override
+    public Object doCompile(
+                    ParseResult        thisResult,
+                    int                entryIndex,
+                    String             parameter,
+                    CompilationContext compilationContext,
+                    ParserTypeProvider typeProvider) {
+        thisResult = thisResult.entryAt(entryIndex).subResult();
+        
+        var     allCheckers  = new ArrayList<CharChecker>();
+        var     eachCheckers = new ArrayList<CharChecker>();
+        boolean negate       = false;
+        int     entryCount   = thisResult.rawEntryCount();
+        for (int i = 0; i < entryCount; i++) {
+            var entry = thisResult.entryAt(i);
+            var name  = entry.name();
+            var text  = thisResult.textOf(i);
+            var type  = entry.typeName();
+            if ((name == null)
+             && (text.equals("[")))
+                continue;
+            
+            if ("#NOT".equals(name)) { // Process not
+                negate = true;
+                
+            } else if (charClassName.equals(name) || "#Any".equals(name)) { // Extract CharClass
+                eachCheckers.add(getCharClass(thisResult, i));
+                
+            } else if ("#Range".equals(name)) { // Extract Range
+                var charChecker
+                        = (CharChecker)typeProvider.type(RPRangeParserType.name)
+                                                   .compile(thisResult, i, null, compilationContext, typeProvider);
+                
+                if ((charChecker instanceof CharSingle) && (eachCheckers.size() > 0)) {
+                    var eachCharChecker = eachCheckers.get(eachCheckers.size() - 1);
+                    
+                    // Append the previous one if able
+                    if (eachCharChecker instanceof CharSingle) {
+                        charChecker = new CharSet("" + ((CharSingle) eachCharChecker).ch + ((CharSingle) charChecker).ch);
+                        eachCheckers.remove(eachCheckers.size() - 1);
+                        
+                    } else if (eachCharChecker instanceof CharSet) {
+                        charChecker = new CharSet("" + ((CharSet) eachCharChecker).set + ((CharSingle) charChecker).ch);
+                        eachCheckers.remove(eachCheckers.size() - 1);
+                    }
+                }
+                eachCheckers.add(charChecker);
+                
+            } else if ("#Set".equals(name) || RPCharSetItemParserType.name.equals(type)) { // Extract Nested
+                eachCheckers.add((CharChecker) this.compile(thisResult, i, null, compilationContext, typeProvider));
+                
+            }
+            
+            // Ending and intersect
+            if ("#Intersect".equals(name)) {
+                var newCharChecker
+                        = (eachCheckers.size() == 1)
+                        ? eachCheckers.get(0)
+                        : new CharUnion(eachCheckers.toArray(EMPTY_CHAR_CHECKER_ARRAY));
+                
+                if (negate) {
+                    newCharChecker = new CharNot(newCharChecker);
+                }
+                
+                allCheckers.add(newCharChecker);
+                eachCheckers = new ArrayList<CharChecker>();
+                negate = false;
+            }
+        }
+        
+        if (eachCheckers.size() > 0) {
+            var newCharChecker
+                    = (eachCheckers.size() == 1)
+                    ? eachCheckers.get(0)
+                    : new CharUnion(eachCheckers.toArray(EMPTY_CHAR_CHECKER_ARRAY));
+            if (negate) {
+                newCharChecker = new CharNot(newCharChecker);
+            }
+            allCheckers.add(newCharChecker);
+        }
+        
+        if (allCheckers.size() == 1)
+            return allCheckers.get(0);
+        
+        return new CharIntersect(allCheckers.toArray(EMPTY_CHAR_CHECKER_ARRAY));
+    }
+    
 }

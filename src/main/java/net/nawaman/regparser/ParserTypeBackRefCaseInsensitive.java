@@ -26,52 +26,52 @@ import net.nawaman.regparser.result.ParseResult;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class ParserTypeBackRefCaseInsensitive extends ParserTypeBackRef {
-	
-	private static final long serialVersionUID = 4711433513141637509L;
-	
-	
-	public static final ParserTypeBackRefCaseInsensitive BackRefCI_Instance = new ParserTypeBackRefCaseInsensitive();
-	
-	public static final String name = "$BackRefCI?";
-	
-	public static ParserTypeRef backrefCI(String parameter) {
-		return ParserTypeRef.of(name, parameter);
-	};
-	
-	public static ParserTypeRef of(String parameter) {
-		return ParserTypeRef.of(name, parameter);
-	};
-	
-	ParserTypeBackRefCaseInsensitive() {
-	}
-	
-	@Override
-	public String name() {
-		return name;
-	}
-	
-	@Override
-	public boolean doValidate(
-					ParseResult   hostResult,
-					ParseResult   thisResult,
-					String        parameter,
-					ParserTypeProvider typeProvider) {
-		if (hostResult == null)
-			return false;
-		
-		var word = hostResult.lastStringOf(parameter);
-		var text = thisResult.text();
-		
-		if (word == text)
-			return true;
-		
-		if ((word == null)
-		 || (text == null))
-			return false ;
-		
-		word = word.toLowerCase();
-		text = text.toLowerCase();
-		return word.equals(text);
-	}
-	
+    
+    private static final long serialVersionUID = 4711433513141637509L;
+    
+    
+    public static final ParserTypeBackRefCaseInsensitive BackRefCI_Instance = new ParserTypeBackRefCaseInsensitive();
+    
+    public static final String name = "$BackRefCI?";
+    
+    public static ParserTypeRef backrefCI(String parameter) {
+        return ParserTypeRef.of(name, parameter);
+    };
+    
+    public static ParserTypeRef of(String parameter) {
+        return ParserTypeRef.of(name, parameter);
+    };
+    
+    ParserTypeBackRefCaseInsensitive() {
+    }
+    
+    @Override
+    public String name() {
+        return name;
+    }
+    
+    @Override
+    public boolean doValidate(
+                    ParseResult   hostResult,
+                    ParseResult   thisResult,
+                    String        parameter,
+                    ParserTypeProvider typeProvider) {
+        if (hostResult == null)
+            return false;
+        
+        var word = hostResult.lastStringOf(parameter);
+        var text = thisResult.text();
+        
+        if (word == text)
+            return true;
+        
+        if ((word == null)
+         || (text == null))
+            return false ;
+        
+        word = word.toLowerCase();
+        text = text.toLowerCase();
+        return word.equals(text);
+    }
+    
 }

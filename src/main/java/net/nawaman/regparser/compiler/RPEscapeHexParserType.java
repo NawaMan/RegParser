@@ -37,61 +37,61 @@ import net.nawaman.regparser.result.ParseResult;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class RPEscapeHexParserType extends ParserType {
-	
-	private static final long serialVersionUID = -8357960494054126599L;
-	
-	public static String                name     = "EscapeHex";
-	public static RPEscapeHexParserType instance = new RPEscapeHexParserType();
-	public static ParserTypeRef         typeRef  = instance.typeRef();
-	public static RegParser             parser   = instance.typeRef().asRegParser();
-	
-	final public static String HEX = "0123456789ABCDEF";
-	
-	private final Checker checker;
-	
-	public RPEscapeHexParserType() {
-		// ~\\x[0-9A-Fa-f][0-9A-Fa-f]~
-		checker = newRegParser()
-		        .entry(new WordChecker("\\x"))
-		        .entry(HexadecimalDigit)
-		        .entry(HexadecimalDigit)
-		        .build();
-	}
-	
-	@Override
-	public String name() {
-		return name;
-	}
-	
-	@Override
-	public Checker checker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider) {
-		return checker;
-	}
-	
-	@Override
-	public final Boolean isDeterministic() {
-		return true;
-	}
-	
-	@Override
-	public Object doCompile(
-					ParseResult        thisResult,
-					int                entryIndex,
-					String             parameter,
-					CompilationContext compilationContext,
-					ParserTypeProvider typeProvider) {
-		
-		// Ensure type
-		var typeName = thisResult.typeNameOf(entryIndex);
-		if (!name.equals(typeName)) {
-			var nearBy = thisResult.originalText().substring(thisResult.startPosition());
-			var errMsg = format("Mal-formed RegParser Escape near \"%s\".", nearBy);
-			throw new CompilationException(errMsg);
-		}
-		
-		var text = thisResult.textOf(entryIndex).toUpperCase();
-		return (char)(HEX.indexOf(text.charAt(2)) * 16
-		            + HEX.indexOf(text.charAt(3)));
-	}
-	
+    
+    private static final long serialVersionUID = -8357960494054126599L;
+    
+    public static String                name     = "EscapeHex";
+    public static RPEscapeHexParserType instance = new RPEscapeHexParserType();
+    public static ParserTypeRef         typeRef  = instance.typeRef();
+    public static RegParser             parser   = instance.typeRef().asRegParser();
+    
+    final public static String HEX = "0123456789ABCDEF";
+    
+    private final Checker checker;
+    
+    public RPEscapeHexParserType() {
+        // ~\\x[0-9A-Fa-f][0-9A-Fa-f]~
+        checker = newRegParser()
+                .entry(new WordChecker("\\x"))
+                .entry(HexadecimalDigit)
+                .entry(HexadecimalDigit)
+                .build();
+    }
+    
+    @Override
+    public String name() {
+        return name;
+    }
+    
+    @Override
+    public Checker checker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider) {
+        return checker;
+    }
+    
+    @Override
+    public final Boolean isDeterministic() {
+        return true;
+    }
+    
+    @Override
+    public Object doCompile(
+                    ParseResult        thisResult,
+                    int                entryIndex,
+                    String             parameter,
+                    CompilationContext compilationContext,
+                    ParserTypeProvider typeProvider) {
+        
+        // Ensure type
+        var typeName = thisResult.typeNameOf(entryIndex);
+        if (!name.equals(typeName)) {
+            var nearBy = thisResult.originalText().substring(thisResult.startPosition());
+            var errMsg = format("Mal-formed RegParser Escape near \"%s\".", nearBy);
+            throw new CompilationException(errMsg);
+        }
+        
+        var text = thisResult.textOf(entryIndex).toUpperCase();
+        return (char)(HEX.indexOf(text.charAt(2)) * 16
+                    + HEX.indexOf(text.charAt(3)));
+    }
+    
 }

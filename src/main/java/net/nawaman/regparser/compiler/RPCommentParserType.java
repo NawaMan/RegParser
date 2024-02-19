@@ -35,43 +35,43 @@ import net.nawaman.regparser.result.ParseResult;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class RPCommentParserType extends ParserType {
-	
-	private static final long serialVersionUID = -3778591162776321408L;
-	
-	public static String              name     = "Comment";
-	public static RPCommentParserType instance = new RPCommentParserType();
-	public static ParserTypeRef       typeRef  = instance.typeRef();
-	
-	@Override
-	public String name() {
-		return name;
-	}
-	
-	private final Checker checker;
-	
-	public RPCommentParserType() {
-		checker = either(newRegParser()
-		            .entry(new WordChecker("/*"))
-		            .entry(new CheckerNot(new WordChecker("*/")).zeroOrMore())
-		            .entry(new WordChecker("*/")))
-		        .or(newRegParser()
-		            .entry(new WordChecker("(*"))
-		            .entry(new CheckerNot(new WordChecker("*)")).zeroOrMore())
-		            .entry(new WordChecker("*)")))
-		        .or(newRegParser()
-		            .entry(new WordChecker("//"))
-		            .entry(new CheckerNot(either(new WordChecker("\n")).or(Any.zero()).build()).zeroOrMore())
-		            .entry(either(new WordChecker("\n")).or(Any.zero()).build()))
-		        .build();
-	}
-	
-	@Override
-	public Checker checker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider) {
-		return checker;
-	}
-	
-	@Override
-	public final Boolean isDeterministic() {
-		return true;
-	}
+    
+    private static final long serialVersionUID = -3778591162776321408L;
+    
+    public static String              name     = "Comment";
+    public static RPCommentParserType instance = new RPCommentParserType();
+    public static ParserTypeRef       typeRef  = instance.typeRef();
+    
+    @Override
+    public String name() {
+        return name;
+    }
+    
+    private final Checker checker;
+    
+    public RPCommentParserType() {
+        checker = either(newRegParser()
+                    .entry(new WordChecker("/*"))
+                    .entry(new CheckerNot(new WordChecker("*/")).zeroOrMore())
+                    .entry(new WordChecker("*/")))
+                .or(newRegParser()
+                    .entry(new WordChecker("(*"))
+                    .entry(new CheckerNot(new WordChecker("*)")).zeroOrMore())
+                    .entry(new WordChecker("*)")))
+                .or(newRegParser()
+                    .entry(new WordChecker("//"))
+                    .entry(new CheckerNot(either(new WordChecker("\n")).or(Any.zero()).build()).zeroOrMore())
+                    .entry(either(new WordChecker("\n")).or(Any.zero()).build()))
+                .build();
+    }
+    
+    @Override
+    public Checker checker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider) {
+        return checker;
+    }
+    
+    @Override
+    public final Boolean isDeterministic() {
+        return true;
+    }
 }

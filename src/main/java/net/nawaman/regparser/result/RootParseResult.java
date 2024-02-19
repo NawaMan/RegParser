@@ -23,32 +23,32 @@ import net.nawaman.regparser.result.entry.ParseResultEntry;
 
 /** Root Result */
 public final class RootParseResult extends NormalParseResult {
-	
-	static private final long serialVersionUID = 2543546515135214354L;
-	
-	private final CharSequence originalText;
-	
-	RootParseResult(int startPosition, CharSequence originalText) {
-		this(startPosition, originalText, null);
-	}
-	
-	private RootParseResult(int startPosition, CharSequence originalText, List<ParseResultEntry> resultEntries) {
-		super(startPosition, resultEntries);
-		this.originalText = (originalText != null)
-		                  ? originalText
-		                  : "";
-	}
-	
-	@Override
-	public final CharSequence originalCharSequence() {
-		return originalText;
-	}
-	
-	@Override
-	public final ParseResult duplicate() {
-		int startPosition = startPosition();
-		var entryList     = entryList();
-		return new RootParseResult(startPosition, originalText, entryList);
-	}
-	
+    
+    static private final long serialVersionUID = 2543546515135214354L;
+    
+    private final CharSequence originalText;
+    
+    RootParseResult(int startPosition, CharSequence originalText) {
+        this(startPosition, originalText, null);
+    }
+    
+    private RootParseResult(int startPosition, CharSequence originalText, List<ParseResultEntry> resultEntries) {
+        super(startPosition, resultEntries);
+        this.originalText = (originalText != null)
+                          ? originalText
+                          : "";
+    }
+    
+    @Override
+    public final CharSequence originalCharSequence() {
+        return originalText;
+    }
+    
+    @Override
+    public final ParseResult duplicate() {
+        int startPosition = startPosition();
+        var entryList     = entryList();
+        return new RootParseResult(startPosition, originalText, entryList);
+    }
+    
 }

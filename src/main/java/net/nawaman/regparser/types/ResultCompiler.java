@@ -28,13 +28,13 @@ import net.nawaman.regparser.result.ParseResult;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  **/
 public interface ResultCompiler {
-	
-	/** Compiles a ParseResult in to an object with a parameter */
-	public Object compile(
-					ParseResult        thisResult,
-					int                entryIndex,
-					String             parameter,
-					CompilationContext compilationContext,
-					ParserTypeProvider typeProvider);
-	
+    
+    /** Compiles a ParseResult in to an object with a parameter */
+    public Object compile(
+                    ParseResult        thisResult,
+                    int                entryIndex,
+                    String             parameter,
+                    CompilationContext compilationContext,
+                    ParserTypeProvider typeProvider);
+    
 }

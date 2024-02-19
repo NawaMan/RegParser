@@ -31,105 +31,105 @@ import net.nawaman.regparser.Checker;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public final class CharUnion extends CharChecker {
-	
-	private static final long serialVersionUID = 2263513546518947854L;
-	
-	private final CharChecker[] charCheckers;
-	private final boolean       isDeterministic;
-	
-	/** Constructs a char set */
-	public CharUnion(CharChecker... charCheckers) {
-		// Combine if one of them is alternative
-		
-		var     list            = new ArrayList<CharChecker>();
-		boolean isDeterministic = true;
-		for (int i = 0; i < charCheckers.length; i++) {
-			var charChecker = charCheckers[i];
-			if (charChecker == null)
-				continue;
-			
-			isDeterministic &= charChecker.isDeterministic();
-			
-			if (charChecker instanceof CharUnion) {
-				var charUnion = (CharUnion)charChecker;
-				for (int c = 0; c < charUnion.charCheckers.length; c++) {
-					list.add(charUnion.charCheckers[c]);
-				}
-			} else {
-				list.add(charCheckers[i]);
-			}
-		}
-		// Generate the array
-		int checkerCount = list.size();
-		this.charCheckers = new CharChecker[checkerCount];
-		for (int i = 0; i < checkerCount; i++) {
-			this.charCheckers[i] = list.get(i);
-		}
-		
-		this.isDeterministic = isDeterministic;
-	}
-	
-	/** Checks of the char c is in this char checker */
-	@Override
-	public boolean inSet(char c) {
-		for (var charChecker : charCheckers) {
-			if (charChecker.inSet(c))
-				return true;
-		}
-		return false;
-	}
-	
-	@Override
-	public final Boolean isDeterministic() {
-		return isDeterministic;
-	}
-	
-	@Override
-	public String toString() {
-		var buffer = new StringBuffer();
-		buffer.append("[");
-		int length = Array.getLength(charCheckers);
-		for (int i = 0; i < length; i++) {
-			var checker = charCheckers[i];
-			if (checker == null)
-				continue;
-			
-			buffer.append(checker.toString());
-		}
-		buffer.append("]");
-		return buffer.toString();
-	}
-	
-	@Override
-	public boolean equals(Object O) {
-		if (O == this)
-			return true;
-		
-		if (!(O instanceof CharUnion))
-			return false;
-		
-		var set = new HashSet<CharChecker>();
-		for (var charChecker : this.charCheckers) {
-			set.add(charChecker);
-		}
-		for (var charChecker : ((CharUnion)O).charCheckers) {
-			if (!set.contains(charChecker))
-				return false;
-		}
-		return true;
-	}
-	
-	@Override
-	public int hashCode() {
-		return "CharUnion".hashCode() + Objects.hash((Object[])charCheckers);
-	}
-	
-	/** Return the optimized version of this Checker */
-	@Override
-	public Checker optimize() {
-		if (charCheckers.length == 1)
-			return charCheckers[0];
-		
-		return this;
-	}
+    
+    private static final long serialVersionUID = 2263513546518947854L;
+    
+    private final CharChecker[] charCheckers;
+    private final boolean       isDeterministic;
+    
+    /** Constructs a char set */
+    public CharUnion(CharChecker... charCheckers) {
+        // Combine if one of them is alternative
+        
+        var     list            = new ArrayList<CharChecker>();
+        boolean isDeterministic = true;
+        for (int i = 0; i < charCheckers.length; i++) {
+            var charChecker = charCheckers[i];
+            if (charChecker == null)
+                continue;
+            
+            isDeterministic &= charChecker.isDeterministic();
+            
+            if (charChecker instanceof CharUnion) {
+                var charUnion = (CharUnion)charChecker;
+                for (int c = 0; c < charUnion.charCheckers.length; c++) {
+                    list.add(charUnion.charCheckers[c]);
+                }
+            } else {
+                list.add(charCheckers[i]);
+            }
+        }
+        // Generate the array
+        int checkerCount = list.size();
+        this.charCheckers = new CharChecker[checkerCount];
+        for (int i = 0; i < checkerCount; i++) {
+            this.charCheckers[i] = list.get(i);
+        }
+        
+        this.isDeterministic = isDeterministic;
+    }
+    
+    /** Checks of the char c is in this char checker */
+    @Override
+    public boolean inSet(char c) {
+        for (var charChecker : charCheckers) {
+            if (charChecker.inSet(c))
+                return true;
+        }
+        return false;
+    }
+    
+    @Override
+    public final Boolean isDeterministic() {
+        return isDeterministic;
+    }
+    
+    @Override
+    public String toString() {
+        var buffer = new StringBuffer();
+        buffer.append("[");
+        int length = Array.getLength(charCheckers);
+        for (int i = 0; i < length; i++) {
+            var checker = charCheckers[i];
+            if (checker == null)
+                continue;
+            
+            buffer.append(checker.toString());
+        }
+        buffer.append("]");
+        return buffer.toString();
+    }
+    
+    @Override
+    public boolean equals(Object O) {
+        if (O == this)
+            return true;
+        
+        if (!(O instanceof CharUnion))
+            return false;
+        
+        var set = new HashSet<CharChecker>();
+        for (var charChecker : this.charCheckers) {
+            set.add(charChecker);
+        }
+        for (var charChecker : ((CharUnion)O).charCheckers) {
+            if (!set.contains(charChecker))
+                return false;
+        }
+        return true;
+    }
+    
+    @Override
+    public int hashCode() {
+        return "CharUnion".hashCode() + Objects.hash((Object[])charCheckers);
+    }
+    
+    /** Return the optimized version of this Checker */
+    @Override
+    public Checker optimize() {
+        if (charCheckers.length == 1)
+            return charCheckers[0];
+        
+        return this;
+    }
 }

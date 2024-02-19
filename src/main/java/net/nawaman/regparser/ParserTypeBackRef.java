@@ -31,73 +31,73 @@ import net.nawaman.regparser.result.ParseResult;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class ParserTypeBackRef extends ParserType {
-	
-	private static final long serialVersionUID = 4619586708646758390L;
-	
-	public static final ParserTypeBackRef BackRef_Instance = new ParserTypeBackRef();
-	
-	ParserTypeBackRef() {
-	}
-	
-	/**{@inheritDoc}*/
-	@Override
-	public String name() {
-		return "$BackRef?";
-	}
-	
-	/**{@inheritDoc}*/
-	@Override
-	public Checker checker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider) {
-		var word = lastMatchByName(hostResult, parameter, typeProvider);
-		return (word == null)
-		        ? WordChecker.EmptyWord
-		        : CheckerAny.getCheckerAny(word.length());
-	}
-	
-	/**{@inheritDoc}*/
-	@Override
-	public boolean doValidate(
-					ParseResult   hostResult,
-					ParseResult   thisResult,
-					String        parameter,
-					ParserTypeProvider typeProvider) {
-		var word = lastMatchByName(hostResult, parameter, typeProvider);
-		if (word == null)
-			return false;
-		
-		return word.equals(thisResult.text());
-	}
-	
-	private String lastMatchByName(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider) {
-		if (hostResult == null)
-			return null;
-		
-		var word = hostResult.lastStringOf(parameter);
-		
-		// Elevate up (in case pHostResult is a node)
-		while (word == null) {
-			if (hostResult instanceof TemporaryParseResult) {
-				hostResult = ((TemporaryParseResult)hostResult).first();
-			} else if (hostResult instanceof ParseResultNode) {
-				hostResult = ((ParseResultNode)hostResult).parent();
-			}
-			
-			if (hostResult == null)
-				return null;
-			
-			var entry = hostResult.lastEntryOf(parameter);
-			if ((entry == null)
-			 && (hostResult instanceof RootParseResult))
-				return null;
-			
-			word = hostResult.lastStringOf(parameter);
-		}
-		return word;
-	}
-	
-	@Override
-	public final Boolean isDeterministic() {
-		return null;
-	}
-	
+    
+    private static final long serialVersionUID = 4619586708646758390L;
+    
+    public static final ParserTypeBackRef BackRef_Instance = new ParserTypeBackRef();
+    
+    ParserTypeBackRef() {
+    }
+    
+    /**{@inheritDoc}*/
+    @Override
+    public String name() {
+        return "$BackRef?";
+    }
+    
+    /**{@inheritDoc}*/
+    @Override
+    public Checker checker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider) {
+        var word = lastMatchByName(hostResult, parameter, typeProvider);
+        return (word == null)
+                ? WordChecker.EmptyWord
+                : CheckerAny.getCheckerAny(word.length());
+    }
+    
+    /**{@inheritDoc}*/
+    @Override
+    public boolean doValidate(
+                    ParseResult   hostResult,
+                    ParseResult   thisResult,
+                    String        parameter,
+                    ParserTypeProvider typeProvider) {
+        var word = lastMatchByName(hostResult, parameter, typeProvider);
+        if (word == null)
+            return false;
+        
+        return word.equals(thisResult.text());
+    }
+    
+    private String lastMatchByName(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider) {
+        if (hostResult == null)
+            return null;
+        
+        var word = hostResult.lastStringOf(parameter);
+        
+        // Elevate up (in case pHostResult is a node)
+        while (word == null) {
+            if (hostResult instanceof TemporaryParseResult) {
+                hostResult = ((TemporaryParseResult)hostResult).first();
+            } else if (hostResult instanceof ParseResultNode) {
+                hostResult = ((ParseResultNode)hostResult).parent();
+            }
+            
+            if (hostResult == null)
+                return null;
+            
+            var entry = hostResult.lastEntryOf(parameter);
+            if ((entry == null)
+             && (hostResult instanceof RootParseResult))
+                return null;
+            
+            word = hostResult.lastStringOf(parameter);
+        }
+        return word;
+    }
+    
+    @Override
+    public final Boolean isDeterministic() {
+        return null;
+    }
+    
 }

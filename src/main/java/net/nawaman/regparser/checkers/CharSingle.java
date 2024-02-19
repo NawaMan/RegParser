@@ -27,52 +27,52 @@ import static net.nawaman.regparser.EscapeHelpers.escapeOfRegParser;
  */
 /**  */
 public final class CharSingle extends CharChecker {
-	
-	private static final long serialVersionUID = 1651564132135121525L;
-	
-	/** Construct a character range */
-	public static CharSingle of(char ch) {
-		return new CharSingle(ch);
-	}
-	
-	public final char ch;
-	
-	/** Construct a character range */
-	public CharSingle(char ch) {
-		this.ch = ch;
-	}
-	
-	/** Checks of the char c is in this char checker */
-	@Override
-	public boolean inSet(char c) {
-		return (c == this.ch);
-	}
-	
-	@Override
-	public final Boolean isDeterministic() {
-		return true;
-	}
-	
-	@Override
-	public String toString() {
-		var escapeOfRegParser = escapeOfRegParser("" + this.ch);
-		return "[" + escapeOfRegParser + "]";
-	}
-	
-	@Override
-	public boolean equals(Object O) {
-		if (O == this)
-			return true;
-		
-		if (!(O instanceof CharSingle))
-			return false;
-		
-		return ch == ((CharSingle)O).ch;
-	}
-	
-	@Override
-	public int hashCode() {
-		return "CharSingle".hashCode() + ch;
-	}
-	
+    
+    private static final long serialVersionUID = 1651564132135121525L;
+    
+    /** Construct a character range */
+    public static CharSingle of(char ch) {
+        return new CharSingle(ch);
+    }
+    
+    public final char ch;
+    
+    /** Construct a character range */
+    public CharSingle(char ch) {
+        this.ch = ch;
+    }
+    
+    /** Checks of the char c is in this char checker */
+    @Override
+    public boolean inSet(char c) {
+        return (c == this.ch);
+    }
+    
+    @Override
+    public final Boolean isDeterministic() {
+        return true;
+    }
+    
+    @Override
+    public String toString() {
+        var escapeOfRegParser = escapeOfRegParser("" + this.ch);
+        return "[" + escapeOfRegParser + "]";
+    }
+    
+    @Override
+    public boolean equals(Object O) {
+        if (O == this)
+            return true;
+        
+        if (!(O instanceof CharSingle))
+            return false;
+        
+        return ch == ((CharSingle)O).ch;
+    }
+    
+    @Override
+    public int hashCode() {
+        return "CharSingle".hashCode() + ch;
+    }
+    
 }

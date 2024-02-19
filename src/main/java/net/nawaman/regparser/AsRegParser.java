@@ -23,11 +23,11 @@ package net.nawaman.regparser;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public interface AsRegParser extends AsChecker {
-	
-	public RegParser asRegParser();
-	
-	public default Checker asChecker() {
-		return asRegParser();
-	}
-	
+    
+    public RegParser asRegParser();
+    
+    public default Checker asChecker() {
+        return asRegParser();
+    }
+    
 }

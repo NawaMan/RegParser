@@ -32,64 +32,64 @@ import net.nawaman.regparser.result.ParseResult;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  **/
 public class ErrorParserType extends ParserType {
-	
-	private static final long serialVersionUID = -7968950980059799341L;
-	
-	private final String  name;
-	private final Checker checker;
-	private final String  errorMessage;
-	private final boolean isFatal;
-	
-	public ErrorParserType(String name, Checker checker, String errorMessage) {
-		this(name, checker, errorMessage, false);
-	}
-	
-	public ErrorParserType(String name, Checker checker, String errorMessage, boolean isFatal) {
-		this.name         = name;
-		this.errorMessage = errorMessage;
-		this.isFatal      = isFatal;
-		this.checker      = checker;
-	}
-	
-	
-	/**{@inheritDoc}*/
-	@Override
-	public final String name() {
-		return this.name;
-	}
-	
-	/**{@inheritDoc}*/
-	@Override
-	public final Checker checker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider) {
-		return this.checker;
-	}
-	
-	/**{@inheritDoc}*/
-	@Override
-	public Object doCompile(
-					ParseResult        result,
-					int                entryIndex,
-					String             parameter,
-					CompilationContext compilationContext,
-					ParserTypeProvider typeProvider) {
-		
-		var param    = (parameter == null) ? "" : String.format(" (%s)", parameter);
-		var location = compilationContext.getLocationAsString(result.startPositionOf(entryIndex));
-		var errMsg   = format("%s%s\n%s", errorMessage, param, location);
-		
-		if (compilationContext != null) {
-			compilationContext.reportError(errMsg, null);
-		}
-		
-		if (this.isFatal)
-			throw new RuntimeException("FATAL ERROR! The compilation cannot be continued: " + errorMessage);
-		
-		return null;
-	}
-	
-	@Override
-	public final Boolean isDeterministic() {
-		return checker.isDeterministic();
-	}
-	
+    
+    private static final long serialVersionUID = -7968950980059799341L;
+    
+    private final String  name;
+    private final Checker checker;
+    private final String  errorMessage;
+    private final boolean isFatal;
+    
+    public ErrorParserType(String name, Checker checker, String errorMessage) {
+        this(name, checker, errorMessage, false);
+    }
+    
+    public ErrorParserType(String name, Checker checker, String errorMessage, boolean isFatal) {
+        this.name         = name;
+        this.errorMessage = errorMessage;
+        this.isFatal      = isFatal;
+        this.checker      = checker;
+    }
+    
+    
+    /**{@inheritDoc}*/
+    @Override
+    public final String name() {
+        return this.name;
+    }
+    
+    /**{@inheritDoc}*/
+    @Override
+    public final Checker checker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider) {
+        return this.checker;
+    }
+    
+    /**{@inheritDoc}*/
+    @Override
+    public Object doCompile(
+                    ParseResult        result,
+                    int                entryIndex,
+                    String             parameter,
+                    CompilationContext compilationContext,
+                    ParserTypeProvider typeProvider) {
+        
+        var param    = (parameter == null) ? "" : String.format(" (%s)", parameter);
+        var location = compilationContext.getLocationAsString(result.startPositionOf(entryIndex));
+        var errMsg   = format("%s%s\n%s", errorMessage, param, location);
+        
+        if (compilationContext != null) {
+            compilationContext.reportError(errMsg, null);
+        }
+        
+        if (this.isFatal)
+            throw new RuntimeException("FATAL ERROR! The compilation cannot be continued: " + errorMessage);
+        
+        return null;
+    }
+    
+    @Override
+    public final Boolean isDeterministic() {
+        return checker.isDeterministic();
+    }
+    
 }

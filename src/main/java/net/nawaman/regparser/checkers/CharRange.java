@@ -26,55 +26,55 @@ import static net.nawaman.regparser.EscapeHelpers.escapeOfRegParser;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public final class CharRange extends CharChecker {
-	
-	private static final long serialVersionUID = 2356484436956456452L;
-	
-	private final char startChar;
-	private final char endChar;
-	
-	/** Construct a character range */
-	public CharRange(char startChar, char endChar) {
-		this.startChar = (startChar < endChar) ? startChar : endChar;
-		this.endChar   = (startChar < endChar) ? endChar   : startChar;
-	}
-	
-	@Override
-	public boolean inSet(char c) {
-		return (c >= startChar)
-		    && (c <= endChar);
-	}
-	
-	@Override
-	public final Boolean isDeterministic() {
-		return true;
-	}
-	
-	@Override
-	public String toString() {
-		if ((this.startChar == 0)
-		 && (this.endChar   == Character.MAX_VALUE))
-			return ".";
-		
-		var start = escapeOfRegParser("" + this.startChar);
-		var end   = escapeOfRegParser("" + this.endChar);
-		return "[" + start + "-" + end + "]";
-	}
-	
-	@Override
-	public boolean equals(Object O) {
-		if (O == this)
-			return true;
-		
-		if (!(O instanceof CharRange))
-			return false;
-		
-		return (startChar == ((CharRange)O).startChar)
-		    && (endChar   == ((CharRange)O).endChar);
-	}
-	
-	@Override
-	public int hashCode() {
-		return "CharRange".hashCode() + startChar*31 + endChar;
-	}
-	
+    
+    private static final long serialVersionUID = 2356484436956456452L;
+    
+    private final char startChar;
+    private final char endChar;
+    
+    /** Construct a character range */
+    public CharRange(char startChar, char endChar) {
+        this.startChar = (startChar < endChar) ? startChar : endChar;
+        this.endChar   = (startChar < endChar) ? endChar   : startChar;
+    }
+    
+    @Override
+    public boolean inSet(char c) {
+        return (c >= startChar)
+            && (c <= endChar);
+    }
+    
+    @Override
+    public final Boolean isDeterministic() {
+        return true;
+    }
+    
+    @Override
+    public String toString() {
+        if ((this.startChar == 0)
+         && (this.endChar   == Character.MAX_VALUE))
+            return ".";
+        
+        var start = escapeOfRegParser("" + this.startChar);
+        var end   = escapeOfRegParser("" + this.endChar);
+        return "[" + start + "-" + end + "]";
+    }
+    
+    @Override
+    public boolean equals(Object O) {
+        if (O == this)
+            return true;
+        
+        if (!(O instanceof CharRange))
+            return false;
+        
+        return (startChar == ((CharRange)O).startChar)
+            && (endChar   == ((CharRange)O).endChar);
+    }
+    
+    @Override
+    public int hashCode() {
+        return "CharRange".hashCode() + startChar*31 + endChar;
+    }
+    
 }

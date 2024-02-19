@@ -23,10 +23,10 @@ package net.nawaman.regparser;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public interface AsChecker {
-	
-	public Checker asChecker();
-	
-	/** @return  if this checker will always returns the same result against a text at an offset. */
-	public Boolean isDeterministic();
-	
+    
+    public Checker asChecker();
+    
+    /** @return  if this checker will always returns the same result against a text at an offset. */
+    public Boolean isDeterministic();
+    
 }

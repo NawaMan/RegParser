@@ -52,219 +52,219 @@ import net.nawaman.regparser.result.ParseResult;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class CheckerAlternative implements Checker {
-	
-	private static final long serialVersionUID = 2146515415886541851L;
-	
-	public static class Builder implements AsChecker {
-		private final List<AsChecker> checkers = new ArrayList<>();
-		
-		private boolean isDeterministic = true;
-		
-		public Builder or(AsChecker checker) {
-			if ((checker != null) && !checker.isDeterministic()) {
-				isDeterministic = false;
-			}
-			
-			checkers.add(checker);
-			return this;
-		}
-		
-		public CheckerAlternative build() {
-			var array = checkers.stream()
-			          .filter(Objects::nonNull)
-			          .toArray(AsChecker[]::new);
-			return new CheckerAlternative(false, array);
-		}
-		
-		public CheckerAlternative orDefault(AsChecker checker) {
-			if ((checker != null) && !checker.isDeterministic()) {
-				isDeterministic = false;
-			}
-			
-			boolean hasDefault = (checker != null);
-			checkers.add(checker);
-			var array = checkers.stream()
-			          .filter(Objects::nonNull)
-			          .toArray(AsChecker[]::new);
-			return new CheckerAlternative(hasDefault, array);
-		}
-		
-		@Override
-		public Checker asChecker() {
-			return build();
-		}
-		
-		@Override
-		public final Boolean isDeterministic() {
-			return isDeterministic;
-		}
-	}
-	
-	public static CheckerAlternative.Builder of(AsChecker checker) {
-		return new CheckerAlternative.Builder()
-				.or(checker);
-	}
-	
-	public static CheckerAlternative.Builder either(AsChecker checker) {
-		return new CheckerAlternative.Builder()
-				.or(checker);
-	}
-	
-	private final Checker   defaultChecker;
-	private final Checker[] checkers;
-	private final boolean   isDeterministic;
-	
-	/** Constructs a char set */
-	public CheckerAlternative(AsChecker... checkers) {
-		this(false, checkers);
-	}
-	
-	/** Constructs a char set */
-	public CheckerAlternative(boolean hasDefault, AsChecker ... checkers) {
-		// Combine if one of them is alternative
-		
-		var     list            = new ArrayList<Checker>();
-		int     lastIndex       = checkers.length - (hasDefault ? 1 : 0);
-		boolean isDeterministic = true;
-		for (int i = 0; i < lastIndex; i++) {
-			var checker = checkers[i].asChecker();
-			if (checker == null)
-				continue;
-			
-			isDeterministic &= checker.isDeterministic();
-			
-			if ((checker instanceof CheckerAlternative) && !((CheckerAlternative)checker).hasDefault()) {
-				var checkerAlternative = (CheckerAlternative)checker;
-				for (int c = 0; c < checkerAlternative.checkers.length; c++) {
-					list.add(checkerAlternative.checkers[c]);
-				}
-			} else {
-				list.add(checker);
-			}
-		}
-		
-		// Generate the array
-		this.checkers = new Checker[list.size()];
-		for (int i = 0; i < list.size(); i++) {
-			var checker = list.get(i);
-			if (checker instanceof RegParser) {
-				checker = ((RegParser)checker).optimize();
-			}
-			this.checkers[i] = checker;
-		}
-		
-		var defaultValue = hasDefault ? checkers[checkers.length - 1].asChecker() : null;
-		if (defaultValue != null) {
-			defaultValue = defaultValue.optimize();
-		}
-		this.defaultChecker = defaultValue;
-		
-		this.isDeterministic = isDeterministic;
-	}
-	
-	@Override
-	public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider) {
-		return startLengthOf(text, offset, typeProvider, null);
-	}
-	
-	@Override
-	public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider, ParseResult parseResult) {
-		for (int i = checkers.length; --i >= 0;) {
-			var checker = checkers[i];
-			int index   = checker.startLengthOf(text, offset, typeProvider, parseResult);
-			if (index != -1)
-				return index;
-		}
-		return (defaultChecker != null)
-		        ? defaultChecker.startLengthOf(text, offset, typeProvider, parseResult)
-		        : -1;
-	}
-	
-	public boolean hasDefault() {
-		return defaultChecker != null;
-	}
-	
-	public Checker defaultChecker() {
-		return defaultChecker;
-	}
-	
-	public Stream<Checker> checkers() {
-		return Stream.of(checkers);
-	}
-	
-	public void forEachInReverse(Consumer<Checker> action) {
-		for (int i = checkers.length; --i >= 0;) {
-			var checker = checkers[i];
-			action.accept(checker );
-		}
-	}
-	
-	@Override
-	public final Boolean isDeterministic() {
-		return isDeterministic;
-	}
-	
-	// Object ----------------------------------------------------------------------------------------------------------
-	
-	@Override
-	public String toString() {
-		var buffer = new StringBuffer();
-		buffer.append("(");
-		if (checkers != null) {
-			for (int i = 0; i < checkers.length; i++) {
-				var checker = checkers[i];
-				if (checker == null)
-					continue;
-				
-				if (i != 0) {
-					buffer.append("|");
-				}
-				buffer.append(checker.toString());
-			}
-		}
-		if (defaultChecker != null) {
-			buffer.append("||").append(this.defaultChecker);
-		}
-		buffer.append(")");
-		return buffer.toString();
-	}
-	
-	@Override
-	public boolean equals(Object O) {
-		if (O == this)
-			return true;
-		
-		if (!(O instanceof CheckerAlternative))
-			return false;
-		
-		if (checkers.length != ((CheckerAlternative)O).checkers.length)
-			return false;
-		
-		for (int i = checkers.length; --i >= 0;) {
-			if (!checkers[i].equals(((CheckerAlternative)O).checkers[i]))
-				return false;
-		}
-		return (defaultChecker != null)
-		        ? defaultChecker.equals(((CheckerAlternative)O).defaultChecker)
-		        : true;
-	}
-	
-	private int hashCode = 0;
-	
-	@Override
-	public int hashCode() {
-		if (hashCode != 0) {
-			return hashCode;
-		}
-		
-		hashCode = hash(this.getClass(), defaultChecker) * 31
-				 + hash((Object[])checkers);
-		return hashCode;
-	}
-	
-	@Override
-	public Checker optimize() {
-		return this;
-	}
-	
+    
+    private static final long serialVersionUID = 2146515415886541851L;
+    
+    public static class Builder implements AsChecker {
+        private final List<AsChecker> checkers = new ArrayList<>();
+        
+        private boolean isDeterministic = true;
+        
+        public Builder or(AsChecker checker) {
+            if ((checker != null) && !checker.isDeterministic()) {
+                isDeterministic = false;
+            }
+            
+            checkers.add(checker);
+            return this;
+        }
+        
+        public CheckerAlternative build() {
+            var array = checkers.stream()
+                      .filter(Objects::nonNull)
+                      .toArray(AsChecker[]::new);
+            return new CheckerAlternative(false, array);
+        }
+        
+        public CheckerAlternative orDefault(AsChecker checker) {
+            if ((checker != null) && !checker.isDeterministic()) {
+                isDeterministic = false;
+            }
+            
+            boolean hasDefault = (checker != null);
+            checkers.add(checker);
+            var array = checkers.stream()
+                      .filter(Objects::nonNull)
+                      .toArray(AsChecker[]::new);
+            return new CheckerAlternative(hasDefault, array);
+        }
+        
+        @Override
+        public Checker asChecker() {
+            return build();
+        }
+        
+        @Override
+        public final Boolean isDeterministic() {
+            return isDeterministic;
+        }
+    }
+    
+    public static CheckerAlternative.Builder of(AsChecker checker) {
+        return new CheckerAlternative.Builder()
+                .or(checker);
+    }
+    
+    public static CheckerAlternative.Builder either(AsChecker checker) {
+        return new CheckerAlternative.Builder()
+                .or(checker);
+    }
+    
+    private final Checker   defaultChecker;
+    private final Checker[] checkers;
+    private final boolean   isDeterministic;
+    
+    /** Constructs a char set */
+    public CheckerAlternative(AsChecker... checkers) {
+        this(false, checkers);
+    }
+    
+    /** Constructs a char set */
+    public CheckerAlternative(boolean hasDefault, AsChecker ... checkers) {
+        // Combine if one of them is alternative
+        
+        var     list            = new ArrayList<Checker>();
+        int     lastIndex       = checkers.length - (hasDefault ? 1 : 0);
+        boolean isDeterministic = true;
+        for (int i = 0; i < lastIndex; i++) {
+            var checker = checkers[i].asChecker();
+            if (checker == null)
+                continue;
+            
+            isDeterministic &= checker.isDeterministic();
+            
+            if ((checker instanceof CheckerAlternative) && !((CheckerAlternative)checker).hasDefault()) {
+                var checkerAlternative = (CheckerAlternative)checker;
+                for (int c = 0; c < checkerAlternative.checkers.length; c++) {
+                    list.add(checkerAlternative.checkers[c]);
+                }
+            } else {
+                list.add(checker);
+            }
+        }
+        
+        // Generate the array
+        this.checkers = new Checker[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            var checker = list.get(i);
+            if (checker instanceof RegParser) {
+                checker = ((RegParser)checker).optimize();
+            }
+            this.checkers[i] = checker;
+        }
+        
+        var defaultValue = hasDefault ? checkers[checkers.length - 1].asChecker() : null;
+        if (defaultValue != null) {
+            defaultValue = defaultValue.optimize();
+        }
+        this.defaultChecker = defaultValue;
+        
+        this.isDeterministic = isDeterministic;
+    }
+    
+    @Override
+    public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider) {
+        return startLengthOf(text, offset, typeProvider, null);
+    }
+    
+    @Override
+    public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider, ParseResult parseResult) {
+        for (int i = checkers.length; --i >= 0;) {
+            var checker = checkers[i];
+            int index   = checker.startLengthOf(text, offset, typeProvider, parseResult);
+            if (index != -1)
+                return index;
+        }
+        return (defaultChecker != null)
+                ? defaultChecker.startLengthOf(text, offset, typeProvider, parseResult)
+                : -1;
+    }
+    
+    public boolean hasDefault() {
+        return defaultChecker != null;
+    }
+    
+    public Checker defaultChecker() {
+        return defaultChecker;
+    }
+    
+    public Stream<Checker> checkers() {
+        return Stream.of(checkers);
+    }
+    
+    public void forEachInReverse(Consumer<Checker> action) {
+        for (int i = checkers.length; --i >= 0;) {
+            var checker = checkers[i];
+            action.accept(checker );
+        }
+    }
+    
+    @Override
+    public final Boolean isDeterministic() {
+        return isDeterministic;
+    }
+    
+    // Object ----------------------------------------------------------------------------------------------------------
+    
+    @Override
+    public String toString() {
+        var buffer = new StringBuffer();
+        buffer.append("(");
+        if (checkers != null) {
+            for (int i = 0; i < checkers.length; i++) {
+                var checker = checkers[i];
+                if (checker == null)
+                    continue;
+                
+                if (i != 0) {
+                    buffer.append("|");
+                }
+                buffer.append(checker.toString());
+            }
+        }
+        if (defaultChecker != null) {
+            buffer.append("||").append(this.defaultChecker);
+        }
+        buffer.append(")");
+        return buffer.toString();
+    }
+    
+    @Override
+    public boolean equals(Object O) {
+        if (O == this)
+            return true;
+        
+        if (!(O instanceof CheckerAlternative))
+            return false;
+        
+        if (checkers.length != ((CheckerAlternative)O).checkers.length)
+            return false;
+        
+        for (int i = checkers.length; --i >= 0;) {
+            if (!checkers[i].equals(((CheckerAlternative)O).checkers[i]))
+                return false;
+        }
+        return (defaultChecker != null)
+                ? defaultChecker.equals(((CheckerAlternative)O).defaultChecker)
+                : true;
+    }
+    
+    private int hashCode = 0;
+    
+    @Override
+    public int hashCode() {
+        if (hashCode != 0) {
+            return hashCode;
+        }
+        
+        hashCode = hash(this.getClass(), defaultChecker) * 31
+                 + hash((Object[])checkers);
+        return hashCode;
+    }
+    
+    @Override
+    public Checker optimize() {
+        return this;
+    }
+    
 }

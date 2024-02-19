@@ -29,40 +29,40 @@ import net.nawaman.regparser.result.ParseResult;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  **/
 public class SimpleParserType extends ParserType {
-	
-	private static final long serialVersionUID = 5886175272511843777L;
-	
-	public SimpleParserType(String name, Checker checker) {
-		this(name, CheckerProvider.of(checker));
-	}
-	
-	public SimpleParserType(String name, CheckerProvider checkerProvider) {
-		this.name            = name;
-		this.checkerProvider = checkerProvider;
-	}
-	
-	private final String          name;
-	private final CheckerProvider checkerProvider;
-	
-	/**{@inheritDoc}*/
-	@Override
-	public final String name() {
-		return this.name;
-	}
-	
-	/**{@inheritDoc}*/
-	@Override
-	public final Checker checker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider) {
-		
-		if (this.checkerProvider instanceof CheckerProvider)
-			return ((CheckerProvider)checkerProvider).getChecker(hostResult, parameter, typeProvider);
-		
-		return (Checker)checkerProvider;
-	}
-	
-	@Override
-	public final Boolean isDeterministic() {
-		return null;
-	}
-	
+    
+    private static final long serialVersionUID = 5886175272511843777L;
+    
+    public SimpleParserType(String name, Checker checker) {
+        this(name, CheckerProvider.of(checker));
+    }
+    
+    public SimpleParserType(String name, CheckerProvider checkerProvider) {
+        this.name            = name;
+        this.checkerProvider = checkerProvider;
+    }
+    
+    private final String          name;
+    private final CheckerProvider checkerProvider;
+    
+    /**{@inheritDoc}*/
+    @Override
+    public final String name() {
+        return this.name;
+    }
+    
+    /**{@inheritDoc}*/
+    @Override
+    public final Checker checker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider) {
+        
+        if (this.checkerProvider instanceof CheckerProvider)
+            return ((CheckerProvider)checkerProvider).getChecker(hostResult, parameter, typeProvider);
+        
+        return (Checker)checkerProvider;
+    }
+    
+    @Override
+    public final Boolean isDeterministic() {
+        return null;
+    }
+    
 }

@@ -24,15 +24,15 @@ package net.nawaman.regparser;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class ParsingException extends RuntimeException {
-	
-	private static final long serialVersionUID = -596936735611155479L;
-	
-	public ParsingException() {
-		super();
-	}
-	
-	public ParsingException(String message) {
-		super(message);
-	}
-	
+    
+    private static final long serialVersionUID = -596936735611155479L;
+    
+    public ParsingException() {
+        super();
+    }
+    
+    public ParsingException(String message) {
+        super(message);
+    }
+    
 }

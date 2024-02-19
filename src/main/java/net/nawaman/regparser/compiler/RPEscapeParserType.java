@@ -38,52 +38,52 @@ import net.nawaman.regparser.result.ParseResult;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public class RPEscapeParserType extends ParserType {
-	
-	private static final long serialVersionUID = -4408409684157875525L;
-	
-	public static String             name     = "Escape";
-	public static RPEscapeParserType instance = new RPEscapeParserType();
-	public static ParserTypeRef      typeRef  = instance.typeRef();
-	public static RegParser          parser   = instance.typeRef().asRegParser();
-	
-	private final Checker checker;
-	
-	public RPEscapeParserType() {
-		checker = newRegParser()
-		        .entry(new CharSingle('\\'))
-		        .entry(new CharSet(escapable))
-		        .build();
-	}
-	
-	@Override
-	public String name() {
-		return name;
-	}
-	
-	@Override
-	public Checker checker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider) {
-		return checker;
-	}
-	
-	@Override
-	public final Boolean isDeterministic() {
-		return true;
-	}
-	
-	@Override
-	public Object doCompile(
-					ParseResult        thisResult,
-					int                entryIndex,
-					String             parameter,
-					CompilationContext compilationContext,
-					ParserTypeProvider typeProvider) {
-		var typeName = thisResult.typeNameOf(entryIndex);
-		if (!name.equals(typeName)) {
-			var nearBy = thisResult.originalText().substring(thisResult.startPosition());
-			var errMsg = format("Mal-formed RegParser Escape near \"%s\".", nearBy);
-			throw new CompilationException(errMsg);
-		}
-		
-		return thisResult.textOf(entryIndex).charAt(1);
-	}
+    
+    private static final long serialVersionUID = -4408409684157875525L;
+    
+    public static String             name     = "Escape";
+    public static RPEscapeParserType instance = new RPEscapeParserType();
+    public static ParserTypeRef      typeRef  = instance.typeRef();
+    public static RegParser          parser   = instance.typeRef().asRegParser();
+    
+    private final Checker checker;
+    
+    public RPEscapeParserType() {
+        checker = newRegParser()
+                .entry(new CharSingle('\\'))
+                .entry(new CharSet(escapable))
+                .build();
+    }
+    
+    @Override
+    public String name() {
+        return name;
+    }
+    
+    @Override
+    public Checker checker(ParseResult hostResult, String parameter, ParserTypeProvider typeProvider) {
+        return checker;
+    }
+    
+    @Override
+    public final Boolean isDeterministic() {
+        return true;
+    }
+    
+    @Override
+    public Object doCompile(
+                    ParseResult        thisResult,
+                    int                entryIndex,
+                    String             parameter,
+                    CompilationContext compilationContext,
+                    ParserTypeProvider typeProvider) {
+        var typeName = thisResult.typeNameOf(entryIndex);
+        if (!name.equals(typeName)) {
+            var nearBy = thisResult.originalText().substring(thisResult.startPosition());
+            var errMsg = format("Mal-formed RegParser Escape near \"%s\".", nearBy);
+            throw new CompilationException(errMsg);
+        }
+        
+        return thisResult.textOf(entryIndex).charAt(1);
+    }
 }

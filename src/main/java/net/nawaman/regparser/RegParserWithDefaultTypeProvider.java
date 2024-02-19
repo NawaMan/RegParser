@@ -21,61 +21,61 @@ import net.nawaman.regparser.result.ParseResult;
 
 /** TypeProvider with Default Type */
 public class RegParserWithDefaultTypeProvider extends RegParser {
-	
-	private static final long serialVersionUID = -7904907723214116873L;
-	
-	public static RegParser attachDefaultTypeProvider(RegParser regParser, ParserTypeProvider typeProvider) {
-		if ((regParser    == null)
-		 || (typeProvider == null))
-			return regParser;
-		
-		var originalProvider = regParser.getDefaultTypeProvider();
-		if ((regParser instanceof RegParserWithDefaultTypeProvider)
-		 && (originalProvider instanceof ParserTypeProvider.Library)) {
-			((ParserTypeProvider.Library) originalProvider).addProvider(typeProvider);
-			
-		} else {
-			var parserEntries   = ((RegParser)regParser).entries();
-			var entries         = parserEntries.toArray(RegParserEntry[]::new);
-			var newTypeProvider = new ParserTypeProvider.Library(typeProvider, originalProvider);
-			regParser = new RegParserWithDefaultTypeProvider(entries, newTypeProvider);
-		}
-		return regParser;
-	}
-	
-	private ParserTypeProvider typeProvider = null;
-	
-	RegParserWithDefaultTypeProvider(RegParserEntry[] entries, ParserTypeProvider typeProvider) {
-		super(entries);
-		this.typeProvider = typeProvider;
-	}
-	
-	RegParserWithDefaultTypeProvider(boolean isOptimized, RegParserEntry[] entries, ParserTypeProvider typeProvider) {
-		super(isOptimized, entries);
-		this.typeProvider = typeProvider;
-	}
-	
-	@Override
-	ParserTypeProvider getDefaultTypeProvider() {
-		return this.typeProvider;
-	}
-	
-	// Parse
-	
-	@Override
-	/** Returns the length of the match if the text is start with a match or -1 if not */
-	ParseResult parse(
-			CharSequence       text,
-			int                offset,
-			int                index,
-			int                times,
-			ParseResult        parseResult,
-			ParserTypeProvider typeProvider,
-			ParserType         parserType,
-			String             parameter,
-			int                tabs) {
-		var combinedTypeProvider = ParserTypeProvider.Library.either(typeProvider, this.typeProvider);
-		return super.parse(text, offset, index, times, parseResult, combinedTypeProvider, parserType, parameter, tabs);
-	}
-	
+    
+    private static final long serialVersionUID = -7904907723214116873L;
+    
+    public static RegParser attachDefaultTypeProvider(RegParser regParser, ParserTypeProvider typeProvider) {
+        if ((regParser    == null)
+         || (typeProvider == null))
+            return regParser;
+        
+        var originalProvider = regParser.getDefaultTypeProvider();
+        if ((regParser instanceof RegParserWithDefaultTypeProvider)
+         && (originalProvider instanceof ParserTypeProvider.Library)) {
+            ((ParserTypeProvider.Library) originalProvider).addProvider(typeProvider);
+            
+        } else {
+            var parserEntries   = ((RegParser)regParser).entries();
+            var entries         = parserEntries.toArray(RegParserEntry[]::new);
+            var newTypeProvider = new ParserTypeProvider.Library(typeProvider, originalProvider);
+            regParser = new RegParserWithDefaultTypeProvider(entries, newTypeProvider);
+        }
+        return regParser;
+    }
+    
+    private ParserTypeProvider typeProvider = null;
+    
+    RegParserWithDefaultTypeProvider(RegParserEntry[] entries, ParserTypeProvider typeProvider) {
+        super(entries);
+        this.typeProvider = typeProvider;
+    }
+    
+    RegParserWithDefaultTypeProvider(boolean isOptimized, RegParserEntry[] entries, ParserTypeProvider typeProvider) {
+        super(isOptimized, entries);
+        this.typeProvider = typeProvider;
+    }
+    
+    @Override
+    ParserTypeProvider getDefaultTypeProvider() {
+        return this.typeProvider;
+    }
+    
+    // Parse
+    
+    @Override
+    /** Returns the length of the match if the text is start with a match or -1 if not */
+    ParseResult parse(
+            CharSequence       text,
+            int                offset,
+            int                index,
+            int                times,
+            ParseResult        parseResult,
+            ParserTypeProvider typeProvider,
+            ParserType         parserType,
+            String             parameter,
+            int                tabs) {
+        var combinedTypeProvider = ParserTypeProvider.Library.either(typeProvider, this.typeProvider);
+        return super.parse(text, offset, index, times, parseResult, combinedTypeProvider, parserType, parameter, tabs);
+    }
+    
 }

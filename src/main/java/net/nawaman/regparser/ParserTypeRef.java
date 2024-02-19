@@ -29,105 +29,105 @@ import java.io.Serializable;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 abstract public class ParserTypeRef implements AsRegParser, Quantifiable<RegParserEntry>, Serializable {
-	
-	private static final long serialVersionUID = -2335767886881850411L;
-	
-	public static ParserTypeRef of(String typeName) {
-		return new Simple(typeName, null);
-	}
-	
-	public static ParserTypeRef of(String typeName, String parameter) {
-		return new Simple(typeName, parameter);
-	}
-	
-	abstract public String name();
-	
-	public String parameter() {
-		return null;
-	}
-	
-	public RegParserEntry quantifier(Quantifier quantifier) {
-		return newParserEntry(this, quantifier);
-	}
-	
-	public RegParser asRegParser() {
-		return new RegParserBuilder()
-				.entry(this)
-				.build();
-	}
-	
-	public RegParserEntry asRegParserEntry() {
-		return RegParserEntry.newParserEntry(this);
-	}
-	
-	
-	static public class Simple extends ParserTypeRef {
-		
-		private static final long serialVersionUID = -1749338159178519582L;
-		
-		public Simple(String typeName) {
-			this(typeName, null);
-		}
-		
-		public Simple(String typeName, String parameter) {
-			this.typeName  = typeName;
-			this.parameter = parameter;
-		}
-		
-		private final String typeName;
-		private final String parameter;
-		
-		/**{@inheritDoc}*/
-		@Override
-		public String name() {
-			return typeName;
-		}
-		
-		/**{@inheritDoc}*/
-		@Override
-		public String parameter() {
-			return parameter;
-		}
-		
-		@Override
-		public final Boolean isDeterministic() {
-			return null;
-		}
-	}
-	
-	// Object --------------------------------------------------------------------------------------
-	
-	/**{@inheritDoc}*/
-	@Override
-	public String toString() {
-		var name      = name();
-		var parameter = parameter();
-		var param     = (parameter == null) ? "" : ("(\"" + escapeText(parameter) + "\")");
-		return "!" + name + param + "!";
-	}
-	
-	public String toDetail() {
-		return toString();
-	}
-	
-	/**{@inheritDoc}*/
-	@Override
-	public boolean equals(Object O) {
-		if (!(O instanceof ParserTypeRef))
-			return false;
-		
-		var thisName = this.name();
-		var thatName = ((ParserTypeRef)O).name();
-		if ((thisName != thatName)
-		|| ((thisName != null) && !thisName.equals(thatName)))
-			return false;
-		
-		var thisParameter = parameter();
-		var thatParameter = ((ParserTypeRef)O).parameter();
-		if ((thisParameter != thatParameter)
-		 || ((thisParameter != null) && !thisParameter.equals(thatParameter)))
-			return false;
-		
-		return true;
-	}
+    
+    private static final long serialVersionUID = -2335767886881850411L;
+    
+    public static ParserTypeRef of(String typeName) {
+        return new Simple(typeName, null);
+    }
+    
+    public static ParserTypeRef of(String typeName, String parameter) {
+        return new Simple(typeName, parameter);
+    }
+    
+    abstract public String name();
+    
+    public String parameter() {
+        return null;
+    }
+    
+    public RegParserEntry quantifier(Quantifier quantifier) {
+        return newParserEntry(this, quantifier);
+    }
+    
+    public RegParser asRegParser() {
+        return new RegParserBuilder()
+                .entry(this)
+                .build();
+    }
+    
+    public RegParserEntry asRegParserEntry() {
+        return RegParserEntry.newParserEntry(this);
+    }
+    
+    
+    static public class Simple extends ParserTypeRef {
+        
+        private static final long serialVersionUID = -1749338159178519582L;
+        
+        public Simple(String typeName) {
+            this(typeName, null);
+        }
+        
+        public Simple(String typeName, String parameter) {
+            this.typeName  = typeName;
+            this.parameter = parameter;
+        }
+        
+        private final String typeName;
+        private final String parameter;
+        
+        /**{@inheritDoc}*/
+        @Override
+        public String name() {
+            return typeName;
+        }
+        
+        /**{@inheritDoc}*/
+        @Override
+        public String parameter() {
+            return parameter;
+        }
+        
+        @Override
+        public final Boolean isDeterministic() {
+            return null;
+        }
+    }
+    
+    // Object --------------------------------------------------------------------------------------
+    
+    /**{@inheritDoc}*/
+    @Override
+    public String toString() {
+        var name      = name();
+        var parameter = parameter();
+        var param     = (parameter == null) ? "" : ("(\"" + escapeText(parameter) + "\")");
+        return "!" + name + param + "!";
+    }
+    
+    public String toDetail() {
+        return toString();
+    }
+    
+    /**{@inheritDoc}*/
+    @Override
+    public boolean equals(Object O) {
+        if (!(O instanceof ParserTypeRef))
+            return false;
+        
+        var thisName = this.name();
+        var thatName = ((ParserTypeRef)O).name();
+        if ((thisName != thatName)
+        || ((thisName != null) && !thisName.equals(thatName)))
+            return false;
+        
+        var thisParameter = parameter();
+        var thatParameter = ((ParserTypeRef)O).parameter();
+        if ((thisParameter != thatParameter)
+         || ((thisParameter != null) && !thisParameter.equals(thatParameter)))
+            return false;
+        
+        return true;
+    }
 }

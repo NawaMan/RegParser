@@ -23,79 +23,79 @@ package net.nawaman.regparser;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public interface Quantifiable<SOURCE> {
-	
-	public SOURCE quantifier(Quantifier quantifier);
-	
-	public default Quantifier quantifier() {
-		return Quantifier.One;
-	}
-	
-	/** Set the quantifier to lowerBound (Possessive) */
-	public default SOURCE from(int lowerBound) {
-		return quantifier(new Quantifier(lowerBound, Greediness.Possessive));
-	}
-	
-	/** Set the quantifier to upperBound (Possessive) */
-	public default SOURCE upto(int upperBound) {
-		return quantifier(new Quantifier(-1, upperBound, Greediness.Possessive));
-	}
-	
-	/** Set the quantifier to the given quantifier */
-	public default SOURCE bound(Quantifier quantifier) {
-		return quantifier(quantifier);
-	}
-	
-	/** Set the quantifier to lowerBound,upperBound (Possessive) */
-	public default SOURCE bound(int lowerBound, int upperBound) {
-		return quantifier(new Quantifier(lowerBound, upperBound, Greediness.Possessive));
-	}
-	
-	/** Set the quantifier to lowerBound,upperBound with greediness */
-	public default SOURCE bound(int lowerBound, int upperBound, Greediness greediness) {
-		return quantifier(new Quantifier(lowerBound, upperBound, greediness));
-	}
-	
-	/** Set the quantifier to Zero (Possessive) */
-	public default SOURCE zero() {
-		return quantifier(Quantifier.Zero);
-	}
-	
-	/** Set the quantifier to One (Possessive) */
-	public default SOURCE one() {
-		return quantifier(Quantifier.One);
-	}
-	
-	/** Set the quantifier to ZeroOrOne (Possessive) */
-	public default SOURCE zeroOrOne() {
-		return quantifier(Quantifier.ZeroOrOne);
-	}
-	
-	/** Set the quantifier to ZeroOrMore (Possessive) */
-	public default SOURCE zeroOrMore() {
-		return quantifier(Quantifier.ZeroOrMore);
-	}
-	
-	/** Set the quantifier to OneOrMore (Possessive) */
-	public default SOURCE oneOrMore() {
-		return quantifier(Quantifier.OneOrMore);
-	}
-	
-	/** Set the quantifier to have maximum greediness */
-	public default SOURCE maximum() {
-		var quantifier = quantifier();
-		return quantifier(quantifier.withMaximum());
-	}
-	
-	/** Set the quantifier to have minimum greediness */
-	public default SOURCE minimum() {
-		var quantifier = quantifier();
-		return quantifier(quantifier.withMinimum());
-	}
-	
-	/** Set the quantifier to have possessive greediness */
-	public default SOURCE possessive() {
-		var quantifier = quantifier();
-		return quantifier(quantifier.withPossessive());
-	}
-	
+    
+    public SOURCE quantifier(Quantifier quantifier);
+    
+    public default Quantifier quantifier() {
+        return Quantifier.One;
+    }
+    
+    /** Set the quantifier to lowerBound (Possessive) */
+    public default SOURCE from(int lowerBound) {
+        return quantifier(new Quantifier(lowerBound, Greediness.Possessive));
+    }
+    
+    /** Set the quantifier to upperBound (Possessive) */
+    public default SOURCE upto(int upperBound) {
+        return quantifier(new Quantifier(-1, upperBound, Greediness.Possessive));
+    }
+    
+    /** Set the quantifier to the given quantifier */
+    public default SOURCE bound(Quantifier quantifier) {
+        return quantifier(quantifier);
+    }
+    
+    /** Set the quantifier to lowerBound,upperBound (Possessive) */
+    public default SOURCE bound(int lowerBound, int upperBound) {
+        return quantifier(new Quantifier(lowerBound, upperBound, Greediness.Possessive));
+    }
+    
+    /** Set the quantifier to lowerBound,upperBound with greediness */
+    public default SOURCE bound(int lowerBound, int upperBound, Greediness greediness) {
+        return quantifier(new Quantifier(lowerBound, upperBound, greediness));
+    }
+    
+    /** Set the quantifier to Zero (Possessive) */
+    public default SOURCE zero() {
+        return quantifier(Quantifier.Zero);
+    }
+    
+    /** Set the quantifier to One (Possessive) */
+    public default SOURCE one() {
+        return quantifier(Quantifier.One);
+    }
+    
+    /** Set the quantifier to ZeroOrOne (Possessive) */
+    public default SOURCE zeroOrOne() {
+        return quantifier(Quantifier.ZeroOrOne);
+    }
+    
+    /** Set the quantifier to ZeroOrMore (Possessive) */
+    public default SOURCE zeroOrMore() {
+        return quantifier(Quantifier.ZeroOrMore);
+    }
+    
+    /** Set the quantifier to OneOrMore (Possessive) */
+    public default SOURCE oneOrMore() {
+        return quantifier(Quantifier.OneOrMore);
+    }
+    
+    /** Set the quantifier to have maximum greediness */
+    public default SOURCE maximum() {
+        var quantifier = quantifier();
+        return quantifier(quantifier.withMaximum());
+    }
+    
+    /** Set the quantifier to have minimum greediness */
+    public default SOURCE minimum() {
+        var quantifier = quantifier();
+        return quantifier(quantifier.withMinimum());
+    }
+    
+    /** Set the quantifier to have possessive greediness */
+    public default SOURCE possessive() {
+        var quantifier = quantifier();
+        return quantifier(quantifier.withPossessive());
+    }
+    
 }

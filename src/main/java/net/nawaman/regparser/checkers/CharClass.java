@@ -30,83 +30,83 @@ import net.nawaman.regparser.result.ParseResult;
  * @author Nawapunth Manusitthipol (https://github.com/NawaMan)
  */
 public final class CharClass extends CharChecker {
-	
-	private static final long serialVersionUID = 1235456543213546515L;
-	
-	private final String className;
-	private final String javaCharClass;
-	
-	private Pattern patternSingle   = null;
-	private Pattern patternMultiple = null;
-	
-	public CharClass(String javaCharClass, String className) {
-		this.javaCharClass = javaCharClass;
-		this.className     = className;
-	}
-	
-	private Pattern getJavaCharacterClassPatternSingle() {
-		if (patternSingle == null) {
-			patternSingle = Pattern.compile(javaCharClass + "{1}", Pattern.DOTALL);
-		}
-		return patternSingle;
-	}
-	
-	private Pattern getJavaCharacterClassPatternMultiple() {
-		if (patternMultiple == null) {
-			patternMultiple = Pattern.compile(javaCharClass + "+", Pattern.DOTALL);
-		}
-		return patternMultiple;
-	}
-	
-	@Override
-	public boolean inSet(char c) {
-		var pattern = getJavaCharacterClassPatternSingle();
-		var matcher = pattern.matcher(new StringBuffer().append(c));
-		return matcher.find();
-	}
-	
-	@Override
-	public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider, ParseResult parseResult) {
-		if (offset >= text.length())
-			return -1;
-		
-		var  pattern = getJavaCharacterClassPatternMultiple();
-		char ch      = text.charAt(offset);
-		var  matcher = pattern.matcher(new StringBuffer().append(ch));
-		if (!matcher.find()
-		 || (matcher.start() != 0))
-			return -1;
-		
-		return (matcher.end() < 0) ? -1 : matcher.end();
-	}
-	
-	@Override
-	public final Boolean isDeterministic() {
-		return true;
-	}
-	
-	@Override
-	public String toString() {
-		return className;
-	}
-	
-	@Override
-	public boolean equals(Object O) {
-		if (O == this)
-			return true;
-		
-		return (O instanceof CharClass)
-		    && ((CharClass)O).className.equals(this.className);
-	}
-	
-	@Override
-	public int hashCode() {
-		return "CharClass".hashCode() + this.className.hashCode();
-	}
-	
-	@Override
-	public Checker optimize() {
-		return this;
-	}
-	
+    
+    private static final long serialVersionUID = 1235456543213546515L;
+    
+    private final String className;
+    private final String javaCharClass;
+    
+    private Pattern patternSingle   = null;
+    private Pattern patternMultiple = null;
+    
+    public CharClass(String javaCharClass, String className) {
+        this.javaCharClass = javaCharClass;
+        this.className     = className;
+    }
+    
+    private Pattern getJavaCharacterClassPatternSingle() {
+        if (patternSingle == null) {
+            patternSingle = Pattern.compile(javaCharClass + "{1}", Pattern.DOTALL);
+        }
+        return patternSingle;
+    }
+    
+    private Pattern getJavaCharacterClassPatternMultiple() {
+        if (patternMultiple == null) {
+            patternMultiple = Pattern.compile(javaCharClass + "+", Pattern.DOTALL);
+        }
+        return patternMultiple;
+    }
+    
+    @Override
+    public boolean inSet(char c) {
+        var pattern = getJavaCharacterClassPatternSingle();
+        var matcher = pattern.matcher(new StringBuffer().append(c));
+        return matcher.find();
+    }
+    
+    @Override
+    public int startLengthOf(CharSequence text, int offset, ParserTypeProvider typeProvider, ParseResult parseResult) {
+        if (offset >= text.length())
+            return -1;
+        
+        var  pattern = getJavaCharacterClassPatternMultiple();
+        char ch      = text.charAt(offset);
+        var  matcher = pattern.matcher(new StringBuffer().append(ch));
+        if (!matcher.find()
+         || (matcher.start() != 0))
+            return -1;
+        
+        return (matcher.end() < 0) ? -1 : matcher.end();
+    }
+    
+    @Override
+    public final Boolean isDeterministic() {
+        return true;
+    }
+    
+    @Override
+    public String toString() {
+        return className;
+    }
+    
+    @Override
+    public boolean equals(Object O) {
+        if (O == this)
+            return true;
+        
+        return (O instanceof CharClass)
+            && ((CharClass)O).className.equals(this.className);
+    }
+    
+    @Override
+    public int hashCode() {
+        return "CharClass".hashCode() + this.className.hashCode();
+    }
+    
+    @Override
+    public Checker optimize() {
+        return this;
+    }
+    
 }

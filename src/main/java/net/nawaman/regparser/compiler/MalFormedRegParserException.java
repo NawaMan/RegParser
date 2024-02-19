@@ -18,23 +18,23 @@
 package net.nawaman.regparser.compiler;
 
 public class MalFormedRegParserException extends RuntimeException {
-	
-	private static final long serialVersionUID = -9160277386650840043L;
-	
-	public MalFormedRegParserException() {
-		super();
-	}
-	
-	public MalFormedRegParserException(String message) {
-		super(message);
-	}
-	
-	public MalFormedRegParserException(String message, Throwable cause) {
-		super(message, cause);
-	}
-	
-	public MalFormedRegParserException(Throwable cause) {
-		super(cause);
-	}
-	
+    
+    private static final long serialVersionUID = -9160277386650840043L;
+    
+    public MalFormedRegParserException() {
+        super();
+    }
+    
+    public MalFormedRegParserException(String message) {
+        super(message);
+    }
+    
+    public MalFormedRegParserException(String message, Throwable cause) {
+        super(message, cause);
+    }
+    
+    public MalFormedRegParserException(Throwable cause) {
+        super(cause);
+    }
+    
 }

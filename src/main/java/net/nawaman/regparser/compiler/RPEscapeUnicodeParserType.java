@@ -32,61 +32,61 @@ import net.nawaman.regparser.checkers.WordChecker;
 import net.nawaman.regparser.result.ParseResult;
 
 public class RPEscapeUnicodeParserType extends ParserType {
-	
-	private static final long serialVersionUID = 534187749649740618L;
-	
-	public static String                    name     = "EscapeUnicode";
-	public static RPEscapeUnicodeParserType instance = new RPEscapeUnicodeParserType();
-	public static ParserTypeRef             typeRef  = instance.typeRef();
-	public static RegParser                 parser   = instance.typeRef().asRegParser();
-	
-	public static final String HEX = "0123456789ABCDEF";
-	
-	private final Checker checker;
-	
-	public RPEscapeUnicodeParserType() {
-		// ~\\u[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f]~
-		checker = newRegParser()
-		        .entry(new WordChecker("\\u"))
-		        .entry(HexadecimalDigit.bound(4, 4))
-		        .build();
-	}
-	
-	@Override
-	public String name() {
-		return name;
-	}
-	
-	@Override
-	public Checker checker(ParseResult pHostResult, String pParam, ParserTypeProvider pProvider) {
-		return this.checker;
-	}
-	
-	@Override
-	public final Boolean isDeterministic() {
-		return true;
-	}
-	
-	@Override
-	public Object doCompile(
-					ParseResult        thisResult,
-					int                entryIndex,
-					String             parameter,
-					CompilationContext compilationContext,
-					ParserTypeProvider typeProvider) {
-		
-		var typeName = thisResult.typeNameOf(entryIndex);
-		if (!name.equals(typeName)) {
-			var nearBy = thisResult.originalText().substring(thisResult.startPosition());
-			var errMsg = format("Mal-formed RegParser Escape near \"%s\".", nearBy);
-			throw new CompilationException(errMsg);
-		}
-		
-		var text = thisResult.textOf(entryIndex).toUpperCase();
-		return (char)(HEX.indexOf(text.charAt(2)) * 16 * 16 * 16
-		            + HEX.indexOf(text.charAt(3)) * 16 * 16
-		            + HEX.indexOf(text.charAt(4)) * 16
-		            + HEX.indexOf(text.charAt(5)));
-	}
-	
+    
+    private static final long serialVersionUID = 534187749649740618L;
+    
+    public static String                    name     = "EscapeUnicode";
+    public static RPEscapeUnicodeParserType instance = new RPEscapeUnicodeParserType();
+    public static ParserTypeRef             typeRef  = instance.typeRef();
+    public static RegParser                 parser   = instance.typeRef().asRegParser();
+    
+    public static final String HEX = "0123456789ABCDEF";
+    
+    private final Checker checker;
+    
+    public RPEscapeUnicodeParserType() {
+        // ~\\u[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f]~
+        checker = newRegParser()
+                .entry(new WordChecker("\\u"))
+                .entry(HexadecimalDigit.bound(4, 4))
+                .build();
+    }
+    
+    @Override
+    public String name() {
+        return name;
+    }
+    
+    @Override
+    public Checker checker(ParseResult pHostResult, String pParam, ParserTypeProvider pProvider) {
+        return this.checker;
+    }
+    
+    @Override
+    public final Boolean isDeterministic() {
+        return true;
+    }
+    
+    @Override
+    public Object doCompile(
+                    ParseResult        thisResult,
+                    int                entryIndex,
+                    String             parameter,
+                    CompilationContext compilationContext,
+                    ParserTypeProvider typeProvider) {
+        
+        var typeName = thisResult.typeNameOf(entryIndex);
+        if (!name.equals(typeName)) {
+            var nearBy = thisResult.originalText().substring(thisResult.startPosition());
+            var errMsg = format("Mal-formed RegParser Escape near \"%s\".", nearBy);
+            throw new CompilationException(errMsg);
+        }
+        
+        var text = thisResult.textOf(entryIndex).toUpperCase();
+        return (char)(HEX.indexOf(text.charAt(2)) * 16 * 16 * 16
+                    + HEX.indexOf(text.charAt(3)) * 16 * 16
+                    + HEX.indexOf(text.charAt(4)) * 16
+                    + HEX.indexOf(text.charAt(5)));
+    }
+    
 }
